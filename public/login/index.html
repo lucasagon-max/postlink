@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Entrar no PostLink</title>
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body style="display:flex; flex-direction:column; min-height:100vh;">
+
+  <header class="navbar">
+    <div class="container nav-content">
+      <a href="/painel/" class="brand-logo">
+        <span>🔗 PostLink</span>
+        <span class="brand-badge">MVP</span>
+      </a>
+      <a href="/termos/" class="btn btn-secondary btn-sm" style="color:var(--text-muted);">Ajuda</a>
+    </div>
+  </header>
+
+  <main style="flex:1; display:flex; align-items:center; justify-content:center; padding:32px 16px;">
+    <div class="card" style="max-width:440px; width:100%;">
+      
+      <div style="text-align:center; margin-bottom:28px;">
+        <h1 style="font-size:1.6rem; font-weight:800; margin-bottom:8px;">Acesse seu painel</h1>
+        <p style="color:var(--text-muted); font-size:0.92rem;">
+          Digite seu e-mail para receber um link de acesso seguro sem senhas.
+        </p>
+      </div>
+
+      <!-- Formulário de Envio -->
+      <form id="form-login">
+        <div class="form-group">
+          <label class="form-label" for="input-email">E-mail comercial</label>
+          <input
+            id="input-email"
+            type="email"
+            class="form-input"
+            placeholder="seu@negocio.com.br"
+            required
+            autocomplete="email"
+          />
+        </div>
+
+        <button id="btn-enviar" type="submit" class="btn btn-primary" style="width:100%; padding:13px;">
+          <span>Enviar Link Mágico</span>
+          <span id="spinner-login" style="display:none;" class="spinner" style="width:18px; height:18px; border-width:2px; margin:0;"></span>
+        </button>
+      </form>
+
+      <!-- Feedback de Sucesso -->
+      <div id="box-sucesso" style="display:none; text-align:center; padding:20px 0;">
+        <div style="font-size:2.5rem; margin-bottom:12px;">📬</div>
+        <h2 style="font-size:1.2rem; font-weight:700; margin-bottom:8px;">Link enviado com sucesso!</h2>
+        <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.5;">
+          Enviamos um link de login para <strong id="email-confirmado" style="color:#fff;"></strong>.<br>
+          Basta clicar no link do e-mail para entrar automaticamente no seu painel.
+        </p>
+        <button id="btn-reenviar" class="btn btn-secondary btn-sm" style="margin-top:20px;">
+          Tentar outro e-mail
+        </button>
+      </div>
+
+      <div style="margin-top:28px; text-align:center; border-top:1px solid var(--border); padding-top:16px;">
+        <p style="font-size:0.8rem; color:var(--text-dim);">
+          Ao entrar, você concorda com nossos <a href="/termos/" style="color:var(--text-muted);">Termos</a> e <a href="/privacidade/" style="color:var(--text-muted);">Privacidade</a>.
+        </p>
+      </div>
+
+    </div>
+  </main>
+
+  <div id="toast-container"></div>
+
+  <script type="module">
+    import { getSupabase } from '/assets/js/supabase-config.js';
+
+    const sb = getSupabase();
+    const form = document.getElementById('form-login');
+    const inputEmail = document.getElementById('input-email');
+    const btnEnviar = document.getElementById('btn-enviar');
+    const boxSucesso = document.getElementById('box-sucesso');
+    const emailConfirmado = document.getElementById('email-confirmado');
+    const btnReenviar = document.getElementById('btn-reenviar');
+
+    function toast(mensagem, tipo = 'info') {
+      const c = document.getElementById('toast-container');
+      const el = document.createElement('div');
+      el.className = `toast toast-${tipo}`;
+      el.textContent = mensagem;
+      c.appendChild(el);
+      setTimeout(() => el.remove(), 4000);
+    }
+
+    // Se já estiver logado, redireciona para o painel
+    async function checarSessao() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (session) {
+        window.location.href = '/painel/';
+      }
+    }
+    checarSessao();
+
+    // Ouvir mudança de estado de autenticação (ex: callback do link mágico)
+    sb.auth.onAuthStateChange((event, session) => {
+      if (session) {
+        window.location.href = '/painel/';
+      }
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = inputEmail.value.trim();
+      if (!email) return;
+
+      btnEnviar.disabled = true;
+      btnEnviar.style.opacity = '0.7';
+
+      try {
+        const { error } = await sb.auth.signInWithOtp({
+          email,
+          options: {
+            emailRedirectTo: window.location.origin + '/painel/',
+          },
+        });
+
+        if (error) throw error;
+
+        emailConfirmado.textContent = email;
+        form.style.display = 'none';
+        boxSucesso.style.display = 'block';
+      } catch (err) {
+        toast(err.message || 'Erro ao enviar o link. Tente novamente.', 'error');
+      } finally {
+        btnEnviar.disabled = false;
+        btnEnviar.style.opacity = '1';
+      }
+    });
+
+    btnReenviar.addEventListener('click', () => {
+      boxSucesso.style.display = 'none';
+      form.style.display = 'block';
+      inputEmail.focus();
+    });
+  </script>
+
+</body>
+</html>

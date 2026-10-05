@@ -1,0 +1,20 @@
+# Dependências
+node_modules/
+.npm/
+
+# Logs e arquivos temporários
+*.log
+.DS_Store
+Thumbs.db
+
+# Variáveis locais
+.env
+.env.local
+
+# Cloudflare Pages / Wrangler
+.wrangler/
+.mf/
+
+# IDE
+.vscode/
+.idea/
