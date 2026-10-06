@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "include": ["/*"],
+  "exclude": [
+    "/painel",
+    "/painel/*",
+    "/login",
+    "/login/*",
+    "/assets/*",
+    "/termos",
+    "/termos/*",
+    "/privacidade",
+    "/privacidade/*",
+    "/favicon.ico",
+    "/"
+  ]
+}

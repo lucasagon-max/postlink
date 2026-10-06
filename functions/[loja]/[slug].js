@@ -39,9 +39,15 @@ async function rpc(env, nome, args) {
 }
 
 export async function onRequestGet({ request, params, env, waitUntil }) {
-  const ua = request.headers.get('user-agent') || '';
   const loja = params.loja;
   const slug = params.slug;
+
+  const RESERVADAS = ['painel', 'login', 'assets', 'termos', 'privacidade', 'favicon.ico'];
+  if (RESERVADAS.includes(loja) && env.ASSETS) {
+    return env.ASSETS.fetch(request);
+  }
+
+  const ua = request.headers.get('user-agent') || '';
 
   let link;
   try {
