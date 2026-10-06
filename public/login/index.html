@@ -96,6 +96,20 @@
     }
 
     async function checarSessao() {
+      // Captura erros no hash ou query (ex: link expirado ou acesso negado)
+      const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+      const queryParams = new URLSearchParams(window.location.search);
+      const errCode = hashParams.get('error_code') || queryParams.get('error_code');
+      const errDesc = hashParams.get('error_description') || queryParams.get('error_description');
+      if (errDesc || errCode) {
+        const msg = errCode === 'otp_expired'
+          ? 'O link de acesso expirou ou é inválido. Por favor, solicite um novo abaixo.'
+          : (errDesc ? decodeURIComponent(errDesc).replace(/\+/g, ' ') : 'Erro ao autenticar.');
+        toast(msg, 'error');
+        // Limpa o hash para evitar toast repetido em reload
+        window.history.replaceState(null, '', window.location.pathname);
+      }
+
       const { data: { session } } = await sb.auth.getSession();
       if (session) {
         window.location.href = '/painel/';

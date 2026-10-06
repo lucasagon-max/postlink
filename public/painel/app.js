@@ -108,13 +108,37 @@ function limparSlug(v) {
 
 // Inicialização da Sessão
 async function init() {
+  // Se veio com erro no hash ou query (ex: link expirado), repassa para login com o aviso
+  const hashStr = window.location.hash.replace(/^#/, '');
+  const searchStr = window.location.search.replace(/^\?/, '');
+  const params = new URLSearchParams(hashStr || searchStr);
+  if (params.get('error_description') || params.get('error_code')) {
+    window.location.href = `/login/#${hashStr || searchStr}`;
+    return;
+  }
+
+  // Listener para capturar autenticação quando o token está sendo processado na URL
+  sb.auth.onAuthStateChange(async (event, session) => {
+    if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session && !state.user) {
+      state.user = session.user;
+      await carregarDadosLojaEAssinatura();
+    }
+  });
+
   const { data: { session } } = await sb.auth.getSession();
   if (!session) {
+    // Se a URL contiver access_token, aguarda o evento do Supabase antes de sair
+    if (window.location.hash.includes('access_token')) {
+      return;
+    }
     window.location.href = '/login/';
     return;
   }
   state.user = session.user;
+  await carregarDadosLojaEAssinatura();
+}
 
+async function carregarDadosLojaEAssinatura() {
   // Busca dados da loja
   const { data: lojas, error: errLoja } = await sb
     .from('lojas')
