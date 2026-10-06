@@ -156,26 +156,26 @@ function paginaTransicao(destino, lojaNome) {
       min-height: 100vh;
       align-items: center;
       justify-content: center;
-      background: #0f172a;
-      color: #f8fafc;
+      background: #f9f9f7;
+      color: #141413;
       padding: 24px;
     }
     .card {
-      background: #1e293b;
-      border: 1px solid #334155;
-      border-radius: 20px;
-      padding: 32px 28px;
+      background: #ffffff;
+      border: 0.5px solid rgba(31, 30, 29, 0.12);
+      border-radius: 16px;
+      padding: 32px 24px;
       text-align: center;
-      max-width: 400px;
+      max-width: 380px;
       width: 100%;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
     }
     .spinner {
-      width: 44px;
-      height: 44px;
-      margin: 0 auto 20px;
-      border: 3px solid #334155;
-      border-top-color: #38bdf8;
+      width: 32px;
+      height: 32px;
+      margin: 0 auto 16px;
+      border: 2px solid rgba(31, 30, 29, 0.12);
+      border-top-color: #141413;
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
     }
@@ -183,31 +183,30 @@ function paginaTransicao(destino, lojaNome) {
       to { transform: rotate(360deg); }
     }
     h1 {
-      font-size: 1.15rem;
+      font-size: 16px;
       font-weight: 600;
-      color: #f8fafc;
-      margin-bottom: 8px;
+      color: #141413;
+      margin-bottom: 6px;
     }
     p {
-      font-size: 0.9rem;
-      color: #94a3b8;
-      margin-bottom: 24px;
+      font-size: 13px;
+      color: #5f5e5a;
+      margin-bottom: 20px;
     }
     .btn {
       display: inline-block;
       width: 100%;
-      padding: 14px 20px;
-      border-radius: 12px;
-      background: #2563eb;
+      padding: 10px 16px;
+      border-radius: 8px;
+      background: #141413;
       color: #ffffff;
-      font-weight: 600;
-      font-size: 1rem;
+      font-weight: 500;
+      font-size: 14px;
       text-decoration: none;
-      transition: background 0.2s ease, transform 0.1s ease;
+      transition: background 0.15s ease;
     }
     .btn:hover {
-      background: #1d4ed8;
-      transform: translateY(-1px);
+      background: #2c2c2a;
     }
   </style>
 </head>
@@ -250,28 +249,29 @@ function paginaMensagem(titulo, detalhe = '') {
       min-height: 100vh;
       align-items: center;
       justify-content: center;
-      background: #0f172a;
-      color: #f8fafc;
+      background: #f9f9f7;
+      color: #141413;
       padding: 24px;
     }
     .card {
-      background: #1e293b;
-      border: 1px solid #334155;
-      border-radius: 20px;
-      padding: 36px 28px;
+      background: #ffffff;
+      border: 0.5px solid rgba(31, 30, 29, 0.12);
+      border-radius: 16px;
+      padding: 36px 24px;
       text-align: center;
-      max-width: 420px;
+      max-width: 400px;
       width: 100%;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
     }
     h1 {
-      font-size: 1.25rem;
+      font-size: 16px;
       font-weight: 600;
-      margin-bottom: 10px;
-      color: #f8fafc;
+      margin-bottom: 8px;
+      color: #141413;
     }
     p {
-      font-size: 0.95rem;
-      color: #94a3b8;
+      font-size: 13px;
+      color: #5f5e5a;
       line-height: 1.5;
     }
   </style>

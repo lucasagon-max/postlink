@@ -1,4 +1,4 @@
-// public/painel/app.js - Lógica SPA do Painel do Lojista
+// public/painel/app.js - Lógica SPA do Painel do Lojista (PostLink)
 import { getSupabase } from '/assets/js/supabase-config.js';
 import { comprimirImagem, normalizarDestino, slugAleatorio } from '/assets/js/compressao.js';
 
@@ -45,27 +45,31 @@ const el = {
   formLink: document.getElementById('form-link'),
   inputArquivo: document.getElementById('input-arquivo'),
   dropzone: document.getElementById('dropzone'),
-  dropzonePlaceholder: document.getElementById('dropzone-placeholder'),
-  dropzonePreview: document.getElementById('dropzone-preview'),
-  imgSelecionada: document.getElementById('img-selecionada'),
+  fname: document.getElementById('fname'),
   infoArquivo: document.getElementById('info-arquivo'),
-  btnTrocarFoto: document.getElementById('btn-trocar-foto'),
+  eImg: document.getElementById('e-img'),
   inputDestino: document.getElementById('input-destino'),
-  togglePersonalizar: document.getElementById('toggle-personalizar'),
-  conteudoPersonalizar: document.getElementById('conteudo-personalizar'),
-  setaPersonalizar: document.getElementById('seta-personalizar'),
+  eDest: document.getElementById('e-dest'),
+  detalhesPersonalizar: document.getElementById('detalhes-personalizar'),
   inputTitulo: document.getElementById('input-titulo'),
   inputDescricao: document.getElementById('input-descricao'),
   inputSlug: document.getElementById('input-slug'),
   inputValidoAte: document.getElementById('input-valido-ate'),
   btnSubmeterLink: document.getElementById('btn-submeter-link'),
 
-  // Live Preview WhatsApp
-  waCardImg: document.getElementById('wa-card-img'),
-  waCardTitle: document.getElementById('wa-card-title'),
-  waCardDesc: document.getElementById('wa-card-desc'),
+  // Live Preview WhatsApp (Conforme exemplo)
+  ph: document.getElementById('ph'),
+  im: document.getElementById('im'),
+  pt: document.getElementById('pt'),
+  pd: document.getElementById('pd'),
   waCardHost: document.getElementById('wa-card-host'),
-  waBubbleLink: document.getElementById('wa-bubble-link'),
+  pu: document.getElementById('pu'),
+
+  // Box Sucesso Inline (Conforme exemplo)
+  res: document.getElementById('res'),
+  ru: document.getElementById('ru'),
+  cp: document.getElementById('cp'),
+  btnShareInline: document.getElementById('btn-share-inline'),
 
   // Modal Sucesso
   modalSucesso: document.getElementById('modal-sucesso'),
@@ -84,11 +88,22 @@ const el = {
 // Feedback Toast
 function toast(msg, tipo = 'info') {
   const c = document.getElementById('toast-container');
+  if (!c) return;
   const div = document.createElement('div');
   div.className = `toast toast-${tipo}`;
   div.textContent = msg;
   c.appendChild(div);
   setTimeout(() => div.remove(), 4000);
+}
+
+// Normalização de slug no estilo do exemplo
+function limparSlug(v) {
+  return v
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9-]/g, '-')
+    .replace(/-+/g, '-');
 }
 
 // Inicialização da Sessão
@@ -113,14 +128,20 @@ async function init() {
 
   if (!lojas || lojas.length === 0) {
     mostrarView('onboarding');
-    el.onboardingPrefixo.textContent = window.location.origin + '/';
+    if (el.onboardingPrefixo) {
+      el.onboardingPrefixo.textContent = window.location.origin + '/';
+    }
     return;
   }
 
   state.loja = lojas[0];
-  el.navLojaNome.textContent = state.loja.nome;
-  el.navLojaNome.style.display = 'inline';
-  el.btnNovoLinkTop.style.display = 'inline-flex';
+  if (el.navLojaNome) {
+    el.navLojaNome.textContent = state.loja.nome;
+    el.navLojaNome.style.display = 'inline';
+  }
+  if (el.btnNovoLinkTop) {
+    el.btnNovoLinkTop.style.display = 'inline-flex';
+  }
 
   // Busca dados de assinatura
   const { data: assinaturas } = await sb
@@ -133,13 +154,13 @@ async function init() {
     atualizarBarraAssinatura();
   }
 
-  // Ouvir mudanças de hash de navegação
+  // Router por hash
   window.addEventListener('hashchange', router);
   router();
 }
 
 function atualizarBarraAssinatura() {
-  if (!state.assinatura) return;
+  if (!state.assinatura || !el.textoTrial) return;
   const trialAte = new Date(state.assinatura.trial_ate);
   const hoje = new Date();
   const diffDias = Math.ceil((trialAte - hoje) / (1000 * 60 * 60 * 24));
@@ -151,8 +172,10 @@ function atualizarBarraAssinatura() {
       el.textoTrial.innerHTML = `Seu período de teste expirou.`;
     }
   } else if (state.assinatura.status === 'ativo') {
-    el.bannerTrial.style.background = '#064e3b';
-    el.bannerTrial.style.borderColor = '#059669';
+    if (el.bannerTrial) {
+      el.bannerTrial.style.background = 'var(--bg-success)';
+      el.bannerTrial.style.borderColor = 'var(--border-success)';
+    }
     el.textoTrial.innerHTML = `Assinatura ativa e regular.`;
   }
 }
@@ -178,59 +201,63 @@ async function router() {
 }
 
 function mostrarView(nome) {
-  el.viewLoading.style.display = 'none';
-  el.viewOnboarding.style.display = nome === 'onboarding' ? 'block' : 'none';
-  el.viewLista.style.display = nome === 'lista' ? 'block' : 'none';
-  el.viewFormLink.style.display = nome === 'form' ? 'block' : 'none';
-  el.viewConta.style.display = nome === 'conta' ? 'block' : 'none';
+  if (el.viewLoading) el.viewLoading.style.display = 'none';
+  if (el.viewOnboarding) el.viewOnboarding.style.display = nome === 'onboarding' ? 'block' : 'none';
+  if (el.viewLista) el.viewLista.style.display = nome === 'lista' ? 'block' : 'none';
+  if (el.viewFormLink) el.viewFormLink.style.display = nome === 'form' ? 'block' : 'none';
+  if (el.viewConta) el.viewConta.style.display = nome === 'conta' ? 'block' : 'none';
 }
 
 // ONBOARDING
-el.onboardingNome.addEventListener('input', () => {
-  if (!el.onboardingSlug.dataset.manual) {
-    const s = el.onboardingNome.value
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9]/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '')
-      .slice(0, 30);
-    el.onboardingSlug.value = s;
-  }
-});
+if (el.onboardingNome) {
+  el.onboardingNome.addEventListener('input', () => {
+    if (!el.onboardingSlug.dataset.manual) {
+      el.onboardingSlug.value = limparSlug(el.onboardingNome.value).slice(0, 30);
+    }
+  });
+}
 
-el.onboardingSlug.addEventListener('input', () => {
-  el.onboardingSlug.dataset.manual = 'true';
-});
+if (el.onboardingSlug) {
+  el.onboardingSlug.addEventListener('input', () => {
+    el.onboardingSlug.dataset.manual = 'true';
+    el.onboardingSlug.value = limparSlug(el.onboardingSlug.value);
+  });
+}
 
-el.formOnboarding.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const nome = el.onboardingNome.value.trim();
-  const slug = el.onboardingSlug.value.trim().toLowerCase();
+if (el.formOnboarding) {
+  el.formOnboarding.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const nome = el.onboardingNome.value.trim();
+    const slug = el.onboardingSlug.value.trim().toLowerCase();
 
-  const btn = document.getElementById('btn-salvar-loja');
-  btn.disabled = true;
-  btn.textContent = 'Criando loja…';
+    const btn = document.getElementById('btn-salvar-loja');
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Criando loja…';
+    }
 
-  try {
-    const { error } = await sb.rpc('criar_loja', { p_nome: nome, p_slug: slug });
-    if (error) throw error;
+    try {
+      const { error } = await sb.rpc('criar_loja', { p_nome: nome, p_slug: slug });
+      if (error) throw error;
 
-    toast('Loja cadastrada com sucesso!', 'success');
-    window.location.reload();
-  } catch (err) {
-    toast('Erro ao cadastrar loja: ' + (err.message || err), 'error');
-    btn.disabled = false;
-    btn.textContent = 'Começar Teste Grátis (7 Dias)';
-  }
-});
+      toast('Loja cadastrada com sucesso!', 'success');
+      window.location.reload();
+    } catch (err) {
+      toast('Erro ao cadastrar loja: ' + (err.message || err), 'error');
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = 'Começar Teste Grátis (7 Dias)';
+      }
+    }
+  });
+}
 
 // LISTA DE LINKS
 async function carregarLinks() {
-  el.gridLinks.innerHTML = '<p style="color:var(--text-muted);">Atualizando lista…</p>';
+  if (el.gridLinks) {
+    el.gridLinks.innerHTML = '<p style="color:var(--text-secondary); font-size:13px;">Atualizando lista…</p>';
+  }
 
-  // Busca links da loja
   const { data: links, error: errLinks } = await sb
     .from('links')
     .select('*')
@@ -243,7 +270,7 @@ async function carregarLinks() {
   }
   state.links = links || [];
 
-  // Busca estatísticas consolidadas
+  // Estatísticas
   try {
     const { data: stats } = await sb.rpc('estatisticas_links', { p_dias: 30 });
     state.estatisticas = {};
@@ -253,24 +280,28 @@ async function carregarLinks() {
       });
     }
   } catch (e) {
-    // Silencioso se RPC falhar temporariamente
+    // Silencioso se RPC não estiver ativa
   }
 
   renderizarLinks();
 }
 
 function renderizarLinks() {
-  el.contadorLinks.textContent = `${state.links.length} link(s) cadastrado(s)`;
+  if (el.contadorLinks) {
+    el.contadorLinks.textContent = `${state.links.length} link(s) cadastrado(s)`;
+  }
 
   if (state.links.length === 0) {
-    el.listaVazia.style.display = 'block';
-    el.gridLinks.style.display = 'none';
+    if (el.listaVazia) el.listaVazia.style.display = 'block';
+    if (el.gridLinks) el.gridLinks.style.display = 'none';
     return;
   }
 
-  el.listaVazia.style.display = 'none';
-  el.gridLinks.style.display = 'grid';
-  el.gridLinks.innerHTML = '';
+  if (el.listaVazia) el.listaVazia.style.display = 'none';
+  if (el.gridLinks) {
+    el.gridLinks.style.display = 'grid';
+    el.gridLinks.innerHTML = '';
+  }
 
   state.links.forEach((link) => {
     const card = document.createElement('div');
@@ -278,6 +309,7 @@ function renderizarLinks() {
     card.style.display = 'flex';
     card.style.flexDirection = 'column';
     card.style.justifyContent = 'space-between';
+    card.style.padding = '14px';
 
     const fullUrl = `${window.location.origin}/${state.loja.slug}/${link.slug}`;
     const { data: { publicUrl } } = sb.storage.from('banners').getPublicUrl(link.imagem_path);
@@ -286,41 +318,41 @@ function renderizarLinks() {
 
     card.innerHTML = `
       <div>
-        <div style="position:relative; aspect-ratio:1.91/1; border-radius:10px; overflow:hidden; background:#0b1120; margin-bottom:12px;">
+        <div style="position:relative; aspect-ratio:1.91/1; border-radius:8px; overflow:hidden; background:var(--surface-1); margin-bottom:10px;">
           <img src="${imgUrl}" alt="${link.titulo || 'Banner'}" style="width:100%; height:100%; object-fit:cover;">
-          <span style="position:absolute; top:8px; right:8px; font-size:0.75rem; font-weight:700; padding:3px 8px; border-radius:6px; background:${link.ativo ? 'rgba(16,185,129,0.9)' : 'rgba(239,68,68,0.9)'}; color:#fff;">
+          <span style="position:absolute; top:6px; right:6px; font-size:11px; font-weight:600; padding:2px 7px; border-radius:4px; background:${link.ativo ? 'var(--bg-success)' : 'var(--bg-danger)'}; color:${link.ativo ? 'var(--text-success)' : 'var(--text-danger)'}; border:0.5px solid ${link.ativo ? 'var(--border-success)' : 'var(--border-danger)'};">
             ${link.ativo ? 'Ativo' : 'Pausado'}
           </span>
         </div>
 
-        <h4 style="font-size:1.05rem; font-weight:700; margin-bottom:4px; line-height:1.3;">
+        <h4 style="font-size:14px; font-weight:600; margin-bottom:4px; line-height:1.3; color:var(--text-primary);">
           ${link.titulo || state.loja.nome}
         </h4>
-        <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px; word-break:break-all;">
-          🔗 <span style="color:#38bdf8;">/${state.loja.slug}/${link.slug}</span>
+        <p style="font-size:12px; color:var(--text-secondary); margin-bottom:8px; font-family:var(--font-mono); word-break:break-all;">
+          /${state.loja.slug}/${link.slug}
         </p>
 
-        <div style="background:#090e1a; border-radius:8px; padding:8px 12px; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center;">
-          <span style="font-size:0.8rem; color:var(--text-dim);">Cliques (30d / Total):</span>
-          <strong style="font-size:0.92rem; color:#fff;">${st.recentes} / ${st.total}</strong>
+        <div style="background:var(--surface-1); border-radius:6px; padding:6px 10px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:12px; color:var(--text-secondary);">Cliques (30d / Total):</span>
+          <strong style="font-size:12px; color:var(--text-primary); font-family:var(--font-mono);">${st.recentes} / ${st.total}</strong>
         </div>
       </div>
 
-      <div style="display:flex; flex-direction:column; gap:8px;">
+      <div style="display:flex; flex-direction:column; gap:6px;">
         <div style="display:flex; gap:6px;">
           <button class="btn btn-secondary btn-sm btn-copiar" data-url="${fullUrl}" style="flex:1;">
-            📋 Copiar
+            <i class="ti ti-copy"></i> Copiar
           </button>
-          <a href="https://wa.me/?text=${encodeURIComponent(fullUrl)}" target="_blank" class="btn btn-whatsapp btn-sm" style="flex:1;">
-            💬 Enviar
+          <a href="https://wa.me/?text=${encodeURIComponent(fullUrl)}" target="_blank" class="btn btn-whatsapp btn-sm" style="flex:1; text-decoration:none;">
+            <i class="ti ti-brand-whatsapp"></i> Enviar
           </a>
         </div>
         <div style="display:flex; gap:6px;">
           <a href="#/editar/${link.id}" class="btn btn-secondary btn-sm" style="flex:1;">
-            ✏️ Editar
+            <i class="ti ti-pencil"></i> Editar
           </a>
           <button class="btn btn-danger-subtle btn-sm btn-toggle-ativo" data-id="${link.id}" data-ativo="${link.ativo}" style="flex:1;">
-            ${link.ativo ? 'Pausar' : 'Ativar'}
+            ${link.ativo ? '<i class="ti ti-player-pause"></i> Pausar' : '<i class="ti ti-player-play"></i> Ativar'}
           </button>
         </div>
       </div>
@@ -334,6 +366,9 @@ function renderizarLinks() {
     btn.addEventListener('click', () => {
       const url = btn.dataset.url;
       navigator.clipboard.writeText(url);
+      const originalText = btn.innerHTML;
+      btn.textContent = 'Copiado!';
+      setTimeout(() => { btn.innerHTML = originalText; }, 1800);
       toast('Link copiado para a área de transferência!', 'success');
     });
   });
@@ -357,25 +392,45 @@ function renderizarLinks() {
 function prepararFormularioNovo() {
   state.linkEditando = null;
   state.arquivoBlob = null;
-  el.tituloFormLink.textContent = 'Criar Novo Link para WhatsApp';
-  el.btnSubmeterLink.textContent = 'Gerar Link para WhatsApp';
-  el.formLink.reset();
+  
+  if (el.tituloFormLink) el.tituloFormLink.textContent = 'Novo link';
+  if (el.btnSubmeterLink) el.btnSubmeterLink.textContent = 'Criar link';
+  if (el.formLink) el.formLink.reset();
 
-  el.dropzonePlaceholder.style.display = 'block';
-  el.dropzonePreview.style.display = 'none';
-  el.imgSelecionada.src = '';
-  el.infoArquivo.textContent = '';
+  if (el.fname) el.fname.textContent = 'Escolher da galeria';
+  if (el.infoArquivo) {
+    el.infoArquivo.textContent = '';
+    el.infoArquivo.style.display = 'none';
+  }
+  if (el.eImg) el.eImg.textContent = '';
+  if (el.eDest) el.eDest.textContent = '';
+  if (el.res) el.res.hidden = true;
 
-  el.conteudoPersonalizar.style.display = 'none';
-  el.setaPersonalizar.textContent = '▼';
+  if (el.inputSlug) {
+    el.inputSlug.value = slugAleatorio();
+  }
+
+  if (el.detalhesPersonalizar) {
+    el.detalhesPersonalizar.open = false;
+  }
+
+  // Reseta Live Preview
+  if (el.ph) el.ph.style.display = 'flex';
+  if (el.im) {
+    el.im.style.display = 'none';
+    el.im.src = '';
+  }
 
   atualizarLivePreview();
 }
 
 async function prepararFormularioEdicao(id) {
   state.arquivoBlob = null;
-  el.tituloFormLink.textContent = 'Editar Link';
-  el.btnSubmeterLink.textContent = 'Salvar Alterações';
+  if (el.tituloFormLink) el.tituloFormLink.textContent = 'Editar link';
+  if (el.btnSubmeterLink) el.btnSubmeterLink.textContent = 'Salvar alterações';
+  if (el.res) el.res.hidden = true;
+  if (el.eImg) el.eImg.textContent = '';
+  if (el.eDest) el.eDest.textContent = '';
 
   const { data: link, error } = await sb
     .from('links')
@@ -390,278 +445,324 @@ async function prepararFormularioEdicao(id) {
   }
 
   state.linkEditando = link;
-  el.inputDestino.value = link.destino;
-  el.inputTitulo.value = link.titulo || '';
-  el.inputDescricao.value = link.descricao || '';
-  el.inputSlug.value = link.slug;
-  if (link.valido_ate) {
-    el.inputValidoAte.value = new Date(link.valido_ate).toISOString().slice(0, 16);
-  } else {
-    el.inputValidoAte.value = '';
+  if (el.inputDestino) el.inputDestino.value = link.destino;
+  if (el.inputTitulo) el.inputTitulo.value = link.titulo || '';
+  if (el.inputDescricao) el.inputDescricao.value = link.descricao || '';
+  if (el.inputSlug) el.inputSlug.value = link.slug;
+  if (el.inputValidoAte) {
+    el.inputValidoAte.value = link.valido_ate ? new Date(link.valido_ate).toISOString().slice(0, 16) : '';
   }
 
-  // Preview da foto atual
+  // Foto existente
   const { data: { publicUrl } } = sb.storage.from('banners').getPublicUrl(link.imagem_path);
   const imgUrl = `${publicUrl}?v=${link.versao}`;
-  el.imgSelecionada.src = imgUrl;
-  el.infoArquivo.textContent = 'Foto atual do banner mantida';
-  el.dropzonePlaceholder.style.display = 'none';
-  el.dropzonePreview.style.display = 'block';
+  
+  if (el.fname) el.fname.textContent = 'Trocar imagem atual';
+  if (el.im) {
+    el.im.src = imgUrl;
+    el.im.style.display = 'block';
+  }
+  if (el.ph) el.ph.style.display = 'none';
 
-  el.conteudoPersonalizar.style.display = 'block';
-  el.setaPersonalizar.textContent = '▲';
+  if (el.detalhesPersonalizar) {
+    el.detalhesPersonalizar.open = true;
+  }
 
   atualizarLivePreview();
 }
 
-// Toggle do Acordeão de Personalização
-el.togglePersonalizar.addEventListener('click', () => {
-  const aberto = el.conteudoPersonalizar.style.display === 'block';
-  el.conteudoPersonalizar.style.display = aberto ? 'none' : 'block';
-  el.setaPersonalizar.textContent = aberto ? '▼' : '▲';
-});
-
-// Dropzone e Seleção de Imagem
-el.dropzone.addEventListener('click', (e) => {
-  if (e.target !== el.btnTrocarFoto) {
-    el.inputArquivo.click();
-  }
-});
-el.btnTrocarFoto.addEventListener('click', () => el.inputArquivo.click());
-
-['dragenter', 'dragover'].forEach((eventName) => {
-  el.dropzone.addEventListener(eventName, (e) => {
-    e.preventDefault();
-    el.dropzone.classList.add('dragover');
+// Manipulação de Dropzone e Arquivo
+if (el.dropzone) {
+  ['dragenter', 'dragover'].forEach((eventName) => {
+    el.dropzone.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      el.dropzone.classList.add('dragover');
+    });
   });
-});
 
-['dragleave', 'drop'].forEach((eventName) => {
-  el.dropzone.addEventListener(eventName, (e) => {
-    e.preventDefault();
-    el.dropzone.classList.remove('dragover');
+  ['dragleave', 'drop'].forEach((eventName) => {
+    el.dropzone.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      el.dropzone.classList.remove('dragover');
+    });
   });
-});
 
-el.dropzone.addEventListener('drop', (e) => {
-  const dt = e.dataTransfer;
-  const files = dt.files;
-  if (files.length > 0) {
-    tratarArquivoSelecionado(files[0]);
-  }
-});
+  el.dropzone.addEventListener('drop', (e) => {
+    const dt = e.dataTransfer;
+    if (dt && dt.files.length > 0) {
+      tratarArquivoSelecionado(dt.files[0]);
+    }
+  });
+}
 
-el.inputArquivo.addEventListener('change', () => {
-  if (el.inputArquivo.files.length > 0) {
-    tratarArquivoSelecionado(el.inputArquivo.files[0]);
-  }
-});
+if (el.inputArquivo) {
+  el.inputArquivo.addEventListener('change', () => {
+    if (el.inputArquivo.files.length > 0) {
+      tratarArquivoSelecionado(el.inputArquivo.files[0]);
+    }
+  });
+}
 
 async function tratarArquivoSelecionado(file) {
   if (!file.type.startsWith('image/')) {
-    toast('Por favor, selecione um arquivo de imagem (JPEG, PNG ou WebP).', 'error');
+    if (el.eImg) el.eImg.textContent = 'Por favor, selecione uma imagem (JPEG, PNG ou WebP).';
     return;
   }
 
-  el.infoArquivo.textContent = 'Comprimindo foto no navegador…';
-  el.dropzonePlaceholder.style.display = 'none';
-  el.dropzonePreview.style.display = 'block';
+  if (el.eImg) el.eImg.textContent = '';
+  if (el.fname) el.fname.textContent = file.name;
+  if (el.infoArquivo) {
+    el.infoArquivo.textContent = 'Otimizando imagem…';
+    el.infoArquivo.style.display = 'block';
+  }
 
   try {
     const blob = await comprimirImagem(file, { larguraMax: 1200, alvoKB: 300 });
     state.arquivoBlob = blob;
 
     const urlPreview = URL.createObjectURL(blob);
-    el.imgSelecionada.src = urlPreview;
-    el.waCardImg.src = urlPreview;
+    if (el.im) {
+      el.im.src = urlPreview;
+      el.im.style.display = 'block';
+    }
+    if (el.ph) el.ph.style.display = 'none';
+
     const tamanhoKB = Math.round(blob.size / 1024);
-    el.infoArquivo.textContent = `✓ Imagem otimizada: ${tamanhoKB} KB (máx 1200x630)`;
+    if (el.infoArquivo) {
+      el.infoArquivo.textContent = `✓ Imagem otimizada (${tamanhoKB} KB)`;
+    }
   } catch (err) {
-    toast('Erro na imagem: ' + err.message, 'error');
-    el.dropzonePlaceholder.style.display = 'block';
-    el.dropzonePreview.style.display = 'none';
+    if (el.eImg) el.eImg.textContent = 'Erro ao processar imagem: ' + err.message;
     state.arquivoBlob = null;
   }
 }
 
 // Atualização Reativa do Live Preview WhatsApp
-function atualizarLivePreview() {
-  const lojaNome = state.loja ? state.loja.nome : 'Sua Loja';
+function fullUrlExibicao() {
   const lojaSlug = state.loja ? state.loja.slug : 'loja';
-  const titulo = el.inputTitulo.value.trim() || lojaNome;
-  const desc = el.inputDescricao.value.trim();
-  const slug = el.inputSlug.value.trim() || 'abc12';
-
-  el.waCardTitle.textContent = titulo;
-  if (desc) {
-    el.waCardDesc.textContent = desc;
-    el.waCardDesc.style.display = 'block';
-  } else {
-    el.waCardDesc.style.display = 'none';
-  }
-
-  el.waCardHost.textContent = window.location.host;
-  el.waBubbleLink.textContent = `${window.location.origin}/${lojaSlug}/${slug}`;
+  const slug = el.inputSlug ? limparSlug(el.inputSlug.value).replace(/^-|-$/g, '') || 'link' : 'link';
+  const host = window.location.host || 'postlink.app';
+  return `${host}/${lojaSlug}/${slug}`;
 }
 
-[el.inputTitulo, el.inputDescricao, el.inputSlug].forEach((input) => {
-  input.addEventListener('input', atualizarLivePreview);
-});
+function atualizarLivePreview() {
+  const lojaNome = state.loja ? state.loja.nome : 'Morangos Tatuí';
+  const titulo = (el.inputTitulo && el.inputTitulo.value.trim()) || lojaNome;
+  const desc = el.inputDescricao ? el.inputDescricao.value.trim() : '';
+  const urlTexto = fullUrlExibicao();
+
+  if (el.pt) el.pt.textContent = titulo;
+  if (el.pd) {
+    el.pd.textContent = desc;
+    el.pd.style.display = desc ? 'block' : 'none';
+  }
+  if (el.waCardHost) {
+    el.waCardHost.textContent = window.location.host || 'postlink.app';
+  }
+  if (el.pu) {
+    el.pu.textContent = 'https://' + urlTexto;
+  }
+}
+
+if (el.inputTitulo) el.inputTitulo.addEventListener('input', atualizarLivePreview);
+if (el.inputDescricao) el.inputDescricao.addEventListener('input', atualizarLivePreview);
+if (el.inputSlug) {
+  el.inputSlug.addEventListener('input', () => {
+    el.inputSlug.value = limparSlug(el.inputSlug.value);
+    atualizarLivePreview();
+  });
+}
+if (el.inputDestino) {
+  el.inputDestino.addEventListener('input', () => {
+    if (el.eDest) el.eDest.textContent = '';
+  });
+}
 
 // Envio do Formulário (Criar / Editar)
-el.formLink.addEventListener('submit', async (e) => {
-  e.preventDefault();
+if (el.formLink) {
+  el.formLink.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-  const destinoBruto = el.inputDestino.value.trim();
-  const destino = normalizarDestino(destinoBruto);
+    const destinoBruto = el.inputDestino ? el.inputDestino.value.trim() : '';
+    const destino = normalizarDestino(destinoBruto);
 
-  if (!destino) {
-    toast('Insira uma URL https:// válida ou um número de WhatsApp com DDD.', 'error');
-    el.inputDestino.focus();
-    return;
-  }
+    if (!destino) {
+      if (el.eDest) el.eDest.textContent = 'Cole um link que comece com https:// ou um número de WhatsApp com DDD.';
+      if (el.inputDestino) el.inputDestino.focus();
+      return;
+    }
 
-  if (!state.linkEditando && !state.arquivoBlob) {
-    toast('Por favor, selecione uma imagem para o cartão.', 'error');
-    el.inputArquivo.click();
-    return;
-  }
+    if (!state.linkEditando && !state.arquivoBlob) {
+      if (el.eImg) el.eImg.textContent = 'Escolha uma imagem para o cartão.';
+      return;
+    }
 
-  el.btnSubmeterLink.disabled = true;
-  el.btnSubmeterLink.textContent = 'Gravando link…';
+    if (el.btnSubmeterLink) {
+      el.btnSubmeterLink.disabled = true;
+      el.btnSubmeterLink.textContent = 'Gravando link…';
+    }
 
-  try {
-    const titulo = el.inputTitulo.value.trim() || null;
-    const descricao = el.inputDescricao.value.trim() || null;
-    const slugDesejado = el.inputSlug.value.trim().toLowerCase() || null;
-    const validoAte = el.inputValidoAte.value ? new Date(el.inputValidoAte.value).toISOString() : null;
+    try {
+      const titulo = (el.inputTitulo && el.inputTitulo.value.trim()) || null;
+      const descricao = (el.inputDescricao && el.inputDescricao.value.trim()) || null;
+      const slugDesejado = (el.inputSlug && limparSlug(el.inputSlug.value.trim())) || null;
+      const validoAte = (el.inputValidoAte && el.inputValidoAte.value) ? new Date(el.inputValidoAte.value).toISOString() : null;
 
-    if (state.linkEditando) {
-      // MODO EDIÇÃO
-      let caminhoImagem = state.linkEditando.imagem_path;
-      let versao = state.linkEditando.versao || 1;
+      if (state.linkEditando) {
+        // MODO EDIÇÃO
+        let caminhoImagem = state.linkEditando.imagem_path;
+        let versao = state.linkEditando.versao || 1;
 
-      // Se enviou nova imagem na edição, gera nova versão
-      if (state.arquivoBlob) {
-        versao += 1;
-        caminhoImagem = `${state.user.id}/${state.linkEditando.id}-v${versao}.jpg`;
+        if (state.arquivoBlob) {
+          versao += 1;
+          caminhoImagem = `${state.user.id}/${state.linkEditando.id}-v${versao}.jpg`;
+          const { error: errUpload } = await sb.storage
+            .from('banners')
+            .upload(caminhoImagem, state.arquivoBlob, { contentType: 'image/jpeg' });
+
+          if (errUpload) throw errUpload;
+        }
+
+        const slugFinal = slugDesejado || state.linkEditando.slug;
+        const { error: errUpdate } = await sb
+          .from('links')
+          .update({
+            destino,
+            titulo,
+            descricao,
+            valido_ate: validoAte,
+            imagem_path: caminhoImagem,
+            versao,
+            slug: slugFinal,
+          })
+          .eq('id', state.linkEditando.id);
+
+        if (errUpdate) throw errUpdate;
+
+        toast('Link atualizado com sucesso!', 'success');
+        const linkPronto = `${window.location.origin}/${state.loja.slug}/${slugFinal}`;
+        exibirResultadoCriado(linkPronto);
+      } else {
+        // MODO CRIAÇÃO
+        const linkId = crypto.randomUUID();
+        const versao = 1;
+        const caminhoImagem = `${state.user.id}/${linkId}-v${versao}.jpg`;
+
         const { error: errUpload } = await sb.storage
           .from('banners')
           .upload(caminhoImagem, state.arquivoBlob, { contentType: 'image/jpeg' });
+
         if (errUpload) throw errUpload;
-      }
 
-      const { error: errUpdate } = await sb
-        .from('links')
-        .update({
-          destino,
-          titulo,
-          descricao,
-          valido_ate: validoAte,
-          imagem_path: caminhoImagem,
-          versao,
-          slug: slugDesejado || state.linkEditando.slug,
-        })
-        .eq('id', state.linkEditando.id);
+        let slugFinal = slugDesejado;
+        let sucesso = false;
 
-      if (errUpdate) throw errUpdate;
+        for (let i = 0; i < 5; i++) {
+          const slugTentativa = slugFinal || slugAleatorio();
+          const { error: errInsert } = await sb.from('links').insert({
+            id: linkId,
+            loja_id: state.user.id,
+            slug: slugTentativa,
+            destino,
+            imagem_path: caminhoImagem,
+            versao,
+            titulo,
+            descricao,
+            valido_ate: validoAte,
+            ativo: true,
+          });
 
-      toast('Link atualizado com sucesso!', 'success');
-      window.location.hash = '#/';
-    } else {
-      // MODO CRIAÇÃO (com rollback se falhar)
-      const linkId = crypto.randomUUID();
-      const versao = 1;
-      const caminhoImagem = `${state.user.id}/${linkId}-v${versao}.jpg`;
+          if (!errInsert) {
+            slugFinal = slugTentativa;
+            sucesso = true;
+            break;
+          }
 
-      // Upload da foto comprimida no bucket
-      const { error: errUpload } = await sb.storage
-        .from('banners')
-        .upload(caminhoImagem, state.arquivoBlob, { contentType: 'image/jpeg' });
+          if (errInsert.code === '23505' && !slugDesejado) {
+            continue;
+          }
 
-      if (errUpload) throw errUpload;
-
-      // Tenta inserir o registro (com retry para slug automático em caso de colisão rara)
-      let slugFinal = slugDesejado;
-      let sucesso = false;
-
-      for (let i = 0; i < 5; i++) {
-        const slugTentativa = slugFinal || slugAleatorio();
-        const { error: errInsert } = await sb.from('links').insert({
-          id: linkId,
-          loja_id: state.user.id,
-          slug: slugTentativa,
-          destino,
-          imagem_path: caminhoImagem,
-          versao,
-          titulo,
-          descricao,
-          valido_ate: validoAte,
-          ativo: true,
-        });
-
-        if (!errInsert) {
-          slugFinal = slugTentativa;
-          sucesso = true;
-          break;
+          await sb.storage.from('banners').remove([caminhoImagem]);
+          throw errInsert;
         }
 
-        // Se deu erro de colisão e o slug era automático, tenta outro
-        if (errInsert.code === '23505' && !slugDesejado) {
-          continue;
+        if (!sucesso) {
+          await sb.storage.from('banners').remove([caminhoImagem]);
+          throw new Error('Não foi possível gerar um apelido livre para o link. Tente outro.');
         }
 
-        // Se falhou por outro motivo, desfaz upload da imagem
-        await sb.storage.from('banners').remove([caminhoImagem]);
-        throw errInsert;
+        const linkPronto = `${window.location.origin}/${state.loja.slug}/${slugFinal}`;
+        exibirResultadoCriado(linkPronto);
       }
-
-      if (!sucesso) {
-        await sb.storage.from('banners').remove([caminhoImagem]);
-        throw new Error('Não foi possível gerar um apelido livre para o link. Tente novamente.');
+    } catch (err) {
+      toast('Erro: ' + (err.message || err), 'error');
+    } finally {
+      if (el.btnSubmeterLink) {
+        el.btnSubmeterLink.disabled = false;
+        el.btnSubmeterLink.textContent = state.linkEditando ? 'Salvar alterações' : 'Criar link';
       }
-
-      // Exibe Modal de Sucesso
-      const linkPronto = `${window.location.origin}/${state.loja.slug}/${slugFinal}`;
-      exibirModalSucesso(linkPronto);
     }
-  } catch (err) {
-    toast('Erro: ' + (err.message || err), 'error');
-  } finally {
-    el.btnSubmeterLink.disabled = false;
-    el.btnSubmeterLink.textContent = state.linkEditando ? 'Salvar Alterações' : 'Gerar Link para WhatsApp';
-  }
-});
-
-function exibirModalSucesso(url) {
-  el.modalInputLink.value = url;
-  el.modalBtnWhatsapp.href = `https://wa.me/?text=${encodeURIComponent(url)}`;
-  el.modalSucesso.style.display = 'flex';
+  });
 }
 
-el.modalBtnCopiar.addEventListener('click', () => {
-  navigator.clipboard.writeText(el.modalInputLink.value);
-  toast('Link copiado com sucesso!', 'success');
-});
+function exibirResultadoCriado(url) {
+  // 1. Atualiza caixa inline exatamente como no exemplo
+  if (el.ru) el.ru.textContent = url;
+  if (el.btnShareInline) el.btnShareInline.href = `https://wa.me/?text=${encodeURIComponent(url)}`;
+  if (el.res) el.res.hidden = false;
 
-el.modalBtnFechar.addEventListener('click', () => {
-  el.modalSucesso.style.display = 'none';
-  window.location.hash = '#/';
-});
+  // 2. Preenche e exibe modal de sucesso amigável
+  if (el.modalInputLink) el.modalInputLink.value = url;
+  if (el.modalBtnWhatsapp) el.modalBtnWhatsapp.href = `https://wa.me/?text=${encodeURIComponent(url)}`;
+  if (el.modalSucesso) el.modalSucesso.style.display = 'flex';
+}
+
+// Ações do botão copiar inline (#cp do exemplo)
+if (el.cp) {
+  el.cp.addEventListener('click', () => {
+    const url = el.ru ? el.ru.textContent : '';
+    if (!url) return;
+    try {
+      navigator.clipboard.writeText(url);
+    } catch (e) {}
+    el.cp.textContent = 'Link copiado';
+    setTimeout(() => { el.cp.textContent = 'Copiar link'; }, 2000);
+    toast('Link copiado com sucesso!', 'success');
+  });
+}
+
+// Ações do Modal de Sucesso
+if (el.modalBtnCopiar) {
+  el.modalBtnCopiar.addEventListener('click', () => {
+    if (el.modalInputLink) {
+      navigator.clipboard.writeText(el.modalInputLink.value);
+      toast('Link copiado com sucesso!', 'success');
+    }
+  });
+}
+
+if (el.modalBtnFechar) {
+  el.modalBtnFechar.addEventListener('click', () => {
+    if (el.modalSucesso) el.modalSucesso.style.display = 'none';
+    window.location.hash = '#/';
+  });
+}
 
 // TELA DA CONTA
 function prepararTelaConta() {
-  el.contaEmail.textContent = state.user.email;
-  el.contaLojaNome.textContent = state.loja ? state.loja.nome : '-';
-  el.contaLojaSlug.textContent = state.loja ? state.loja.slug : '-';
-  el.contaStatus.textContent = (state.assinatura ? state.assinatura.status : 'trial').toUpperCase();
+  if (el.contaEmail) el.contaEmail.textContent = state.user.email;
+  if (el.contaLojaNome) el.contaLojaNome.textContent = state.loja ? state.loja.nome : '-';
+  if (el.contaLojaSlug) el.contaLojaSlug.textContent = state.loja ? state.loja.slug : '-';
+  if (el.contaStatus) el.contaStatus.textContent = (state.assinatura ? state.assinatura.status : 'trial').toUpperCase();
 }
 
 // LOGOUT
-el.btnSair.addEventListener('click', async () => {
-  await sb.auth.signOut();
-  window.location.href = '/login/';
-});
+if (el.btnSair) {
+  el.btnSair.addEventListener('click', async () => {
+    await sb.auth.signOut();
+    window.location.href = '/login/';
+  });
+}
 
-// Start
+// Inicializa Aplicação
 init();
