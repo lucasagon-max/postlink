@@ -99,6 +99,22 @@ const el = {
   modalBtnWhatsapp: document.getElementById('modal-btn-whatsapp'),
   modalBtnFechar: document.getElementById('modal-btn-fechar'),
 
+  // Versões e Controle de Edições
+  boxVersaoStatus: document.getElementById('box-versao-status'),
+  badgeVersaoTexto: document.getElementById('badge-versao-texto'),
+  badgePlanoEdicao: document.getElementById('badge-plano-edicao'),
+  descVersaoEdicao: document.getElementById('desc-versao-edicao'),
+  progressoEdicoesWrapper: document.getElementById('progresso-edicoes-wrapper'),
+  labelEdicoesUsadas: document.getElementById('label-edicoes-usadas'),
+  labelEdicoesRestantes: document.getElementById('label-edicoes-restantes'),
+  barraEdicoesProgresso: document.getElementById('barra-edicoes-progresso'),
+  alertaLimiteEdicoes: document.getElementById('alerta-limite-edicoes'),
+
+  // Modal Limite de Links (Plano Grátis)
+  modalLimiteLinks: document.getElementById('modal-limite-links'),
+  modalBtnUpgradePro: document.getElementById('modal-btn-upgrade-pro'),
+  modalLimiteBtnFechar: document.getElementById('modal-limite-btn-fechar'),
+
   // Checkout / Plano
   btnBillingMonthly: document.getElementById('btn-billing-monthly'),
   btnBillingYearly: document.getElementById('btn-billing-yearly'),
@@ -112,6 +128,19 @@ const el = {
   contaLojaSlug: document.getElementById('conta-loja-slug'),
   contaStatus: document.getElementById('conta-status'),
 };
+
+// Helper: Verifica se o usuário é assinante ativo do Plano Pro
+function isPlanoPro() {
+  return Boolean(state.assinatura && state.assinatura.status === 'ativo');
+}
+
+function mostrarModalLimiteLinks() {
+  if (el.modalLimiteLinks) el.modalLimiteLinks.classList.remove('hidden');
+}
+
+function fecharModalLimiteLinks() {
+  if (el.modalLimiteLinks) el.modalLimiteLinks.classList.add('hidden');
+}
 
 // Feedback Toast
 function toast(msg, tipo = 'info') {
@@ -232,6 +261,13 @@ async function router() {
     mostrarView('lista');
     await carregarLinks();
   } else if (hash === '#/novo') {
+    // Validação: No plano grátis, só é permitido 1 link inteligente
+    if (!isPlanoPro() && state.links && state.links.length >= 1) {
+      toast('No plano grátis é permitido apenas 1 link ativo. Faça upgrade para o Plano Pro para links ilimitados.', 'info');
+      mostrarModalLimiteLinks();
+      window.location.hash = '#/';
+      return;
+    }
     prepararFormularioNovo();
     mostrarView('form');
   } else if (hash.startsWith('#/editar/')) {
@@ -384,7 +420,10 @@ function aplicarFiltrosEBusca() {
 
 function renderizarLinks() {
   if (el.contadorLinks) {
-    el.contadorLinks.textContent = `${state.linksFiltrados.length} de ${state.links.length} link(s)`;
+    const pro = isPlanoPro();
+    el.contadorLinks.textContent = pro
+      ? `${state.linksFiltrados.length} de ${state.links.length} link(s) (Pro Ilimitado)`
+      : `${state.linksFiltrados.length} de 1 link (Plano Grátis)`;
   }
 
   if (state.links.length === 0) {
@@ -404,30 +443,49 @@ function renderizarLinks() {
     return;
   }
 
+  const pro = isPlanoPro();
+
   state.linksFiltrados.forEach((link) => {
     const card = document.createElement('div');
     card.className = 'bg-surface-container-lowest border border-outline-variant/60 hover:border-primary/40 rounded-2xl p-3.5 shadow-xs transition-all flex flex-col justify-between group';
 
     const fullUrl = `${window.location.origin}/${state.loja.slug}/${link.slug}`;
     const { data: { publicUrl } } = sb.storage.from('banners').getPublicUrl(link.imagem_path);
-    const imgUrl = `${publicUrl}?v=${link.versao || 1}`;
+    const versaoAtual = link.versao || 1;
+    const imgUrl = `${publicUrl}?v=${versaoAtual}`;
     const st = state.estatisticas[link.id] || { total: 0, recentes: 0 };
+
+    const edicoesFeitas = Math.max(0, versaoAtual - 1);
+    const edicoesRestantes = Math.max(0, 5 - edicoesFeitas);
+
+    const versaoBadgeHtml = pro
+      ? `<span class="inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-surface-container-high text-primary">v${versaoAtual} · Pro Ilimitado</span>`
+      : `<span class="inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded ${edicoesFeitas >= 5 ? 'bg-error-container text-on-error-container' : 'bg-surface-container-high text-on-surface-variant'}">v${versaoAtual} · ${edicoesFeitas >= 5 ? '5/5 edições (limite)' : `${edicoesRestantes} edições rest.`}</span>`;
 
     card.innerHTML = `
       <div>
         <div class="relative aspect-[1.91/1] rounded-xl overflow-hidden bg-surface-container-low mb-3 border border-outline-variant/40">
           <img src="${imgUrl}" alt="${link.titulo || 'Banner'}" class="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300">
+          <span class="absolute top-2 left-2 text-[10px] font-mono font-extrabold px-2 py-0.5 rounded-full bg-surface-container-lowest/95 text-primary shadow-xs backdrop-blur-xs">
+            v${versaoAtual}
+          </span>
           <span class="absolute top-2 right-2 text-[10px] font-bold px-2 py-0.5 rounded-full ${link.ativo ? 'bg-secondary-container text-on-secondary-container' : 'bg-error-container text-on-error-container'} shadow-xs">
             ${link.ativo ? '● Ativo' : '○ Pausado'}
           </span>
         </div>
 
-        <h4 class="text-xs font-bold text-on-surface mb-0.5 leading-snug line-clamp-1">
-          ${link.titulo || state.loja.nome}
-        </h4>
-        <p class="text-[11px] font-mono text-primary truncate mb-2.5">
-          /${state.loja.slug}/${link.slug}
-        </p>
+        <div class="flex items-center justify-between gap-1 mb-1">
+          <h4 class="text-xs font-bold text-on-surface leading-snug line-clamp-1">
+            ${link.titulo || state.loja.nome}
+          </h4>
+        </div>
+
+        <div class="flex items-center justify-between gap-1 mb-2.5">
+          <p class="text-[11px] font-mono text-primary truncate">
+            /${state.loja.slug}/${link.slug}
+          </p>
+          ${versaoBadgeHtml}
+        </div>
 
         <div class="bg-surface-container-low rounded-lg p-2 mb-3 flex items-center justify-between text-xs">
           <span class="text-[11px] text-outline">Cliques:</span>
@@ -555,8 +613,15 @@ function prepararFormularioNovo() {
 
   if (el.tituloFormLink) el.tituloFormLink.textContent = 'Configurar Novo Link';
   if (el.subtituloFormLink) el.subtituloFormLink.textContent = 'Passo 1 de 2: Configure os dados do cartão';
-  if (el.btnSubmeterLink) el.btnSubmeterLink.textContent = 'Criar Link Inteligente';
+  if (el.btnSubmeterLink) {
+    el.btnSubmeterLink.disabled = false;
+    el.btnSubmeterLink.title = '';
+    el.btnSubmeterLink.textContent = 'Criar Link Inteligente';
+  }
   if (el.formLink) el.formLink.reset();
+
+  if (el.boxVersaoStatus) el.boxVersaoStatus.classList.add('hidden');
+  if (el.alertaLimiteEdicoes) el.alertaLimiteEdicoes.classList.add('hidden');
 
   if (el.fname) el.fname.textContent = 'Escolher da galeria ou arrastar foto';
   if (el.infoArquivo) el.infoArquivo.classList.add('hidden');
@@ -606,6 +671,70 @@ async function prepararFormularioEdicao(id) {
 
   state.linkEditando = link;
 
+  // Controle de Versão e Limite de Alterações
+  const versaoAtual = link.versao || 1;
+  const edicoesFeitas = Math.max(0, versaoAtual - 1);
+  const pro = isPlanoPro();
+  const restantes = Math.max(0, 5 - edicoesFeitas);
+
+  if (el.boxVersaoStatus) {
+    el.boxVersaoStatus.classList.remove('hidden');
+    if (el.badgeVersaoTexto) el.badgeVersaoTexto.textContent = `Versão ${versaoAtual}`;
+
+    if (pro) {
+      if (el.badgePlanoEdicao) {
+        el.badgePlanoEdicao.className = 'text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-secondary text-white';
+        el.badgePlanoEdicao.textContent = 'Plano Pro · Ilimitado';
+      }
+      if (el.descVersaoEdicao) {
+        el.descVersaoEdicao.textContent = `Você está na versão ${versaoAtual}. No Plano Pro, suas edições de imagem e destinos são ilimitadas!`;
+      }
+      if (el.progressoEdicoesWrapper) el.progressoEdicoesWrapper.classList.add('hidden');
+      if (el.alertaLimiteEdicoes) el.alertaLimiteEdicoes.classList.add('hidden');
+      if (el.btnSubmeterLink) {
+        el.btnSubmeterLink.disabled = false;
+        el.btnSubmeterLink.title = '';
+      }
+    } else {
+      if (el.badgePlanoEdicao) {
+        el.badgePlanoEdicao.className = 'text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container';
+        el.badgePlanoEdicao.textContent = 'Plano Grátis';
+      }
+      if (el.progressoEdicoesWrapper) el.progressoEdicoesWrapper.classList.remove('hidden');
+
+      if (el.labelEdicoesUsadas) el.labelEdicoesUsadas.textContent = `${edicoesFeitas} de 5 alterações utilizadas`;
+      if (el.labelEdicoesRestantes) el.labelEdicoesRestantes.textContent = restantes === 1 ? '1 restante' : `${restantes} restantes`;
+
+      const pct = Math.min(100, Math.round((edicoesFeitas / 5) * 100));
+      if (el.barraEdicoesProgresso) {
+        el.barraEdicoesProgresso.style.width = `${pct}%`;
+        el.barraEdicoesProgresso.className = edicoesFeitas >= 5
+          ? 'bg-error h-full rounded-full transition-all duration-300'
+          : (edicoesFeitas >= 4 ? 'bg-amber-500 h-full rounded-full transition-all duration-300' : 'bg-primary h-full rounded-full transition-all duration-300');
+      }
+
+      if (edicoesFeitas >= 5) {
+        if (el.descVersaoEdicao) {
+          el.descVersaoEdicao.textContent = 'Você atingiu o limite de 5 alterações permitidas no plano grátis para este link.';
+        }
+        if (el.alertaLimiteEdicoes) el.alertaLimiteEdicoes.classList.remove('hidden');
+        if (el.btnSubmeterLink) {
+          el.btnSubmeterLink.disabled = true;
+          el.btnSubmeterLink.title = 'Faça upgrade para o Plano Pro para liberar edições ilimitadas';
+        }
+      } else {
+        if (el.descVersaoEdicao) {
+          el.descVersaoEdicao.textContent = `Cada alteração (banner, número WhatsApp, URL ou textos) gera uma nova versão e renova o preview do WhatsApp. Restam ${restantes} alterações no plano grátis.`;
+        }
+        if (el.alertaLimiteEdicoes) el.alertaLimiteEdicoes.classList.add('hidden');
+        if (el.btnSubmeterLink) {
+          el.btnSubmeterLink.disabled = false;
+          el.btnSubmeterLink.title = '';
+        }
+      }
+    }
+  }
+
   // Analisa se o destino é WhatsApp ou URL externa
   if (link.destino.includes('wa.me/')) {
     switchDestTab('whatsapp');
@@ -632,7 +761,7 @@ async function prepararFormularioEdicao(id) {
 
   // Foto existente
   const { data: { publicUrl } } = sb.storage.from('banners').getPublicUrl(link.imagem_path);
-  const imgUrl = `${publicUrl}?v=${link.versao}`;
+  const imgUrl = `${publicUrl}?v=${versaoAtual}`;
 
   if (el.fname) el.fname.textContent = 'Trocar imagem atual';
   if (el.im) {
@@ -801,11 +930,21 @@ if (el.formLink) {
       const validoAte = (el.inputValidoAte && el.inputValidoAte.value) ? new Date(el.inputValidoAte.value).toISOString() : null;
 
       if (state.linkEditando) {
+        const versaoAtual = state.linkEditando.versao || 1;
+        const edicoesFeitas = Math.max(0, versaoAtual - 1);
+
+        // Bloqueio de limite de 5 alterações no plano grátis
+        if (!isPlanoPro() && edicoesFeitas >= 5) {
+          toast('Limite de 5 alterações atingido no plano grátis. Faça upgrade para o Pro.', 'error');
+          mostrarModalLimiteLinks();
+          return;
+        }
+
+        // A cada alteração (imagem, destino, telefone, textos ou slug), a versão é SEMPRE incrementada
+        const versao = versaoAtual + 1;
         let caminhoImagem = state.linkEditando.imagem_path;
-        let versao = state.linkEditando.versao || 1;
 
         if (state.arquivoBlob) {
-          versao += 1;
           caminhoImagem = `${state.user.id}/${state.linkEditando.id}-v${versao}.jpg`;
           const { error: errUpload } = await sb.storage
             .from('banners')
@@ -830,10 +969,17 @@ if (el.formLink) {
 
         if (errUpdate) throw errUpdate;
 
-        toast('Link atualizado com sucesso!', 'success');
+        toast(`Link atualizado com sucesso! (Versão ${versao})`, 'success');
         const linkPronto = `${window.location.origin}/${state.loja.slug}/${slugFinal}`;
         exibirResultadoCriado(linkPronto);
       } else {
+        // Bloqueio de criação de múltiplos links no plano grátis
+        if (!isPlanoPro() && state.links && state.links.length >= 1) {
+          toast('O plano grátis permite criar apenas 1 link. Faça upgrade para ter links ilimitados.', 'info');
+          mostrarModalLimiteLinks();
+          return;
+        }
+
         const linkId = crypto.randomUUID();
         const versao = 1;
         const caminhoImagem = `${state.user.id}/${linkId}-v${versao}.jpg`;
@@ -995,6 +1141,25 @@ if (el.btnSair) {
     window.location.href = '/login/';
   });
 }
+
+// MODAL LIMITE DE LINKS (PLANO GRÁTIS)
+if (el.modalLimiteBtnFechar) {
+  el.modalLimiteBtnFechar.addEventListener('click', fecharModalLimiteLinks);
+}
+if (el.modalBtnUpgradePro) {
+  el.modalBtnUpgradePro.addEventListener('click', fecharModalLimiteLinks);
+}
+
+// Intercepta qualquer tentativa de criar novo link quando o limite do plano grátis for atingido
+document.addEventListener('click', (e) => {
+  const linkCriar = e.target.closest('a[href="#/novo"]');
+  if (linkCriar) {
+    if (!isPlanoPro() && state.links && state.links.length >= 1) {
+      e.preventDefault();
+      mostrarModalLimiteLinks();
+    }
+  }
+});
 
 // Iniciar Aplicação
 init();
