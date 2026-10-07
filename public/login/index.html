@@ -13,6 +13,8 @@
   <!-- Estilos e Ícones -->
   <link rel="stylesheet" href="/assets/css/style.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Google Identity Services Oficial (Autenticação Nativa sem redirecionamento feio) -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body class="bg-background text-on-surface font-sans antialiased min-h-screen flex flex-col selection:bg-secondary-container selection:text-on-secondary-container">
 
@@ -42,9 +44,13 @@
         </p>
       </div>
 
-      <!-- BOTÃO GOOGLE OFICIAL -->
-      <div>
-        <button id="btn-google" type="button" class="w-full bg-surface-container-lowest hover:bg-surface-container-low border border-outline-variant text-on-surface font-bold text-xs py-2.5 px-4 rounded-xl shadow-2xs flex items-center justify-center gap-2.5 transition-all active:scale-95">
+      <!-- BOTÃO GOOGLE OFICIAL (GOOGLE IDENTITY SERVICES) -->
+      <div class="w-full flex flex-col items-center">
+        <!-- Container onde o Google renderiza o botão oficial seguro -->
+        <div id="google-btn-wrapper" class="w-full flex justify-center min-h-[42px]"></div>
+
+        <!-- Botão de fallback caso o script demore para inicializar -->
+        <button id="btn-google" type="button" class="hidden w-full bg-surface-container-lowest hover:bg-surface-container-low border border-outline-variant text-on-surface font-bold text-xs py-2.5 px-4 rounded-xl shadow-2xs flex items-center justify-center gap-2.5 transition-all active:scale-95">
           <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
             <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -215,12 +221,13 @@
   <div id="toast-container"></div>
 
   <script type="module">
-    import { getSupabase } from '/assets/js/supabase-config.js';
+    import { getSupabase, GOOGLE_CLIENT_ID } from '/assets/js/supabase-config.js';
 
     const sb = getSupabase();
 
     // Elementos
     const btnGoogle = document.getElementById('btn-google');
+    const googleBtnWrapper = document.getElementById('google-btn-wrapper');
     const tabLogin = document.getElementById('tab-login');
     const tabCadastro = document.getElementById('tab-cadastro');
     const formLogin = document.getElementById('form-login');
@@ -310,8 +317,78 @@
       });
     });
 
-    // 1. LOGIN COM GOOGLE
+    // 1. GOOGLE IDENTITY SERVICES (GIS) - LOGIN OFICIAL COM POSTLINK
+    window.handleGoogleCredentialResponse = async function(response) {
+      try {
+        toast('Autenticando com o Google…', 'info');
+        const { data, error } = await sb.auth.signInWithIdToken({
+          provider: 'google',
+          token: response.credential,
+        });
+        if (error) throw error;
+
+        toast('Login realizado com sucesso! Redirecionando…', 'success');
+        window.location.href = '/painel/';
+      } catch (err) {
+        console.error('Erro Google Auth ID Token:', err);
+        toast('Erro ao autenticar com o Google: ' + traduzirErro(err.message), 'error');
+      }
+    };
+
+    function inicializarGoogle() {
+      if (window.google && window.google.accounts && window.google.accounts.id) {
+        try {
+          window.google.accounts.id.initialize({
+            client_id: GOOGLE_CLIENT_ID,
+            callback: window.handleGoogleCredentialResponse,
+            auto_select: false,
+            cancel_on_tap_outside: true,
+          });
+
+          // Renderiza o botão oficial do Google no wrapper
+          if (googleBtnWrapper) {
+            window.google.accounts.id.renderButton(googleBtnWrapper, {
+              type: 'standard',
+              theme: 'outline',
+              size: 'large',
+              text: 'continue_with',
+              shape: 'rectangular',
+              logo_alignment: 'left',
+              width: Math.min(googleBtnWrapper.offsetWidth || 330, 340),
+            });
+          }
+
+          // Se suportado pelo navegador, ativa o prompt nativo / One Tap
+          window.google.accounts.id.prompt();
+          return;
+        } catch (e) {
+          console.warn('Erro ao inicializar Google GIS:', e);
+        }
+      }
+
+      // Se após 1.5s o botão oficial do Google não tiver sido injetado, exibe botão fallback
+      setTimeout(() => {
+        if (!googleBtnWrapper || !googleBtnWrapper.hasChildNodes()) {
+          btnGoogle.classList.remove('hidden');
+        }
+      }, 1500);
+    }
+
+    // Inicializa assim que possível
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', inicializarGoogle);
+    } else {
+      inicializarGoogle();
+    }
+    // Tenta novamente após pequeno delay caso o script demore a carregar
+    setTimeout(inicializarGoogle, 600);
+
+    // Fallback: clique no botão alternativo
     btnGoogle.addEventListener('click', async () => {
+      if (window.google && window.google.accounts && window.google.accounts.id) {
+        window.google.accounts.id.prompt();
+        return;
+      }
       try {
         btnGoogle.disabled = true;
         const { error } = await sb.auth.signInWithOAuth({
