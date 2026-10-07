@@ -721,7 +721,7 @@ async function tratarArquivoSelecionado(file) {
 function fullUrlExibicao() {
   const lojaSlug = state.loja ? state.loja.slug : 'loja';
   const slug = el.inputSlug ? limparSlug(el.inputSlug.value).replace(/^-|-$/g, '') || 'link' : 'link';
-  const host = window.location.host || 'postlink.app';
+  const host = window.location.host || 'postlink.com.br';
   return `${host}/${lojaSlug}/${slug}`;
 }
 
@@ -740,7 +740,7 @@ function atualizarLivePreview() {
     }
   }
   if (el.waCardHost) {
-    el.waCardHost.textContent = window.location.host || 'postlink.app';
+    el.waCardHost.textContent = window.location.host || 'postlink.com.br';
   }
 }
 
