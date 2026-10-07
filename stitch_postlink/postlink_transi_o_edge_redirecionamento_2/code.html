@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Redirecionamento Seguro - PostLink</title>
+<!-- Google Fonts: Plus Jakarta Sans -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS v3 with Plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "error-container": "#ffdad6",
+            "secondary-container": "#6bff8f",
+            "primary": "#003e80",
+            "secondary-fixed-dim": "#4ae176",
+            "surface-tint": "#295ea8",
+            "primary-fixed": "#d6e3ff",
+            "inverse-on-surface": "#eef0ff",
+            "error": "#ba1a1a",
+            "on-secondary-fixed": "#002109",
+            "inverse-surface": "#283044",
+            "tertiary-fixed": "#89f5e7",
+            "secondary-fixed": "#6bff8f",
+            "on-error-container": "#93000a",
+            "on-primary-container": "#b4cdff",
+            "on-error": "#ffffff",
+            "on-tertiary-container": "#72dfd1",
+            "surface-container-high": "#e2e7ff",
+            "on-tertiary": "#ffffff",
+            "on-background": "#131b2e",
+            "primary-container": "#1e56a0",
+            "background": "#faf8ff",
+            "tertiary-container": "#00625a",
+            "outline": "#737782",
+            "surface-bright": "#faf8ff",
+            "on-primary-fixed-variant": "#00458d",
+            "on-tertiary-fixed": "#00201d",
+            "surface-container": "#eaedff",
+            "surface-container-highest": "#dae2fd",
+            "tertiary-fixed-dim": "#6bd8cb",
+            "on-surface": "#131b2e",
+            "surface": "#faf8ff",
+            "inverse-primary": "#aac7ff",
+            "on-secondary-fixed-variant": "#005321",
+            "surface-dim": "#d2d9f4",
+            "secondary": "#006e2f",
+            "on-tertiary-fixed-variant": "#005049",
+            "outline-variant": "#c2c6d3",
+            "tertiary": "#004842",
+            "on-secondary": "#ffffff",
+            "on-primary-fixed": "#001b3e",
+            "on-primary": "#ffffff",
+            "on-surface-variant": "#424751",
+            "primary-fixed-dim": "#aac7ff",
+            "surface-container-low": "#f2f3ff",
+            "surface-container-lowest": "#ffffff",
+            "on-secondary-container": "#007432",
+            "surface-variant": "#dae2fd"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "space-lg": "1.5rem",
+            "space-md": "1rem",
+            "margin": "2rem",
+            "gutter-mobile": "0.75rem",
+            "margin-mobile": "1rem",
+            "space-xl": "2.5rem",
+            "space-sm": "0.5rem",
+            "gutter": "1rem",
+            "space-xs": "0.25rem"
+          },
+          "fontFamily": {
+            "body-lg": ["Plus Jakarta Sans"],
+            "body-sm": ["Plus Jakarta Sans"],
+            "headline-lg": ["Plus Jakarta Sans"],
+            "label-md": ["Plus Jakarta Sans"],
+            "label-lg": ["Plus Jakarta Sans"],
+            "headline-lg-mobile": ["Plus Jakarta Sans"],
+            "headline-sm": ["Plus Jakarta Sans"],
+            "title-md": ["Plus Jakarta Sans"],
+            "label-sm": ["Plus Jakarta Sans"],
+            "headline-md": ["Plus Jakarta Sans"],
+            "display": ["Plus Jakarta Sans"],
+            "body-md": ["Plus Jakarta Sans"]
+          },
+          "fontSize": {
+            "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "700" }],
+            "label-md": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+            "label-lg": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+            "headline-lg-mobile": ["26px", { "lineHeight": "34px", "fontWeight": "700" }],
+            "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+            "title-md": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+            "label-sm": ["11px", { "lineHeight": "14px", "fontWeight": "500" }],
+            "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+            "display": ["40px", { "lineHeight": "48px", "fontWeight": "800" }],
+            "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-background text-on-surface min-h-screen flex flex-col justify-between selection:bg-secondary-container selection:text-on-secondary-container">
+<!-- Background Ambient Glow & Grid -->
+<div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+<div class="absolute -top-32 left-1/2 -translate-x-1/2 w-[480px] h-[360px] bg-primary-fixed opacity-40 blur-3xl rounded-full"></div>
+<div class="absolute -bottom-24 right-0 w-80 h-80 bg-secondary-fixed opacity-30 blur-3xl rounded-full"></div>
+</div>
+<!-- Header: Safe Transit & Edge Network Verification Bar -->
+<header class="relative z-10 w-full px-margin-mobile py-space-md flex items-center justify-between">
+<!-- Brand Anchor Minimalist Badge -->
+<div class="flex items-center gap-space-sm bg-surface-container-lowest/80 backdrop-blur-md px-space-md py-space-xs rounded-full border border-outline-variant/40 shadow-sm">
+<img alt="PostLink Safe Transit" class="h-6 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBJQvPCsi7tHCQalAgOgnkd_SvddfByr8HQIYMDin1M8Ce9ZWnZCWlfLoeWDym5h4izS6GX8PycF6B1AX0dRw7GP7qikI7JcbU0yQEiOK-hgWmbLkgOqWl-Co9SXggMTQDdGxP5dh0F26jwoWNLd4PFduolw_0oQKq2PxDDcO1FnEDGOlTBCK6-wans-vl3FYjG8OhALlKRi-OTqK48-GsiK44U-htTK5Au3CD-lUSQnzQxYljrTJ-y"/>
+<span class="font-label-sm text-label-sm text-outline-variant">|</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-semibold">Safe Transit</span>
+</div>
+<!-- Security & Verification Pill -->
+<div class="flex items-center gap-space-xs bg-surface-container-lowest/90 backdrop-blur-md px-space-sm py-1.5 rounded-full border border-outline-variant/40 shadow-sm">
+<div class="relative flex items-center justify-center">
+<span class="animate-ping absolute inline-flex h-2.5 w-2.5 rounded-full bg-secondary-fixed opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-secondary"></span>
+</div>
+<span class="material-symbols-outlined text-[15px] text-primary" data-icon="lock" style="font-variation-settings: 'FILL' 1;">lock</span>
+<span class="font-label-sm text-label-sm text-on-surface font-medium hidden xs:inline">Verificação de Segurança Concluída</span>
+<span class="font-label-sm text-label-sm text-on-surface font-medium xs:hidden">Link Seguro</span>
+</div>
+</header>
+<!-- Main Conversion & Transition Canvas -->
+<main class="relative z-10 flex-1 flex flex-col justify-center items-center px-margin-mobile max-w-md mx-auto w-full py-space-sm">
+<!-- Security Notice Banner -->
+<div class="w-full mb-space-md flex items-center justify-between bg-surface-container-low px-space-md py-space-xs rounded-xl border border-surface-container-highest/60 text-on-surface-variant">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-[18px]" data-icon="verified_user">verified_user</span>
+<span class="font-label-sm text-label-sm">Ambiente Oficial e Protegido</span>
+</div>
+<span class="font-label-sm text-label-sm text-secondary font-semibold bg-secondary-container/40 px-2 py-0.5 rounded-full">100% Seguro</span>
+</div>
+<!-- High Definition Open Graph Preview Card (WhatsApp Exact Spec) -->
+<div class="w-full bg-surface-container-lowest rounded-2xl border border-outline-variant/50 shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg">
+<!-- Store Identity Header Inside Card -->
+<div class="px-space-md py-space-sm bg-surface-container-low/60 flex items-center justify-between border-b border-outline-variant/30">
+<div class="flex items-center gap-space-sm">
+<div class="relative">
+<img class="w-9 h-9 rounded-full object-cover ring-2 ring-surface-container-lowest" data-alt="A modern, high-fashion boutique logo icon displaying minimalist typography for Moda Fashion in crisp navy blue on a clean pure white background with subtle studio lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDCO00Hl8tQckSAwFhZdxAhVn1S_t0PNGxiyngqWJgKAkQj_R-yrJ90ohBT0xPIkoPbkQVprH01ZvH7Fj3ORztPNbM3dpbUABUUbkox1iksUD4JcNNURNoyWjPSDMyk_YnTnXAZAgwzPAScf1epgN9sDuozkDTfAxyBhEy0qF0j3tbk10kV2ioSPU3Y0gq-hOoqQQzi4V0cqMEsthHviDmekmWNfiTQNSpqZPLG4u0"/>
+<span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-secondary-container text-on-secondary-container rounded-full flex items-center justify-center ring-1 ring-white">
+<span class="material-symbols-outlined text-[10px]" data-icon="check" style="font-variation-settings: 'FILL' 1;">check</span>
+</span>
+</div>
+<div>
+<div class="flex items-center gap-1">
+<h2 class="font-label-lg text-label-lg text-on-surface font-bold">@modafashion</h2>
+<span class="material-symbols-outlined text-[16px] text-secondary" data-icon="verified" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Loja Oficial Verificada</p>
+</div>
+</div>
+<div class="flex items-center gap-1 bg-surface-container-highest/50 px-2.5 py-1 rounded-full text-primary font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px]" data-icon="verified">verified</span>
+<span>Oferta Oficial</span>
+</div>
+</div>
+<!-- OG High Definition Campaign Banner (Aspect 1.91:1) -->
+<div class="relative w-full aspect-[1.91/1] overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500" data-alt="Vibrant summer fashion sale campaign banner showcasing models in chic coastal attire with bold typography announcing seasonal discounts. The scene is illuminated by warm natural golden-hour sunlight against ocean hues and crisp navy blue tones, creating an alluring, high-converting commercial look." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC75LfJnrlGU9yEWIHOetxuCf8HS57vohvl0phd--3o1yhNQack2U1T8SxevGcME5aOToq48D3DTmm-vsZ015DjSCViHg6r3Nh29C2c7Vunuo_y4j1web1Y7cuIxWht7-TvPauwlI1RmxrzZy9iayvk21OX8hCIINafQoD7UIrEghU4rkcSu3XOpfFsNKGpM6vYmlOKSRGQaRiUClL9_LpycMlymrf-g9W_-ayRD7I"/>
+<div class="absolute top-2.5 right-2.5 bg-error text-on-error font-label-sm text-label-sm px-2.5 py-0.5 rounded-full shadow-sm font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]" data-icon="local_fire_department">local_fire_department</span>
+          -50% OFF
+        </div>
+</div>
+<!-- Card Meta & Content Description -->
+<div class="p-space-md">
+<div class="flex items-center gap-1.5 text-on-surface-variant mb-1">
+<span class="material-symbols-outlined text-[14px] text-primary" data-icon="link">link</span>
+<span class="font-label-sm text-label-sm tracking-wide">postlink.to/modafashion/queima-verao</span>
+</div>
+<h1 class="font-title-md text-title-md text-on-surface font-bold tracking-tight mb-1">
+          Queima de Estoque - Até 50% OFF
+        </h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+          Peças exclusivas da coleção de Verão com frete grátis para todo Brasil. Clique para abrir seu catálogo direto no WhatsApp da loja.
+        </p>
+</div>
+<!-- WhatsApp Live Preview Bubble Style Anchor -->
+<div class="px-space-md pb-space-md pt-0">
+<div class="bg-surface-container-low rounded-xl p-space-sm border border-outline-variant/30 flex items-center justify-between">
+<div class="flex items-center gap-space-xs text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px] text-secondary" data-icon="chat" style="font-variation-settings: 'FILL' 1;">chat</span>
+<span class="font-label-sm text-label-sm font-medium">Conversa direta com atendente</span>
+</div>
+<span class="font-label-sm text-label-sm text-secondary font-bold">Online</span>
+</div>
+</div>
+</div>
+<!-- Dynamic Countdown & Linear Progress Tracker -->
+<div class="w-full mt-space-lg mb-space-sm">
+<div class="flex items-center justify-between mb-space-xs">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-primary text-[18px] animate-spin" data-icon="sync">sync</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold" id="status-text">
+            Redirecionando para o WhatsApp...
+          </span>
+</div>
+<span class="font-label-md text-label-md text-primary font-bold tabular-nums" id="countdown-timer">2s</span>
+</div>
+<!-- Progress Track -->
+<div class="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden p-0.5">
+<div class="h-full bg-secondary rounded-full transition-all duration-100 ease-linear w-0" id="progress-bar"></div>
+</div>
+</div>
+<!-- Action Buttons Cluster -->
+<div class="w-full space-y-space-sm mt-space-sm">
+<!-- Primary Green Action: Open WhatsApp Instantly -->
+<a class="w-full flex items-center justify-center gap-space-sm bg-secondary text-on-secondary font-label-lg text-label-lg py-3.5 px-space-md rounded-xl font-bold shadow-md hover:shadow-lg active:scale-98 transition-all duration-150 group" href="https://api.whatsapp.com/send?phone=5511999998888&amp;text=Ol%C3%A1%2C%20vim%20pelo%20PostLink%20da%20Queima%20de%20Estoque%21" id="cta-whatsapp">
+<span class="material-symbols-outlined text-[20px] transition-transform group-hover:scale-110" data-icon="chat">chat</span>
+<span>Abrir WhatsApp Agora</span>
+<span class="material-symbols-outlined text-[18px]" data-icon="arrow_forward">arrow_forward</span>
+</a>
+<!-- Fallback Secondary Action: Alternative Navigation -->
+<button class="w-full py-2.5 px-space-md text-primary font-label-md text-label-md hover:bg-surface-container rounded-lg transition-colors flex items-center justify-center gap-1.5" onclick="window.location.reload();" type="button">
+<span class="material-symbols-outlined text-[16px]" data-icon="help_outline">help_outline</span>
+<span>Problemas para abrir? Toque aqui para recarregar</span>
+</button>
+</div>
+</main>
+<!-- Footer: Operational Proof & Secure Redirection Meta -->
+<footer class="relative z-10 w-full px-margin-mobile py-space-md text-center border-t border-outline-variant/30 bg-surface-container-lowest/70 backdrop-blur-md">
+<div class="max-w-md mx-auto flex flex-col items-center gap-1 text-on-surface-variant">
+<div class="flex items-center gap-1.5 font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[15px] text-primary" data-icon="security" style="font-variation-settings: 'FILL' 1;">security</span>
+<span class="font-semibold text-on-surface">Ambiente protegido por PostLink</span>
+</div>
+<p class="font-label-sm text-label-sm opacity-80">
+        Redirecionamento seguro direto para o aplicativo oficial do WhatsApp
+      </p>
+</div>
+</footer>
+<!-- Micro-interaction Redirection Script -->
+<script>
+    (function() {
+      const destinationURL = "https://api.whatsapp.com/send?phone=5511999998888&text=Ol%C3%A1%2C%20vim%20pelo%20PostLink%20da%20Queima%20de%20Estoque%21";
+      const totalTimeMs = 2000;
+      const intervalMs = 20;
+      let elapsedTime = 0;
+      
+      const progressBar = document.getElementById('progress-bar');
+      const timerElement = document.getElementById('countdown-timer');
+      const statusText = document.getElementById('status-text');
+
+      const interval = setInterval(() => {
+        elapsedTime += intervalMs;
+        const progressPercentage = Math.min((elapsedTime / totalTimeMs) * 100, 100);
+        
+        if (progressBar) {
+          progressBar.style.width = progressPercentage + '%';
+        }
+
+        const remainingSeconds = Math.max(((totalTimeMs - elapsedTime) / 1000), 0).toFixed(1);
+        if (timerElement) {
+          timerElement.innerText = remainingSeconds

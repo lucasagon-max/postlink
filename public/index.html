@@ -1,11 +1,269 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="refresh" content="0;url=/painel/">
-  <title>PostLink</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PostLink - Transforme links comuns em cartões HD para WhatsApp</title>
+  <meta name="description" content="Gere links inteligentes para WhatsApp com cartões em alta definição, separação no Edge entre pessoas e robôs e contagem de cliques.">
+  <link rel="icon" href="/assets/img/logotipo_postlink_1x1.jpg">
+  
+  <!-- Tailwind CSS com plugins -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="/assets/js/theme-config.js"></script>
+  
+  <!-- Estilos e Ícones -->
+  <link rel="stylesheet" href="/assets/css/style.css">
 </head>
-<body>
-  <script>window.location.replace('/painel/');</script>
+<body class="bg-background text-on-surface font-sans antialiased min-h-screen flex flex-col selection:bg-secondary-container selection:text-on-secondary-container">
+
+  <!-- TOP NAVIGATION BAR -->
+  <header class="bg-surface-container-lowest sticky top-0 z-40 w-full border-b border-outline-variant/40 shadow-xs">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+      <!-- Brand & Logo -->
+      <a href="/" class="flex items-center gap-2.5 text-decoration-none group">
+        <img src="/assets/img/logotipo_postlink_1x1.jpg" alt="PostLink Logo" class="h-9 w-9 rounded-lg object-cover shadow-xs ring-1 ring-primary-container/20 group-hover:scale-105 transition-transform">
+        <div class="flex flex-col">
+          <span class="text-xl font-extrabold text-primary tracking-tight leading-none">postlink</span>
+          <span class="text-[10px] font-semibold text-secondary-dark tracking-wide uppercase">Smart Links</span>
+        </div>
+      </a>
+
+      <!-- Right Actions -->
+      <div class="flex items-center gap-3">
+        <a href="/login/" class="text-sm font-semibold text-on-surface-variant hover:text-primary px-3 py-1.5 rounded-lg hover:bg-surface-container transition-all">
+          Entrar
+        </a>
+        <a href="/painel/#/novo" class="bg-secondary text-white text-sm font-bold px-4 py-2 rounded-lg shadow-sm hover:bg-secondary-dark active:scale-95 transition-all flex items-center gap-1.5">
+          <span>Começar Grátis</span>
+          <span class="material-symbols-outlined text-base">arrow_forward</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="flex-grow">
+    
+    <!-- HERO SECTION -->
+    <section class="px-4 sm:px-6 pt-12 pb-14 text-center max-w-4xl mx-auto">
+      <!-- Badge de Destaque -->
+      <div class="inline-flex items-center gap-2 bg-secondary-container text-on-secondary-container px-3.5 py-1.5 rounded-full text-xs font-bold mb-6 shadow-xs border border-secondary/20">
+        <span class="material-symbols-outlined text-base text-secondary-dark">local_fire_department</span>
+        <span>A tecnologia definitiva para links no WhatsApp & Redes Sociais</span>
+      </div>
+
+      <!-- Título Principal -->
+      <h1 class="text-3xl sm:text-5xl font-extrabold text-primary tracking-tight leading-tight mb-5">
+        Transforme links comuns em <br class="hidden sm:inline">
+        <span class="text-primary-container">cartões HD</span> que vendem <span class="text-secondary-dark underline decoration-secondary decoration-wavy">3.4x mais</span>
+      </h1>
+
+      <!-- Subtítulo -->
+      <p class="text-base sm:text-lg text-on-surface-variant max-w-2xl mx-auto mb-8 leading-relaxed">
+        Chega de prévias borradas e links feios ignorados nos grupos. Otimize seus banners Open Graph no <strong>Cloudflare Edge</strong> com transição ultrarrápida e conversão direta.
+      </p>
+
+      <!-- Botões de Ação -->
+      <div class="flex flex-col sm:flex-row gap-3.5 justify-center items-center mb-10 max-w-md mx-auto">
+        <a href="/painel/#/novo" class="w-full sm:w-auto bg-secondary text-white text-base font-bold px-7 py-3.5 rounded-xl shadow-md hover:bg-secondary-dark active:scale-95 transition-all flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined text-xl">add_link</span>
+          <span>Criar meu primeiro link grátis</span>
+        </a>
+        <a href="#comparativo" class="w-full sm:w-auto bg-surface-container-lowest border border-outline-variant text-primary text-base font-semibold px-6 py-3.5 rounded-xl hover:bg-surface-container-low active:scale-95 transition-all flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined text-xl text-primary-container">visibility</span>
+          <span>Ver comparação</span>
+        </a>
+      </div>
+
+      <!-- Selos de Confiança -->
+      <div class="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs font-semibold text-on-surface-variant pt-4 border-t border-surface-container-high/60">
+        <span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-secondary text-base">verified</span> Teste de 7 dias grátis</span>
+        <span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-secondary text-base">bolt</span> CDN Global Cloudflare Edge</span>
+        <span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-secondary text-base">security</span> Anti-block bot WhatsApp</span>
+        <span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-secondary text-base">devices</span> 100% responsivo</span>
+      </div>
+    </section>
+
+    <!-- BEFORE VS AFTER COMPARISON -->
+    <section class="px-4 sm:px-6 py-14 bg-surface-container-low border-y border-outline-variant/60" id="comparativo">
+      <div class="max-w-4xl mx-auto">
+        <div class="text-center mb-10">
+          <span class="text-xs font-bold text-primary bg-primary-fixed px-3 py-1 rounded-full uppercase tracking-wider inline-block mb-2">
+            Impacto Visual Real
+          </span>
+          <h2 class="text-2xl sm:text-3xl font-bold text-on-surface">Antes vs Depois no WhatsApp</h2>
+          <p class="text-sm text-on-surface-variant mt-1">Veja a diferença imediata na percepção do cliente e na taxa de cliques</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+          
+          <!-- ANTES: LINK COMUM -->
+          <div class="bg-surface-container-lowest rounded-2xl border border-error/25 p-5 shadow-xs flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between pb-3 mb-4 border-b border-surface-container">
+                <span class="text-xs font-bold text-error flex items-center gap-1">
+                  <span class="material-symbols-outlined text-base">cancel</span> Link comum (Sem PostLink)
+                </span>
+                <span class="text-[11px] font-bold bg-error-container text-on-error-container px-2.5 py-0.5 rounded-full">
+                  Taxa de clique: ~3.8%
+                </span>
+              </div>
+
+              <!-- Simulação WhatsApp Ruim -->
+              <div class="wa-bg-pattern p-3.5 rounded-xl border border-outline-variant/70 mb-4">
+                <div class="text-[10px] text-center text-[#667781] mb-2 font-medium">Hoje 14:20</div>
+                <div class="bg-surface-container-lowest wa-bubble-shadow rounded-lg p-2.5 max-w-[270px] ml-auto border border-[#E2E8F0]">
+                  <div class="w-full h-24 bg-surface-container-high rounded overflow-hidden relative mb-2 flex items-center justify-center text-center p-2">
+                    <div class="flex flex-col items-center">
+                      <span class="material-symbols-outlined text-3xl text-outline mb-1">image_not_supported</span>
+                      <span class="text-[10px] text-outline font-semibold">Miniatura borrada ou ausente</span>
+                    </div>
+                  </div>
+                  <div class="text-[11px] font-bold text-on-surface truncate">loja-exemplo.com.br/item/94827...</div>
+                  <div class="text-[10px] text-[#667781] line-clamp-1 mb-1">Clique para conferir nosso catálogo</div>
+                  <div class="flex items-center justify-end gap-1 text-[10px] text-[#667781]">
+                    <span>14:20</span>
+                    <span class="material-symbols-outlined text-[13px] text-[#53BDEB]">done_all</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <ul class="space-y-1.5 text-xs text-on-surface-variant font-medium pt-2">
+              <li class="flex items-center gap-2 text-error"><span class="material-symbols-outlined text-sm">close</span> Imagem cortada e fora de proporção</li>
+              <li class="flex items-center gap-2 text-error"><span class="material-symbols-outlined text-sm">close</span> Compressão destrutiva do WhatsApp</li>
+              <li class="flex items-center gap-2 text-error"><span class="material-symbols-outlined text-sm">close</span> Sem rastreamento de cliques nem métricas</li>
+            </ul>
+          </div>
+
+          <!-- DEPOIS: COM POSTLINK -->
+          <div class="bg-surface-container-lowest rounded-2xl border-2 border-secondary/40 p-5 shadow-sm ring-4 ring-secondary-container/30 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between pb-3 mb-4 border-b border-surface-container">
+                <span class="text-xs font-bold text-secondary-dark flex items-center gap-1">
+                  <span class="material-symbols-outlined text-base text-secondary">check_circle</span> Com PostLink HD
+                </span>
+                <span class="text-[11px] font-bold bg-secondary-container text-on-secondary-container px-2.5 py-0.5 rounded-full">
+                  Taxa de clique: ~14.6% (+280%)
+                </span>
+              </div>
+
+              <!-- Simulação WhatsApp Perfeito -->
+              <div class="wa-bg-pattern p-3.5 rounded-xl border border-secondary/30 mb-4">
+                <div class="text-[10px] text-center text-[#667781] mb-2 font-medium">Hoje 14:21</div>
+                <div class="bg-[#E7FFDB] wa-bubble-shadow rounded-lg p-2 max-w-[290px] ml-auto border border-[#C8E6C9]">
+                  <!-- Cartão HD -->
+                  <div class="rounded-lg overflow-hidden border border-black/10 bg-white mb-1.5">
+                    <img src="/assets/img/logotipo_postlink.jpg" alt="Exemplo HD" class="w-full h-32 object-cover">
+                    <div class="p-2.5 bg-white">
+                      <div class="text-[12px] font-bold text-[#111B21] leading-tight">Morangos Tatuí · Super Promoção de Verão</div>
+                      <div class="text-[11px] text-[#3B4A54] leading-snug mt-0.5">Caixas selecionadas com entrega grátis hoje! Peça pelo WhatsApp.</div>
+                      <div class="text-[10px] text-[#667781] mt-1 font-mono uppercase font-semibold">postlink.app/morangos/verao</div>
+                    </div>
+                  </div>
+                  <div class="flex items-center justify-end gap-1 text-[10px] text-[#667781] pr-1">
+                    <span>14:21</span>
+                    <span class="material-symbols-outlined text-[13px] text-[#53BDEB]">done_all</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <ul class="space-y-1.5 text-xs text-on-surface-variant font-medium pt-2">
+              <li class="flex items-center gap-2 text-secondary-dark"><span class="material-symbols-outlined text-sm text-secondary">check</span> Proporção perfeita 1.91:1 em alta definição</li>
+              <li class="flex items-center gap-2 text-secondary-dark"><span class="material-symbols-outlined text-sm text-secondary">check</span> Separação inteligente no Edge (robôs vs pessoas)</li>
+              <li class="flex items-center gap-2 text-secondary-dark"><span class="material-symbols-outlined text-sm text-secondary">check</span> Contagem privada de cliques em tempo real</li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- COMO FUNCIONA (3 PASSOS) -->
+    <section class="px-4 sm:px-6 py-16 max-w-5xl mx-auto">
+      <div class="text-center mb-12">
+        <span class="text-xs font-bold text-primary bg-primary-fixed px-3 py-1 rounded-full uppercase tracking-wider inline-block mb-2">
+          Simplicidade Máxima
+        </span>
+        <h2 class="text-2xl sm:text-3xl font-bold text-on-surface">Como funciona em 3 passos</h2>
+        <p class="text-sm text-on-surface-variant mt-1">Crie links atraentes em menos de 1 minuto sem precisar de designer ou desenvolvedor</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Passo 1 -->
+        <div class="bg-surface-container-lowest border border-outline-variant/50 rounded-2xl p-6 shadow-xs relative">
+          <div class="w-10 h-10 rounded-xl bg-primary-fixed text-primary flex items-center justify-center font-bold text-lg mb-4">
+            1
+          </div>
+          <h3 class="text-base font-bold text-on-surface mb-2">Suba a Foto da Oferta</h3>
+          <p class="text-sm text-on-surface-variant leading-relaxed">
+            Selecione uma foto da sua galeria. Nosso algoritmo otimiza o peso e resolução automaticamente para não perder qualidade no WhatsApp.
+          </p>
+        </div>
+
+        <!-- Passo 2 -->
+        <div class="bg-surface-container-lowest border border-outline-variant/50 rounded-2xl p-6 shadow-xs relative">
+          <div class="w-10 h-10 rounded-xl bg-secondary-container text-on-secondary-container flex items-center justify-center font-bold text-lg mb-4">
+            2
+          </div>
+          <h3 class="text-base font-bold text-on-surface mb-2">Defina o Destino</h3>
+          <p class="text-sm text-on-surface-variant leading-relaxed">
+            Escolha se o clique abre uma conversa direta no WhatsApp (com mensagem pronta) ou se leva para o seu Instagram, site ou catálogo.
+          </p>
+        </div>
+
+        <!-- Passo 3 -->
+        <div class="bg-surface-container-lowest border border-outline-variant/50 rounded-2xl p-6 shadow-xs relative">
+          <div class="w-10 h-10 rounded-xl bg-primary-fixed text-primary flex items-center justify-center font-bold text-lg mb-4">
+            3
+          </div>
+          <h3 class="text-base font-bold text-on-surface mb-2">Envie e Venda Mais</h3>
+          <p class="text-sm text-on-surface-variant leading-relaxed">
+            Cole o link gerado nos grupos e conversas. O cartão é gerado na hora em alta definição e você acompanha todos os cliques no painel.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA FINAL / TRIAL -->
+    <section class="px-4 sm:px-6 py-14 bg-gradient-to-br from-primary to-primary-container text-white text-center">
+      <div class="max-w-2xl mx-auto space-y-5">
+        <div class="inline-flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-xs">
+          <span class="material-symbols-outlined text-secondary text-sm">stars</span> 7 Dias de Teste Gratuito Completo
+        </div>
+        <h2 class="text-2xl sm:text-4xl font-extrabold tracking-tight">
+          Pronto para multiplicar os cliques das suas ofertas?
+        </h2>
+        <p class="text-on-primary-container text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
+          Comece agora mesmo. Crie seus primeiros links inteligentes e veja a transformação nos seus grupos e redes sociais.
+        </p>
+        <div class="pt-2">
+          <a href="/painel/#/novo" class="inline-flex items-center gap-2 bg-secondary text-white text-base font-bold px-8 py-4 rounded-xl shadow-lg hover:bg-secondary-dark active:scale-95 transition-all">
+            <span>Criar Link Grátis Agora</span>
+            <span class="material-symbols-outlined text-xl">arrow_forward</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-surface-container-lowest border-t border-outline-variant/50 py-8 px-4 sm:px-6 text-xs text-on-surface-variant">
+    <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <img src="/assets/img/logotipo_postlink_1x1.jpg" alt="PostLink" class="h-6 w-6 rounded object-cover">
+        <span class="font-bold text-primary text-sm">PostLink</span>
+        <span class="text-outline">· &copy; 2026 PostLink. Todos os direitos reservados.</span>
+      </div>
+      <div class="flex items-center gap-5 font-medium">
+        <a href="/login/" class="hover:text-primary transition-colors">Acessar Painel</a>
+        <a href="/termos/" class="hover:text-primary transition-colors">Termos de Uso</a>
+        <a href="/privacidade/" class="hover:text-primary transition-colors">Privacidade</a>
+      </div>
+    </div>
+  </footer>
+
 </body>
 </html>

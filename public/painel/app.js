@@ -1,4 +1,4 @@
-// public/painel/app.js - Lógica SPA do Painel do Lojista (PostLink)
+// public/painel/app.js - Lógica SPA do Painel do Lojista (PostLink com Stitch Theme)
 import { getSupabase } from '/assets/js/supabase-config.js';
 import { comprimirImagem, normalizarDestino, slugAleatorio } from '/assets/js/compressao.js';
 
@@ -10,6 +10,10 @@ const state = {
   loja: null,
   assinatura: null,
   links: [],
+  linksFiltrados: [],
+  filtroAtual: 'todos',
+  termoBusca: '',
+  tipoDestino: 'whatsapp', // 'whatsapp' | 'url'
   estatisticas: {},
   linkEditando: null,
   arquivoBlob: null,
@@ -21,11 +25,13 @@ const el = {
   viewOnboarding: document.getElementById('view-onboarding'),
   viewLista: document.getElementById('view-lista'),
   viewFormLink: document.getElementById('view-form-link'),
+  viewPlano: document.getElementById('view-plano'),
   viewConta: document.getElementById('view-conta'),
 
   navLojaNome: document.getElementById('nav-loja-nome'),
   btnNovoLinkTop: document.getElementById('btn-novo-link-top'),
   btnSair: document.getElementById('btn-sair'),
+  navStatusTexto: document.getElementById('nav-status-texto'),
 
   // Onboarding
   formOnboarding: document.getElementById('form-onboarding'),
@@ -33,23 +39,39 @@ const el = {
   onboardingSlug: document.getElementById('onboarding-slug'),
   onboardingPrefixo: document.getElementById('onboarding-prefixo'),
 
-  // Lista
+  // Lista & Métricas
   bannerTrial: document.getElementById('banner-trial'),
   textoTrial: document.getElementById('texto-trial'),
   listaVazia: document.getElementById('lista-vazia'),
   gridLinks: document.getElementById('grid-links'),
   contadorLinks: document.getElementById('contador-links'),
+  metricTotalCliques: document.getElementById('metric-total-cliques'),
+  metricCliquesMes: document.getElementById('metric-cliques-mes'),
+  metricTotalLinks: document.getElementById('metric-total-links'),
+  metricLinksAtivos: document.getElementById('metric-links-ativos'),
+  inputBuscaLinks: document.getElementById('input-busca-links'),
 
   // Form Link
   tituloFormLink: document.getElementById('titulo-form-link'),
+  subtituloFormLink: document.getElementById('subtitulo-form-link'),
   formLink: document.getElementById('form-link'),
   inputArquivo: document.getElementById('input-arquivo'),
   dropzone: document.getElementById('dropzone'),
   fname: document.getElementById('fname'),
   infoArquivo: document.getElementById('info-arquivo'),
+  detalheCompressao: document.getElementById('detalhe-compressao'),
   eImg: document.getElementById('e-img'),
+
+  // Tabs de Destino
+  tabWaBtn: document.getElementById('tab-wa-btn'),
+  tabUrlBtn: document.getElementById('tab-url-btn'),
+  paneWhatsapp: document.getElementById('pane-whatsapp'),
+  paneUrl: document.getElementById('pane-url'),
+  waPhone: document.getElementById('wa-phone'),
+  presetMessage: document.getElementById('preset-message'),
   inputDestino: document.getElementById('input-destino'),
   eDest: document.getElementById('e-dest'),
+
   detalhesPersonalizar: document.getElementById('detalhes-personalizar'),
   inputTitulo: document.getElementById('input-titulo'),
   inputDescricao: document.getElementById('input-descricao'),
@@ -57,15 +79,14 @@ const el = {
   inputValidoAte: document.getElementById('input-valido-ate'),
   btnSubmeterLink: document.getElementById('btn-submeter-link'),
 
-  // Live Preview WhatsApp (Conforme exemplo)
+  // Live Preview WhatsApp
   ph: document.getElementById('ph'),
   im: document.getElementById('im'),
   pt: document.getElementById('pt'),
   pd: document.getElementById('pd'),
   waCardHost: document.getElementById('wa-card-host'),
-  pu: document.getElementById('pu'),
 
-  // Box Sucesso Inline (Conforme exemplo)
+  // Box Sucesso Inline
   res: document.getElementById('res'),
   ru: document.getElementById('ru'),
   cp: document.getElementById('cp'),
@@ -77,6 +98,13 @@ const el = {
   modalBtnCopiar: document.getElementById('modal-btn-copiar'),
   modalBtnWhatsapp: document.getElementById('modal-btn-whatsapp'),
   modalBtnFechar: document.getElementById('modal-btn-fechar'),
+
+  // Checkout / Plano
+  btnBillingMonthly: document.getElementById('btn-billing-monthly'),
+  btnBillingYearly: document.getElementById('btn-billing-yearly'),
+  precoPlano: document.getElementById('preco-plano'),
+  periodoPlano: document.getElementById('periodo-plano'),
+  btnAssinarPro: document.getElementById('btn-assinar-pro'),
 
   // Conta
   contaEmail: document.getElementById('conta-email'),
@@ -91,12 +119,12 @@ function toast(msg, tipo = 'info') {
   if (!c) return;
   const div = document.createElement('div');
   div.className = `toast toast-${tipo}`;
-  div.textContent = msg;
+  div.innerHTML = `<span>${msg}</span>`;
   c.appendChild(div);
   setTimeout(() => div.remove(), 4000);
 }
 
-// Normalização de slug no estilo do exemplo
+// Normalização de slug
 function limparSlug(v) {
   return v
     .toLowerCase()
@@ -108,7 +136,6 @@ function limparSlug(v) {
 
 // Inicialização da Sessão
 async function init() {
-  // Se veio com erro no hash ou query (ex: link expirado), repassa para login com o aviso
   const hashStr = window.location.hash.replace(/^#/, '');
   const searchStr = window.location.search.replace(/^\?/, '');
   const params = new URLSearchParams(hashStr || searchStr);
@@ -117,7 +144,6 @@ async function init() {
     return;
   }
 
-  // Listener para capturar autenticação quando o token está sendo processado na URL
   sb.auth.onAuthStateChange(async (event, session) => {
     if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session && !state.user) {
       state.user = session.user;
@@ -127,7 +153,6 @@ async function init() {
 
   const { data: { session } } = await sb.auth.getSession();
   if (!session) {
-    // Se a URL contiver access_token, aguarda o evento do Supabase antes de sair
     if (window.location.hash.includes('access_token')) {
       return;
     }
@@ -139,7 +164,6 @@ async function init() {
 }
 
 async function carregarDadosLojaEAssinatura() {
-  // Busca dados da loja
   const { data: lojas, error: errLoja } = await sb
     .from('lojas')
     .select('*')
@@ -161,13 +185,11 @@ async function carregarDadosLojaEAssinatura() {
   state.loja = lojas[0];
   if (el.navLojaNome) {
     el.navLojaNome.textContent = state.loja.nome;
-    el.navLojaNome.style.display = 'inline';
   }
   if (el.btnNovoLinkTop) {
     el.btnNovoLinkTop.style.display = 'inline-flex';
   }
 
-  // Busca dados de assinatura
   const { data: assinaturas } = await sb
     .from('assinaturas')
     .select('*')
@@ -178,7 +200,6 @@ async function carregarDadosLojaEAssinatura() {
     atualizarBarraAssinatura();
   }
 
-  // Router por hash
   window.addEventListener('hashchange', router);
   router();
 }
@@ -191,23 +212,22 @@ function atualizarBarraAssinatura() {
 
   if (state.assinatura.status === 'trial') {
     if (diffDias > 0) {
-      el.textoTrial.innerHTML = `Período de teste ativo: restam <strong>${diffDias} dias</strong> de uso completo.`;
+      el.textoTrial.innerHTML = `Restam <strong>${diffDias} dias</strong> de teste gratuito`;
+      if (el.navStatusTexto) el.navStatusTexto.textContent = `Trial (${diffDias}d)`;
     } else {
-      el.textoTrial.innerHTML = `Seu período de teste expirou.`;
+      el.textoTrial.innerHTML = `Período de teste expirado`;
+      if (el.navStatusTexto) el.navStatusTexto.textContent = 'Expirado';
     }
   } else if (state.assinatura.status === 'ativo') {
-    if (el.bannerTrial) {
-      el.bannerTrial.style.background = 'var(--bg-success)';
-      el.bannerTrial.style.borderColor = 'var(--border-success)';
-    }
-    el.textoTrial.innerHTML = `Assinatura ativa e regular.`;
+    el.textoTrial.innerHTML = `Assinatura Pro ativa e regular`;
+    if (el.navStatusTexto) el.navStatusTexto.textContent = 'Pro Edge';
   }
 }
 
 // Router SPA por Hash
 async function router() {
   const hash = window.location.hash || '#/';
-  
+
   if (hash === '#/' || hash === '') {
     mostrarView('lista');
     await carregarLinks();
@@ -218,6 +238,8 @@ async function router() {
     const id = hash.replace('#/editar/', '');
     await prepararFormularioEdicao(id);
     mostrarView('form');
+  } else if (hash === '#/plano') {
+    mostrarView('plano');
   } else if (hash === '#/conta') {
     prepararTelaConta();
     mostrarView('conta');
@@ -229,7 +251,9 @@ function mostrarView(nome) {
   if (el.viewOnboarding) el.viewOnboarding.style.display = nome === 'onboarding' ? 'block' : 'none';
   if (el.viewLista) el.viewLista.style.display = nome === 'lista' ? 'block' : 'none';
   if (el.viewFormLink) el.viewFormLink.style.display = nome === 'form' ? 'block' : 'none';
+  if (el.viewPlano) el.viewPlano.style.display = nome === 'plano' ? 'block' : 'none';
   if (el.viewConta) el.viewConta.style.display = nome === 'conta' ? 'block' : 'none';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // ONBOARDING
@@ -252,34 +276,41 @@ if (el.formOnboarding) {
   el.formOnboarding.addEventListener('submit', async (e) => {
     e.preventDefault();
     const nome = el.onboardingNome.value.trim();
-    const slug = el.onboardingSlug.value.trim().toLowerCase();
+    const slug = limparSlug(el.onboardingSlug.value.trim());
 
-    const btn = document.getElementById('btn-salvar-loja');
-    if (btn) {
-      btn.disabled = true;
-      btn.textContent = 'Criando loja…';
+    if (!nome || !slug) {
+      toast('Preencha o nome e o identificador do negócio.', 'error');
+      return;
     }
 
+    const btn = document.getElementById('btn-salvar-loja');
+    btn.disabled = true;
+    btn.textContent = 'Criando loja…';
+
     try {
-      const { error } = await sb.rpc('criar_loja', { p_nome: nome, p_slug: slug });
+      const { data, error } = await sb.rpc('criar_loja', {
+        p_nome: nome,
+        p_slug: slug,
+      });
+
       if (error) throw error;
 
-      toast('Loja cadastrada com sucesso!', 'success');
-      window.location.reload();
+      state.loja = data;
+      toast('Loja cadastrada com sucesso! Bem-vindo ao teste gratuito.', 'success');
+      window.location.hash = '#/';
+      await carregarDadosLojaEAssinatura();
     } catch (err) {
-      toast('Erro ao cadastrar loja: ' + (err.message || err), 'error');
-      if (btn) {
-        btn.disabled = false;
-        btn.textContent = 'Começar Teste Grátis (7 Dias)';
-      }
+      toast('Erro ao cadastrar loja: ' + err.message, 'error');
+      btn.disabled = false;
+      btn.textContent = 'Começar Teste Grátis (7 Dias)';
     }
   });
 }
 
-// LISTA DE LINKS
+// LISTA DE LINKS & MÉTRICAS
 async function carregarLinks() {
   if (el.gridLinks) {
-    el.gridLinks.innerHTML = '<p style="color:var(--text-secondary); font-size:13px;">Atualizando lista…</p>';
+    el.gridLinks.innerHTML = '<div class="col-span-full py-10 text-center text-xs text-outline font-medium"><div class="spinner w-5 h-5 mx-auto mb-2"></div>Carregando seus links…</div>';
   }
 
   const { data: links, error: errLinks } = await sb
@@ -294,7 +325,7 @@ async function carregarLinks() {
   }
   state.links = links || [];
 
-  // Estatísticas
+  // Busca estatísticas
   try {
     const { data: stats } = await sb.rpc('estatisticas_links', { p_dias: 30 });
     state.estatisticas = {};
@@ -303,37 +334,79 @@ async function carregarLinks() {
         state.estatisticas[s.link_id] = s;
       });
     }
-  } catch (e) {
-    // Silencioso se RPC não estiver ativa
+  } catch (_) {}
+
+  atualizarMetricasBento();
+  aplicarFiltrosEBusca();
+}
+
+function atualizarMetricasBento() {
+  let totalCliques = 0;
+  let recentesCliques = 0;
+  let linksAtivos = 0;
+
+  state.links.forEach((link) => {
+    if (link.ativo) linksAtivos += 1;
+    const st = state.estatisticas[link.id];
+    if (st) {
+      totalCliques += st.total || 0;
+      recentesCliques += st.recentes || 0;
+    }
+  });
+
+  if (el.metricTotalCliques) el.metricTotalCliques.textContent = totalCliques.toLocaleString('pt-BR');
+  if (el.metricCliquesMes) el.metricCliquesMes.textContent = recentesCliques.toLocaleString('pt-BR');
+  if (el.metricTotalLinks) el.metricTotalLinks.textContent = state.links.length;
+  if (el.metricLinksAtivos) el.metricLinksAtivos.textContent = `${linksAtivos} ativos`;
+}
+
+function aplicarFiltrosEBusca() {
+  let lista = [...state.links];
+
+  // Filtro por Status
+  if (state.filtroAtual === 'ativos') {
+    lista = lista.filter((l) => l.ativo);
+  } else if (state.filtroAtual === 'pausados') {
+    lista = lista.filter((l) => !l.ativo);
   }
 
+  // Filtro por Busca
+  if (state.termoBusca) {
+    const termo = state.termoBusca.toLowerCase();
+    lista = lista.filter(
+      (l) => (l.titulo && l.titulo.toLowerCase().includes(termo)) || l.slug.toLowerCase().includes(termo)
+    );
+  }
+
+  state.linksFiltrados = lista;
   renderizarLinks();
 }
 
 function renderizarLinks() {
   if (el.contadorLinks) {
-    el.contadorLinks.textContent = `${state.links.length} link(s) cadastrado(s)`;
+    el.contadorLinks.textContent = `${state.linksFiltrados.length} de ${state.links.length} link(s)`;
   }
 
   if (state.links.length === 0) {
-    if (el.listaVazia) el.listaVazia.style.display = 'block';
-    if (el.gridLinks) el.gridLinks.style.display = 'none';
+    if (el.listaVazia) el.listaVazia.classList.remove('hidden');
+    if (el.gridLinks) el.gridLinks.classList.add('hidden');
     return;
   }
 
-  if (el.listaVazia) el.listaVazia.style.display = 'none';
+  if (el.listaVazia) el.listaVazia.classList.add('hidden');
   if (el.gridLinks) {
-    el.gridLinks.style.display = 'grid';
+    el.gridLinks.classList.remove('hidden');
     el.gridLinks.innerHTML = '';
   }
 
-  state.links.forEach((link) => {
+  if (state.linksFiltrados.length === 0) {
+    el.gridLinks.innerHTML = '<div class="col-span-full py-12 text-center text-xs text-on-surface-variant font-medium bg-surface-container-lowest rounded-xl border border-outline-variant/60">Nenhum link encontrado para esta busca ou filtro.</div>';
+    return;
+  }
+
+  state.linksFiltrados.forEach((link) => {
     const card = document.createElement('div');
-    card.className = 'card';
-    card.style.display = 'flex';
-    card.style.flexDirection = 'column';
-    card.style.justifyContent = 'space-between';
-    card.style.padding = '14px';
+    card.className = 'bg-surface-container-lowest border border-outline-variant/60 hover:border-primary/40 rounded-2xl p-3.5 shadow-xs transition-all flex flex-col justify-between group';
 
     const fullUrl = `${window.location.origin}/${state.loja.slug}/${link.slug}`;
     const { data: { publicUrl } } = sb.storage.from('banners').getPublicUrl(link.imagem_path);
@@ -342,41 +415,46 @@ function renderizarLinks() {
 
     card.innerHTML = `
       <div>
-        <div style="position:relative; aspect-ratio:1.91/1; border-radius:8px; overflow:hidden; background:var(--surface-1); margin-bottom:10px;">
-          <img src="${imgUrl}" alt="${link.titulo || 'Banner'}" style="width:100%; height:100%; object-fit:cover;">
-          <span style="position:absolute; top:6px; right:6px; font-size:11px; font-weight:600; padding:2px 7px; border-radius:4px; background:${link.ativo ? 'var(--bg-success)' : 'var(--bg-danger)'}; color:${link.ativo ? 'var(--text-success)' : 'var(--text-danger)'}; border:0.5px solid ${link.ativo ? 'var(--border-success)' : 'var(--border-danger)'};">
-            ${link.ativo ? 'Ativo' : 'Pausado'}
+        <div class="relative aspect-[1.91/1] rounded-xl overflow-hidden bg-surface-container-low mb-3 border border-outline-variant/40">
+          <img src="${imgUrl}" alt="${link.titulo || 'Banner'}" class="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300">
+          <span class="absolute top-2 right-2 text-[10px] font-bold px-2 py-0.5 rounded-full ${link.ativo ? 'bg-secondary-container text-on-secondary-container' : 'bg-error-container text-on-error-container'} shadow-xs">
+            ${link.ativo ? '● Ativo' : '○ Pausado'}
           </span>
         </div>
 
-        <h4 style="font-size:14px; font-weight:600; margin-bottom:4px; line-height:1.3; color:var(--text-primary);">
+        <h4 class="text-xs font-bold text-on-surface mb-0.5 leading-snug line-clamp-1">
           ${link.titulo || state.loja.nome}
         </h4>
-        <p style="font-size:12px; color:var(--text-secondary); margin-bottom:8px; font-family:var(--font-mono); word-break:break-all;">
+        <p class="text-[11px] font-mono text-primary truncate mb-2.5">
           /${state.loja.slug}/${link.slug}
         </p>
 
-        <div style="background:var(--surface-1); border-radius:6px; padding:6px 10px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
-          <span style="font-size:12px; color:var(--text-secondary);">Cliques (30d / Total):</span>
-          <strong style="font-size:12px; color:var(--text-primary); font-family:var(--font-mono);">${st.recentes} / ${st.total}</strong>
+        <div class="bg-surface-container-low rounded-lg p-2 mb-3 flex items-center justify-between text-xs">
+          <span class="text-[11px] text-outline">Cliques:</span>
+          <div class="flex items-center gap-1 font-mono font-bold text-on-surface text-xs">
+            <span class="text-secondary-dark">${st.recentes} (30d)</span>
+            <span class="text-outline">/</span>
+            <span>${st.total} total</span>
+          </div>
         </div>
       </div>
 
-      <div style="display:flex; flex-direction:column; gap:6px;">
-        <div style="display:flex; gap:6px;">
-          <button class="btn btn-secondary btn-sm btn-copiar" data-url="${fullUrl}" style="flex:1;">
-            <i class="ti ti-copy"></i> Copiar
+      <div class="space-y-1.5 pt-1 border-t border-surface-container-high/60">
+        <div class="grid grid-cols-2 gap-1.5">
+          <button type="button" class="btn-copiar bg-surface-container hover:bg-surface-container-high text-primary font-bold text-xs py-1.5 px-2 rounded-lg flex items-center justify-center gap-1 transition-all" data-url="${fullUrl}">
+            <span class="material-symbols-outlined text-sm">content_copy</span> Copiar
           </button>
-          <a href="https://wa.me/?text=${encodeURIComponent(fullUrl)}" target="_blank" class="btn btn-whatsapp btn-sm" style="flex:1; text-decoration:none;">
-            <i class="ti ti-brand-whatsapp"></i> Enviar
+          <a href="https://wa.me/?text=${encodeURIComponent(fullUrl)}" target="_blank" class="bg-secondary hover:bg-secondary-dark text-white font-bold text-xs py-1.5 px-2 rounded-lg flex items-center justify-center gap-1 transition-all">
+            <span class="material-symbols-outlined text-sm">send</span> WhatsApp
           </a>
         </div>
-        <div style="display:flex; gap:6px;">
-          <a href="#/editar/${link.id}" class="btn btn-secondary btn-sm" style="flex:1;">
-            <i class="ti ti-pencil"></i> Editar
+        <div class="grid grid-cols-2 gap-1.5">
+          <a href="#/editar/${link.id}" class="bg-surface-container-lowest border border-outline-variant hover:bg-surface-container-low text-on-surface-variant font-medium text-xs py-1.5 px-2 rounded-lg flex items-center justify-center gap-1 transition-all">
+            <span class="material-symbols-outlined text-sm">edit</span> Editar
           </a>
-          <button class="btn btn-danger-subtle btn-sm btn-toggle-ativo" data-id="${link.id}" data-ativo="${link.ativo}" style="flex:1;">
-            ${link.ativo ? '<i class="ti ti-player-pause"></i> Pausar' : '<i class="ti ti-player-play"></i> Ativar'}
+          <button type="button" class="btn-toggle-ativo bg-surface-container-lowest border border-outline-variant hover:bg-surface-container-low text-on-surface-variant font-medium text-xs py-1.5 px-2 rounded-lg flex items-center justify-center gap-1 transition-all" data-id="${link.id}" data-ativo="${link.ativo}">
+            <span class="material-symbols-outlined text-sm">${link.ativo ? 'pause' : 'play_arrow'}</span>
+            <span>${link.ativo ? 'Pausar' : 'Ativar'}</span>
           </button>
         </div>
       </div>
@@ -385,14 +463,15 @@ function renderizarLinks() {
     el.gridLinks.appendChild(card);
   });
 
-  // Ações de botões na lista
+  // Listeners dos botões de card
   document.querySelectorAll('.btn-copiar').forEach((btn) => {
     btn.addEventListener('click', () => {
       const url = btn.dataset.url;
       navigator.clipboard.writeText(url);
-      const originalText = btn.innerHTML;
-      btn.textContent = 'Copiado!';
-      setTimeout(() => { btn.innerHTML = originalText; }, 1800);
+      btn.innerHTML = '<span class="material-symbols-outlined text-sm">check</span> Copiado!';
+      setTimeout(() => {
+        btn.innerHTML = '<span class="material-symbols-outlined text-sm">content_copy</span> Copiar';
+      }, 1800);
       toast('Link copiado para a área de transferência!', 'success');
     });
   });
@@ -412,23 +491,80 @@ function renderizarLinks() {
   });
 }
 
+// Interação de Busca e Chips
+if (el.inputBuscaLinks) {
+  el.inputBuscaLinks.addEventListener('input', (e) => {
+    state.termoBusca = e.target.value;
+    aplicarFiltrosEBusca();
+  });
+}
+
+document.querySelectorAll('.filtro-chip').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filtro-chip').forEach((b) => {
+      b.className = 'filtro-chip px-3 py-1.5 rounded-full text-xs font-medium transition-all bg-surface-container-low text-on-surface-variant hover:bg-surface-container';
+    });
+    btn.className = 'filtro-chip px-3 py-1.5 rounded-full text-xs font-bold transition-all bg-primary text-white shadow-xs';
+    state.filtroAtual = btn.dataset.filtro;
+    aplicarFiltrosEBusca();
+  });
+});
+
+// ALTERNADOR DE ABAS DE DESTINO (WHATSAPP DIRETO VS URL EXTERNA)
+function switchDestTab(tipo) {
+  state.tipoDestino = tipo;
+  if (tipo === 'whatsapp') {
+    if (el.tabWaBtn) {
+      el.tabWaBtn.className = 'flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-surface-container-lowest text-primary text-xs font-bold shadow-xs transition-all';
+    }
+    if (el.tabUrlBtn) {
+      el.tabUrlBtn.className = 'flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-on-surface-variant hover:text-on-surface text-xs font-medium transition-all';
+    }
+    if (el.paneWhatsapp) el.paneWhatsapp.classList.remove('hidden');
+    if (el.paneUrl) el.paneUrl.classList.add('hidden');
+  } else {
+    if (el.tabUrlBtn) {
+      el.tabUrlBtn.className = 'flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-surface-container-lowest text-primary text-xs font-bold shadow-xs transition-all';
+    }
+    if (el.tabWaBtn) {
+      el.tabWaBtn.className = 'flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-on-surface-variant hover:text-on-surface text-xs font-medium transition-all';
+    }
+    if (el.paneUrl) el.paneUrl.classList.remove('hidden');
+    if (el.paneWhatsapp) el.paneWhatsapp.classList.add('hidden');
+  }
+}
+
+if (el.tabWaBtn) el.tabWaBtn.addEventListener('click', () => switchDestTab('whatsapp'));
+if (el.tabUrlBtn) el.tabUrlBtn.addEventListener('click', () => switchDestTab('url'));
+
+// Chips de Tags dinâmicas na mensagem
+document.querySelectorAll('.btn-tag').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    const tag = btn.dataset.tag;
+    if (el.presetMessage) {
+      el.presetMessage.value += (el.presetMessage.value ? ' ' : '') + tag;
+      el.presetMessage.focus();
+    }
+  });
+});
+
 // FORMULÁRIO (NOVO / EDITAR)
 function prepararFormularioNovo() {
   state.linkEditando = null;
   state.arquivoBlob = null;
-  
-  if (el.tituloFormLink) el.tituloFormLink.textContent = 'Novo link';
-  if (el.btnSubmeterLink) el.btnSubmeterLink.textContent = 'Criar link';
+
+  if (el.tituloFormLink) el.tituloFormLink.textContent = 'Configurar Novo Link';
+  if (el.subtituloFormLink) el.subtituloFormLink.textContent = 'Passo 1 de 2: Configure os dados do cartão';
+  if (el.btnSubmeterLink) el.btnSubmeterLink.textContent = 'Criar Link Inteligente';
   if (el.formLink) el.formLink.reset();
 
-  if (el.fname) el.fname.textContent = 'Escolher da galeria';
-  if (el.infoArquivo) {
-    el.infoArquivo.textContent = '';
-    el.infoArquivo.style.display = 'none';
-  }
+  if (el.fname) el.fname.textContent = 'Escolher da galeria ou arrastar foto';
+  if (el.infoArquivo) el.infoArquivo.classList.add('hidden');
   if (el.eImg) el.eImg.textContent = '';
   if (el.eDest) el.eDest.textContent = '';
-  if (el.res) el.res.hidden = true;
+  if (el.res) el.res.classList.add('hidden');
+
+  switchDestTab('whatsapp');
 
   if (el.inputSlug) {
     el.inputSlug.value = slugAleatorio();
@@ -438,10 +574,9 @@ function prepararFormularioNovo() {
     el.detalhesPersonalizar.open = false;
   }
 
-  // Reseta Live Preview
   if (el.ph) el.ph.style.display = 'flex';
   if (el.im) {
-    el.im.style.display = 'none';
+    el.im.classList.add('hidden');
     el.im.src = '';
   }
 
@@ -450,9 +585,10 @@ function prepararFormularioNovo() {
 
 async function prepararFormularioEdicao(id) {
   state.arquivoBlob = null;
-  if (el.tituloFormLink) el.tituloFormLink.textContent = 'Editar link';
-  if (el.btnSubmeterLink) el.btnSubmeterLink.textContent = 'Salvar alterações';
-  if (el.res) el.res.hidden = true;
+  if (el.tituloFormLink) el.tituloFormLink.textContent = 'Editar Link';
+  if (el.subtituloFormLink) el.subtituloFormLink.textContent = 'Atualize os dados e banner do link';
+  if (el.btnSubmeterLink) el.btnSubmeterLink.textContent = 'Salvar Alterações';
+  if (el.res) el.res.classList.add('hidden');
   if (el.eImg) el.eImg.textContent = '';
   if (el.eDest) el.eDest.textContent = '';
 
@@ -469,7 +605,24 @@ async function prepararFormularioEdicao(id) {
   }
 
   state.linkEditando = link;
-  if (el.inputDestino) el.inputDestino.value = link.destino;
+
+  // Analisa se o destino é WhatsApp ou URL externa
+  if (link.destino.includes('wa.me/')) {
+    switchDestTab('whatsapp');
+    try {
+      const u = new URL(link.destino);
+      const tel = u.pathname.replace(/^\//, '').replace(/^55/, '');
+      if (el.waPhone) el.waPhone.value = tel;
+      const msg = u.searchParams.get('text');
+      if (el.presetMessage && msg) el.presetMessage.value = msg;
+    } catch (_) {
+      if (el.inputDestino) el.inputDestino.value = link.destino;
+    }
+  } else {
+    switchDestTab('url');
+    if (el.inputDestino) el.inputDestino.value = link.destino;
+  }
+
   if (el.inputTitulo) el.inputTitulo.value = link.titulo || '';
   if (el.inputDescricao) el.inputDescricao.value = link.descricao || '';
   if (el.inputSlug) el.inputSlug.value = link.slug;
@@ -480,11 +633,11 @@ async function prepararFormularioEdicao(id) {
   // Foto existente
   const { data: { publicUrl } } = sb.storage.from('banners').getPublicUrl(link.imagem_path);
   const imgUrl = `${publicUrl}?v=${link.versao}`;
-  
+
   if (el.fname) el.fname.textContent = 'Trocar imagem atual';
   if (el.im) {
     el.im.src = imgUrl;
-    el.im.style.display = 'block';
+    el.im.classList.remove('hidden');
   }
   if (el.ph) el.ph.style.display = 'none';
 
@@ -500,14 +653,14 @@ if (el.dropzone) {
   ['dragenter', 'dragover'].forEach((eventName) => {
     el.dropzone.addEventListener(eventName, (e) => {
       e.preventDefault();
-      el.dropzone.classList.add('dragover');
+      el.dropzone.classList.add('border-primary');
     });
   });
 
   ['dragleave', 'drop'].forEach((eventName) => {
     el.dropzone.addEventListener(eventName, (e) => {
       e.preventDefault();
-      el.dropzone.classList.remove('dragover');
+      el.dropzone.classList.remove('border-primary');
     });
   });
 
@@ -536,24 +689,27 @@ async function tratarArquivoSelecionado(file) {
   if (el.eImg) el.eImg.textContent = '';
   if (el.fname) el.fname.textContent = file.name;
   if (el.infoArquivo) {
-    el.infoArquivo.textContent = 'Otimizando imagem…';
-    el.infoArquivo.style.display = 'block';
+    el.infoArquivo.classList.remove('hidden');
+    if (el.detalheCompressao) el.detalheCompressao.textContent = 'Otimizando proporção 1.91:1…';
   }
 
   try {
+    const tamanhoOriginalKB = Math.round(file.size / 1024);
     const blob = await comprimirImagem(file, { larguraMax: 1200, alvoKB: 300 });
     state.arquivoBlob = blob;
 
     const urlPreview = URL.createObjectURL(blob);
     if (el.im) {
       el.im.src = urlPreview;
-      el.im.style.display = 'block';
+      el.im.classList.remove('hidden');
     }
     if (el.ph) el.ph.style.display = 'none';
 
-    const tamanhoKB = Math.round(blob.size / 1024);
-    if (el.infoArquivo) {
-      el.infoArquivo.textContent = `✓ Imagem otimizada (${tamanhoKB} KB)`;
+    const tamanhoFinalKB = Math.round(blob.size / 1024);
+    const economia = Math.max(0, Math.round(((tamanhoOriginalKB - tamanhoFinalKB) / tamanhoOriginalKB) * 100));
+
+    if (el.detalheCompressao) {
+      el.detalheCompressao.textContent = `${tamanhoOriginalKB}KB → ${tamanhoFinalKB}KB (-${economia}%) · Alta Definição`;
     }
   } catch (err) {
     if (el.eImg) el.eImg.textContent = 'Erro ao processar imagem: ' + err.message;
@@ -561,7 +717,7 @@ async function tratarArquivoSelecionado(file) {
   }
 }
 
-// Atualização Reativa do Live Preview WhatsApp
+// Live Preview
 function fullUrlExibicao() {
   const lojaSlug = state.loja ? state.loja.slug : 'loja';
   const slug = el.inputSlug ? limparSlug(el.inputSlug.value).replace(/^-|-$/g, '') || 'link' : 'link';
@@ -570,21 +726,21 @@ function fullUrlExibicao() {
 }
 
 function atualizarLivePreview() {
-  const lojaNome = state.loja ? state.loja.nome : 'Morangos Tatuí';
+  const lojaNome = state.loja ? state.loja.nome : 'Minha Loja';
   const titulo = (el.inputTitulo && el.inputTitulo.value.trim()) || lojaNome;
   const desc = el.inputDescricao ? el.inputDescricao.value.trim() : '';
-  const urlTexto = fullUrlExibicao();
 
   if (el.pt) el.pt.textContent = titulo;
   if (el.pd) {
     el.pd.textContent = desc;
-    el.pd.style.display = desc ? 'block' : 'none';
+    if (desc) {
+      el.pd.classList.remove('hidden');
+    } else {
+      el.pd.classList.add('hidden');
+    }
   }
   if (el.waCardHost) {
     el.waCardHost.textContent = window.location.host || 'postlink.app';
-  }
-  if (el.pu) {
-    el.pu.textContent = 'https://' + urlTexto;
   }
 }
 
@@ -596,23 +752,35 @@ if (el.inputSlug) {
     atualizarLivePreview();
   });
 }
-if (el.inputDestino) {
-  el.inputDestino.addEventListener('input', () => {
-    if (el.eDest) el.eDest.textContent = '';
-  });
+
+// Montar Destino Final
+function obterDestinoNormalizado() {
+  if (state.tipoDestino === 'whatsapp') {
+    const rawTel = el.waPhone ? el.waPhone.value.replace(/\D/g, '') : '';
+    if (!rawTel || rawTel.length < 10) {
+      return null;
+    }
+    const telComDDI = rawTel.startsWith('55') ? rawTel : `55${rawTel}`;
+    const msg = el.presetMessage ? el.presetMessage.value.trim() : '';
+    return msg ? `https://wa.me/${telComDDI}?text=${encodeURIComponent(msg)}` : `https://wa.me/${telComDDI}`;
+  } else {
+    const destBruto = el.inputDestino ? el.inputDestino.value.trim() : '';
+    return normalizarDestino(destBruto);
+  }
 }
 
-// Envio do Formulário (Criar / Editar)
+// Submissão do Formulário
 if (el.formLink) {
   el.formLink.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const destinoBruto = el.inputDestino ? el.inputDestino.value.trim() : '';
-    const destino = normalizarDestino(destinoBruto);
-
+    const destino = obterDestinoNormalizado();
     if (!destino) {
-      if (el.eDest) el.eDest.textContent = 'Cole um link que comece com https:// ou um número de WhatsApp com DDD.';
-      if (el.inputDestino) el.inputDestino.focus();
+      if (el.eDest) {
+        el.eDest.textContent = state.tipoDestino === 'whatsapp'
+          ? 'Digite um número de WhatsApp válido com DDD (Ex: 15998765432).'
+          : 'Digite uma URL válida que comece com https://.';
+      }
       return;
     }
 
@@ -633,7 +801,6 @@ if (el.formLink) {
       const validoAte = (el.inputValidoAte && el.inputValidoAte.value) ? new Date(el.inputValidoAte.value).toISOString() : null;
 
       if (state.linkEditando) {
-        // MODO EDIÇÃO
         let caminhoImagem = state.linkEditando.imagem_path;
         let versao = state.linkEditando.versao || 1;
 
@@ -667,7 +834,6 @@ if (el.formLink) {
         const linkPronto = `${window.location.origin}/${state.loja.slug}/${slugFinal}`;
         exibirResultadoCriado(linkPronto);
       } else {
-        // MODO CRIAÇÃO
         const linkId = crypto.randomUUID();
         const versao = 1;
         const caminhoImagem = `${state.user.id}/${linkId}-v${versao}.jpg`;
@@ -719,68 +885,110 @@ if (el.formLink) {
         exibirResultadoCriado(linkPronto);
       }
     } catch (err) {
-      toast('Erro: ' + (err.message || err), 'error');
+      toast('Erro ao salvar link: ' + err.message, 'error');
     } finally {
       if (el.btnSubmeterLink) {
         el.btnSubmeterLink.disabled = false;
-        el.btnSubmeterLink.textContent = state.linkEditando ? 'Salvar alterações' : 'Criar link';
+        el.btnSubmeterLink.textContent = state.linkEditando ? 'Salvar Alterações' : 'Criar Link Inteligente';
       }
     }
   });
 }
 
 function exibirResultadoCriado(url) {
-  // 1. Atualiza caixa inline exatamente como no exemplo
-  if (el.ru) el.ru.textContent = url;
-  if (el.btnShareInline) el.btnShareInline.href = `https://wa.me/?text=${encodeURIComponent(url)}`;
-  if (el.res) el.res.hidden = false;
+  if (el.res) {
+    el.res.classList.remove('hidden');
+    if (el.ru) el.ru.textContent = url;
+    if (el.btnShareInline) {
+      el.btnShareInline.href = `https://wa.me/?text=${encodeURIComponent(url)}`;
+    }
+  }
 
-  // 2. Preenche e exibe modal de sucesso amigável
-  if (el.modalInputLink) el.modalInputLink.value = url;
-  if (el.modalBtnWhatsapp) el.modalBtnWhatsapp.href = `https://wa.me/?text=${encodeURIComponent(url)}`;
-  if (el.modalSucesso) el.modalSucesso.style.display = 'flex';
+  if (el.modalSucesso && el.modalInputLink) {
+    el.modalInputLink.value = url;
+    if (el.modalBtnWhatsapp) {
+      el.modalBtnWhatsapp.href = `https://wa.me/?text=${encodeURIComponent(url)}`;
+    }
+    el.modalSucesso.classList.remove('hidden');
+  }
+
+  toast('Link inteligente gerado no Edge!', 'success');
 }
 
-// Ações do botão copiar inline (#cp do exemplo)
+// Listeners do Modal e Copy
 if (el.cp) {
   el.cp.addEventListener('click', () => {
-    const url = el.ru ? el.ru.textContent : '';
-    if (!url) return;
-    try {
-      navigator.clipboard.writeText(url);
-    } catch (e) {}
-    el.cp.textContent = 'Link copiado';
-    setTimeout(() => { el.cp.textContent = 'Copiar link'; }, 2000);
-    toast('Link copiado com sucesso!', 'success');
+    if (el.ru) {
+      navigator.clipboard.writeText(el.ru.textContent);
+      toast('Link copiado!', 'success');
+    }
   });
 }
 
-// Ações do Modal de Sucesso
 if (el.modalBtnCopiar) {
   el.modalBtnCopiar.addEventListener('click', () => {
     if (el.modalInputLink) {
       navigator.clipboard.writeText(el.modalInputLink.value);
-      toast('Link copiado com sucesso!', 'success');
+      toast('Link copiado!', 'success');
     }
   });
 }
 
 if (el.modalBtnFechar) {
   el.modalBtnFechar.addEventListener('click', () => {
-    if (el.modalSucesso) el.modalSucesso.style.display = 'none';
+    if (el.modalSucesso) el.modalSucesso.classList.add('hidden');
     window.location.hash = '#/';
   });
 }
 
-// TELA DA CONTA
-function prepararTelaConta() {
-  if (el.contaEmail) el.contaEmail.textContent = state.user.email;
-  if (el.contaLojaNome) el.contaLojaNome.textContent = state.loja ? state.loja.nome : '-';
-  if (el.contaLojaSlug) el.contaLojaSlug.textContent = state.loja ? state.loja.slug : '-';
-  if (el.contaStatus) el.contaStatus.textContent = (state.assinatura ? state.assinatura.status : 'trial').toUpperCase();
+// CHECKOUT / PLANO PRO (#/plano)
+let billingCycle = 'monthly';
+
+function setBilling(cycle) {
+  billingCycle = cycle;
+  if (cycle === 'monthly') {
+    if (el.btnBillingMonthly) {
+      el.btnBillingMonthly.className = 'flex-1 py-2 text-center rounded-lg text-xs font-bold transition-all shadow-xs bg-surface-container-lowest text-primary';
+    }
+    if (el.btnBillingYearly) {
+      el.btnBillingYearly.className = 'flex-1 py-2 text-center rounded-lg text-xs font-medium transition-all text-on-surface-variant flex items-center justify-center gap-1 hover:text-on-surface';
+    }
+    if (el.precoPlano) el.precoPlano.textContent = 'R$ 29,90';
+    if (el.periodoPlano) el.periodoPlano.textContent = '/mês';
+  } else {
+    if (el.btnBillingYearly) {
+      el.btnBillingYearly.className = 'flex-1 py-2 text-center rounded-lg text-xs font-bold transition-all shadow-xs bg-surface-container-lowest text-primary flex items-center justify-center gap-1';
+    }
+    if (el.btnBillingMonthly) {
+      el.btnBillingMonthly.className = 'flex-1 py-2 text-center rounded-lg text-xs font-medium transition-all text-on-surface-variant hover:text-on-surface';
+    }
+    if (el.precoPlano) el.precoPlano.textContent = 'R$ 23,90';
+    if (el.periodoPlano) el.periodoPlano.textContent = '/mês (R$ 286,80 cobrado anual)';
+  }
 }
 
-// LOGOUT
+if (el.btnBillingMonthly) el.btnBillingMonthly.addEventListener('click', () => setBilling('monthly'));
+if (el.btnBillingYearly) el.btnBillingYearly.addEventListener('click', () => setBilling('yearly'));
+
+if (el.btnAssinarPro) {
+  el.btnAssinarPro.addEventListener('click', () => {
+    toast('Seu teste gratuito de 7 dias do Plano Pro está ativado!', 'success');
+    setTimeout(() => {
+      window.location.hash = '#/';
+    }, 1200);
+  });
+}
+
+// CONTA
+function prepararTelaConta() {
+  if (el.contaEmail && state.user) el.contaEmail.textContent = state.user.email;
+  if (el.contaLojaNome && state.loja) el.contaLojaNome.textContent = state.loja.nome;
+  if (el.contaLojaSlug && state.loja) el.contaLojaSlug.textContent = `/${state.loja.slug}`;
+  if (el.contaStatus && state.assinatura) {
+    el.contaStatus.textContent = state.assinatura.status.toUpperCase();
+  }
+}
+
 if (el.btnSair) {
   el.btnSair.addEventListener('click', async () => {
     await sb.auth.signOut();
@@ -788,5 +996,5 @@ if (el.btnSair) {
   });
 }
 
-// Inicializa Aplicação
+// Iniciar Aplicação
 init();

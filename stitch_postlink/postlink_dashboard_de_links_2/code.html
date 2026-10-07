@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PostLink - Painel de Controle</title>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Plus Jakarta Sans Font -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS with Forms and Container Queries -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration verbatim as mandated -->
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "error-container": "#ffdad6",
+            "secondary-container": "#6bff8f",
+            "primary": "#003e80",
+            "secondary-fixed-dim": "#4ae176",
+            "surface-tint": "#295ea8",
+            "primary-fixed": "#d6e3ff",
+            "inverse-on-surface": "#eef0ff",
+            "error": "#ba1a1a",
+            "on-secondary-fixed": "#002109",
+            "inverse-surface": "#283044",
+            "tertiary-fixed": "#89f5e7",
+            "secondary-fixed": "#6bff8f",
+            "on-error-container": "#93000a",
+            "on-primary-container": "#b4cdff",
+            "on-error": "#ffffff",
+            "on-tertiary-container": "#72dfd1",
+            "surface-container-high": "#e2e7ff",
+            "on-tertiary": "#ffffff",
+            "on-background": "#131b2e",
+            "primary-container": "#1e56a0",
+            "background": "#faf8ff",
+            "tertiary-container": "#00625a",
+            "outline": "#737782",
+            "surface-bright": "#faf8ff",
+            "on-primary-fixed-variant": "#00458d",
+            "on-tertiary-fixed": "#00201d",
+            "surface-container": "#eaedff",
+            "surface-container-highest": "#dae2fd",
+            "tertiary-fixed-dim": "#6bd8cb",
+            "on-surface": "#131b2e",
+            "surface": "#faf8ff",
+            "inverse-primary": "#aac7ff",
+            "on-secondary-fixed-variant": "#005321",
+            "surface-dim": "#d2d9f4",
+            "secondary": "#006e2f",
+            "on-tertiary-fixed-variant": "#005049",
+            "outline-variant": "#c2c6d3",
+            "tertiary": "#004842",
+            "on-secondary": "#ffffff",
+            "on-primary-fixed": "#001b3e",
+            "on-primary": "#ffffff",
+            "on-surface-variant": "#424751",
+            "primary-fixed-dim": "#aac7ff",
+            "surface-container-low": "#f2f3ff",
+            "surface-container-lowest": "#ffffff",
+            "on-secondary-container": "#007432",
+            "surface-variant": "#dae2fd"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "space-lg": "1.5rem",
+            "space-md": "1rem",
+            "margin": "2rem",
+            "gutter-mobile": "0.75rem",
+            "margin-mobile": "1rem",
+            "space-xl": "2.5rem",
+            "space-sm": "0.5rem",
+            "gutter": "1rem",
+            "space-xs": "0.25rem"
+          },
+          "fontFamily": {
+            "body-lg": [
+              "Plus Jakarta Sans"
+            ],
+            "body-sm": [
+              "Plus Jakarta Sans"
+            ],
+            "headline-lg": [
+              "Plus Jakarta Sans"
+            ],
+            "label-md": [
+              "Plus Jakarta Sans"
+            ],
+            "label-lg": [
+              "Plus Jakarta Sans"
+            ],
+            "headline-lg-mobile": [
+              "Plus Jakarta Sans"
+            ],
+            "headline-sm": [
+              "Plus Jakarta Sans"
+            ],
+            "title-md": [
+              "Plus Jakarta Sans"
+            ],
+            "label-sm": [
+              "Plus Jakarta Sans"
+            ],
+            "headline-md": [
+              "Plus Jakarta Sans"
+            ],
+            "display": [
+              "Plus Jakarta Sans"
+            ],
+            "body-md": [
+              "Plus Jakarta Sans"
+            ]
+          },
+          "fontSize": {
+            "body-lg": [
+              "16px",
+              {
+                "lineHeight": "24px",
+                "fontWeight": "400"
+              }
+            ],
+            "body-sm": [
+              "13px",
+              {
+                "lineHeight": "18px",
+                "fontWeight": "400"
+              }
+            ],
+            "headline-lg": [
+              "32px",
+              {
+                "lineHeight": "40px",
+                "fontWeight": "700"
+              }
+            ],
+            "label-md": [
+              "12px",
+              {
+                "lineHeight": "16px",
+                "fontWeight": "600"
+              }
+            ],
+            "label-lg": [
+              "14px",
+              {
+                "lineHeight": "20px",
+                "fontWeight": "600"
+              }
+            ],
+            "headline-lg-mobile": [
+              "26px",
+              {
+                "lineHeight": "34px",
+                "fontWeight": "700"
+              }
+            ],
+            "headline-sm": [
+              "20px",
+              {
+                "lineHeight": "28px",
+                "fontWeight": "600"
+              }
+            ],
+            "title-md": [
+              "18px",
+              {
+                "lineHeight": "24px",
+                "fontWeight": "600"
+              }
+            ],
+            "label-sm": [
+              "11px",
+              {
+                "lineHeight": "14px",
+                "fontWeight": "500"
+              }
+            ],
+            "headline-md": [
+              "24px",
+              {
+                "lineHeight": "32px",
+                "fontWeight": "600"
+              }
+            ],
+            "display": [
+              "40px",
+              {
+                "lineHeight": "48px",
+                "fontWeight": "800"
+              }
+            ],
+            "body-md": [
+              "14px",
+              {
+                "lineHeight": "20px",
+                "fontWeight": "400"
+              }
+            ]
+          }
+        },
+      },
+    }
+  </script>
+</head>
+<body class="bg-background text-on-surface font-body-md text-body-md antialiased min-h-screen pb-28 selection:bg-primary selection:text-on-primary">
+<!-- TOP APP BAR (Shared Component Anchor) -->
+<header class="bg-surface-container-lowest dark:bg-surface-container docked full-width top-0 sticky z-40 shadow-sm dark:shadow-none">
+<div class="flex justify-between items-center w-full px-margin-mobile py-space-sm max-w-7xl mx-auto">
+<!-- Brand & Leading Logo -->
+<div class="flex items-center gap-space-sm">
+<img alt="PostLink Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMz9Quhv3FtDJLCw6u4UR984jV5myVmYQIrbc8_v_jaz6LiX5nufhVaNp0sIhs3zwn6hG8GnbzWP9SLsL18EXV9en6QHGc6AMcASqUm89p8XHLeBXYHII8X6flZETbQp8uipP6G4hoqyOCflzjetxbwxUiL1fWhvcaZQ6_gzaeEpMMI1oA63w2COx2AiT8-YE68iKLHnaiXfEdMUzhXzAfFd6JbRaKRKh6BQ5a020M7n2756grb_aw"/>
+<span class="text-headline-md font-headline-md font-extrabold text-primary dark:text-inverse-primary tracking-tight hidden sm:inline-block">postlink</span>
+</div>
+<!-- Trailing Action: Status Badge & Store Profile -->
+<div class="flex items-center gap-space-sm">
+<!-- Pro Status Pill -->
+<div class="inline-flex items-center gap-1.5 px-space-sm py-0.5 rounded-full bg-secondary-container/20 text-on-secondary-container border border-secondary-fixed/40">
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+<span class="font-label-sm text-label-sm font-semibold">Plano Pro</span>
+</div>
+<!-- Store Avatar & Identity -->
+<div class="flex items-center gap-space-xs pl-space-xs border-l border-outline-variant/50">
+<div class="relative w-8 h-8 rounded-full overflow-hidden ring-2 ring-primary-container/20">
+<img class="w-full h-full object-cover" data-alt="A stylish boutique owner portrait representing modafashion, wearing minimalist navy and emerald designer clothing in a bright high-end studio with natural soft lighting and modern corporate precision." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAracZ0fgi_YXV3SAUc-E71FpYt-elxegTxWed5JCc1u48fxSctVrgG0TlZFmTIe_wkjsxtC1TYPdEXJOU0-F8Qp6etub3EjNkDplFfHmHsaMKBw_iakvTK9tX4x2MD2jPBJgbb37S0eDqa131zb5IBdiRhPpLD6kvd8b48YXcUgakjeJfnGlZBFbwl6WPJaTFdhq9jHBsZmHAe8iTdQbahuGGg5sGsTE8Rj6i7NIU"/>
+</div>
+<span class="font-label-md text-label-md text-on-surface font-semibold hidden md:inline">@modafashion</span>
+</div>
+</div>
+</div>
+</header>
+<!-- MAIN DASHBOARD CONTENT -->
+<main class="max-w-7xl mx-auto px-margin-mobile pt-space-md space-y-space-lg">
+<!-- WELCOME GREETING & METRIC OVERVIEW -->
+<section class="space-y-space-sm">
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-space-xs">
+<div>
+<h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface font-bold tracking-tight">
+            Olá, Moda Fashion 👋
+          </h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+            Gerencie seus links inteligentes e maximize suas conversões de vendas no WhatsApp.
+          </p>
+</div>
+<!-- Quick Action Trigger Desktop -->
+<div class="hidden md:flex items-center gap-space-sm">
+<button class="flex items-center gap-2 bg-primary-container text-on-primary hover:bg-primary px-space-md py-2 rounded-lg font-label-lg text-label-lg transition-transform active:scale-95 shadow-sm">
+<span class="material-symbols-outlined text-lg" data-icon="add_link">add_link</span>
+<span>Novo Link</span>
+</button>
+</div>
+</div>
+<!-- METRIC BENTO TILES -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-gutter-mobile pt-space-xs">
+<!-- Metric 1: Total Clicks -->
+<div class="bg-surface-container-lowest border border-outline-variant/40 rounded-xl p-space-md shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant font-medium">Total de Cliques</span>
+<div class="w-7 h-7 rounded-lg bg-primary-fixed flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-base" data-icon="touch_app">touch_app</span>
+</div>
+</div>
+<div class="mt-space-sm">
+<div class="font-headline-md text-headline-md font-bold text-on-surface">14.820</div>
+<div class="flex items-center gap-1 font-label-sm text-label-sm text-secondary font-semibold mt-0.5">
+<span class="material-symbols-outlined text-xs" data-icon="trending_up">trending_up</span>
+<span>+18.2% este mês</span>
+</div>
+</div>
+</div>
+<!-- Metric 2: Conversion Rate -->
+<div class="bg-surface-container-lowest border border-outline-variant/40 rounded-xl p-space-md shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant font-medium">Taxa de Conversão</span>
+<div class="w-7 h-7 rounded-lg bg-secondary-fixed/50 flex items-center justify-center text-on-secondary-container">
+<span class="material-symbols-outlined text-base" data-icon="insights">insights</span>
+</div>
+</div>
+<div class="mt-space-sm">
+<div class="font-headline-md text-headline-md font-bold text-on-surface">+32.4%</div>
+<div class="flex items-center gap-1 font-label-sm text-label-sm text-secondary font-semibold mt-0.5">
+<span class="material-symbols-outlined text-xs" data-icon="check_circle">check_circle</span>
+<span>Acima do benchmark</span>
+</div>
+</div>
+</div>
+<!-- Metric 3: Active Links -->
+<div class="bg-surface-container-lowest border border-outline-variant/40 rounded-xl p-space-md shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant font-medium">Links Ativos</span>
+<div class="w-7 h-7 rounded-lg bg-surface-container-high flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined text-base" data-icon="link">link</span>
+</div>
+</div>
+<div class="mt-space-sm">
+<div class="font-headline-md text-headline-md font-bold text-on-surface">12 <span class="font-body-sm text-body-sm font-normal text-on-surface-variant">links</span></div>
+<div class="flex items-center gap-1 font-label-sm text-label-sm text-on-surface-variant font-medium mt-0.5">
+<span class="material-symbols-outlined text-xs text-primary" data-icon="sync">sync</span>
+<span>100% no ar</span>
+</div>
+</div>
+</div>
+<!-- Metric 4: Verified Human Clicks -->
+<div class="bg-surface-container-lowest border border-outline-variant/40 rounded-xl p-space-md shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant font-medium">Cliques Reais</span>
+<div class="w-7 h-7 rounded-lg bg-tertiary-fixed flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined text-base" data-icon="verified_user">verified_user</span>
+</div>
+</div>
+<div class="mt-space-sm">
+<div class="font-headline-md text-headline-md font-bold text-on-surface">99.8%</div>
+<div class="flex items-center gap-1 font-label-sm text-label-sm text-tertiary font-semibold mt-0.5">
+<span class="material-symbols-outlined text-xs" data-icon="check_circle">check_circle</span>
+<span>Cliques reais verificados</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- SEARCH & FILTER SEGMENT -->
+<section class="space-y-space-sm">
+<div class="flex items-center justify-between">
+<h2 class="font-title-md text-title-md text-on-surface font-semibold">Links Criados</h2>
+<span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-container-high px-2 py-0.5 rounded-full">3 exibidos</span>
+</div>
+<!-- Filters & Search Bar -->
+<div class="flex flex-col sm:flex-row gap-space-sm items-stretch sm:items-center justify-between">
+<!-- Filter Chips -->
+<div class="flex items-center gap-space-xs overflow-x-auto pb-1 no-scrollbar">
+<button class="px-space-md py-1.5 rounded-full bg-primary-container text-on-primary font-label-md text-label-md flex items-center gap-1.5 shadow-sm whitespace-nowrap active:scale-95 transition-transform">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary-container"></span>
+<span>Todos</span>
+</button>
+<button class="px-space-md py-1.5 rounded-full bg-surface-container-lowest border border-outline-variant/50 text-on-surface-variant font-label-md text-label-md hover:bg-surface-container transition-colors whitespace-nowrap active:scale-95">
+            WhatsApp
+          </button>
+<button class="px-space-md py-1.5 rounded-full bg-surface-container-lowest border border-outline-variant/50 text-on-surface-variant font-label-md text-label-md hover:bg-surface-container transition-colors whitespace-nowrap active:scale-95">
+            URL Externa
+          </button>
+<button class="px-space-md py-1.5 rounded-full bg-surface-container-lowest border border-outline-variant/50 text-on-surface-variant font-label-md text-label-md hover:bg-surface-container transition-colors whitespace-nowrap active:scale-95">
+            Mais Acessados
+          </button>
+</div>
+<!-- Search Input Field -->
+<div class="relative min-w-[240px]">
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-outline text-lg pointer-events-none" data-icon="search">search</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant/60 rounded-lg pl-9 pr-space-md py-1.5 font-body-sm text-body-sm focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 transition-all text-on-surface outline-none" placeholder="Buscar por título ou slug..." type="text"/>
+</div>
+</div>
+</section>
+<!-- SMART LINK CARDS LIST -->
+<section class="space-y-space-md">
+<!-- CARD 1: Queima de Estoque (WhatsApp Direct) -->
+<article class="bg-surface-container-lowest border border-outline-variant/50 rounded-xl p-space-md shadow-sm hover:shadow-md transition-shadow">
+<div class="flex flex-col lg:flex-row gap-space-md items-start lg:items-center justify-between">
+<!-- Left: Thumbnail & Link Info -->
+<div class="flex items-start gap-space-md w-full lg:w-auto">
+<!-- Thumbnail Preview -->
+<div class="relative w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden shrink-0 border border-outline-variant/30 bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="Vibrant luxury fashion summer flash sale promotional card banner showcasing high-end apparel against a clean studio backdrop with soft blue and emerald green editorial typography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAmE_WiPa0Sz4FwVA6uAjXK9HamGBjVrDwEsG0GmmWDFLbvB0ipU0pU9q5uhLHfwWr-h-qgqp5OeFC_W_TX-sZFGGn90tR98ry34xlmoFhhCBrz3nhQT4uy13QPGcigK6OCo7AmKjQytaVund9RAFY72x2GTixfhHydneg9aXoZJt5AUGhsVLVa-6CdZolRqE_iic_As5aOX-micwmevK-2xjItNW3EYwCIlzWUnBA"/>
+</div>
+<!-- Details -->
+<div class="space-y-1">
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary-container/20 text-on-secondary-container font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-xs" data-icon="chat">chat</span>
+<span>WhatsApp Direto</span>
+</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container-high text-primary font-label-sm text-label-sm font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span>Ativo</span>
+</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">
+                Queima de Estoque - Até 50% OFF
+              </h3>
+<!-- Slug & Link Copyable -->
+<div class="flex items-center gap-space-xs text-primary font-body-sm text-body-sm font-medium">
+<span class="material-symbols-outlined text-sm text-outline" data-icon="link">link</span>
+<span class="text-on-surface-variant">postlink.to/modafashion/</span><span class="font-semibold text-primary underline decoration-primary/40">queima-verao</span>
+</div>
+<!-- Stats Pill -->
+<div class="flex items-center gap-space-md pt-1 text-on-surface-variant font-label-sm text-label-sm">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm text-secondary" data-icon="visibility">visibility</span>
+<strong class="text-on-surface">4.312</strong> cliques
+                </div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm text-secondary" data-icon="trending_up">trending_up</span>
+<span>Alta conversão</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Right: Action Buttons Group -->
+<div class="flex items-center gap-space-xs w-full lg:w-auto justify-end pt-space-xs lg:pt-0 border-t lg:border-t-0 border-outline-variant/30">
+<button class="flex items-center gap-1.5 px-space-md py-2 rounded-lg bg-surface-container-low hover:bg-surface-container-high text-primary font-label-md text-label-md transition-colors active:scale-95 border border-outline-variant/40" title="Copiar Link">
+<span class="material-symbols-outlined text-base" data-icon="content_copy">content_copy</span>
+<span>Copiar</span>
+</button>
+<button class="flex items-center gap-1.5 px-space-md py-2 rounded-lg bg-surface-container-low hover:bg-surface-container-high text-primary font-label-md text-label-md transition-colors active:scale-95 border border-outline-variant/40" title="Gerar QR Code">
+<span class="material-symbols-outlined text-base" data-icon="qr_code_2">qr_code_2</span>
+<span>QR Code</span>
+</button>
+<button class="p-2 rounded-lg bg-surface-container-low hover:bg-surface-container-high text-on-surface-variant transition-colors active:scale-95 border border-outline-variant/40" title="Opções">
+<span class="material-symbols-outlined text-lg" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</div>
+</article>
+<!-- CARD 2: Nova Coleção Outono/Inverno (Site Externo E-commerce) -->
+<article class="bg-surface-container-lowest border border-outline-variant/50 rounded-xl p-space-md shadow-sm hover:shadow-md transition-shadow">
+<div class="flex flex-col lg:flex-row gap-space-md items-start lg:items-center justify-between">
+<!-- Left: Thumbnail & Link Info -->
+<div class="flex items-start gap-space-md w-full lg:w-auto">
+<!-- Thumbnail Preview -->
+<div class="relative w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden shrink-0 border border-outline-variant/30 bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="Elegant autumn winter collection catalog model wearing a navy blue wool coat and modern accessories in a sharp architectural environment with high contrast and pristine corporate clarity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuArEEa2hKuZs9TxwY8wcFDPIu6xt9i1XBX0FGSfJRyk3Yve4Pu6B031QDhM_mhzq3Y0_6r2UY6KtLyQwMnH-ZYyl9kq8TtFp2tLr3ewt2_IRLXQWud36Fo4-LlyoRRpiel_lr4pqcabp8RDNSidXqAdAvIxCmf3vImbqfmCnm2Fqx3E0InO4q3cTdwkoOU6mxfybuzBkiCDnA_pOmIc0fEjJ17coL7jjMmt6ix5iPU"/>
+</div>
+<!-- Details -->
+<div class="space-y-1">
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary-fixed text-primary font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-xs" data-icon="open_in_new">open_in_new</span>
+<span>Site Externo (e-commerce)</span>
+</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary-container/20 text-on-secondary-container font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span>Ativo</span>
+</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">
+                Nova Coleção Outono/Inverno
+              </h3>
+<!-- Slug & Link Copyable -->
+<div class="flex items-center gap-space-xs text-primary font-body-sm text-body-sm font-medium">
+<span class="material-symbols-outlined text-sm text-outline" data-icon="link">link</span>
+<span class="text-on-surface-variant">postlink.to/modafashion/</span><span class="font-semibold text-primary underline decoration-primary/40">colecao-outono</span>
+</div>
+<!-- Stats Pill -->
+<div class="flex items-center gap-space-md pt-1 text-on-surface-variant font-label-sm text-label-sm">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm text-secondary" data-icon="visibility">visibility</span>
+<strong class="text-on-surface">8.190</strong> cliques
+                </div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm text-secondary" data-icon="verified">verified</span>
+                  Meta Pixel: <strong>Ativo</strong>
+</div>
+</div>
+</div>
+</div>
+<!-- Right: Action Buttons Group -->
+<div class="flex items-center gap-space-xs w-full lg:w-auto justify-end pt-space-xs lg:pt-0 border-t lg:border-t-0 border-outline-variant/30">
+<button class="flex items-center gap-1.5 px-space-md py-2 rounded-lg bg-surface-container-low hover:bg-surface-container-high text-primary font-label-md text-label-md transition-colors active:scale-95 border border-outline-variant/40" title="Copiar Link">
+<span class="material-symbols-outlined text-base" data-icon="content_copy">content_copy</span>
+<span>Copiar</span>
+</button>
+<button class="flex items-center gap-1.5 px-space-md py-2 rounded-lg bg-surface-container-low hover:bg-surface-container-high text-primary font-label-md text-label-md transition-colors active:scale-95 border border-outline-variant/40" title="Gerar QR Code">
+<span class="material-symbols-outlined text-base" data-icon="qr_code_2">qr_code_2</span>
+<span>QR Code</span>
+</button>
+<button class="p-2 rounded-lg bg-surface-container-low hover:bg-surface-container-high text-on-surface-variant transition-colors active:scale-95 border border-outline-variant/40" title="Opções">
+<span class="material-symbols-outlined text-lg" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</div>
+</article>
+<!-- CARD 3: Atendimento VIP & Concierge (WhatsApp Direct) -->
+<article class="bg-surface-container-lowest border border-outline-variant/50 rounded-xl p-space-md shadow-sm hover:shadow-md transition-shadow">
+<div class="flex flex-col lg:flex-row gap-space-md items-start lg:items-center justify-between">
+<!-- Left: Thumbnail & Link Info -->
+<div class="flex items-start gap-space-md w-full lg:w-auto">
+<!-- Thumbnail Preview -->
+<div class="relative w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden shrink-0 border border-outline-variant/30 bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="Personal shopping styling consultant greeting clients with high-end luxury packaging in an emerald green boutique interior with clean bright lighting and professional corporate finish." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDBOPEN2WdsVy9e6lr95ilt80NFAkyMwUz4ycwupAulOSth6QrD5Z5bvQP1oTDPJxpeIEOG8vZNATfX383YJcb1TBoiT4Eb5XPZvdmKsafl18e_AKziAieP6zYT8dqVvR0164ahallSSFz2rJCXxJkvZkra7vBgrRJNLl5h05vjFylo12cUgEynaZaUFdmB9MVRAcYeMCbTgNhDzkpMq-rFpZwzgls8_aqT27GrCbE"/>
+</div>
+<!-- Details -->
+<div class="space-y-1">
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary-container/20 text-on-secondary-container font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-xs" data-icon="chat">chat</span>
+<span>WhatsApp Direto</span>
+</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container-high text-primary font-label-sm text-label-sm font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span>Ativo</span>
+</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">
+                Atendimento VIP &amp; Concierge
+              </h3>
+<!-- Slug & Link Copyable -->
+<div class="flex items-center gap-space-xs text-primary font-body-sm text-body-sm font-medium">
+<span class="material-symbols-outlined text-sm text-outline" data-icon="link">link</span>
+<span class="text-on-surface-variant">postlink.to/modafashion/</span><span class="font-semibold text-primary underline decoration-primary/40">vip</span>
+</div>
+<!-- Stats Pill -->
+<div class="flex items-center gap-space-md pt-1 text-on-surface-variant font-label-sm text-label-sm">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm text-secondary" data-icon="visibility">visibility</span>
+<strong class="text-on-surface">2.318</strong> cliques
+                </div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm text-primary" data-icon="smart_toy">smart_toy</span>
+                  Mensagem Automática: <strong>Ativa</strong>
+</div>
+</div>
+</div>
+</div>
+<!-- Right: Action Buttons Group -->
+<div class="flex items-center gap-space-xs w-full lg:w-auto justify-end pt-space-xs lg:pt-0 border-t lg:border-t-0 border-outline-variant/30">
+<button class="flex items-center gap-1.5 px-space-md py-2 rounded-lg bg-surface-container-low hover:bg-surface-container-high text-primary font-label-md text-label-md transition-colors active:scale-95 border border-outline-variant/40" title="Copiar Link">
+<span class="material-symbols-outlined text-base" data-icon="content_copy">content_copy</span>
+<span>Copiar</span>
+</button>
+<button class="flex items-center gap-1.5 px-space-md py-2 rounded-lg bg-surface-container-low hover:bg-surface-container-high text-primary font-label-md text-label-md transition-colors active:scale-95 border border-outline-variant/40" title="Gerar QR Code">
+<span class="material-symbols-outlined text-base" data-icon="qr_code_2">qr_code_2</span>
+<span>QR Code</span>
+</button>
+<button class="p-2 rounded-lg bg-surface-container-low hover:bg-surface-container-high text-on-surface-variant transition-colors active:scale-95 border border-outline-variant/40" title="Opções">
+<span class="material-symbols-outlined text-lg" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</div>
+</article>
+</section>
+<!-- LIVE CONVERSATIONAL PREVIEW (WhatsApp Card Preview) -->
+<section class="mt-space-xl p-space-md bg-surface-container-low rounded-xl border border-outline-variant/40">
+<div class="flex items-center justify-between mb-space-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-xl" data-icon="preview">preview</span>
+<h4 class="font-title-md text-title-md font-semibold text-on-surface">Simulação do Card no WhatsApp</h4>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Prévia em tempo real</span>
+</div>
+<!-- Simulated WhatsApp Chat Background -->
+<div class="p-space-md rounded-lg bg-[#EFEAE2] flex justify-end">
+<!-- WhatsApp Outgoing Bubble -->
+<div class="max-w-sm w-full bg-[#E7FFDB] rounded-lg p-1.5 shadow-[0_1px_0.5px_rgba(11,20,26,0.13)] space-y-1">
+<!-- Card Banner -->
+<div class="rounded-[7px] overflow-hidden bg-surface-container border border-outline-variant/20 aspect-[1.91/1] relative">
+<img class="w-full h-full object-cover" data-alt="Crisp professional social preview card graphic for summer sale, with vibrant green accents, navy blue logo badge, and high resolution crisp commercial photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCKo4klL9JsDar_G2u4_IxdfTrySZdeIGah375Edf6-pU0VolbJ9u6KzyvuIPDj_qR8hgsZ-kAw8NSk6kxlNK9KTlJ4ikF4SjUXR-HRPZEyFJNZun19KhG5QcC0YxTiDKUmJDz-zvwv_thmkV73MKoJRs3VF0OzvlJqUmspvct18uHEge9xc_0lPcCLca7p8l2KubnKKwikVv8VbAKifJh0y2EcUWJWDA14FTszpjs"/>
+</div>
+<!-- Card Metadata Body -->
+<div class="p-1 space-y-0.5">
+<p class="text-[14px] font-bold text-[#111B21] leading-tight">Queima de Estoque - Até 50% OFF</p>
+<p class="text-[12px] text-[#667781] leading-snug">Aproveite as ofertas exclusivas de verão da @modafashion antes que acabem.</p>
+<p class="text-[11px] text-[#667781]">postlink.to</p>
+</div>
+<!-- Timestamp & Status Marks -->
+<div class="flex items-center justify-end gap-1 text-[11px] text-[#667781] pr-1">
+<span>14:32</span>
+<span class="material-symbols-outlined text-[14px] text-[#53BDEB]" data-icon="done_all" data-weight="fill" style="font-variation-settings: 'FILL' 1;">done_all</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- CONTEXTUAL FLOATING ACTION BUTTON (Mobile FAB) -->
+<aside class="md:hidden fixed bottom-20 right-4 z-40">
+<button class="flex items-center gap-2 bg-secondary text-on-secondary px-4 py-3 rounded-full shadow-lg hover:shadow-xl active:scale-95 transition-all">
+<span class="material-symbols-outlined text-xl" data-icon="add">add</span>
+<span class="font-label-lg text-label-lg font-semibold">Novo Link</span>
+</button>
+</aside>
+<!-- BOTTOM NAV BAR (Mandatory Shared Component: Destination Filter & Style Execution) -->
+<!-- Navigation destination logic: The current page is 'Links' (/painel/ dashboard), so 'Links' gets style_active_navigation -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-gutter-mobile py-space-xs bg-surface-container-lowest dark:bg-surface-container shadow-lg dark:shadow-none">
+<!-- Item 1: Links (Active) -->
+<a class="flex flex-col items-center justify-center bg-secondary-container dark:bg-tertiary-container text-on-secondary-container dark:text-on-tertiary-container rounded-xl px-space-sm py-space-xs font-semibold active:scale-95 transition-transform duration-150" href="#/links">
+<span class="material-symbols-outlined text-xl" data-icon="link">link</span>
+<span class="text-label-sm font-label-sm">Links</span>
+</a>
+<!-- Item 2: Criar (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-space-sm py-space-xs hover:bg-surface-container-high dark:hover:bg-surface-dim transition-colors active:scale-95 duration-150" href="#/criar">
+<span class="material-symbols-outlined text-xl" data-icon="add_circle">add_circle</span>
+<span class="text-label-sm font-label-sm">Criar</span>
+</a>
+<!-- Item 3: Métricas (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-space-sm py-space-xs hover:bg-surface-container-high dark:hover:bg-surface-dim transition-colors active:scale-95 duration-150" href="#/metricas">
+<span class="material-symbols-outlined text-xl" data-icon="analytics">analytics</span>
+<span class="text-label-sm font-label-sm">Métricas</span>
+</a>
+<!-- Item 4: Config (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-space-sm py-space-xs hover:bg-surface-container-high dark:hover:bg-surface-dim transition-colors active:scale-95 duration-150" href="#/config">
+<span class="material-symbols-outlined text-xl" data-icon="tune">tune</span>
+<span class="text-label-sm font-label-sm">Config</span>
+</a>
+</nav>
+</body></html>

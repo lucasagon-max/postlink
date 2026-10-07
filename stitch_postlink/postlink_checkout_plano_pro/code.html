@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Checkout Plano Pro - postlink</title>
+<!-- Material Symbols Outlined font -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts: Plus Jakarta Sans -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration with Design Tokens -->
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-variant": "#dae2fd",
+            "on-error-container": "#93000a",
+            "on-primary": "#ffffff",
+            "outline": "#737782",
+            "secondary-fixed-dim": "#4ae176",
+            "secondary-container": "#6bff8f",
+            "on-primary-fixed": "#001b3e",
+            "on-secondary-fixed": "#002109",
+            "secondary": "#006e2f",
+            "background": "#faf8ff",
+            "on-primary-fixed-variant": "#00458d",
+            "inverse-surface": "#283044",
+            "on-error": "#ffffff",
+            "tertiary-fixed-dim": "#6bd8cb",
+            "on-background": "#131b2e",
+            "error": "#ba1a1a",
+            "on-secondary": "#ffffff",
+            "primary": "#003e80",
+            "outline-variant": "#c2c6d3",
+            "secondary-fixed": "#6bff8f",
+            "surface-container": "#eaedff",
+            "primary-container": "#1e56a0",
+            "on-surface": "#131b2e",
+            "on-secondary-fixed-variant": "#005321",
+            "primary-fixed": "#d6e3ff",
+            "surface-container-high": "#e2e7ff",
+            "on-surface-variant": "#424751",
+            "primary-fixed-dim": "#aac7ff",
+            "on-secondary-container": "#007432",
+            "tertiary-fixed": "#89f5e7",
+            "tertiary-container": "#00625a",
+            "surface-tint": "#295ea8",
+            "on-tertiary": "#ffffff",
+            "tertiary": "#004842",
+            "surface-container-low": "#f2f3ff",
+            "on-primary-container": "#b4cdff",
+            "surface-container-highest": "#dae2fd",
+            "surface": "#faf8ff",
+            "surface-container-lowest": "#ffffff",
+            "surface-bright": "#faf8ff",
+            "on-tertiary-fixed": "#00201d",
+            "surface-dim": "#d2d9f4",
+            "error-container": "#ffdad6",
+            "on-tertiary-container": "#72dfd1",
+            "inverse-on-surface": "#eef0ff",
+            "inverse-primary": "#aac7ff",
+            "on-tertiary-fixed-variant": "#005049"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "margin": "2rem",
+            "space-xs": "0.25rem",
+            "margin-mobile": "1rem",
+            "space-lg": "1.5rem",
+            "space-xl": "2.5rem",
+            "gutter": "1rem",
+            "space-md": "1rem",
+            "space-sm": "0.5rem",
+            "gutter-mobile": "0.75rem"
+          },
+          "fontFamily": {
+            "display": ["Plus Jakarta Sans"],
+            "headline-lg-mobile": ["Plus Jakarta Sans"],
+            "label-lg": ["Plus Jakarta Sans"],
+            "headline-md": ["Plus Jakarta Sans"],
+            "headline-lg": ["Plus Jakarta Sans"],
+            "body-md": ["Plus Jakarta Sans"],
+            "label-sm": ["Plus Jakarta Sans"],
+            "label-md": ["Plus Jakarta Sans"],
+            "headline-sm": ["Plus Jakarta Sans"],
+            "body-lg": ["Plus Jakarta Sans"],
+            "title-md": ["Plus Jakarta Sans"],
+            "body-sm": ["Plus Jakarta Sans"]
+          },
+          "fontSize": {
+            "display": ["40px", { "lineHeight": "48px", "fontWeight": "800" }],
+            "headline-lg-mobile": ["26px", { "lineHeight": "34px", "fontWeight": "700" }],
+            "label-lg": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+            "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+            "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "700" }],
+            "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "label-sm": ["11px", { "lineHeight": "14px", "fontWeight": "500" }],
+            "label-md": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+            "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "title-md": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+            "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .material-symbols-outlined[data-weight="fill"] {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    /* Subtle custom focus ring and transitions */
+    .input-field:focus-within {
+      box-shadow: 0 0 0 3px rgba(30, 86, 160, 0.15);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface antialiased font-body-md text-body-md min-h-screen selection:bg-primary selection:text-on-primary">
+<!-- TOP APP BAR (Checkout Header) -->
+<header class="bg-surface-container-lowest sticky top-0 z-40 w-full shadow-sm">
+<div class="max-w-xl mx-auto flex items-center justify-between px-margin-mobile py-space-sm">
+<div class="flex items-center gap-space-sm">
+<button aria-label="Voltar" class="p-space-xs text-on-surface-variant hover:bg-surface-container-high rounded-full transition-colors active:scale-95 duration-150 flex items-center justify-center" type="button">
+<span class="material-symbols-outlined text-primary text-xl" data-icon="arrow_back">arrow_back</span>
+</button>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="add_link" data-weight="fill">add_link</span>
+<span class="text-headline-sm font-headline-sm font-extrabold text-primary tracking-tight">postlink</span>
+</div>
+</div>
+<!-- Trust Shield Badge -->
+<div class="flex items-center gap-1.5 bg-surface-container-low px-2.5 py-1 rounded-full border border-outline-variant">
+<span class="material-symbols-outlined text-secondary text-base" data-icon="verified_user" data-weight="fill">verified_user</span>
+<span class="text-label-sm font-label-sm text-secondary font-bold">Ambiente Seguro</span>
+</div>
+</div>
+</header>
+<!-- MAIN CHECKOUT CONTENT CONTAINER -->
+<main class="max-w-xl mx-auto px-margin-mobile py-space-md space-y-space-md pb-16">
+<!-- HERO NOTIFICATION / FREE TRIAL BANNER -->
+<section class="bg-secondary-fixed/20 border border-secondary/30 rounded-xl p-space-md flex items-start gap-space-sm shadow-sm">
+<div class="bg-secondary text-on-secondary rounded-full p-1 mt-0.5 flex items-center justify-center">
+<span class="material-symbols-outlined text-base" data-icon="celebration" data-weight="fill">celebration</span>
+</div>
+<div>
+<h1 class="text-label-lg font-label-lg text-on-secondary-fixed font-bold leading-tight">7 Dias Grátis para Vender Mais</h1>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-0.5">
+          Teste todos os recursos do Plano Pro agora. Nenhuma cobrança será efetuada hoje e você pode cancelar quando quiser com 1 clique.
+        </p>
+</div>
+</section>
+<!-- OFFER CARD & BILLING TOGGLE -->
+<section class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm border border-outline-variant">
+<!-- Billing Frequency Switcher -->
+<div class="flex items-center justify-between bg-surface-container-low p-1 rounded-xl mb-space-md">
+<button class="flex-1 py-1.5 text-center rounded-lg text-label-md font-label-md font-semibold transition-all shadow-sm bg-surface-container-lowest text-primary" id="monthlyBtn" onclick="setBilling('monthly')" type="button">
+          Mensal
+        </button>
+<button class="flex-1 py-1.5 text-center rounded-lg text-label-md font-label-md font-semibold transition-all text-on-surface-variant flex items-center justify-center gap-1" id="yearlyBtn" onclick="setBilling('yearly')" type="button">
+          Anual
+          <span class="bg-secondary text-on-secondary text-[10px] font-bold px-1.5 py-0.2 rounded-full uppercase">-18%</span>
+</button>
+</div>
+<!-- Plan Pricing Overview -->
+<div class="flex items-baseline justify-between border-b border-surface-container-high pb-space-sm mb-space-md">
+<div>
+<span class="inline-block px-2 py-0.5 rounded-full bg-primary-fixed text-primary font-bold text-label-sm font-label-sm uppercase tracking-wide mb-1">
+            Recomendado para Vendedores
+          </span>
+<h2 class="text-headline-md font-headline-md font-bold text-primary">Plano Pro</h2>
+</div>
+<div class="text-right">
+<div class="flex items-baseline justify-end gap-1">
+<span class="text-body-sm font-body-sm font-semibold text-on-surface-variant">R$</span>
+<span class="text-display font-display text-primary leading-none" id="priceVal">29</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant" id="pricePeriod">/mês</span>
+</div>
+<p class="text-label-sm font-label-sm text-secondary font-semibold mt-0.5" id="billingNote">
+            Cobrado mensalmente após 7 dias
+          </p>
+</div>
+</div>
+<!-- Commercial Value Bullets -->
+<div class="space-y-2.5">
+<p class="text-label-sm font-label-sm font-bold text-on-surface-variant uppercase tracking-wider">O que está incluído no seu plano:</p>
+<div class="flex items-start gap-2.5">
+<span class="material-symbols-outlined text-secondary text-lg mt-0.5 shrink-0" data-icon="check_circle" data-weight="fill">check_circle</span>
+<span class="text-body-sm font-body-sm text-on-surface font-medium leading-snug">
+<strong>Links ilimitados</strong> com fotos nítidas e atraentes para seus clientes
+          </span>
+</div>
+<div class="flex items-start gap-2.5">
+<span class="material-symbols-outlined text-secondary text-lg mt-0.5 shrink-0" data-icon="check_circle" data-weight="fill">check_circle</span>
+<span class="text-body-sm font-body-sm text-on-surface font-medium leading-snug">
+<strong>Link personalizado</strong> com o nome oficial da sua loja para gerar confiança
+          </span>
+</div>
+<div class="flex items-start gap-2.5">
+<span class="material-symbols-outlined text-secondary text-lg mt-0.5 shrink-0" data-icon="check_circle" data-weight="fill">check_circle</span>
+<span class="text-body-sm font-body-sm text-on-surface font-medium leading-snug">
+<strong>Troca rápida de fotos e preços</strong> sem precisar reenviar mensagens
+          </span>
+</div>
+<div class="flex items-start gap-2.5">
+<span class="material-symbols-outlined text-secondary text-lg mt-0.5 shrink-0" data-icon="check_circle" data-weight="fill">check_circle</span>
+<span class="text-body-sm font-body-sm text-on-surface font-medium leading-snug">
+<strong>Relatório de visualizações e cliques</strong> para acompanhar suas vendas
+          </span>
+</div>
+<div class="flex items-start gap-2.5">
+<span class="material-symbols-outlined text-secondary text-lg mt-0.5 shrink-0" data-icon="check_circle" data-weight="fill">check_circle</span>
+<span class="text-body-sm font-body-sm text-on-surface font-medium leading-snug">
+<strong>Atendimento prioritário</strong> direto pelo WhatsApp da nossa equipe
+          </span>
+</div>
+</div>
+</section>
+<!-- PAYMENT METHOD SELECTOR -->
+<section class="space-y-space-sm">
+<div class="flex items-center justify-between">
+<label class="text-label-lg font-label-lg font-bold text-on-surface">Forma de Pagamento</label>
+<span class="text-label-sm font-label-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-sm" data-icon="lock">lock</span> 100% Criptografado
+        </span>
+</div>
+<div class="grid grid-cols-2 gap-space-sm">
+<!-- Credit Card Option -->
+<button class="flex flex-col items-start p-space-sm rounded-xl border-2 border-primary bg-surface-container-low transition-all text-left" id="tabCard" onclick="selectPayment('card')" type="button">
+<div class="flex items-center justify-between w-full mb-1">
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="credit_card">credit_card</span>
+<span class="text-secondary text-xs font-bold bg-secondary-fixed/30 px-1.5 py-0.5 rounded-full">7 Dias Grátis</span>
+</div>
+<span class="text-label-md font-label-md font-bold text-primary">Cartão de Crédito</span>
+<span class="text-label-sm font-label-sm text-on-surface-variant">Liberação Instantânea</span>
+</button>
+<!-- Pix Option -->
+<button class="flex flex-col items-start p-space-sm rounded-xl border-2 border-outline-variant bg-surface-container-lowest transition-all text-left opacity-90" id="tabPix" onclick="selectPayment('pix')" type="button">
+<div class="flex items-center justify-between w-full mb-1">
+<span class="material-symbols-outlined text-on-surface-variant text-2xl" data-icon="qr_code_2">qr_code_2</span>
+<span class="text-on-secondary-container text-xs font-bold bg-secondary-container px-1.5 py-0.5 rounded-full">+5% Off</span>
+</div>
+<span class="text-label-md font-label-md font-bold text-on-surface">Pix Imediato</span>
+<span class="text-label-sm font-label-sm text-on-surface-variant">Ativação em segundos</span>
+</button>
+</div>
+</section>
+<!-- CHECKOUT FORM -->
+<form class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm border border-outline-variant space-y-space-md" id="checkoutForm" onsubmit="event.preventDefault();">
+<!-- Section 1: Customer Info -->
+<div class="space-y-space-sm">
+<h3 class="text-label-md font-label-md font-bold text-primary flex items-center gap-1.5">
+<span class="material-symbols-outlined text-lg" data-icon="person">person</span>
+          Dados para Acesso e Faturamento
+        </h3>
+<!-- Full Name -->
+<div>
+<label class="block text-label-sm font-label-sm font-medium text-on-surface-variant mb-1" for="nameInput">
+            Nome Completo ou Razão Social
+          </label>
+<div class="input-field flex items-center bg-surface-container-lowest border border-outline-variant rounded-lg px-3 py-2.5 transition-all">
+<input class="w-full text-body-md font-body-md text-on-surface bg-transparent focus:outline-none placeholder:text-outline-variant" id="nameInput" placeholder="Ex: Camila Ferreira" required="" type="text"/>
+</div>
+</div>
+<!-- Email -->
+<div>
+<label class="block text-label-sm font-label-sm font-medium text-on-surface-variant mb-1" for="emailInput">
+            E-mail para Acesso
+          </label>
+<div class="input-field flex items-center bg-surface-container-lowest border border-outline-variant rounded-lg px-3 py-2.5 transition-all">
+<input class="w-full text-body-md font-body-md text-on-surface bg-transparent focus:outline-none placeholder:text-outline-variant" id="emailInput" placeholder="seu-email@loja.com.br" required="" type="email"/>
+</div>
+<span class="text-[11px] text-on-surface-variant mt-0.5 block">Seus links e acessos serão enviados para este e-mail.</span>
+</div>
+<!-- Document & WhatsApp Grid -->
+<div class="grid grid-cols-2 gap-space-sm">
+<div>
+<label class="block text-label-sm font-label-sm font-medium text-on-surface-variant mb-1" for="docInput">
+              CPF ou CNPJ
+            </label>
+<div class="input-field flex items-center bg-surface-container-lowest border border-outline-variant rounded-lg px-3 py-2.5 transition-all">
+<input class="w-full text-body-md font-body-md text-on-surface bg-transparent focus:outline-none placeholder:text-outline-variant" id="docInput" placeholder="000.000.000-00" required="" type="text"/>
+</div>
+</div>
+<div>
+<label class="block text-label-sm font-label-sm font-medium text-on-surface-variant mb-1" for="phoneInput">
+              WhatsApp
+            </label>
+<div class="input-field flex items-center bg-surface-container-lowest border border-outline-variant rounded-lg px-3 py-2.5 transition-all">
+<input class="w-full text-body-md font-body-md text-on-surface bg-transparent focus:outline-none placeholder:text-outline-variant" id="phoneInput" placeholder="(11) 99999-9999" required="" type="tel"/>
+</div>
+</div>
+</div>
+</div>
+<!-- Section 2: Credit Card Fields (Dynamically switched) -->
+<div class="space-y-space-sm border-t border-surface-container-high pt-space-md" id="creditCardSection">
+<div class="flex items-center justify-between">
+<h3 class="text-label-md font-label-md font-bold text-primary flex items-center gap-1.5">
+<span class="material-symbols-outlined text-lg" data-icon="credit_card">credit_card</span>
+            Dados do Cartão
+          </h3>
+<!-- Card Flags Icons -->
+<div class="flex items-center gap-1.5 text-on-surface-variant text-[11px] font-semibold">
+<span class="px-1.5 py-0.5 bg-surface-container-high rounded text-on-surface">Mastercard</span>
+<span class="px-1.5 py-0.5 bg-surface-container-high rounded text-on-surface">Visa</span>
+<span class="px-1.5 py-0.5 bg-surface-container-high rounded text-on-surface">Elo</span>
+</div>
+</div>
+<!-- Card Number -->
+<div>
+<label class="block text-label-sm font-label-sm font-medium text-on-surface-variant mb-1" for="cardNum">
+            Número do Cartão
+          </label>
+<div class="input-field flex items-center justify-between bg-surface-container-lowest border border-outline-variant rounded-lg px-3 py-2.5 transition-all">
+<input class="w-full text-body-md font-body-md text-on-surface bg-transparent focus:outline-none placeholder:text-outline-variant" id="cardNum" maxlength="19" placeholder="0000 0000 0000 0000" type="text"/>
+<span class="material-symbols-outlined text-outline text-lg" data-icon="credit_card">credit_card</span>
+</div>
+</div>
+<!-- Cardholder Name -->
+<div>
+<label class="block text-label-sm font-label-sm font-medium text-on-surface-variant mb-1" for="cardHolder">
+            Nome Impresso no Cartão
+          </label>
+<div class="input-field flex items-center bg-surface-container-lowest border border-outline-variant rounded-lg px-3 py-2.5 transition-all">
+<input class="w-full text-body-md font-body-md text-on-surface bg-transparent focus:outline-none placeholder:text-outline-variant uppercase" id="cardHolder" placeholder="CAMILA FERREIRA" type="text"/>
+</div>
+</div>
+<!-- Expiry & CVV -->
+<div class="grid grid-cols-2 gap-space-sm">
+<div>
+<label class="block text-label-sm font-label-sm font-medium text-on-surface-variant mb-1" for="cardExp">
+              Validade
+            </label>
+<div class="input-field flex items-center bg-surface-container-lowest border border-outline-variant rounded-lg px-3 py-2.5 transition-all">
+<input class="w-full text-body-md font-body-md text-on-surface bg-transparent focus:outline-none placeholder:text-outline-variant" id="cardExp" maxlength="5" placeholder="MM/AA" type="text"/>
+</div>
+</div>
+<div>
+<label class="block text-label-sm font-label-sm font-medium text-on-surface-variant mb-1 flex items-center justify-between" for="cardCvv">
+<span>CVV</span>
+<span class="text-[10px] text-outline">3 ou 4 dígitos</span>
+</label>
+<div class="input-field flex items-center justify-between bg-surface-container-lowest border border-outline-variant rounded-lg px-3 py-2.5 transition-all">
+<input class="w-full text-body-md font-body-md text-on-surface bg-transparent focus:outline-none placeholder:text-outline-variant" id="cardCvv" maxlength="4" placeholder="123" type="password"/>
+<span class="material-symbols-outlined text-outline text-base" data-icon="help_outline">help_outline</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Section 2 Alternative: Pix Details Box -->
+<div class="hidden space-y-space-sm border-t border-surface-container-high pt-space-md" id="pixSection">
+<div class="bg-surface-container-low rounded-xl p-space-sm border border-secondary/20 flex flex-col items-center text-center space-y-2">
+<div class="p-2 bg-surface-container-lowest rounded-full text-secondary shadow-sm">
+<span class="material-symbols-outlined text-3xl" data-icon="qr_code_scanner">qr_code_scanner</span>
+</div>
+<h4 class="text-label-lg font-label-lg font-bold text-on-surface">Pagamento Instantâneo via Pix</h4>
+<p class="text-body-sm font-body-sm text-on-surface-variant max-w-xs">
+            Ao clicar no botão abaixo, geraremos um QR Code exclusivo com aprovação e liberação imediata da sua conta.
+          </p>
+<div class="inline-flex items-center gap-1.5 px-3 py-1 bg-secondary-container/40 rounded-full text-on-secondary-container text-label-sm font-label-sm font-bold">
+<span class="material-symbols-outlined text-sm" data-icon="bolt">bolt</span>
+            Acesso liberado no primeiro segundo
+          </div>
+</div>
+</div>
+<!-- Order Summary Total Line -->
+<div class="border-t border-surface-container-high pt-space-sm flex items-center justify-between text-body-sm font-body-sm">
+<span class="text-on-surface-variant">Valor devido hoje:</span>
+<span class="font-bold text-secondary text-title-md font-title-md" id="dueToday">R$ 0,00</span>
+</div>
+<div class="text-[12px] text-on-surface-variant text-right">
+<span id="renewalText">Após 7 dias: R$ 29,00 / mês. Sem contrato de permanência.</span>
+</div>
+<!-- Primary Action CTA Button -->
+<button class="w-full bg-secondary hover:bg-secondary/90 active:scale-[0.98] text-on-secondary py-3.5 px-space-md rounded-xl font-label-lg text-label-lg font-bold shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2" type="submit">
+<span class="material-symbols-outlined text-xl" data-icon="lock_open">lock_open</span>
+<span id="ctaBtnText">Iniciar Teste Gratuito de 7 Dias</span>
+</button>
+<!-- Trust Badges & Guarantee Microcopy -->
+<div class="grid grid-cols-3 gap-2 pt-1 text-center">
+<div class="flex flex-col items-center">
+<span class="material-symbols-outlined text-secondary text-lg mb-0.5" data-icon="verified" data-weight="fill">verified</span>
+<span class="text-[10px] font-semibold text-on-surface-variant">Garantia Total 7 Dias</span>
+</div>
+<div class="flex flex-col items-center">
+<span class="material-symbols-outlined text-primary text-lg mb-0.5" data-icon="lock" data-weight="fill">lock</span>
+<span class="text-[10px] font-semibold text-on-surface-variant">Proteção 256-bit</span>
+</div>
+<div class="flex flex-col items-center">
+<span class="material-symbols-outlined text-primary-container text-lg mb-0.5" data-icon="receipt_long" data-weight="fill">receipt_long</span>
+<span class="text-[10px] font-semibold text-on-surface-variant">Nota Fiscal Automática</span>
+</div>
+</div>
+</form>
+<!-- SOCIAL PROOF TESTIMONIAL CARD -->
+<section class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm border border-outline-variant space-y-space-sm">
+<div class="flex items-center gap-3">
+<!-- Merchant Avatar -->
+<img class="w-12 h-12 rounded-full object-cover border-2 border-surface-container-high" data-alt="Close-up portrait of a cheerful Brazilian boutique business owner woman smiling warmly in her brightly lit, modern retail clothing store, high-definition commercial photography with vibrant clean tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA_oSzPx42_PKF9O-iYBFawLxCnz3_g8e9aM6-fKjaSw96ymm7pduxcrFCygPAWTy06Ggk4Rr-wSSB9e3BtePq6Ivl3uM4Rs36-Nk1wo1C2hO7u7-YoHl4RCNFMCJRMcJ4Z1V26X6WUgi-gmjY22tm2PnGD3t8inr067v25piOFxgq1C0m066rk6Hn175bQ8Bt-7ZrbykIrXVGN2Ft96hd22nyV1u8fMZuy0ZnubB8"/>
+<div>
+<div class="flex items-center gap-1 text-secondary">
+<span class="material-symbols-outlined text-base" data-icon="star" data-weight="fill">star</span>
+<span class="material-symbols-outlined text-base" data-icon="star" data-weight="fill">star</span>
+<span class="material-symbols-outlined text-base" data-icon="star" data-weight="fill">star</span>
+<span class="material-symbols-outlined text-base" data-icon="star" data-weight="fill">star</span>
+<span class="material-symbols-outlined text-base" data-icon="star" data-weight="fill">star</span>
+</div>
+<h4 class="text-label-md font-label-md font-bold text-on-surface leading-tight">Mariana Silva</h4>
+<p class="text-label-sm font-label-sm text-on-surface-variant">Dona de Loja de Moda Íntima • SP</p>
+</div>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant italic leading-relaxed">
+        “Minhas vendas pelo WhatsApp aumentaram mais de 40% depois que passei a usar o PostLink. As clientes elogiam as fotos nítidas e meu link agora tem o nome da minha marca, passando muito mais confiança!”
+      </p>
+</section>
+<!-- FAQ ACCORDION -->
+<section class="space-y-space-xs">
+<h3 class="text-label-lg font-label-lg font-bold text-on-surface mb-space-xs px-1">Dúvidas Frequentes</h3>
+<!-- FAQ 1 -->
+<details class="group bg-surface-container-lowest rounded-xl border border-outline-variant p-space-sm transition-all open:shadow-sm">
+<summary class="flex justify-between items-center font-label-md text-label-md font-semibold text-on-surface cursor-pointer list-none">
+<span>Como funciona o teste grátis de 7 dias?</span>
+<span class="material-symbols-outlined text-on-surface-variant group-open:rotate-180 transition-transform duration-200" data-icon="expand_more">expand_more</span>
+</summary>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-2 pt-2 border-t border-surface-container-high leading-relaxed">
+          Você tem acesso liberado e irrestrito a todas as funcionalidades do Plano Pro por 7 dias. Se decidir não continuar, basta cancelar nas configurações com um único clique antes do término do período e nada será cobrado.
+        </p>
+</details>
+<!-- FAQ 2 -->
+<details class="group bg-surface-container-lowest rounded-xl border border-outline-variant p-space-sm transition-all open:shadow-sm">
+<summary class="flex justify-between items-center font-label-md text-label-md font-semibold text-on-surface cursor-pointer list-none">
+<span>Posso cancelar a qualquer momento?</span>
+<span class="material-symbols-outlined text-on-surface-variant group-open:rotate-180 transition-transform duration-200" data-icon="expand_more">expand_more</span>
+</summary>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-2 pt-2 border-t border-surface-container-high leading-relaxed">
+          Sim! Não exigimos contratos de fidelidade ou carência. O cancelamento é imediato e sem complicações.
+        </p>
+</details>
+<!-- FAQ 3 -->
+<details class="group bg-surface-container-lowest rounded-xl border border-outline-variant p-space-sm transition-all open:shadow-sm">
+<summary class="flex justify-between items-center font-label-md text-label-md font-semibold text-on-surface cursor-pointer list-none">
+<span>Preciso ter CNPJ para assinar?</span>
+<span class="material-symbols-outlined text-on-surface-variant group-open:rotate-180 transition-transform duration-200" data-icon="expand_more">expand_more</span>
+</summary>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-2 pt-2 border-t border-surface-container-high leading-relaxed">
+          Não é obrigatório. Aceitamos tanto CPF quanto CNPJ. Você pode começar como pessoa física autônoma e atualizar os dados da sua empresa futuramente quando quiser.
+        </p>
+</details>
+</section>
+<!-- FOOTER WITH LEGAL LINKS & SECURITY CONFIRMATION -->
+<footer class="pt-space-md text-center space-y-2 border-t border-outline-variant/60">
+<div class="flex items-center justify-center gap-1.5 text-secondary text-label-sm font-label-sm font-bold">
+<span class="material-symbols-outlined text-sm" data-icon="verified_user">verified_user</span>
+        Transação segura e processamento certificado
+      </div>
+<p class="text-[11px] text-on-surface-variant leading-tight">
+        Ao prosseguir, você concorda com nossos 
+        <a class="underline text-primary hover:text-primary-container" href="#">Termos de Serviço</a> e 
+        <a class="underline text-primary hover:text-primary-container" href="#">Política de Privacidade</a>.
+      </p>
+<p class="text-[11px] text-outline">
+        © 2025 postlink Tecnologia Ltda. Todos os direitos reservados.
+      </p>
+</footer>
+</main>
+<!-- INTERACTION LOGIC (VANILLA JS) -->
+<script>
+    let currentBilling = 'monthly';
+    let currentMethod = 'card';
+
+    function setBilling(mode) {
+      currentBilling = mode;
+      const monthlyBtn = document.getElementById('monthlyBtn');
+      const yearlyBtn = document.getElementById('yearlyBtn');
+      const priceVal = document.getElementById('priceVal');
+      const pricePeriod = document.getElementById('pricePeriod');
+      const billingNote = document.getElementById('billingNote');
+      const renewalText = document.getElementById('renewalText');
+
+      if (mode === 'yearly') {
+        yearlyBtn.className = "flex-1 py-1.5 text-center rounded-lg text-label-md font-label-md font-semibold transition-all shadow-sm bg-surface-container-lowest text-primary flex items-center justify-center gap-1";
+        monthlyBtn.className = "flex-1 py-1.5 text-center rounded-lg text-label-md font-label-md font-semibold transition-all text-on-surface-variant";
+        priceVal.textContent = "24";
+        pricePeriod.textContent = "/mês";
+        billingNote.textContent = "Faturado R$ 288 anualmente (Economia de 2 meses)";
+        renewalText.textContent = "Após 7 dias grátis: R$ 288 / ano. Cancele quando quiser.";
+      } else {
+        monthlyBtn.className = "flex-1 py-1.5 text-center rounded-lg text-label-md font-label-md font-semibold transition-all shadow-sm bg-surface-container-lowest text-primary";
+        yearlyBtn.className = "flex-1 py-1.5 text-center rounded-lg text-label-md font-label-md font-semibold transition-all text-on-surface-variant flex items-center justify-center gap-1";
+        priceVal.textContent = "29";
+        pricePeriod.textContent = "/mês";
+        billingNote.textContent = "Cobrado mensalmente após 7 dias";
+        renewalText.textContent = "Após 7 dias grátis: R$ 29,00 / mês. Sem contrato de fidelidade.";
+      }
+    }
+
+    function selectPayment(method) {
+      currentMethod = method;
+      const tabCard = document.getElementById('tabCard');
+      const tabPix = document.getElementById('tabPix');
+      const creditCardSection = document.getElementById('creditCardSection');
+      const pixSection = document.getElementById('pixSection');
+      const dueToday = document.getElementById('dueToday');
+      const ctaBtnText = document.getElementById('ctaBtnText');
+
+      if (method === 'card') {
+        // Tab styling
+        tabCard.className = "flex flex-col items-start p-space-sm rounded-xl border-2 border-primary bg-surface-container-low transition-all text-left";
+        tabPix.className = "flex flex-col items-start p-space-sm rounded-xl border-2 border-outline-variant bg-surface-container-lowest transition-all text-left opacity-90";
+        // Show Card Form, Hide Pix
+        creditCardSection.classList.remove('hidden');
+        pixSection.classList.add('hidden');
+        dueToday.textContent = "R$ 0,00";
+        ctaBtnText.textContent = "Iniciar Teste Gratuito de 7 Dias";
+      } else {
+        // Tab styling
+        tabPix.className = "flex flex-col items-start p-space-sm rounded-xl border-2 border-primary bg-surface-container-low transition-all text-left";
+        tabCard.className = "flex flex-col items-start p-space-sm rounded-xl border-2 border-outline-variant bg-surface-container-lowest transition-all text-left opacity-90";
+        // Show Pix Box, Hide Card Form
+        creditCardSection.classList.add('hidden');
+        pixSection.classList.remove('hidden');
+        
+        const discountedPrice = currentBilling === 'yearly' ? 'R$ 273,60' : 'R$ 27,55';
+        dueToday.textContent = discountedPrice + " (com 5% OFF)";
+        ctaBtnText.textContent = "Gerar Código Pix e Ativar Plano";
+      }
+    }
+  </script>
+</body></html>

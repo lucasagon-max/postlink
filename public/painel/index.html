@@ -4,213 +4,473 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Painel do Lojista · PostLink</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.42.0/dist/tabler-icons.min.css">
+  <link rel="icon" href="/assets/img/logotipo_postlink_1x1.jpg">
+
+  <!-- Tailwind CSS com plugins -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="/assets/js/theme-config.js"></script>
+
+  <!-- Estilos e Ícones -->
   <link rel="stylesheet" href="/assets/css/style.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body>
+<body class="bg-background text-on-surface font-sans antialiased min-h-screen flex flex-col selection:bg-secondary-container selection:text-on-secondary-container pb-20 sm:pb-8">
 
-  <!-- Top Navbar -->
-  <header class="navbar">
-    <div class="container nav-content">
-      <div style="display:flex; align-items:center; gap:14px;">
-        <a href="#/" class="brand-logo">
-          <i class="ti ti-link"></i>
-          <span>PostLink</span>
+  <!-- TOP APP BAR -->
+  <header class="bg-surface-container-lowest sticky top-0 z-40 w-full border-b border-outline-variant/40 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-between">
+      
+      <!-- Logo e Identificação -->
+      <div class="flex items-center gap-3">
+        <a href="#/" class="flex items-center gap-2 text-decoration-none">
+          <img src="/assets/img/logotipo_postlink_1x1.jpg" alt="PostLink" class="h-8 w-8 rounded-lg object-cover ring-1 ring-primary-container/20">
+          <span class="text-xl font-extrabold text-primary tracking-tight hidden sm:inline-block">postlink</span>
         </a>
-        <span id="nav-loja-nome" style="color:var(--text-secondary); font-size:13px; font-weight:500; border-left:0.5px solid var(--border-strong); padding-left:12px; display:none;"></span>
+        <div id="nav-loja-badge" class="hidden sm:flex items-center gap-1.5 pl-3 border-l border-outline-variant/60">
+          <span class="text-xs font-semibold text-on-surface-variant" id="nav-loja-nome">Carregando...</span>
+        </div>
       </div>
 
-      <div style="display:flex; align-items:center; gap:8px;">
-        <a id="btn-novo-link-top" href="#/novo" class="btn btn-primary btn-sm" style="display:none;">
-          <i class="ti ti-plus"></i> Novo link
+      <!-- Ações do Topo -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        
+        <!-- Status Pill -->
+        <a href="#/plano" id="pill-status-pro" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary-container/60 text-on-secondary-container border border-secondary/30 text-xs font-bold hover:bg-secondary-container transition-colors">
+          <span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+          <span id="nav-status-texto">Plano Pro</span>
         </a>
-        <a href="#/conta" class="btn btn-secondary btn-sm" title="Minha Conta">
-          <i class="ti ti-settings"></i> Conta
+
+        <!-- Botão Novo Link (Desktop) -->
+        <a id="btn-novo-link-top" href="#/novo" class="hidden sm:inline-flex items-center gap-1.5 bg-primary text-white text-xs font-bold px-3.5 py-1.5 rounded-lg shadow-xs hover:bg-primary-container active:scale-95 transition-all">
+          <span class="material-symbols-outlined text-base">add_link</span>
+          <span>Novo link</span>
         </a>
-        <button id="btn-sair" class="btn btn-ghost btn-sm" title="Sair da Conta">
-          <i class="ti ti-logout"></i> Sair
+
+        <!-- Minha Conta -->
+        <a href="#/conta" class="p-1.5 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors flex items-center justify-center" title="Configurações da Conta">
+          <span class="material-symbols-outlined text-xl">settings</span>
+        </a>
+
+        <!-- Sair -->
+        <button id="btn-sair" class="p-1.5 text-outline hover:text-error hover:bg-error-container/20 rounded-lg transition-colors flex items-center justify-center" title="Sair da Conta">
+          <span class="material-symbols-outlined text-xl">logout</span>
         </button>
       </div>
+
     </div>
   </header>
 
-  <!-- Container Principal das Rotas SPA -->
-  <main class="container" style="padding-top:24px; padding-bottom:60px;">
-    
-    <!-- Loading inicial -->
-    <div id="view-loading" style="text-align:center; padding:60px 0;">
-      <div class="spinner" style="width:28px; height:28px; margin:0 auto 14px;"></div>
-      <p style="color:var(--text-secondary); font-size:13px;">Carregando painel…</p>
+  <!-- CONTAINER PRINCIPAL SPA -->
+  <main class="max-w-7xl mx-auto w-full px-4 sm:px-6 pt-5 flex-grow">
+
+    <!-- Loading Inicial -->
+    <div id="view-loading" class="text-center py-20">
+      <div class="spinner w-8 h-8 mx-auto mb-3"></div>
+      <p class="text-xs text-on-surface-variant font-medium">Carregando painel…</p>
     </div>
 
-    <!-- VIEW: ONBOARDING (Se o lojista ainda não cadastrou sua loja) -->
-    <section id="view-onboarding" style="display:none; max-width:480px; margin:32px auto;" class="card">
-      <div style="text-align:center; margin-bottom:20px;">
-        <div style="width:48px; height:48px; border-radius:12px; background:var(--surface-1); display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-size:24px;">
-          <i class="ti ti-building-store"></i>
+    <!-- VIEW: ONBOARDING (Para novos lojistas) -->
+    <section id="view-onboarding" class="hidden max-w-md mx-auto my-8 bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant shadow-md">
+      <div class="text-center mb-6">
+        <div class="w-12 h-12 rounded-xl bg-primary-fixed text-primary flex items-center justify-center mx-auto mb-3">
+          <span class="material-symbols-outlined text-2xl">storefront</span>
         </div>
-        <h1 style="font-size:18px; font-weight:600; margin-bottom:6px;">Cadastre seu Negócio</h1>
-        <p style="color:var(--text-secondary); font-size:13px; line-height:1.45;">
+        <h1 class="text-lg font-bold text-on-surface mb-1">Cadastre seu Negócio</h1>
+        <p class="text-xs text-on-surface-variant leading-relaxed">
           Você terá 7 dias de teste gratuito completo para gerar links e testar no WhatsApp.
         </p>
       </div>
 
-      <form id="form-onboarding">
-        <div class="fld">
-          <label class="lb" for="onboarding-nome">Nome da sua Loja ou Negócio *</label>
-          <input id="onboarding-nome" type="text" placeholder="Ex: Morangos Tatuí" required maxlength="60">
+      <form id="form-onboarding" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-on-surface-variant mb-1" for="onboarding-nome">Nome da sua Loja ou Negócio *</label>
+          <input id="onboarding-nome" type="text" placeholder="Ex: Moda Fashion Tatuí" required maxlength="60" class="w-full rounded-lg border-outline-variant bg-surface-container-lowest text-xs py-2.5 px-3 focus:ring-primary focus:border-primary">
         </div>
 
-        <div class="fld">
-          <label class="lb" for="onboarding-slug">Identificador na URL (slug) *</label>
-          <div style="display:flex; align-items:center; background:var(--surface-2); border:0.5px solid var(--border-strong); border-radius:var(--radius); padding:0 10px;">
-            <span style="color:var(--text-muted); font-size:13px; font-family:var(--font-mono);" id="onboarding-prefixo">.../</span>
-            <input id="onboarding-slug" type="text" style="flex:1; border:none; background:transparent; padding:9px 6px; font-size:13px; font-family:var(--font-mono); outline:none;" placeholder="morangos-tatui" required maxlength="30">
+        <div>
+          <label class="block text-xs font-bold text-on-surface-variant mb-1" for="onboarding-slug">Identificador na URL (slug) *</label>
+          <div class="flex rounded-lg border border-outline-variant overflow-hidden bg-surface-container-low focus-within:border-primary focus-within:ring-1 focus-within:ring-primary">
+            <span id="onboarding-prefixo" class="text-outline text-xs px-2.5 py-2 select-none font-mono">.../</span>
+            <input id="onboarding-slug" type="text" placeholder="modafashion" required maxlength="30" class="flex-1 bg-transparent border-0 text-xs font-mono py-2 px-1 focus:ring-0">
           </div>
-          <p class="form-hint">Apenas letras minúsculas, números e hífens. Ex: seu-negocio</p>
+          <p class="text-[11px] text-outline mt-1">Apenas letras minúsculas, números e hífens.</p>
         </div>
 
-        <button type="submit" id="btn-salvar-loja" class="btn btn-primary" style="width:100%; margin-top:8px;">
+        <button type="submit" id="btn-salvar-loja" class="w-full bg-secondary text-white font-bold text-xs py-3 rounded-xl shadow-md hover:bg-secondary-dark active:scale-95 transition-all mt-2">
           Começar Teste Grátis (7 Dias)
         </button>
       </form>
     </section>
 
-    <!-- VIEW: LISTAGEM DE LINKS (#/) -->
-    <section id="view-lista" style="display:none;">
-      
-      <!-- Top banner de status da assinatura -->
-      <div id="banner-trial" style="background:var(--surface-1); border:0.5px solid var(--border); border-radius:var(--radius-lg); padding:12px 16px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-        <div style="display:flex; align-items:center; gap:8px;">
-          <i class="ti ti-clock" style="font-size:18px; color:var(--text-secondary);"></i>
-          <span style="font-size:13px; color:var(--text-secondary);" id="texto-trial">Período de teste ativo</span>
+    <!-- VIEW: LISTA DE LINKS (#/) -->
+    <section id="view-lista" class="hidden space-y-6">
+
+      <!-- BANNER DE STATUS / TRIAL -->
+      <div id="banner-trial" class="bg-surface-container-lowest border border-outline-variant/80 rounded-2xl p-4 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-lg">verified</span>
+          </div>
+          <div>
+            <div class="text-xs font-bold text-on-surface flex items-center gap-1.5">
+              <span>Status da Assinatura:</span>
+              <span id="texto-trial" class="text-secondary-dark font-extrabold">Período de teste ativo</span>
+            </div>
+            <p class="text-[11px] text-on-surface-variant">Todas as funções Pro Edge e CDN estão liberadas para sua loja.</p>
+          </div>
         </div>
-        <a href="#/novo" class="btn btn-primary btn-sm">
-          <i class="ti ti-plus"></i> Criar link
-        </a>
+        <div class="flex items-center gap-2 self-end sm:self-auto">
+          <a href="#/plano" class="bg-primary text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-xs hover:bg-primary-container active:scale-95 transition-all">
+            Ver Planos Pro
+          </a>
+        </div>
       </div>
 
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-        <h2 style="font-size:16px; font-weight:600;">Seus Links Compartilháveis</h2>
-        <span id="contador-links" style="color:var(--text-muted); font-size:13px;"></span>
+      <!-- BENTO GRID DE MÉTRICAS -->
+      <div>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          
+          <!-- Métrica 1: Total de Cliques -->
+          <div class="bg-surface-container-lowest border border-outline-variant/50 rounded-xl p-3.5 sm:p-4 shadow-xs flex flex-col justify-between">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-medium text-on-surface-variant">Total de Cliques</span>
+              <div class="w-7 h-7 rounded-lg bg-primary-fixed flex items-center justify-center text-primary">
+                <span class="material-symbols-outlined text-base">touch_app</span>
+              </div>
+            </div>
+            <div class="mt-2">
+              <div id="metric-total-cliques" class="text-xl sm:text-2xl font-extrabold text-on-surface">0</div>
+              <div class="flex items-center gap-1 text-[11px] text-secondary font-bold mt-0.5">
+                <span class="material-symbols-outlined text-xs">trending_up</span>
+                <span>Links ativos</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Métrica 2: Cliques Últimos 30 Dias -->
+          <div class="bg-surface-container-lowest border border-outline-variant/50 rounded-xl p-3.5 sm:p-4 shadow-xs flex flex-col justify-between">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-medium text-on-surface-variant">Cliques Recentes (30d)</span>
+              <div class="w-7 h-7 rounded-lg bg-secondary-container flex items-center justify-center text-secondary-dark">
+                <span class="material-symbols-outlined text-base">electric_bolt</span>
+              </div>
+            </div>
+            <div class="mt-2">
+              <div id="metric-cliques-mes" class="text-xl sm:text-2xl font-extrabold text-on-surface">0</div>
+              <div class="text-[11px] text-on-surface-variant mt-0.5">Tráfego de conversão</div>
+            </div>
+          </div>
+
+          <!-- Métrica 3: Total de Links Criados -->
+          <div class="bg-surface-container-lowest border border-outline-variant/50 rounded-xl p-3.5 sm:p-4 shadow-xs flex flex-col justify-between">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-medium text-on-surface-variant">Links Inteligentes</span>
+              <div class="w-7 h-7 rounded-lg bg-primary-fixed flex items-center justify-center text-primary">
+                <span class="material-symbols-outlined text-base">link</span>
+              </div>
+            </div>
+            <div class="mt-2">
+              <div id="metric-total-links" class="text-xl sm:text-2xl font-extrabold text-on-surface">0</div>
+              <div class="text-[11px] text-secondary-dark font-semibold mt-0.5" id="metric-links-ativos">0 ativos</div>
+            </div>
+          </div>
+
+          <!-- Métrica 4: Proteção Edge Cloudflare -->
+          <div class="bg-surface-container-lowest border border-outline-variant/50 rounded-xl p-3.5 sm:p-4 shadow-xs flex flex-col justify-between">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-medium text-on-surface-variant">Proteção no Edge</span>
+              <div class="w-7 h-7 rounded-lg bg-secondary-container flex items-center justify-center text-secondary-dark">
+                <span class="material-symbols-outlined text-base">shield</span>
+              </div>
+            </div>
+            <div class="mt-2">
+              <div class="text-base sm:text-lg font-bold text-on-surface flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+                <span>Ativo 100%</span>
+              </div>
+              <div class="text-[11px] text-outline mt-0.5">CDN &amp; Anti-bot WhatsApp</div>
+            </div>
+          </div>
+
+        </div>
       </div>
 
-      <!-- Estado vazio -->
-      <div id="lista-vazia" class="card" style="display:none; text-align:center; padding:44px 20px;">
-        <div style="width:48px; height:48px; border-radius:12px; background:var(--surface-1); display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-size:24px; color:var(--text-secondary);">
-          <i class="ti ti-link-off"></i>
+      <!-- BARRA DE PESQUISA, FILTROS E AÇÕES -->
+      <div class="bg-surface-container-lowest border border-outline-variant/60 rounded-2xl p-4 shadow-xs space-y-3">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          
+          <!-- Filtros por Chips -->
+          <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0" id="filtro-chips">
+            <button type="button" data-filtro="todos" class="filtro-chip px-3 py-1.5 rounded-full text-xs font-bold transition-all bg-primary text-white shadow-xs">
+              Todos
+            </button>
+            <button type="button" data-filtro="ativos" class="filtro-chip px-3 py-1.5 rounded-full text-xs font-medium transition-all bg-surface-container-low text-on-surface-variant hover:bg-surface-container">
+              Ativos
+            </button>
+            <button type="button" data-filtro="pausados" class="filtro-chip px-3 py-1.5 rounded-full text-xs font-medium transition-all bg-surface-container-low text-on-surface-variant hover:bg-surface-container">
+              Pausados
+            </button>
+          </div>
+
+          <!-- Campo de Busca -->
+          <div class="relative w-full sm:w-64">
+            <span class="material-symbols-outlined absolute left-2.5 top-2.5 text-base text-outline">search</span>
+            <input id="input-busca-links" type="text" placeholder="Buscar por título ou slug..." class="w-full text-xs bg-surface-container-low border-0 rounded-lg pl-8 pr-3 py-2 focus:ring-1 focus:ring-primary placeholder:text-outline">
+          </div>
+
         </div>
-        <h3 style="font-size:15px; font-weight:600; margin-bottom:6px;">Nenhum link gerado ainda</h3>
-        <p style="color:var(--text-secondary); font-size:13px; max-width:400px; margin:0 auto 20px; line-height:1.45;">
+
+        <div class="flex items-center justify-between pt-1 border-t border-surface-container-high/60 text-xs text-on-surface-variant">
+          <span id="contador-links" class="font-medium">Carregando links...</span>
+          <a href="#/novo" class="text-primary font-bold hover:underline flex items-center gap-1">
+            <span class="material-symbols-outlined text-sm">add</span> Criar novo
+          </a>
+        </div>
+      </div>
+
+      <!-- ESTADO VAZIO -->
+      <div id="lista-vazia" class="hidden bg-surface-container-lowest border border-outline-variant rounded-2xl text-center py-12 px-4 shadow-xs">
+        <div class="w-14 h-14 rounded-2xl bg-surface-container-low text-outline flex items-center justify-center mx-auto mb-3">
+          <span class="material-symbols-outlined text-3xl">link_off</span>
+        </div>
+        <h3 class="text-base font-bold text-on-surface mb-1">Nenhum link gerado ainda</h3>
+        <p class="text-xs text-on-surface-variant max-w-sm mx-auto mb-5 leading-relaxed">
           Crie seu primeiro link com banner em alta definição e destino automático para enviar em grupos e conversas do WhatsApp.
         </p>
-        <a href="#/novo" class="btn btn-primary">
-          <i class="ti ti-plus"></i> Criar meu primeiro link
+        <a href="#/novo" class="inline-flex items-center gap-1.5 bg-primary text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-xs hover:bg-primary-container active:scale-95 transition-all">
+          <span class="material-symbols-outlined text-base">add_link</span>
+          <span>Criar meu primeiro link</span>
         </a>
       </div>
 
-      <!-- Grid de Links -->
-      <div id="grid-links" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(290px, 1fr)); gap:16px;"></div>
+      <!-- GRID DE LINKS -->
+      <div id="grid-links" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+
     </section>
 
-    <!-- VIEW: NOVO LINK (#/novo) & EDITAR (#/editar/:id) (Identidade do Exemplo) -->
-    <section id="view-form-link" style="display:none;">
+    <!-- VIEW: NOVO LINK (#/novo) & EDITAR (#/editar/:id) -->
+    <section id="view-form-link" class="hidden space-y-4">
       
-      <div style="margin-bottom:14px;">
-        <a href="#/" class="btn btn-secondary btn-sm" style="display:inline-flex;">
-          <i class="ti ti-arrow-left"></i> Voltar aos links
+      <!-- Topo do Formulário -->
+      <div class="flex items-center justify-between">
+        <a href="#/" class="inline-flex items-center gap-1 text-xs font-bold text-on-surface-variant hover:text-primary transition-colors">
+          <span class="material-symbols-outlined text-base">arrow_back</span>
+          <span>Voltar aos links</span>
         </a>
+        <span class="text-xs text-outline" id="subtitulo-form-link">Passo 1 de 2: Configure os dados do cartão</span>
       </div>
 
-      <div style="background:var(--surface-1); border-radius:12px; padding:16px;">
-        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap:20px;">
+      <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-4 sm:p-6 shadow-sm">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
-          <!-- Coluna 1: Formulário no padrão do exemplo -->
-          <form id="form-link" style="min-width:0;">
-            <div id="titulo-form-link" style="font-size:16px; font-weight:500; margin-bottom:14px;">Novo link</div>
+          <!-- COLUNA 1: FORMULÁRIO (7 Colunas) -->
+          <form id="form-link" class="lg:col-span-7 space-y-5">
+            <div class="flex items-center justify-between pb-2 border-b border-outline-variant/60">
+              <h2 id="titulo-form-link" class="text-base font-bold text-on-surface flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary text-xl">tune</span>
+                <span>Configurar Link Inteligente</span>
+              </h2>
+              <span class="text-[11px] font-bold text-secondary-dark bg-secondary-container px-2.5 py-0.5 rounded-full">
+                Alta Definição
+              </span>
+            </div>
 
-            <!-- Campo Imagem -->
-            <div class="fld">
-              <span class="lb">Imagem</span>
-              <label class="drop" for="input-arquivo" id="dropzone">
-                <i class="ti ti-photo-up" aria-hidden="true"></i>
-                <span id="fname">Escolher da galeria</span>
+            <!-- 1. CAMPO DE IMAGEM & OTIMIZAÇÃO -->
+            <div class="space-y-2">
+              <label class="block text-xs font-bold text-on-surface-variant">Imagem de Destaque (Banner HD) *</label>
+              
+              <!-- Dropzone -->
+              <label for="input-arquivo" id="dropzone" class="border-2 border-dashed border-outline-variant hover:border-primary/60 bg-surface-container-low/50 hover:bg-surface-container-low transition-all rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer text-center group">
+                <span class="material-symbols-outlined text-3xl text-primary group-hover:scale-110 transition-transform mb-1">add_photo_alternate</span>
+                <span id="fname" class="text-xs font-bold text-primary">Escolher da galeria ou arrastar foto</span>
+                <span class="text-[11px] text-outline mt-0.5">JPG, PNG ou WEBP (recomendado 1200x630px)</span>
               </label>
               <input type="file" id="input-arquivo" accept="image/jpeg,image/png,image/webp" class="sr-only">
-              <div id="info-arquivo" style="font-size:12px; color:var(--text-secondary); margin-top:4px; display:none;"></div>
-              <div class="err" id="e-img"></div>
+              
+              <!-- Badge de Otimização Automática -->
+              <div id="info-arquivo" class="hidden flex items-center justify-between bg-surface-container-low border border-outline-variant/60 p-2.5 rounded-xl">
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-secondary text-base">auto_awesome</span>
+                  <div class="flex flex-col text-left">
+                    <span class="text-[11px] font-bold text-on-surface">Otimização Automática Concluída</span>
+                    <span id="detalhe-compressao" class="text-[10px] text-outline">Pronto para o WhatsApp</span>
+                  </div>
+                </div>
+                <span class="bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded font-bold text-[10px]">Pronto ✨</span>
+              </div>
+              <div class="text-[11px] text-error font-medium" id="e-img"></div>
             </div>
 
-            <!-- Campo Destino -->
-            <div class="fld">
-              <label class="lb" for="input-destino">Para onde o link leva</label>
-              <input type="text" id="input-destino" placeholder="https://instagram.com/sualoja ou 15998765432" style="width:100%;">
-              <div class="form-hint">Site, Instagram, catálogo ou número de WhatsApp.</div>
-              <div class="err" id="e-dest"></div>
+            <!-- 2. CAMPO DESTINO SEGMENTADO (WHATSAPP DIRETO VS URL EXTERNA) -->
+            <div class="space-y-3 pt-2 border-t border-outline-variant/50">
+              <div class="flex items-center justify-between">
+                <label class="block text-xs font-bold text-on-surface-variant flex items-center gap-1">
+                  <span class="material-symbols-outlined text-base text-primary">alt_route</span>
+                  <span>Destino do Redirecionamento *</span>
+                </label>
+              </div>
+
+              <!-- Segmented Controls / Toggle Tabs -->
+              <div class="bg-surface-container-low p-1 rounded-xl grid grid-cols-2 gap-1 border border-outline-variant/60">
+                <button type="button" id="tab-wa-btn" class="flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-surface-container-lowest text-primary text-xs font-bold shadow-xs transition-all">
+                  <span class="material-symbols-outlined text-base text-secondary">chat</span>
+                  <span>WhatsApp Direto</span>
+                </button>
+                <button type="button" id="tab-url-btn" class="flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-on-surface-variant hover:text-on-surface text-xs font-medium transition-all">
+                  <span class="material-symbols-outlined text-base text-outline">public</span>
+                  <span>URL Externa (Site / Link)</span>
+                </button>
+              </div>
+
+              <!-- Pane 1: WhatsApp Direto -->
+              <div id="pane-whatsapp" class="space-y-3">
+                <div>
+                  <label class="block text-[11px] font-bold text-on-surface-variant mb-1" for="wa-phone">
+                    Número do WhatsApp com DDD *
+                  </label>
+                  <div class="flex rounded-lg border border-outline-variant overflow-hidden focus-within:border-primary focus-within:ring-1 focus-within:ring-primary">
+                    <div class="bg-surface-container-high px-2.5 py-2 flex items-center gap-1 text-xs text-on-surface font-semibold select-none border-r border-outline-variant">
+                      <span>🇧🇷</span>
+                      <span>+55</span>
+                    </div>
+                    <input id="wa-phone" type="tel" placeholder="(15) 99876-5432" class="w-full text-xs bg-surface-container-lowest border-0 py-2 px-2.5 focus:ring-0">
+                  </div>
+                </div>
+
+                <div>
+                  <div class="flex justify-between items-center mb-1">
+                    <label class="block text-[11px] font-bold text-on-surface-variant" for="preset-message">
+                      Mensagem Pronta Inicial
+                    </label>
+                    <span class="text-[10px] text-outline">Opcional</span>
+                  </div>
+                  <textarea id="preset-message" rows="2" placeholder="Olá! Vi a oferta e quero saber mais!" class="w-full text-xs rounded-lg border-outline-variant bg-surface-container-lowest p-2.5 focus:ring-primary focus:border-primary"></textarea>
+                  
+                  <!-- Dynamic Chips -->
+                  <div class="flex flex-wrap gap-1 mt-1.5">
+                    <button type="button" class="btn-tag text-[10px] font-semibold bg-surface-container hover:bg-surface-container-high px-2 py-0.5 rounded text-on-surface-variant" data-tag="{origem}">
+                      + {origem}
+                    </button>
+                    <button type="button" class="btn-tag text-[10px] font-semibold bg-surface-container hover:bg-surface-container-high px-2 py-0.5 rounded text-on-surface-variant" data-tag="{cupom}">
+                      + {cupom}
+                    </button>
+                    <button type="button" class="btn-tag text-[10px] font-semibold bg-surface-container hover:bg-surface-container-high px-2 py-0.5 rounded text-on-surface-variant" data-tag="{data}">
+                      + {data}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Pane 2: URL Externa (Oculta por padrão) -->
+              <div id="pane-url" class="hidden space-y-3">
+                <div>
+                  <label class="block text-[11px] font-bold text-on-surface-variant mb-1" for="input-destino">
+                    URL de Destino Completa *
+                  </label>
+                  <input id="input-destino" type="text" placeholder="https://instagram.com/sualoja ou https://seusite.com.br" class="w-full text-xs rounded-lg border-outline-variant bg-surface-container-lowest py-2.5 px-3 focus:ring-primary focus:border-primary">
+                  <p class="text-[10px] text-outline mt-1">Compatível com UTMs e rastreadores externos.</p>
+                </div>
+              </div>
+
+              <div class="text-[11px] text-error font-medium" id="e-dest"></div>
             </div>
 
-            <!-- Detalhes Opcionais -->
-            <details id="detalhes-personalizar">
-              <summary>
-                <i class="ti ti-adjustments-horizontal" aria-hidden="true" style="vertical-align:-3px; margin-right:6px;"></i>
-                Personalizar (opcional)
+            <!-- 3. PERSONALIZAÇÕES OPCIONAIS (OPEN GRAPH) -->
+            <details id="detalhes-personalizar" class="pt-2 border-t border-outline-variant/50 group">
+              <summary class="text-xs font-bold text-primary cursor-pointer list-none flex items-center justify-between py-1 hover:underline">
+                <span class="flex items-center gap-1.5">
+                  <span class="material-symbols-outlined text-base">tune</span>
+                  Personalizar Título, Descrição e Apelido
+                </span>
+                <span class="material-symbols-outlined text-base group-open:rotate-180 transition-transform">expand_more</span>
               </summary>
-              <div style="padding-top:8px;">
-                <div class="fld">
-                  <label class="lb" for="input-titulo">Título do cartão</label>
-                  <input type="text" id="input-titulo" placeholder="Morangos Tatuí" style="width:100%;">
+
+              <div class="space-y-3 pt-3">
+                <div>
+                  <label class="block text-[11px] font-bold text-on-surface-variant mb-1" for="input-titulo">Título do Cartão no WhatsApp</label>
+                  <input id="input-titulo" type="text" placeholder="Morangos Tatuí - Promoção do Dia" class="w-full text-xs rounded-lg border-outline-variant bg-surface-container-lowest py-2 px-2.5 focus:ring-primary focus:border-primary">
                 </div>
-                <div class="fld">
-                  <label class="lb" for="input-descricao">Descrição</label>
-                  <input type="text" id="input-descricao" placeholder="Bolo de pote de morango, 2 por R$ 18" style="width:100%;">
+
+                <div>
+                  <label class="block text-[11px] font-bold text-on-surface-variant mb-1" for="input-descricao">Descrição curta</label>
+                  <input id="input-descricao" type="text" placeholder="Bolo no pote com morango fresco, 2 por R$ 18" class="w-full text-xs rounded-lg border-outline-variant bg-surface-container-lowest py-2 px-2.5 focus:ring-primary focus:border-primary">
                 </div>
-                <div class="fld">
-                  <label class="lb" for="input-slug">Apelido do link</label>
-                  <input type="text" id="input-slug" style="width:100%; font-family:var(--font-mono);">
+
+                <div>
+                  <label class="block text-[11px] font-bold text-on-surface-variant mb-1" for="input-slug">Apelido do link (slug customizado)</label>
+                  <input id="input-slug" type="text" class="w-full text-xs font-mono rounded-lg border-outline-variant bg-surface-container-lowest py-2 px-2.5 focus:ring-primary focus:border-primary">
                 </div>
-                <div class="fld">
-                  <label class="lb" for="input-valido-ate">Válido até</label>
-                  <input type="datetime-local" id="input-valido-ate" style="width:100%;">
-                  <div class="form-hint">Depois dessa data, o link mostra "oferta encerrada".</div>
+
+                <div>
+                  <label class="block text-[11px] font-bold text-on-surface-variant mb-1" for="input-valido-ate">Válido até (Opcional)</label>
+                  <input id="input-valido-ate" type="datetime-local" class="w-full text-xs rounded-lg border-outline-variant bg-surface-container-lowest py-2 px-2.5 focus:ring-primary focus:border-primary">
+                  <p class="text-[10px] text-outline mt-1">Após esta data, a rota Edge apresentará a mensagem "Oferta encerrada".</p>
                 </div>
               </div>
             </details>
 
-            <button id="btn-submeter-link" class="btn btn-primary" style="width:100%; margin-top:4px;">
-              Criar link
+            <button type="submit" id="btn-submeter-link" class="w-full bg-secondary text-white font-bold text-xs py-3 rounded-xl shadow-md hover:bg-secondary-dark active:scale-95 transition-all">
+              Criar Link Inteligente
             </button>
           </form>
 
-          <!-- Coluna 2: Live Preview no padrão do exemplo -->
-          <div style="min-width:0;">
-            <div style="font-size:13px; color:var(--text-secondary); margin-bottom:8px;">Como vai aparecer no grupo</div>
-            
-            <div class="wa-preview-wrapper">
-              <div class="wa-preview-card-inner">
-                <div id="ph" class="wa-preview-ph">
-                  <i class="ti ti-photo" style="font-size:28px;" aria-hidden="true"></i>
-                </div>
-                <img id="im" alt="" class="wa-preview-img" style="display:none;">
-                <div class="wa-preview-content">
-                  <div id="pt" class="wa-preview-title">Nome da Loja</div>
-                  <div id="pd" class="wa-preview-desc" style="display:none;"></div>
-                  <div id="wa-card-host" class="wa-preview-host">postlink.app</div>
-                </div>
-              </div>
-              <div id="pu" class="wa-preview-url-text"></div>
+          <!-- COLUNA 2: LIVE PREVIEW DO WHATSAPP (5 Colunas) -->
+          <div class="lg:col-span-5 space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-on-surface-variant flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-base text-secondary">visibility</span>
+                <span>Visual no WhatsApp</span>
+              </span>
+              <span class="text-[10px] text-outline font-semibold">Tempo Real</span>
             </div>
 
-            <!-- Caixa de Sucesso Inline pós-criação (como no exemplo) -->
-            <div id="res" class="success-box" hidden>
-              <div class="success-box-title">
-                <i class="ti ti-check" aria-hidden="true"></i>Link criado
+            <!-- Moldura do WhatsApp com Wallpaper Nativo -->
+            <div class="wa-bg-pattern p-4 rounded-2xl border border-outline-variant/70 shadow-sm relative overflow-hidden">
+              <div class="text-[10px] text-center text-[#667781] mb-2 font-medium">Hoje 14:30</div>
+
+              <!-- Balão de Mensagem Nativo -->
+              <div class="bg-[#E7FFDB] wa-bubble-shadow rounded-xl p-2 max-w-[320px] ml-auto border border-[#C8E6C9]">
+                
+                <!-- Cartão Open Graph HD -->
+                <div class="rounded-lg overflow-hidden border border-black/10 bg-white">
+                  <!-- Container da Imagem com Aspect Ratio 1.91:1 -->
+                  <div class="relative aspect-[1.91/1] bg-surface-container-high flex items-center justify-center overflow-hidden">
+                    <div id="ph" class="flex flex-col items-center justify-center text-outline text-center p-3">
+                      <span class="material-symbols-outlined text-3xl mb-1">image</span>
+                      <span class="text-[10px] font-semibold">Prévia do Banner HD</span>
+                    </div>
+                    <img id="im" alt="" class="hidden w-full h-full object-cover">
+                  </div>
+
+                  <!-- Conteúdo do Cartão -->
+                  <div class="p-2.5 bg-white space-y-0.5">
+                    <div id="pt" class="text-[12px] font-bold text-[#111B21] leading-tight">Nome da Loja</div>
+                    <div id="pd" class="hidden text-[11px] text-[#3B4A54] leading-snug"></div>
+                    <div id="wa-card-host" class="text-[10px] text-[#667781] font-mono uppercase font-semibold pt-0.5">postlink.app</div>
+                  </div>
+                </div>
+
+                <!-- Timestamp e Ticks Azuis -->
+                <div class="flex items-center justify-end gap-1 text-[10px] text-[#667781] pr-1 pt-1">
+                  <span>14:30</span>
+                  <span class="material-symbols-outlined text-[13px] text-[#53BDEB]">done_all</span>
+                </div>
               </div>
-              <div id="ru" class="success-box-url"></div>
-              <div style="display:flex; flex-direction:column; gap:6px;">
-                <button id="cp" class="btn btn-secondary" style="width:100%;">Copiar link</button>
-                <a id="btn-share-inline" href="#" target="_blank" class="btn btn-whatsapp" style="width:100%; text-decoration:none;">
-                  <i class="ti ti-brand-whatsapp"></i> Compartilhar no WhatsApp
+            </div>
+
+            <!-- Caixa de Sucesso Inline pós-criação -->
+            <div id="res" class="hidden bg-secondary-container/40 border border-secondary/40 rounded-xl p-3.5 space-y-2">
+              <div class="flex items-center gap-1.5 text-xs font-bold text-secondary-dark">
+                <span class="material-symbols-outlined text-base">check_circle</span>
+                <span>Link criado com sucesso!</span>
+              </div>
+              <div id="ru" class="text-xs font-mono text-on-surface bg-surface-container-lowest p-2 rounded border border-outline-variant/60 truncate select-all"></div>
+              <div class="grid grid-cols-2 gap-2 pt-1">
+                <button type="button" id="cp" class="bg-surface-container-lowest text-primary border border-outline-variant font-bold text-xs py-2 rounded-lg hover:bg-surface-container active:scale-95 transition-all flex items-center justify-center gap-1">
+                  <span class="material-symbols-outlined text-sm">content_copy</span> Copiar
+                </button>
+                <a id="btn-share-inline" href="#" target="_blank" class="bg-secondary text-white font-bold text-xs py-2 rounded-lg hover:bg-secondary-dark active:scale-95 transition-all flex items-center justify-center gap-1">
+                  <span class="material-symbols-outlined text-sm">send</span> WhatsApp
                 </a>
               </div>
             </div>
@@ -221,67 +481,192 @@
       </div>
     </section>
 
-    <!-- VIEW: CONTA & ASSINATURA (#/conta) -->
-    <section id="view-conta" style="display:none; max-width:480px; margin:20px auto;" class="card">
-      <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px;">
-        <i class="ti ti-settings" style="font-size:20px; color:var(--text-secondary);"></i>
-        <h2 style="font-size:16px; font-weight:600;">Configurações da Conta</h2>
-      </div>
+    <!-- VIEW: CHECKOUT / PLANO PRO (#/plano) -->
+    <section id="view-plano" class="hidden max-w-2xl mx-auto space-y-5 pb-8">
       
-      <div style="background:var(--surface-1); border:0.5px solid var(--border); border-radius:var(--radius); padding:14px; margin-bottom:18px;">
-        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-          <span style="color:var(--text-secondary); font-size:13px;">E-mail do Lojista:</span>
-          <strong id="conta-email" style="font-size:13px;"></strong>
-        </div>
-        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-          <span style="color:var(--text-secondary); font-size:13px;">Loja:</span>
-          <strong id="conta-loja-nome" style="font-size:13px;"></strong>
-        </div>
-        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-          <span style="color:var(--text-secondary); font-size:13px;">Identificador na URL:</span>
-          <strong id="conta-loja-slug" style="font-size:13px; font-family:var(--font-mono);"></strong>
-        </div>
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <span style="color:var(--text-secondary); font-size:13px;">Status da Assinatura:</span>
-          <span id="conta-status" class="brand-badge">TRIAL</span>
+      <!-- Topo com Navegação -->
+      <div class="flex items-center justify-between">
+        <a href="#/" class="inline-flex items-center gap-1 text-xs font-bold text-on-surface-variant hover:text-primary transition-colors">
+          <span class="material-symbols-outlined text-base">arrow_back</span>
+          <span>Voltar ao painel</span>
+        </a>
+        <div class="flex items-center gap-1 text-xs font-bold text-secondary-dark bg-secondary-container px-2.5 py-1 rounded-full border border-secondary/30">
+          <span class="material-symbols-outlined text-sm">verified_user</span>
+          <span>Ambiente Seguro</span>
         </div>
       </div>
 
-      <div style="text-align:right;">
-        <a href="#/" class="btn btn-secondary btn-sm">Voltar ao Painel</a>
+      <!-- Banner Hero Trial -->
+      <div class="bg-secondary-fixed/20 border border-secondary/30 rounded-2xl p-4 sm:p-5 flex items-start gap-3 shadow-xs">
+        <div class="bg-secondary text-white rounded-full p-1.5 mt-0.5 shrink-0 flex items-center justify-center">
+          <span class="material-symbols-outlined text-base">celebration</span>
+        </div>
+        <div>
+          <h2 class="text-sm font-bold text-on-secondary-fixed leading-tight">7 Dias Grátis para Vender Mais</h2>
+          <p class="text-xs text-on-surface-variant mt-1 leading-relaxed">
+            Teste todos os recursos do Plano Pro agora. Você pode cancelar quando quiser com 1 clique.
+          </p>
+        </div>
+      </div>
+
+      <!-- Card do Plano & Alternador Mensal / Anual -->
+      <div class="bg-surface-container-lowest rounded-2xl p-5 sm:p-6 shadow-sm border border-outline-variant space-y-5">
+        
+        <!-- Toggle Mensal / Anual -->
+        <div class="flex items-center justify-between bg-surface-container-low p-1 rounded-xl">
+          <button id="btn-billing-monthly" type="button" class="flex-1 py-2 text-center rounded-lg text-xs font-bold transition-all shadow-xs bg-surface-container-lowest text-primary">
+            Mensal
+          </button>
+          <button id="btn-billing-yearly" type="button" class="flex-1 py-2 text-center rounded-lg text-xs font-medium transition-all text-on-surface-variant flex items-center justify-center gap-1 hover:text-on-surface">
+            <span>Anual</span>
+            <span class="bg-secondary-container text-on-secondary-container text-[10px] font-bold px-1.5 py-0.2 rounded-full">-20% OFF</span>
+          </button>
+        </div>
+
+        <!-- Preço e Vantagens -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-outline-variant/60">
+          <div>
+            <div class="text-xs font-bold text-primary uppercase tracking-wider">Plano Pro PostLink</div>
+            <div class="text-2xl sm:text-3xl font-extrabold text-on-surface mt-1 flex items-baseline gap-1">
+              <span id="preco-plano" class="text-primary font-bold">R$ 29,90</span>
+              <span id="periodo-plano" class="text-xs text-outline font-normal">/mês</span>
+            </div>
+          </div>
+          <div class="text-left sm:text-right">
+            <span class="inline-block bg-secondary-container text-on-secondary-container text-[11px] font-bold px-2.5 py-1 rounded-full">
+              Sem fidelidade
+            </span>
+          </div>
+        </div>
+
+        <ul class="space-y-2 text-xs text-on-surface-variant font-medium">
+          <li class="flex items-center gap-2 text-on-surface"><span class="material-symbols-outlined text-secondary text-base">check_circle</span> Links ilimitados em alta definição</li>
+          <li class="flex items-center gap-2 text-on-surface"><span class="material-symbols-outlined text-secondary text-base">check_circle</span> Rede CDN Global Cloudflare Edge com separação de robôs</li>
+          <li class="flex items-center gap-2 text-on-surface"><span class="material-symbols-outlined text-secondary text-base">check_circle</span> Rastreamento avançado de cliques e métricas</li>
+          <li class="flex items-center gap-2 text-on-surface"><span class="material-symbols-outlined text-secondary text-base">check_circle</span> Suporte prioritário via WhatsApp</li>
+        </ul>
+
+        <!-- Formas de Pagamento -->
+        <div class="pt-2 border-t border-outline-variant/60 space-y-3">
+          <div class="text-xs font-bold text-on-surface">Escolha o método de pagamento:</div>
+          <div class="grid grid-cols-2 gap-3">
+            <label class="flex items-center gap-2.5 p-3 rounded-xl border-2 border-primary bg-primary-fixed/20 cursor-pointer">
+              <input type="radio" name="forma_pagamento" value="pix" checked class="text-primary focus:ring-primary">
+              <span class="text-xs font-bold text-on-surface">PIX Instantâneo</span>
+            </label>
+            <label class="flex items-center gap-2.5 p-3 rounded-xl border border-outline-variant hover:border-primary/50 cursor-pointer">
+              <input type="radio" name="forma_pagamento" value="cartao" class="text-primary focus:ring-primary">
+              <span class="text-xs font-bold text-on-surface">Cartão de Crédito</span>
+            </label>
+          </div>
+        </div>
+
+        <button id="btn-assinar-pro" type="button" class="w-full bg-secondary text-white font-bold text-sm py-3.5 rounded-xl shadow-md hover:bg-secondary-dark active:scale-95 transition-all flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined text-lg">lock</span>
+          <span>Ativar 7 Dias Grátis Agora</span>
+        </button>
+
+      </div>
+    </section>
+
+    <!-- VIEW: CONTA & CONFIGURAÇÕES (#/conta) -->
+    <section id="view-conta" class="hidden max-w-md mx-auto my-6 bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant shadow-sm space-y-5">
+      <div class="flex items-center gap-2.5 pb-3 border-b border-outline-variant/60">
+        <div class="w-9 h-9 rounded-xl bg-primary-fixed text-primary flex items-center justify-center">
+          <span class="material-symbols-outlined text-xl">settings</span>
+        </div>
+        <div>
+          <h2 class="text-sm font-bold text-on-surface">Configurações da Conta</h2>
+          <p class="text-[11px] text-on-surface-variant">Gerencie seu perfil e dados comerciais</p>
+        </div>
+      </div>
+
+      <div class="bg-surface-container-low rounded-xl p-3.5 space-y-2.5 text-xs">
+        <div class="flex justify-between items-center">
+          <span class="text-outline">E-mail:</span>
+          <strong id="conta-email" class="text-on-surface font-semibold"></strong>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-outline">Loja:</span>
+          <strong id="conta-loja-nome" class="text-on-surface font-semibold"></strong>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-outline">Slug da URL:</span>
+          <strong id="conta-loja-slug" class="font-mono text-primary font-bold"></strong>
+        </div>
+        <div class="flex justify-between items-center pt-1 border-t border-outline-variant/40">
+          <span class="text-outline">Assinatura:</span>
+          <span id="conta-status" class="bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded font-bold text-[10px]">TRIAL</span>
+        </div>
+      </div>
+
+      <div class="pt-2 flex flex-col gap-2">
+        <a href="#/plano" class="w-full bg-primary text-white text-xs font-bold py-2.5 rounded-xl shadow-xs text-center hover:bg-primary-container transition-all">
+          Gerenciar Plano Pro
+        </a>
+        <a href="#/" class="w-full bg-surface-container-low text-on-surface-variant text-xs font-semibold py-2.5 rounded-xl text-center hover:bg-surface-container transition-all">
+          Voltar ao Painel
+        </a>
       </div>
     </section>
 
   </main>
 
-  <!-- Modal de Link Pronto com Sucesso -->
-  <div id="modal-sucesso" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); backdrop-filter:blur(2px); z-index:100; align-items:center; justify-content:center; padding:16px;">
-    <div class="card" style="max-width:400px; width:100%; text-align:center; box-shadow:0 12px 32px rgba(0,0,0,0.15);">
-      <div style="width:44px; height:44px; border-radius:50%; background:var(--bg-success); color:var(--text-success); display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-size:22px;">
-        <i class="ti ti-check"></i>
+  <!-- MODAL DE SUCESSO -->
+  <div id="modal-sucesso" class="hidden fixed inset-0 bg-black/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+    <div class="bg-surface-container-lowest max-w-sm w-full rounded-2xl p-6 text-center border border-outline-variant shadow-xl space-y-4">
+      <div class="w-12 h-12 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center mx-auto">
+        <span class="material-symbols-outlined text-2xl">check_circle</span>
       </div>
-      <h3 style="font-size:16px; font-weight:600; margin-bottom:6px;">Seu Link está pronto!</h3>
-      <p style="color:var(--text-secondary); font-size:13px; margin-bottom:16px; line-height:1.4;">
-        Copie o link abaixo ou compartilhe diretamente em qualquer conversa do WhatsApp:
-      </p>
+      <div>
+        <h3 class="text-base font-bold text-on-surface">Link Criado com Sucesso!</h3>
+        <p class="text-xs text-on-surface-variant mt-1 leading-relaxed">
+          Seu cartão Open Graph HD já está publicado no Edge e pronto para envio no WhatsApp.
+        </p>
+      </div>
 
-      <div style="display:flex; gap:6px; margin-bottom:14px;">
-        <input id="modal-input-link" type="text" readonly style="font-size:13px; font-family:var(--font-mono); text-overflow:ellipsis;">
-        <button id="modal-btn-copiar" class="btn btn-secondary btn-sm" style="white-space:nowrap;">
-          <i class="ti ti-copy"></i> Copiar
+      <div class="flex gap-2">
+        <input id="modal-input-link" type="text" readonly class="w-full text-xs font-mono bg-surface-container-low border border-outline-variant rounded-lg px-2.5 py-2 truncate select-all">
+        <button id="modal-btn-copiar" type="button" class="bg-surface-container text-primary hover:bg-surface-container-high border border-outline-variant text-xs font-bold px-3 py-2 rounded-lg shrink-0 flex items-center gap-1">
+          <span class="material-symbols-outlined text-sm">content_copy</span> Copiar
         </button>
       </div>
 
-      <div style="display:flex; flex-direction:column; gap:8px;">
-        <a id="modal-btn-whatsapp" href="#" target="_blank" class="btn btn-whatsapp" style="width:100%;">
-          <i class="ti ti-brand-whatsapp"></i> Compartilhar no WhatsApp
+      <div class="space-y-2">
+        <a id="modal-btn-whatsapp" href="#" target="_blank" class="w-full bg-secondary text-white text-xs font-bold py-2.5 rounded-xl shadow-sm hover:bg-secondary-dark flex items-center justify-center gap-1.5 transition-all">
+          <span class="material-symbols-outlined text-base">send</span> Compartilhar no WhatsApp
         </a>
-        <button id="modal-btn-fechar" class="btn btn-ghost btn-sm" style="width:100%;">
-          Concluir
+        <button id="modal-btn-fechar" type="button" class="w-full text-xs font-medium text-outline hover:text-on-surface py-1">
+          Fechar
         </button>
       </div>
     </div>
   </div>
+
+  <!-- BOTTOM NAVIGATION BAR (MOBILE) -->
+  <nav class="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface-container-lowest border-t border-outline-variant/60 shadow-lg px-4 py-2 flex items-center justify-around">
+    <a href="#/" class="flex flex-col items-center text-primary font-bold text-[10px]">
+      <span class="material-symbols-outlined text-xl">dashboard</span>
+      <span>Links</span>
+    </a>
+    <a href="#/novo" class="flex flex-col items-center text-on-surface-variant hover:text-primary text-[10px]">
+      <span class="material-symbols-outlined text-xl">add_circle</span>
+      <span>Criar</span>
+    </a>
+    <a href="#/plano" class="flex flex-col items-center text-on-surface-variant hover:text-primary text-[10px]">
+      <span class="material-symbols-outlined text-xl">workspace_premium</span>
+      <span>Planos</span>
+    </a>
+    <a href="#/conta" class="flex flex-col items-center text-on-surface-variant hover:text-primary text-[10px]">
+      <span class="material-symbols-outlined text-xl">person</span>
+      <span>Conta</span>
+    </a>
+  </nav>
+
+  <!-- FLOATING ACTION BUTTON (FAB NO MOBILE) -->
+  <a href="#/novo" class="sm:hidden fixed bottom-16 right-4 z-40 bg-secondary text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-transform" title="Criar Novo Link">
+    <span class="material-symbols-outlined text-2xl">add</span>
+  </a>
 
   <div id="toast-container"></div>
 

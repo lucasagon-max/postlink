@@ -1,0 +1,606 @@
+<!DOCTYPE html><html lang="pt-BR" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>PostLink - Transforme links em cartões HD para WhatsApp</title>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Plus Jakarta Sans Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS v3 with Plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Theme Configuration verbatim from specification -->
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "error-container": "#ffdad6",
+            "secondary-container": "#6bff8f",
+            "primary": "#003e80",
+            "secondary-fixed-dim": "#4ae176",
+            "surface-tint": "#295ea8",
+            "primary-fixed": "#d6e3ff",
+            "inverse-on-surface": "#eef0ff",
+            "error": "#ba1a1a",
+            "on-secondary-fixed": "#002109",
+            "inverse-surface": "#283044",
+            "tertiary-fixed": "#89f5e7",
+            "secondary-fixed": "#6bff8f",
+            "on-error-container": "#93000a",
+            "on-primary-container": "#b4cdff",
+            "on-error": "#ffffff",
+            "on-tertiary-container": "#72dfd1",
+            "surface-container-high": "#e2e7ff",
+            "on-tertiary": "#ffffff",
+            "on-background": "#131b2e",
+            "primary-container": "#1e56a0",
+            "background": "#faf8ff",
+            "tertiary-container": "#00625a",
+            "outline": "#737782",
+            "surface-bright": "#faf8ff",
+            "on-primary-fixed-variant": "#00458d",
+            "on-tertiary-fixed": "#00201d",
+            "surface-container": "#eaedff",
+            "surface-container-highest": "#dae2fd",
+            "tertiary-fixed-dim": "#6bd8cb",
+            "on-surface": "#131b2e",
+            "surface": "#faf8ff",
+            "inverse-primary": "#aac7ff",
+            "on-secondary-fixed-variant": "#005321",
+            "surface-dim": "#d2d9f4",
+            "secondary": "#006e2f",
+            "on-tertiary-fixed-variant": "#005049",
+            "outline-variant": "#c2c6d3",
+            "tertiary": "#004842",
+            "on-secondary": "#ffffff",
+            "on-primary-fixed": "#001b3e",
+            "on-primary": "#ffffff",
+            "on-surface-variant": "#424751",
+            "primary-fixed-dim": "#aac7ff",
+            "surface-container-low": "#f2f3ff",
+            "surface-container-lowest": "#ffffff",
+            "on-secondary-container": "#007432",
+            "surface-variant": "#dae2fd"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "space-lg": "1.5rem",
+            "space-md": "1rem",
+            "margin": "2rem",
+            "gutter-mobile": "0.75rem",
+            "margin-mobile": "1rem",
+            "space-xl": "2.5rem",
+            "space-sm": "0.5rem",
+            "gutter": "1rem",
+            "space-xs": "0.25rem"
+          },
+          "fontFamily": {
+            "body-lg": ["Plus Jakarta Sans"],
+            "body-sm": ["Plus Jakarta Sans"],
+            "headline-lg": ["Plus Jakarta Sans"],
+            "label-md": ["Plus Jakarta Sans"],
+            "label-lg": ["Plus Jakarta Sans"],
+            "headline-lg-mobile": ["Plus Jakarta Sans"],
+            "headline-sm": ["Plus Jakarta Sans"],
+            "title-md": ["Plus Jakarta Sans"],
+            "label-sm": ["Plus Jakarta Sans"],
+            "headline-md": ["Plus Jakarta Sans"],
+            "display": ["Plus Jakarta Sans"],
+            "body-md": ["Plus Jakarta Sans"]
+          },
+          "fontSize": {
+            "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "700" }],
+            "label-md": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+            "label-lg": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+            "headline-lg-mobile": ["26px", { "lineHeight": "34px", "fontWeight": "700" }],
+            "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+            "title-md": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+            "label-sm": ["11px", { "lineHeight": "14px", "fontWeight": "500" }],
+            "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+            "display": ["40px", { "lineHeight": "48px", "fontWeight": "800" }],
+            "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    /* WhatsApp Pattern background */
+    .wa-bg-pattern {
+      background-color: #efeae2;
+      background-image: radial-gradient(#d4ccc0 1px, transparent 1px), radial-gradient(#d4ccc0 1px, #efeae2 1px);
+      background-size: 24px 24px;
+      background-position: 0 0, 12px 12px;
+    }
+    .wa-bubble-shadow {
+      box-shadow: 0 1px 0.5px rgba(11, 20, 26, 0.13);
+    }
+    .glass-card {
+      backdrop-filter: blur(12px);
+      background: rgba(255, 255, 255, 0.92);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface font-body-md antialiased selection:bg-secondary-container selection:text-on-secondary-container min-h-screen flex flex-col">
+<!-- TOP APP BAR (from Shared Components JSON) -->
+<header class="bg-surface-container-lowest text-primary docked full-width top-0 sticky z-40 shadow-sm flex justify-between items-center w-full px-margin-mobile py-space-sm border-b border-outline-variant">
+<div class="flex items-center space-x-2">
+<!-- Logo image requested via prompt image placeholder -->
+<img alt="PostLink Official Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBl1FPeWdK9dm2Qj7If30s_riOFO8yvBGDDVDNNGPNIj9YRIY64tLbUO6F9IPMOx-Q1GtNvUOHPPpF5V0--hXLaxuW4TV-tefRhXYNijHgZsu8_hs1MLHm71yOquUSsmgMOHKaUgyMmcfYP6E2fwQVKN83oMczdNqcrE0JExHMiwsqSVp9KK2xLzgOWgRtvCQee0pkgR6IvpSYKgU1cum--J2mNJP6pXW_8xbSk-RAYCULGKfxnJ0j4">
+<span class="text-headline-md font-headline-md font-extrabold text-primary tracking-tight">postlink</span>
+</div>
+<div class="flex items-center space-x-2">
+<a class="text-label-md font-label-md text-on-surface-variant hover:bg-surface-container-high px-space-sm py-1.5 rounded-lg active:scale-95 transition-all" href="#login">
+        Entrar
+      </a>
+<a class="bg-secondary text-on-secondary text-label-md font-label-md px-space-md py-1.5 rounded-lg shadow-sm hover:opacity-95 active:scale-95 transition-all flex items-center gap-1" href="#comecar">
+<span class="">Começar Grátis</span>
+<span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</div>
+</header>
+<!-- MAIN CANVAS -->
+<main class="flex-grow">
+<!-- HERO SECTION -->
+<section class="px-margin-mobile pt-space-xl pb-space-lg text-center max-w-2xl mx-auto">
+<!-- Badge -->
+<div class="inline-flex items-center gap-1.5 bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-label-sm font-label-sm mb-space-md shadow-sm border border-secondary/20 animate-pulse">
+<span class="material-symbols-outlined text-base" data-icon="local_fire_department" data-weight="fill" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+<span class="">A revolução dos links de WhatsApp &amp; Redes Sociais</span>
+</div>
+<!-- Main Headline -->
+<h1 class="text-headline-lg-mobile md:text-headline-lg font-headline-lg-mobile md:font-headline-lg text-primary tracking-tight mb-space-sm">
+        Transforme links comuns em cartões HD que vendem <span class="text-secondary underline decoration-secondary-container decoration-wavy">3.4x mais</span> no WhatsApp
+      </h1>
+<!-- Subtitle -->
+<p class="text-body-md font-body-md text-on-surface-variant mb-space-lg max-w-xl mx-auto">
+        Chega de prévias borradas e links sem clique. Otimize seus banners Open Graph no Edge da Cloudflare com redirecionamento instantâneo.
+      </p>
+<!-- CTA Buttons & Quick Actions -->
+<div class="flex flex-col sm:flex-row gap-space-sm justify-center items-center mb-space-lg">
+<a class="w-full sm:w-auto bg-secondary text-on-secondary text-label-lg font-label-lg px-space-lg py-3 rounded-lg shadow-md hover:bg-secondary/90 active:scale-95 transition-all flex items-center justify-center gap-2" href="#criar">
+<span class="material-symbols-outlined" data-icon="add_circle" data-weight="fill" style="font-variation-settings: 'FILL' 1;">add_circle</span>
+<span class="">Criar meu primeiro link grátis</span>
+</a>
+<a class="w-full sm:w-auto bg-surface-container-lowest border border-outline-variant text-primary text-label-lg font-label-lg px-space-md py-3 rounded-lg hover:bg-surface-container-low active:scale-95 transition-all flex items-center justify-center gap-2" href="#comparativo">
+<span class="material-symbols-outlined" data-icon="visibility">visibility</span>
+<span class="">Ver demonstração ao vivo</span>
+</a>
+</div>
+<!-- Trust highlights micro bar -->
+<div class="flex items-center justify-center gap-4 text-label-sm font-label-sm text-on-surface-variant pt-2 border-t border-surface-container-high">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-secondary text-base" data-icon="verified" data-weight="fill" style="font-variation-settings: 'FILL' 1;">verified</span> Zero setup</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-secondary text-base" data-icon="bolt">bolt</span> CDN Global Edge</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-secondary text-base" data-icon="shield">shield</span> Anti-block bot</span>
+</div>
+</section>
+<!-- BEFORE VS AFTER COMPARISON (WHATSAPP CARDS) -->
+<section class="px-margin-mobile py-space-xl bg-surface-container-low border-y border-outline-variant" id="comparativo">
+<div class="max-w-4xl mx-auto">
+<div class="text-center mb-space-lg">
+<span class="text-label-md font-label-md text-primary bg-primary-fixed px-3 py-0.5 rounded-full inline-block mb-1">
+            Impacto Visual Real
+          </span>
+<h2 class="text-headline-sm font-headline-sm text-on-surface">Antes vs Depois no WhatsApp</h2>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Veja a diferença na taxa de clique de um link mal gerado comparado ao PostLink HD</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md items-start">
+<!-- ANTES: LINK COMUM -->
+<div class="bg-surface-container-lowest rounded-xl border border-error/30 p-space-md shadow-sm">
+<div class="flex items-center justify-between pb-space-xs mb-space-sm border-b border-surface-container">
+<span class="text-label-sm font-label-sm text-error flex items-center gap-1 font-bold">
+<span class="material-symbols-outlined text-base" data-icon="cancel">cancel</span>
+                Link comum (Sem PostLink)
+              </span>
+<span class="text-label-sm font-label-sm bg-error-container text-on-error-container px-2 py-0.5 rounded">Taxa de clique: ~3.8%</span>
+</div>
+<!-- WhatsApp Simulated Window -->
+<div class="wa-bg-pattern p-3 rounded-lg border border-outline-variant relative overflow-hidden">
+<div class="text-[10px] text-center text-[#667781] mb-2 font-medium">Hoje</div>
+<!-- Bad preview bubble -->
+<div class="bg-surface-container-lowest wa-bubble-shadow rounded-lg p-2.5 max-w-[280px] ml-auto border border-[#E2E8F0]">
+<!-- Cut / Low-Res Thumbnail Container -->
+<div class="w-full h-24 bg-surface-container-high rounded overflow-hidden relative mb-2 flex items-center justify-center">
+<img class="w-full h-full object-cover blur-[1.5px] opacity-70" data-alt="A pixelated, blurry low-resolution product promotional banner preview inside a compressed mobile chat frame. The colors are washed out, details are heavily artifacted, and the text in the graphic is nearly illegible under flat neutral lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD6juMTgBhNkRqm26IXLuey5efDYnpdxOd2N_LJbvpyeer3JNqWRKHfxsjKj0MtOD_IUfJUnX50oumfrngD5a9QPWbEfhR5t9u8-DipKZl7O3k4lrOUVFbxt5mmjaUVhfxwOjoT9-DDvAoQVyGAYtc7KCQZRxOD5P2wcrP0DEsnL3I0c2JWdl8fXiWlQKFTwFhMAhmnQIwvfzt3KVRR44I3Mx8XjzjPKcquw-Ku00E">
+<div class="absolute inset-0 flex items-center justify-center bg-black/20">
+<span class="bg-error text-on-error text-[10px] px-1.5 py-0.5 rounded font-bold">Resolução 240p cortada</span>
+</div>
+</div>
+<div class="text-[12px] font-bold text-on-surface leading-tight mb-1 truncate">
+                  loja-exemplo.com.br/produto/3849...
+                </div>
+<div class="text-[11px] text-[#667781] leading-tight line-clamp-1 mb-2">
+                  Clique para conferir as ofertas do site oficial.
+                </div>
+<div class="flex items-center justify-end gap-1 text-[10px] text-[#667781]">
+<span class="">14:32</span>
+<span class="material-symbols-outlined text-[13px] text-[#53BDEB]" data-icon="done_all">done_all</span>
+</div>
+</div>
+</div>
+<ul class="mt-space-sm space-y-1 text-label-sm font-label-sm text-on-surface-variant">
+<li class="flex items-center gap-1.5 text-error">
+<span class="material-symbols-outlined text-sm" data-icon="close">close</span> Imagem cortada fora do padrão 1.91:1
+              </li>
+<li class="flex items-center gap-1.5 text-error">
+<span class="material-symbols-outlined text-sm" data-icon="close">close</span> Compressão destrutiva do WhatsApp
+              </li>
+<li class="flex items-center gap-1.5 text-error">
+<span class="material-symbols-outlined text-sm" data-icon="close">close</span> Sem rastreamento de cliques ou UTM
+              </li>
+</ul>
+</div>
+<!-- DEPOIS: COM POSTLINK -->
+<div class="bg-surface-container-lowest rounded-xl border-2 border-secondary p-space-md shadow-md relative overflow-hidden">
+<div class="absolute -top-3 -right-3 bg-secondary text-on-secondary text-[10px] font-extrabold uppercase px-6 py-1 rotate-12 shadow-sm">
+              HD Oficial
+            </div>
+<div class="flex items-center justify-between pb-space-xs mb-space-sm border-b border-surface-container">
+<span class="text-label-sm font-label-sm text-secondary flex items-center gap-1 font-bold">
+<span class="material-symbols-outlined text-base" data-icon="check_circle" data-weight="fill" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                Com PostLink HD
+              </span>
+<span class="text-label-sm font-label-sm bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded font-bold">Taxa de clique: 16.4% 🔥</span>
+</div>
+<!-- WhatsApp Simulated Window -->
+<div class="wa-bg-pattern p-3 rounded-lg border border-outline-variant relative overflow-hidden">
+<div class="text-[10px] text-center text-[#667781] mb-2 font-medium">Hoje</div>
+<!-- Perfect PostLink HD bubble -->
+<div class="bg-[#E7FFDB] wa-bubble-shadow rounded-lg p-2 max-w-[310px] ml-auto border border-[#cbeabb]">
+<!-- High-Res OG Image -->
+<div class="w-full aspect-[1.91/1] bg-surface-container-high rounded-[6px] overflow-hidden mb-2 relative">
+<img class="w-full h-full object-cover" data-alt="A vivid, crystal-clear 1200 by 630 high-resolution e-commerce promotional banner showcasing luxury sneaker apparel with high-contrast corporate navy and conversational emerald accents. The image is crisp, studio-lit with clean shadows and bold typography reading Coleção Exclusiva." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA-mxKXxfP_4By2gkhg_DOUsvsDCFTufd14tWHHunLquPG0APh3VMDV5T8sPk6MoGudh11r972HkLP2a02GMs5QLLxS5tMHf4kLnIR7H-3nctcvpNkwT3DpqM-tfWKm64zgt3eFRm6mQ4Mv1Ccy3fpDftYsXn-XoaKT0kNlLNhJmrnbjmetuK0WhMICRkN7QyEql9oYM2_HePck_lNv7Tjy-kZFEvgAdcD6wvpLKdo">
+<div class="absolute top-1.5 left-1.5 bg-black/60 backdrop-blur-sm text-white text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary-fixed"></span>
+<span class="">1200x630 HD Ready</span>
+</div>
+</div>
+<div class="px-1">
+<div class="text-[10px] font-semibold text-secondary uppercase tracking-wider mb-0.5">postlink.io/promo-natal</div>
+<div class="text-[13px] font-bold text-[#111B21] leading-tight mb-1">
+                    Tênis Urban Pro Max - 40% OFF no Pix + Frete Grátis
+                  </div>
+<div class="text-[11px] text-[#3B4A54] leading-snug line-clamp-2 mb-1.5">
+                    Garanta o seu com desconto exclusivo de WhatsApp. Clique rápido antes que acabe o estoque limitado de hoje.
+                  </div>
+<div class="flex items-center justify-between text-[10px] text-[#667781] pt-1 border-t border-[#d5edd0]">
+<span class="text-secondary font-medium">postlink.io</span>
+<div class="flex items-center gap-1">
+<span class="">14:33</span>
+<span class="material-symbols-outlined text-[14px] text-[#53BDEB]" data-icon="done_all" data-weight="fill" style="font-variation-settings: 'FILL' 1;">done_all</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<ul class="mt-space-sm space-y-1 text-label-sm font-label-sm text-on-surface">
+<li class="flex items-center gap-1.5 text-secondary font-semibold">
+<span class="material-symbols-outlined text-sm" data-icon="check">check</span> Imagem perfeitamente enquadrada em proporção 1.91:1
+              </li>
+<li class="flex items-center gap-1.5 text-secondary font-semibold">
+<span class="material-symbols-outlined text-sm" data-icon="check">check</span> Compressão WebP ultra-leve abaixo de 300KB
+              </li>
+<li class="flex items-center gap-1.5 text-secondary font-semibold">
+<span class="material-symbols-outlined text-sm" data-icon="check">check</span> Tag UTM automática + Rastreamento instantâneo
+              </li>
+<li class="flex items-center gap-2 font-semibold text-secondary">
+  <span class="material-symbols-outlined text-secondary text-lg" data-icon="update">update</span> Controle de Expiração &amp; Oferta Dinâmica (Sem reenviar)
+</li></ul>
+</div>
+</div>
+</div>
+</section>
+<!-- KEY FEATURES BENTO GRID -->
+<section class="px-margin-mobile py-space-xl max-w-5xl mx-auto">
+<div class="text-center mb-space-lg">
+<h2 class="text-headline-sm font-headline-sm text-primary mb-1">Recursos Chave Feitos para Conversão</h2>
+<p class="text-body-md font-body-md text-on-surface-variant">Tecnologia avançada de CDN e Canvas operando nos bastidores de cada link.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md"><!-- DOR 1: Zero Dependência de Download Manual -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl border border-outline-variant shadow-sm hover:shadow-md transition-shadow">
+  <div class="w-10 h-10 rounded-lg bg-primary-fixed flex items-center justify-center text-primary mb-space-sm">
+    <span class="material-symbols-outlined" data-icon="cloud_done">cloud_done</span>
+  </div>
+  <div class="inline-block bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider mb-1">Dor #1 Solucionada</div>
+  <h3 class="text-title-md font-title-md text-on-surface mb-1">1. Zero Dependência de Download Manual</h3>
+  <p class="text-body-sm font-body-sm text-on-surface-variant mb-space-sm">
+    O WhatsApp não comprime de forma destrutiva e sua oferta nunca fica naquele quadrado cinza ou borrado, mesmo se o download automático estiver desligado no aparelho do cliente. O cartão Open Graph em alta resolução carrega instantâneo no Edge da Cloudflare.
+  </p>
+  <div class="bg-surface-container-low p-2 rounded-lg flex items-center justify-between text-label-sm font-label-sm">
+    <span class="text-on-surface-variant">Exibição visual:</span>
+    <span class="bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded font-bold">100% Nítido sem baixar foto</span>
+  </div>
+</div>
+
+<!-- DOR 2: Cartão Único Integrado -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl border border-outline-variant shadow-sm hover:shadow-md transition-shadow">
+  <div class="w-10 h-10 rounded-lg bg-secondary-fixed flex items-center justify-center text-secondary mb-space-sm">
+    <span class="material-symbols-outlined" data-icon="view_agenda">view_agenda</span>
+  </div>
+  <div class="inline-block bg-secondary/10 text-secondary text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider mb-1">Dor #2 Solucionada</div>
+  <h3 class="text-title-md font-title-md text-on-surface mb-1">2. Tudo num Único Cartão Integrado (Sem 'Ler Mais')</h3>
+  <p class="text-body-sm font-body-sm text-on-surface-variant mb-space-sm">
+    Imagem HD, título, preço, chamada persuasiva e link direto ficam unidos em um bloco interativo limpo. Sem virar 3 mensagens soltas em grupos de classificados nem sumir no fluxo ou truncar com botão 'ler mais'.
+  </p>
+  <div class="bg-surface-container-low p-2 rounded-lg flex items-center justify-between text-label-sm font-label-sm">
+    <span class="text-on-surface-variant">Formato do card:</span>
+    <span class="text-primary font-bold">Banner 1.91:1 + Título + Preço + CTA</span>
+  </div>
+</div>
+
+<!-- DOR 3: Fim dos Links Feios e Suspeitos -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl border border-outline-variant shadow-sm hover:shadow-md transition-shadow">
+  <div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-primary-container mb-space-sm">
+    <span class="material-symbols-outlined" data-icon="verified_user">verified_user</span>
+  </div>
+  <div class="inline-block bg-primary-container/10 text-primary-container text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider mb-1">Dor #3 Solucionada</div>
+  <h3 class="text-title-md font-title-md text-on-surface mb-1">3. Fim dos Links Feios e Suspeitos</h3>
+  <p class="text-body-sm font-body-sm text-on-surface-variant mb-space-sm">
+    Substitua links crus de wa.me que parecem golpe ou URLs do Instagram que barram compradores pedindo login. Tenha links de marca verificados (postlink.to/sualoja/oferta) com visual profissional e credibilidade imediata.
+  </p>
+  <div class="bg-surface-container-low p-2 rounded-lg flex items-center justify-between text-label-sm font-label-sm">
+    <span class="text-on-surface-variant">Credibilidade:</span>
+    <span class="text-secondary font-bold">Domínio Próprio &amp; SSL Verificado</span>
+  </div>
+</div>
+
+<!-- DOR 4: Métricas Reais & Rastreamento por Grupo -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl border border-outline-variant shadow-sm hover:shadow-md transition-shadow">
+  <div class="w-10 h-10 rounded-lg bg-error-container flex items-center justify-center text-error mb-space-sm">
+    <span class="material-symbols-outlined" data-icon="query_stats">query_stats</span>
+  </div>
+  <div class="inline-block bg-error/10 text-error text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider mb-1">Dor #4 Solucionada</div>
+  <h3 class="text-title-md font-title-md text-on-surface mb-1">4. Métricas Reais &amp; Rastreamento por Grupo</h3>
+  <p class="text-body-sm font-body-sm text-on-surface-variant mb-space-sm">
+    Saiba exatamente quantos cliques, visualizações reais e de qual grupo, canal de transmissão ou lista VIP veio cada cliente com parâmetros dinâmicos precisos, separando bots do WhatsApp e 100% aderente à LGPD.
+  </p>
+  <div class="bg-surface-container-low p-2 rounded-lg flex items-center justify-between text-label-sm font-label-sm">
+    <span class="text-on-surface-variant">Rastreamento:</span>
+    <span class="text-primary font-bold">Parâmetros por Grupo + Anti-bot</span>
+  </div>
+</div>
+
+<!-- DOR 5: Ofertas Vivas & Expiração Dinâmica -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl border-2 border-secondary/50 shadow-sm hover:shadow-md transition-shadow md:col-span-2">
+  <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-space-sm">
+    <div class="flex items-center gap-2">
+      <div class="w-10 h-10 rounded-lg bg-secondary-container flex items-center justify-center text-secondary">
+        <span class="material-symbols-outlined" data-icon="update">update</span>
+      </div>
+      <div>
+        <div class="inline-block bg-secondary-container text-on-secondary-container text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider mb-0.5">Dor #5 Solucionada</div>
+        <h3 class="text-title-md font-title-md text-on-surface">5. Ofertas Vivas: Atualize ou Expire sem Reenviar</h3>
+      </div>
+    </div>
+    <span class="bg-secondary text-on-secondary text-label-sm font-label-sm px-2.5 py-1 rounded-full font-bold">Exclusivo PostLink</span>
+  </div>
+  <p class="text-body-sm font-body-sm text-on-surface-variant mb-space-sm">
+    Acabou o estresse de responder 'ainda tem?' ou ter discussões por preço antigo já defasado. Altere o banner, preço ou ative o redirecionamento automático de oferta expirada ou produto esgotado para uma nova promoção em tempo real — sem precisar reenviar em nenhum grupo ou comunidade.
+  </p>
+  <div class="bg-surface-container-low p-2.5 rounded-lg flex flex-wrap items-center justify-between gap-2 text-label-sm font-label-sm">
+    <div class="flex items-center gap-1.5 text-secondary font-semibold">
+      <span class="material-symbols-outlined text-base" data-icon="check_circle">check_circle</span>
+      <span class="">Redireciona para produto alternativo se esgotar</span>
+    </div>
+    <span class="text-primary font-bold">Atualização em menos de 10s no Edge</span>
+  </div>
+</div></div>
+</section>
+<!-- SOCIAL PROOF / STATS BANNER -->
+<section class="bg-primary text-on-primary py-space-xl px-margin-mobile">
+<div class="max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-space-md text-center">
+<div class="p-space-sm border-b sm:border-b-0 sm:border-r border-primary-container">
+<div class="text-headline-lg font-headline-lg font-extrabold text-secondary-fixed">+1.2M</div>
+<div class="text-label-lg font-label-lg text-primary-fixed opacity-90">Cliques gerados</div>
+<p class="text-body-sm font-body-sm text-primary-fixed/80 mt-1">por e-commerces e afiliados</p>
+</div>
+<div class="p-space-sm border-b sm:border-b-0 sm:border-r border-primary-container">
+<div class="text-headline-lg font-headline-lg font-extrabold text-secondary-fixed">99.4%</div>
+<div class="text-label-lg font-label-lg text-primary-fixed opacity-90">Entrega perfeita do card</div>
+<p class="text-body-sm font-body-sm text-primary-fixed/80 mt-1">sem previews cinzas ou falhos</p>
+</div>
+<div class="p-space-sm">
+<div class="text-headline-lg font-headline-lg font-extrabold text-secondary-fixed">+3.4x</div>
+<div class="text-label-lg font-label-lg text-primary-fixed opacity-90">Taxa de resposta</div>
+<p class="text-body-sm font-body-sm text-primary-fixed/80 mt-1">medida em campanhas ativas</p>
+</div>
+</div>
+</section>
+<!-- INTERACTIVE FAST SIMULATOR / CREATE LINK SECTION -->
+<section class="px-margin-mobile py-space-xl max-w-xl mx-auto" id="criar">
+<div class="text-center mb-space-md">
+<span class="text-label-md font-label-md text-secondary bg-secondary-container px-3 py-0.5 rounded-full inline-block mb-1">
+          Crie agora mesmo
+        </span>
+<h2 class="text-headline-sm font-headline-sm text-primary">Experimente em 10 segundos</h2>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Insira a URL de destino e personalize sua prévia Open Graph.</p>
+</div>
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-space-md shadow-md space-y-space-sm">
+<!-- Input URL Destino -->
+<div>
+<label class="block text-label-md font-label-md text-on-surface mb-1">URL de Destino (Site ou Checkout)</label>
+<div class="flex rounded-lg border border-outline-variant focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10 overflow-hidden bg-white">
+<span class="bg-surface-container px-3 py-2 text-label-sm font-label-sm text-on-surface-variant flex items-center border-r border-outline-variant">
+              https://
+            </span>
+<input class="w-full px-3 py-2 text-body-sm font-body-sm border-0 focus:ring-0 text-on-surface" placeholder="minhaloja.com.br/produto-especial" type="text">
+</div>
+</div>
+<!-- Custom Slug Prefix -->
+<div>
+<label class="block text-label-md font-label-md text-on-surface mb-1">Seu Link Encurtado HD</label>
+<div class="flex rounded-lg border border-outline-variant focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10 overflow-hidden bg-white">
+<span class="bg-surface-container px-3 py-2 text-label-sm font-label-sm text-primary font-bold flex items-center border-r border-outline-variant">
+              postlink.io/
+            </span>
+<input class="w-full px-3 py-2 text-body-sm font-body-sm border-0 focus:ring-0 text-on-surface font-medium" type="text" value="oferta-whatsapp-vip">
+</div>
+</div>
+<!-- Banner Drag & Drop Simulation -->
+<div>
+<label class="block text-label-md font-label-md text-on-surface mb-1">Banner OG (WhatsApp 1200x630)</label>
+<div class="border-2 border-dashed border-primary-container/40 bg-surface-container-low rounded-lg p-space-md text-center hover:bg-surface-container-high/40 transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-primary text-3xl mb-1" data-icon="cloud_upload">cloud_upload</span>
+<p class="text-label-sm font-label-sm text-primary font-semibold">Arraste a imagem ou clique para selecionar</p>
+<p class="text-[11px] text-on-surface-variant">Otimização WebP automática e recorte no padrão WhatsApp</p>
+</div>
+</div>
+<!-- Action Button -->
+<button class="w-full bg-secondary text-on-secondary text-label-lg font-label-lg py-3 rounded-lg shadow-md hover:bg-secondary/90 active:scale-95 transition-all flex items-center justify-center gap-2 mt-2">
+<span class="material-symbols-outlined" data-icon="bolt">bolt</span>
+<span class="">Gerar Cartão HD WhatsApp Grátis</span>
+</button>
+<p class="text-center text-[11px] text-on-surface-variant flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-secondary" data-icon="lock">lock</span>
+          Não requer cartão de crédito para testar
+        </p>
+</div>
+</section>
+<!-- PRICING PLANS SECTION -->
+<section class="px-margin-mobile py-space-xl bg-surface-container-low border-t border-outline-variant">
+<div class="max-w-4xl mx-auto">
+<div class="text-center mb-space-lg">
+<h2 class="text-headline-sm font-headline-sm text-primary mb-1">Planos Simples e Transparentes</h2>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Comece no plano gratuito e escale conforme suas vendas aumentam.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md items-stretch">
+<!-- PLANO STARTER GRÁTIS -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl border border-outline-variant shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-center mb-2">
+<span class="text-label-lg font-label-lg text-primary font-bold">Starter Grátis</span>
+<span class="bg-surface-container px-2 py-0.5 rounded text-label-sm font-label-sm text-on-surface-variant">Para testar</span>
+</div>
+<div class="flex items-baseline gap-1 mb-space-md">
+<span class="text-headline-lg font-headline-lg font-extrabold text-on-surface">R$ 0</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant">/ mês para sempre</span>
+</div>
+<ul class="space-y-2 mb-space-lg text-body-sm font-body-sm text-on-surface">
+<li class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-lg" data-icon="check">check</span> Até 15 links ativos simultâneos
+                </li>
+<li class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-lg" data-icon="check">check</span> Compressão automática até 300KB
+                </li>
+<li class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-lg" data-icon="check">check</span> Domínio oficial postlink.io/slug
+                </li>
+<li class="flex items-center gap-2 text-outline">
+<span class="material-symbols-outlined text-outline text-lg" data-icon="close">close</span> Domínio próprio personalizado (.com.br)
+                </li>
+</ul>
+</div>
+<a class="w-full block text-center bg-surface-container-low border border-outline text-primary text-label-md font-label-md py-2.5 rounded-lg hover:bg-surface-container-high transition-colors" href="#criar">
+              Criar Conta Gratuita
+            </a>
+</div>
+<!-- PLANO PRO EDGE -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl border-2 border-primary shadow-lg flex flex-col justify-between relative overflow-hidden">
+<div class="absolute top-0 right-0 bg-primary text-on-primary text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase tracking-wider">
+              Mais Escolhido
+            </div>
+<div>
+<div class="flex justify-between items-center mb-2">
+<span class="text-label-lg font-label-lg text-primary font-bold">Pro Edge</span>
+<span class="bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded text-label-sm font-label-sm font-bold">Lojistas &amp; Afiliados</span>
+</div>
+<div class="flex items-baseline gap-1 mb-space-md">
+<span class="text-headline-lg font-headline-lg font-extrabold text-primary">R$ 29</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant">/ mês</span>
+</div>
+<ul class="space-y-2 mb-space-lg text-body-sm font-body-sm text-on-surface">
+<li class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-lg" data-icon="check">check</span> Links ilimitados em alta resolução
+                </li>
+<li class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-lg" data-icon="check">check</span> CDN Cloudflare Tier-1 com ultra-baixa latência
+                </li>
+<li class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-lg" data-icon="check">check</span> Suporte a Domínio Próprio (ex: link.suamarca.com)
+                </li>
+<li class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-lg" data-icon="check">check</span> Rastreamento UTM avançado e proteção anti-bot
+                </li>
+<li class="flex items-center gap-2 font-semibold text-secondary">
+  <span class="material-symbols-outlined text-secondary text-lg" data-icon="update">update</span> Controle de Expiração &amp; Oferta Dinâmica (Sem reenviar)
+</li></ul>
+</div>
+<a class="w-full block text-center bg-secondary text-on-secondary text-label-md font-label-md py-2.5 rounded-lg shadow hover:bg-secondary/90 transition-colors font-bold" href="#comecar">
+              Assinar Pro com 7 Dias Grátis
+            </a>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- FOOTER -->
+<footer class="bg-inverse-surface text-inverse-on-surface pt-space-lg pb-24 md:pb-space-lg px-margin-mobile">
+<div class="max-w-4xl mx-auto">
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-space-md pb-space-md border-b border-outline">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="text-headline-sm font-headline-sm font-extrabold text-secondary-fixed">postlink</span>
+<span class="text-[11px] bg-primary-container text-on-primary-container px-2 py-0.5 rounded">v2.4 Edge</span>
+</div>
+<p class="text-body-sm font-body-sm text-surface-container-high opacity-80 max-w-sm">
+            A infraestrutura definitiva para links de alta conversão, banners OG nítidos e deep-links de WhatsApp.
+          </p>
+</div>
+<div class="flex flex-wrap gap-4 text-label-sm font-label-sm text-surface-container-high">
+<a class="hover:text-secondary-fixed transition-colors" href="#termos">Termos de Uso</a>
+<a class="hover:text-secondary-fixed transition-colors" href="#privacidade">Privacidade &amp; LGPD</a>
+<a class="hover:text-secondary-fixed transition-colors" href="#status">Status da Rede (Cloudflare)</a>
+<a class="hover:text-secondary-fixed transition-colors" href="#suporte">Suporte WhatsApp</a>
+</div>
+</div>
+<div class="pt-space-md flex flex-col sm:flex-row justify-between items-center text-[11px] text-surface-container-high/70 gap-2">
+<p class="">© 2025 PostLink. Todos os direitos reservados. CNPJ: 48.192.384/0001-92.</p>
+<p class="flex items-center gap-1">
+          Feito para o ecossistema WhatsApp &amp; Redes Sociais.
+        </p>
+</div>
+</div>
+</footer>
+<!-- BOTTOM NAVBAR (from Shared Components JSON - Active Tab: 'Links' destination) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-gutter-mobile py-space-xs bg-surface-container-lowest shadow-lg border-t border-outline-variant">
+<!-- Item 1: Links (Active) -->
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-xl px-space-sm py-space-xs font-semibold active:scale-95 transition-transform duration-150" href="#links">
+<span class="material-symbols-outlined text-lg" data-icon="link">link</span>
+<span class="text-label-sm font-label-sm">Links</span>
+</a>
+<!-- Item 2: Criar -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-space-sm py-space-xs hover:bg-surface-container-high transition-colors active:scale-95 duration-150" href="#criar">
+<span class="material-symbols-outlined text-lg" data-icon="add_circle">add_circle</span>
+<span class="text-label-sm font-label-sm">Criar</span>
+</a>
+<!-- Item 3: Métricas -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-space-sm py-space-xs hover:bg-surface-container-high transition-colors active:scale-95 duration-150" href="#metricas">
+<span class="material-symbols-outlined text-lg" data-icon="analytics">analytics</span>
+<span class="text-label-sm font-label-sm">Métricas</span>
+</a>
+<!-- Item 4: Config -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-space-sm py-space-xs hover:bg-surface-container-high transition-colors active:scale-95 duration-150" href="#config">
+<span class="material-symbols-outlined text-lg" data-icon="tune">tune</span>
+<span class="text-label-sm font-label-sm">Config</span>
+</a>
+</nav>
+
+
+</body></html>
