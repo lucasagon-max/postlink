@@ -136,6 +136,24 @@ const el = {
   checkoutPlanoValor: document.getElementById('checkout-plano-valor'),
   btnAssinarPro: document.getElementById('btn-assinar-pro'),
   btnAssinarTexto: document.getElementById('btn-assinar-texto'),
+  btnAtivarTrial: document.getElementById('btn-ativar-trial'),
+
+  // Modal Pagamento PIX (Mercado Pago)
+  modalPagamentoPix: document.getElementById('modal-pagamento-pix'),
+  pixModalSubtitulo: document.getElementById('pix-modal-subtitulo'),
+  pixPlanoNome: document.getElementById('pix-plano-nome'),
+  pixPlanoValor: document.getElementById('pix-plano-valor'),
+  pixLoadingContainer: document.getElementById('pix-loading-container'),
+  pixConteudoContainer: document.getElementById('pix-conteudo-container'),
+  pixSucessoContainer: document.getElementById('pix-sucesso-container'),
+  pixQrImage: document.getElementById('pix-qr-image'),
+  pixInputCopiaCola: document.getElementById('pix-input-copia-cola'),
+  pixBtnCopiar: document.getElementById('pix-btn-copiar'),
+  pixBtnCopiarTexto: document.getElementById('pix-btn-copiar-texto'),
+  pixTimerTexto: document.getElementById('pix-timer-texto'),
+  pixBtnFechar: document.getElementById('pix-btn-fechar'),
+  pixBoxSimulacao: document.getElementById('pix-box-simulacao'),
+  pixBtnSimular: document.getElementById('pix-btn-simular'),
 
   // Conta
   contaEmail: document.getElementById('conta-email'),
@@ -1490,8 +1508,23 @@ function renderizarTelaPlanos() {
       ? `${selInfo.precoMensal} / mês`
       : `${selInfo.obsAnual.split('·')[0].trim()}`;
   }
-  if (el.btnAssinarTexto) {
-    el.btnAssinarTexto.textContent = `Ativar 7 Dias Grátis do ${selInfo.nome.split('(')[0].trim()}`;
+  atualizarTextoBotaoCheckout();
+}
+
+let metodoPagamento = 'pix';
+let pollingPixInterval = null;
+let timerPixInterval = null;
+let paymentIdAtual = null;
+
+function atualizarTextoBotaoCheckout() {
+  if (!el.btnAssinarTexto) return;
+  const selInfo = DADOS_EXIBICAO_PLANOS[planoSelecionado];
+  const valorTexto = billingCycle === 'monthly' ? selInfo.precoMensal : selInfo.obsAnual.split('cobrado')[0].trim();
+  
+  if (metodoPagamento === 'pix') {
+    el.btnAssinarTexto.textContent = `Pagar ${valorTexto} via PIX e Liberar Imediatamente`;
+  } else {
+    el.btnAssinarTexto.textContent = `Pagar ${valorTexto} com Cartão de Crédito`;
   }
 }
 
@@ -1507,8 +1540,223 @@ function selecionarPlano(id) {
   }
 }
 
+function fecharModalPix() {
+  if (el.modalPagamentoPix) {
+    el.modalPagamentoPix.classList.add('hidden');
+  }
+  if (pollingPixInterval) {
+    clearInterval(pollingPixInterval);
+    pollingPixInterval = null;
+  }
+  if (timerPixInterval) {
+    clearInterval(timerPixInterval);
+    timerPixInterval = null;
+  }
+}
+
+function iniciarTimerPix(expiraEm) {
+  if (timerPixInterval) clearInterval(timerPixInterval);
+  const dataFinal = expiraEm ? new Date(expiraEm).getTime() : Date.now() + 30 * 60 * 1000;
+
+  function atualizarTimer() {
+    const agora = Date.now();
+    const dif = Math.max(0, Math.floor((dataFinal - agora) / 1000));
+    const minutos = Math.floor(dif / 60);
+    const segundos = dif % 60;
+    if (el.pixTimerTexto) {
+      el.pixTimerTexto.textContent = `${String(minutos).padStart(2, '0')}:${String(segundos).padStart(2, '0')}`;
+    }
+    if (dif <= 0) {
+      clearInterval(timerPixInterval);
+      if (el.pixTimerTexto) el.pixTimerTexto.textContent = 'Expirado';
+    }
+  }
+
+  atualizarTimer();
+  timerPixInterval = setInterval(atualizarTimer, 1000);
+}
+
+function iniciarPollingPix(paymentId, plano) {
+  if (pollingPixInterval) clearInterval(pollingPixInterval);
+
+  pollingPixInterval = setInterval(async () => {
+    try {
+      const url = `/api/mp-verificar-pagamento?payment_id=${encodeURIComponent(paymentId)}&loja_id=${encodeURIComponent(state.loja?.id || '')}&plano=${encodeURIComponent(plano)}`;
+      const res = await fetch(url);
+      if (!res.ok) return;
+      const data = await res.json();
+
+      if (data.aprovado === true) {
+        // Pagamento aprovado com sucesso!
+        clearInterval(pollingPixInterval);
+        pollingPixInterval = null;
+        if (timerPixInterval) clearInterval(timerPixInterval);
+
+        // Atualização imediata do estado local
+        if (state.assinatura) {
+          state.assinatura.status = 'ativo';
+          state.assinatura.plano = plano;
+        }
+
+        // Transição visual no modal
+        if (el.pixConteudoContainer) el.pixConteudoContainer.classList.add('hidden');
+        if (el.pixSucessoContainer) el.pixSucessoContainer.classList.remove('hidden');
+
+        toast('🎉 Pagamento aprovado! Seu plano já está liberado!', 'success');
+
+        setTimeout(() => {
+          fecharModalPix();
+          window.location.hash = '#/';
+          atualizarBarraAssinatura();
+          renderizarLinks();
+        }, 2200);
+      }
+    } catch (err) {
+      console.warn('Erro ao verificar status do PIX:', err);
+    }
+  }, 3000);
+}
+
+async function iniciarCheckoutPix() {
+  if (!state.loja || !state.user) {
+    toast('Faça login para continuar o pagamento', 'error');
+    return;
+  }
+
+  const selInfo = DADOS_EXIBICAO_PLANOS[planoSelecionado];
+  if (el.pixPlanoNome) el.pixPlanoNome.textContent = selInfo.nome;
+  if (el.pixPlanoValor) {
+    el.pixPlanoValor.textContent = billingCycle === 'monthly' ? selInfo.precoMensal : selInfo.obsAnual.split('cobrado')[0].trim();
+  }
+
+  // Prepara modal
+  if (el.modalPagamentoPix) el.modalPagamentoPix.classList.remove('hidden');
+  if (el.pixLoadingContainer) el.pixLoadingContainer.classList.remove('hidden');
+  if (el.pixConteudoContainer) el.pixConteudoContainer.classList.add('hidden');
+  if (el.pixSucessoContainer) el.pixSucessoContainer.classList.add('hidden');
+  if (el.pixBtnCopiarTexto) el.pixBtnCopiarTexto.textContent = 'Copiar';
+
+  try {
+    const res = await fetch('/api/mp-criar-pagamento', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        loja_id: state.loja.id,
+        email: state.user.email,
+        nome: state.loja.nome,
+        plano: planoSelecionado,
+        ciclo: billingCycle,
+        metodo: 'pix',
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok || !data.sucesso) {
+      fecharModalPix();
+      toast(data.erro || 'Falha ao gerar PIX no Mercado Pago', 'error');
+      return;
+    }
+
+    paymentIdAtual = data.payment_id;
+
+    // Renderiza imagem do QR Code
+    if (el.pixQrImage) {
+      if (data.qr_code_base64 && data.qr_code_base64.length > 500) {
+        el.pixQrImage.src = `data:image/png;base64,${data.qr_code_base64}`;
+      } else if (data.qr_code) {
+        // Fallback visual com alta resolução garantida
+        el.pixQrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(data.qr_code)}`;
+      }
+    }
+
+    if (el.pixInputCopiaCola) {
+      el.pixInputCopiaCola.value = data.qr_code || '';
+    }
+
+    if (el.pixBoxSimulacao) {
+      if (data.simulado) {
+        el.pixBoxSimulacao.classList.remove('hidden');
+      } else {
+        el.pixBoxSimulacao.classList.add('hidden');
+      }
+    }
+
+    // Exibe conteúdo
+    if (el.pixLoadingContainer) el.pixLoadingContainer.classList.add('hidden');
+    if (el.pixConteudoContainer) el.pixConteudoContainer.classList.remove('hidden');
+
+    // Inicia contadores
+    iniciarTimerPix(data.expira_em);
+    iniciarPollingPix(data.payment_id, planoSelecionado);
+
+  } catch (err) {
+    fecharModalPix();
+    toast('Erro de conexão ao gerar pagamento: ' + err.message, 'error');
+  }
+}
+
+async function iniciarCheckoutCartao() {
+  if (!state.loja || !state.user) {
+    toast('Faça login para continuar o pagamento', 'error');
+    return;
+  }
+
+  const btnTextoOriginal = el.btnAssinarTexto?.textContent;
+  if (el.btnAssinarTexto) el.btnAssinarTexto.textContent = 'Gerando Checkout Seguro...';
+
+  try {
+    const res = await fetch('/api/mp-criar-pagamento', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        loja_id: state.loja.id,
+        email: state.user.email,
+        nome: state.loja.nome,
+        plano: planoSelecionado,
+        ciclo: billingCycle,
+        metodo: 'cartao',
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok || !data.sucesso) {
+      toast(data.erro || 'Falha ao iniciar pagamento com cartão', 'error');
+      if (el.btnAssinarTexto) el.btnAssinarTexto.textContent = btnTextoOriginal;
+      return;
+    }
+
+    if (data.init_point) {
+      toast('Redirecionando para o ambiente seguro do Mercado Pago...', 'info');
+      window.location.href = data.init_point;
+    } else {
+      toast('Checkout de cartão gerado com sucesso.', 'success');
+    }
+  } catch (err) {
+    toast('Erro ao processar cartão: ' + err.message, 'error');
+  } finally {
+    if (el.btnAssinarTexto) el.btnAssinarTexto.textContent = btnTextoOriginal;
+  }
+}
+
 if (el.btnBillingMonthly) el.btnBillingMonthly.addEventListener('click', () => setBilling('monthly'));
 if (el.btnBillingYearly) el.btnBillingYearly.addEventListener('click', () => setBilling('yearly'));
+
+// Alternância da forma de pagamento
+document.querySelectorAll('input[name="forma_pagamento"]').forEach((radio) => {
+  radio.addEventListener('change', (e) => {
+    metodoPagamento = e.target.value;
+    document.querySelectorAll('.option-pagamento').forEach((lbl) => {
+      if (lbl.dataset.metodo === metodoPagamento) {
+        lbl.className = 'flex items-center gap-2.5 p-3 rounded-xl border-2 border-primary bg-primary-fixed/20 cursor-pointer transition-all option-pagamento';
+      } else {
+        lbl.className = 'flex items-center gap-2.5 p-3 rounded-xl border border-outline-variant hover:border-primary/50 cursor-pointer transition-all option-pagamento';
+      }
+    });
+    atualizarTextoBotaoCheckout();
+  });
+});
 
 document.addEventListener('click', (e) => {
   const btnSel = e.target.closest('.btn-selecionar-plano, .card-plano');
@@ -1517,8 +1765,20 @@ document.addEventListener('click', (e) => {
   }
 });
 
+// Botão principal de checkout
 if (el.btnAssinarPro) {
   el.btnAssinarPro.addEventListener('click', () => {
+    if (metodoPagamento === 'pix') {
+      iniciarCheckoutPix();
+    } else {
+      iniciarCheckoutCartao();
+    }
+  });
+}
+
+// Botão de ativação de 7 dias grátis (trial)
+if (el.btnAtivarTrial) {
+  el.btnAtivarTrial.addEventListener('click', () => {
     const selInfo = DADOS_EXIBICAO_PLANOS[planoSelecionado];
     toast(`Seu teste gratuito de 7 dias do ${selInfo.nome.split('(')[0].trim()} está ativado!`, 'success');
     if (state.assinatura) {
@@ -1531,6 +1791,59 @@ if (el.btnAssinarPro) {
       atualizarBarraAssinatura();
       renderizarLinks();
     }, 1200);
+  });
+}
+
+// Eventos do Modal PIX
+if (el.pixBtnFechar) {
+  el.pixBtnFechar.addEventListener('click', fecharModalPix);
+}
+
+if (el.pixBtnCopiar && el.pixInputCopiaCola) {
+  el.pixBtnCopiar.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(el.pixInputCopiaCola.value);
+      if (el.pixBtnCopiarTexto) el.pixBtnCopiarTexto.textContent = 'Copiado! ✓';
+      toast('Código PIX copiado com sucesso! Abra o app do seu banco para pagar.', 'success');
+      setTimeout(() => {
+        if (el.pixBtnCopiarTexto) el.pixBtnCopiarTexto.textContent = 'Copiar';
+      }, 3000);
+    } catch {
+      el.pixInputCopiaCola.select();
+      document.execCommand('copy');
+      toast('Código PIX copiado!', 'success');
+    }
+  });
+}
+
+if (el.pixBtnSimular) {
+  el.pixBtnSimular.addEventListener('click', async () => {
+    if (!paymentIdAtual) return;
+    toast('Simulando aprovação de pagamento no Mercado Pago...', 'info');
+    try {
+      const url = `/api/mp-verificar-pagamento?simular_aprovacao=true&payment_id=${encodeURIComponent(paymentIdAtual)}&loja_id=${encodeURIComponent(state.loja?.id || '')}&plano=${encodeURIComponent(planoSelecionado)}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data.aprovado) {
+        if (pollingPixInterval) clearInterval(pollingPixInterval);
+        if (timerPixInterval) clearInterval(timerPixInterval);
+        if (state.assinatura) {
+          state.assinatura.status = 'ativo';
+          state.assinatura.plano = planoSelecionado;
+        }
+        if (el.pixConteudoContainer) el.pixConteudoContainer.classList.add('hidden');
+        if (el.pixSucessoContainer) el.pixSucessoContainer.classList.remove('hidden');
+        toast('🎉 Pagamento aprovado! Seu plano já está liberado!', 'success');
+        setTimeout(() => {
+          fecharModalPix();
+          window.location.hash = '#/';
+          atualizarBarraAssinatura();
+          renderizarLinks();
+        }, 2000);
+      }
+    } catch (err) {
+      toast('Erro ao simular: ' + err.message, 'error');
+    }
   });
 }
 

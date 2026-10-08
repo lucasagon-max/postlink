@@ -798,28 +798,41 @@
         </div>
 
         <!-- Formas de Pagamento -->
-        <div class="space-y-2">
-          <div class="text-xs font-bold text-on-surface">Escolha como prefere pagar após os 7 dias grátis:</div>
-          <div class="grid grid-cols-2 gap-3">
-            <label class="flex items-center gap-2.5 p-3 rounded-xl border-2 border-primary bg-primary-fixed/20 cursor-pointer">
+        <div class="space-y-2.5">
+          <div class="text-xs font-bold text-on-surface">Escolha como prefere pagar:</div>
+          <div class="grid grid-cols-2 gap-3" id="grupo-formas-pagamento">
+            <label class="flex items-center gap-2.5 p-3 rounded-xl border-2 border-primary bg-primary-fixed/20 cursor-pointer transition-all option-pagamento" data-metodo="pix">
               <input type="radio" name="forma_pagamento" value="pix" checked class="text-primary focus:ring-primary">
-              <span class="text-xs font-bold text-on-surface">PIX Instantâneo</span>
+              <div class="flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-base text-secondary">bolt</span>
+                <span class="text-xs font-bold text-on-surface">PIX Instantâneo</span>
+              </div>
             </label>
-            <label class="flex items-center gap-2.5 p-3 rounded-xl border border-outline-variant hover:border-primary/50 cursor-pointer">
+            <label class="flex items-center gap-2.5 p-3 rounded-xl border border-outline-variant hover:border-primary/50 cursor-pointer transition-all option-pagamento" data-metodo="cartao">
               <input type="radio" name="forma_pagamento" value="cartao" class="text-primary focus:ring-primary">
-              <span class="text-xs font-bold text-on-surface">Cartão de Crédito</span>
+              <div class="flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-base text-outline">credit_card</span>
+                <span class="text-xs font-bold text-on-surface">Cartão de Crédito</span>
+              </div>
             </label>
           </div>
         </div>
 
+        <!-- Botão Principal de Ação -->
         <button id="btn-assinar-pro" type="button" class="w-full bg-secondary text-white font-bold text-sm py-3.5 rounded-xl shadow-md hover:bg-secondary-dark active:scale-95 transition-all flex items-center justify-center gap-2">
-          <span class="material-symbols-outlined text-lg">lock</span>
-          <span id="btn-assinar-texto">Ativar 7 Dias Grátis do Plano Pro</span>
+          <span class="material-symbols-outlined text-lg">bolt</span>
+          <span id="btn-assinar-texto">Pagar com PIX e Liberar Imediatamente</span>
         </button>
 
-        <p class="text-center text-[11px] text-outline">
-          Nenhuma cobrança será realizada hoje. Você pode cancelar quando quiser com 1 clique.
-        </p>
+        <div class="flex items-center justify-between pt-1">
+          <button id="btn-ativar-trial" type="button" class="text-xs text-primary font-bold hover:underline py-1">
+            Ou começar com 7 dias grátis sem pagar nada hoje →
+          </button>
+          <span class="text-[11px] text-outline flex items-center gap-1">
+            <span class="material-symbols-outlined text-xs text-secondary">verified_user</span>
+            Mercado Pago Seguro
+          </span>
+        </div>
       </div>
 
     </section>
@@ -919,6 +932,111 @@
           Fechar
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- MODAL: PAGAMENTO PIX INSTANTÂNEO (MERCADO PAGO) -->
+  <div id="modal-pagamento-pix" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-surface-container-lowest max-w-md w-full rounded-3xl p-6 border border-outline-variant shadow-2xl space-y-4 relative max-h-[90vh] overflow-y-auto">
+      
+      <!-- Cabeçalho do Modal -->
+      <div class="flex items-center justify-between pb-3 border-b border-outline-variant/60">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-2xl bg-secondary-container/80 text-secondary-dark flex items-center justify-center">
+            <span class="material-symbols-outlined text-2xl">qr_code_2</span>
+          </div>
+          <div>
+            <h3 class="text-base font-extrabold text-on-surface">Pagamento via PIX</h3>
+            <p id="pix-modal-subtitulo" class="text-xs text-outline font-medium">Liberação imediata da sua conta</p>
+          </div>
+        </div>
+        <button type="button" id="pix-btn-fechar" class="w-8 h-8 rounded-full hover:bg-surface-container flex items-center justify-center text-outline hover:text-on-surface transition-colors" title="Fechar">
+          <span class="material-symbols-outlined text-xl">close</span>
+        </button>
+      </div>
+
+      <!-- Resumo do Pedido -->
+      <div class="bg-surface-container-low rounded-2xl p-4 flex items-center justify-between">
+        <div>
+          <span class="text-[11px] font-bold uppercase tracking-wider text-outline">Plano Selecionado</span>
+          <div id="pix-plano-nome" class="text-sm font-bold text-on-surface">Plano Pro (Negócio)</div>
+        </div>
+        <div class="text-right">
+          <span class="text-[11px] font-bold uppercase tracking-wider text-outline">Valor Total</span>
+          <div id="pix-plano-valor" class="text-lg font-extrabold text-primary">R$ 29,90</div>
+        </div>
+      </div>
+
+      <!-- Área do QR Code com Skeleton / Loading -->
+      <div id="pix-loading-container" class="py-8 text-center space-y-3">
+        <div class="w-12 h-12 border-3 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+        <p class="text-xs font-semibold text-on-surface-variant">Conectando ao Mercado Pago e gerando PIX seguro...</p>
+      </div>
+
+      <div id="pix-conteudo-container" class="hidden space-y-4">
+        <!-- Card do QR Code -->
+        <div class="bg-white rounded-2xl p-4 border border-outline-variant/60 text-center shadow-xs flex flex-col items-center justify-center">
+          <img id="pix-qr-image" src="" alt="QR Code PIX Mercado Pago" class="w-56 h-56 object-contain rounded-lg border border-slate-100 shadow-xs mb-2">
+          <div class="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
+            <span class="material-symbols-outlined text-base text-secondary">phone_iphone</span>
+            <span>Abra o app do seu banco e aponte a câmera</span>
+          </div>
+        </div>
+
+        <!-- Copia e Cola -->
+        <div class="space-y-1.5">
+          <label class="text-xs font-bold text-on-surface flex items-center justify-between">
+            <span>Ou use o código Pix Copia e Cola:</span>
+            <span id="pix-timer" class="text-[11px] font-mono text-outline flex items-center gap-1">
+              <span class="material-symbols-outlined text-xs">timer</span>
+              <span id="pix-timer-texto">29:59</span>
+            </span>
+          </label>
+          <div class="flex items-center gap-2">
+            <input id="pix-input-copia-cola" type="text" readonly class="flex-1 bg-surface-container-low border border-outline-variant rounded-xl px-3 py-2.5 text-xs font-mono text-on-surface select-all focus:outline-none focus:ring-1 focus:ring-primary truncate">
+            <button type="button" id="pix-btn-copiar" class="bg-primary hover:bg-primary-container text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-xs transition-all flex items-center gap-1 shrink-0 active:scale-95">
+              <span class="material-symbols-outlined text-sm">content_copy</span>
+              <span id="pix-btn-copiar-texto">Copiar</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Radar de Status em Tempo Real -->
+        <div id="pix-status-radar" class="p-3 rounded-2xl bg-secondary-fixed/30 border border-secondary/20 flex items-center gap-3">
+          <div class="relative flex items-center justify-center shrink-0 w-8 h-8">
+            <span class="animate-ping absolute inline-flex h-6 w-6 rounded-full bg-secondary opacity-40"></span>
+            <span class="relative inline-flex rounded-full h-3 w-3 bg-secondary"></span>
+          </div>
+          <div class="text-left leading-tight">
+            <p class="text-xs font-bold text-on-surface">Aguardando pagamento pelo seu banco...</p>
+            <p class="text-[11px] text-outline">Identificação automática em até 5 segundos após a transferência</p>
+          </div>
+        </div>
+
+        <!-- Botão de simulação sandbox para teste rápido -->
+        <div id="pix-box-simulacao" class="hidden text-center pt-1">
+          <button type="button" id="pix-btn-simular" class="text-[11px] font-bold text-secondary hover:underline py-1">
+            ⚡ Simular Pagamento Aprovado (Ambiente de Teste)
+          </button>
+        </div>
+      </div>
+
+      <!-- Estado de Sucesso Instantâneo -->
+      <div id="pix-sucesso-container" class="hidden py-8 text-center space-y-3">
+        <div class="w-16 h-16 rounded-3xl bg-secondary text-white flex items-center justify-center mx-auto shadow-lg animate-bounce">
+          <span class="material-symbols-outlined text-4xl font-extrabold">check</span>
+        </div>
+        <div class="space-y-1">
+          <h4 class="text-lg font-extrabold text-on-surface">Pagamento Confirmado! 🎉</h4>
+          <p class="text-xs text-on-surface-variant max-w-xs mx-auto">
+            Identificamos seu pagamento no Mercado Pago. Seu plano foi liberado com sucesso!
+          </p>
+        </div>
+        <div class="pt-2">
+          <span class="text-xs text-primary font-bold animate-pulse">Atualizando seu painel...</span>
+        </div>
+      </div>
+
     </div>
   </div>
 
