@@ -155,6 +155,14 @@ const el = {
   pixBoxSimulacao: document.getElementById('pix-box-simulacao'),
   pixBtnSimular: document.getElementById('pix-btn-simular'),
 
+  // Checkout Transparente Cartão de Crédito
+  boxCartaoTransparente: document.getElementById('box-cartao-transparente'),
+  cardBrickLoading: document.getElementById('card-brick-loading'),
+  alertaPublicKey: document.getElementById('alerta-public-key'),
+  inputPublicKeyManual: document.getElementById('input-public-key-manual'),
+  btnSalvarPublicKey: document.getElementById('btn-salvar-public-key'),
+  cardPaymentBrickContainer: document.getElementById('cardPaymentBrick_container'),
+
   // Conta
   contaEmail: document.getElementById('conta-email'),
   contaLojaNome: document.getElementById('conta-loja-nome'),
@@ -1755,23 +1763,167 @@ document.querySelectorAll('input[name="forma_pagamento"]').forEach((radio) => {
       }
     });
     atualizarTextoBotaoCheckout();
+    renderizarCardBrick();
   });
 });
+
+// CHECKOUT TRANSPARENTE COM CARD PAYMENT BRICK (MERCADO PAGO)
+let mpBrickController = null;
+let mpPublicKey = localStorage.getItem('postlink_mp_public_key') || '';
+
+async function obterMpPublicKey() {
+  if (mpPublicKey) return mpPublicKey;
+  try {
+    const res = await fetch('/api/mp-config');
+    const data = await res.json();
+    if (data.publicKey) {
+      mpPublicKey = data.publicKey;
+      return mpPublicKey;
+    }
+  } catch {}
+  return '';
+}
+
+async function renderizarCardBrick() {
+  if (!el.boxCartaoTransparente) return;
+
+  if (metodoPagamento !== 'cartao') {
+    el.boxCartaoTransparente.classList.add('hidden');
+    if (el.btnAssinarPro) el.btnAssinarPro.classList.remove('hidden');
+    return;
+  }
+
+  // Ativa modo cartão transparente
+  el.boxCartaoTransparente.classList.remove('hidden');
+  if (el.btnAssinarPro) el.btnAssinarPro.classList.add('hidden');
+
+  const pubKey = await obterMpPublicKey();
+  if (!pubKey) {
+    if (el.cardBrickLoading) el.cardBrickLoading.classList.add('hidden');
+    if (el.alertaPublicKey) el.alertaPublicKey.classList.remove('hidden');
+    return;
+  }
+
+  if (el.alertaPublicKey) el.alertaPublicKey.classList.add('hidden');
+  if (el.cardBrickLoading) el.cardBrickLoading.classList.remove('hidden');
+
+  try {
+    if (mpBrickController) {
+      await mpBrickController.unmount();
+      mpBrickController = null;
+    }
+
+    if (!window.MercadoPago) {
+      throw new Error('SDK do Mercado Pago não carregou no navegador');
+    }
+
+    const mp = new window.MercadoPago(pubKey, { locale: 'pt-BR' });
+    const bricksBuilder = mp.bricks();
+
+    const valorNumerico = billingCycle === 'monthly'
+      ? (planoSelecionado === 'starter' ? 14.90 : (planoSelecionado === 'pro' ? 29.90 : 69.90))
+      : (planoSelecionado === 'starter' ? 118.80 : (planoSelecionado === 'pro' ? 262.80 : 598.80));
+
+    // Limpa container antes de recriar
+    const container = document.getElementById('cardPaymentBrick_container');
+    if (container) container.innerHTML = '';
+
+    mpBrickController = await bricksBuilder.create('cardPayment', 'cardPaymentBrick_container', {
+      initialization: {
+        amount: Number(valorNumerico),
+        payer: {
+          email: state.user?.email || 'cliente@postlink.app',
+        },
+      },
+      customization: {
+        visual: {
+          style: {
+            theme: 'default',
+          },
+        },
+        paymentMethods: {
+          maxInstallments: 12,
+        },
+      },
+      callbacks: {
+        onReady: () => {
+          if (el.cardBrickLoading) el.cardBrickLoading.classList.add('hidden');
+        },
+        onSubmit: async (cardFormData) => {
+          try {
+            toast('Processando pagamento seguro no seu cartão...', 'info');
+            const res = await fetch('/api/mp-processar-cartao', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                ...cardFormData,
+                loja_id: state.loja?.id,
+                plano: planoSelecionado,
+                ciclo: billingCycle,
+              }),
+            });
+
+            const data = await res.json();
+
+            if (data.aprovado) {
+              toast('🎉 Pagamento aprovado! Seu plano já está liberado!', 'success');
+              if (state.assinatura) {
+                state.assinatura.status = 'ativo';
+                state.assinatura.plano = planoSelecionado;
+              }
+              setTimeout(() => {
+                window.location.hash = '#/';
+                atualizarBarraAssinatura();
+                renderizarLinks();
+              }, 1500);
+            } else {
+              toast(data.detalhes || data.erro || 'Pagamento recusado pela operadora do cartão.', 'error');
+            }
+          } catch (err) {
+            toast('Erro ao processar: ' + err.message, 'error');
+          }
+        },
+        onError: (err) => {
+          console.error('Erro Brick:', err);
+          if (el.cardBrickLoading) el.cardBrickLoading.classList.add('hidden');
+        },
+      },
+    });
+  } catch (err) {
+    if (el.cardBrickLoading) el.cardBrickLoading.classList.add('hidden');
+    console.error('Erro ao inicializar Card Brick:', err);
+  }
+}
+
+if (el.btnSalvarPublicKey && el.inputPublicKeyManual) {
+  el.btnSalvarPublicKey.addEventListener('click', () => {
+    const val = el.inputPublicKeyManual.value.trim();
+    if (val) {
+      mpPublicKey = val;
+      localStorage.setItem('postlink_mp_public_key', val);
+      toast('Public Key configurada com sucesso!', 'success');
+      renderizarCardBrick();
+    }
+  });
+}
 
 document.addEventListener('click', (e) => {
   const btnSel = e.target.closest('.btn-selecionar-plano, .card-plano');
   if (btnSel && btnSel.dataset.plano) {
     selecionarPlano(btnSel.dataset.plano);
+    if (metodoPagamento === 'cartao') {
+      renderizarCardBrick();
+    }
   }
 });
 
-// Botão principal de checkout
+// Botão principal de checkout (PIX)
 if (el.btnAssinarPro) {
   el.btnAssinarPro.addEventListener('click', () => {
     if (metodoPagamento === 'pix') {
       iniciarCheckoutPix();
     } else {
-      iniciarCheckoutCartao();
+      renderizarCardBrick();
     }
   });
 }

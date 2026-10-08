@@ -13,6 +13,8 @@
   <!-- Estilos e Ícones -->
   <link rel="stylesheet" href="/assets/css/style.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Mercado Pago SDK v2 -->
+  <script src="https://sdk.mercadopago.com/js/v2"></script>
 </head>
 <body class="bg-background text-on-surface font-sans antialiased min-h-screen flex flex-col selection:bg-secondary-container selection:text-on-secondary-container pb-20 sm:pb-8">
 
@@ -818,7 +820,47 @@
           </div>
         </div>
 
-        <!-- Botão Principal de Ação -->
+        <!-- Container do Checkout Transparente com Cartão de Crédito -->
+        <div id="box-cartao-transparente" class="hidden space-y-3 pt-2 border-t border-outline-variant/60">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-on-surface flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-base text-primary">credit_card</span>
+              <span>Dados do Cartão de Crédito:</span>
+            </span>
+            <span class="text-[10px] text-outline flex items-center gap-1 font-medium">
+              <span class="material-symbols-outlined text-xs text-secondary">lock</span>
+              Ambiente Criptografado
+            </span>
+          </div>
+
+          <!-- Loading do Brick -->
+          <div id="card-brick-loading" class="py-8 text-center space-y-2">
+            <div class="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <p class="text-xs text-on-surface-variant">Carregando campos seguros do cartão...</p>
+          </div>
+
+          <!-- Alerta caso precise configurar Public Key -->
+          <div id="alerta-public-key" class="hidden p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-800 space-y-2">
+            <div class="flex items-center gap-1.5 font-bold">
+              <span class="material-symbols-outlined text-base">info</span>
+              <span>Quase pronto! Informe a Public Key</span>
+            </div>
+            <p class="text-[11px] leading-relaxed">
+              Para carregar os campos de cartão diretamente nesta tela, cole sua <strong>Public Key</strong> do Mercado Pago:
+            </p>
+            <div class="flex gap-2">
+              <input id="input-public-key-manual" type="text" placeholder="APP_USR-... ou TEST-..." class="flex-1 bg-white border border-amber-300 rounded-lg px-2.5 py-1.5 text-xs text-on-surface font-mono">
+              <button id="btn-salvar-public-key" type="button" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition-colors">
+                Carregar
+              </button>
+            </div>
+          </div>
+
+          <!-- Container Oficial onde o SDK do Mercado Pago renderiza os campos -->
+          <div id="cardPaymentBrick_container"></div>
+        </div>
+
+        <!-- Botão Principal de Ação (Para PIX) -->
         <button id="btn-assinar-pro" type="button" class="w-full bg-secondary text-white font-bold text-sm py-3.5 rounded-xl shadow-md hover:bg-secondary-dark active:scale-95 transition-all flex items-center justify-center gap-2">
           <span class="material-symbols-outlined text-lg">bolt</span>
           <span id="btn-assinar-texto">Pagar com PIX e Liberar Imediatamente</span>
