@@ -77,6 +77,7 @@ const el = {
   detalhesPersonalizar: document.getElementById('detalhes-personalizar'),
   inputTitulo: document.getElementById('input-titulo'),
   inputDescricao: document.getElementById('input-descricao'),
+  contadorDescricao: document.getElementById('contador-descricao'),
   inputSlug: document.getElementById('input-slug'),
   inputValidoAte: document.getElementById('input-valido-ate'),
   btnSubmeterLink: document.getElementById('btn-submeter-link'),
@@ -121,17 +122,20 @@ const el = {
   barraEdicoesProgresso: document.getElementById('barra-edicoes-progresso'),
   alertaLimiteEdicoes: document.getElementById('alerta-limite-edicoes'),
 
-  // Modal Limite de Links (Plano Grátis)
+  // Modal Limite de Links
   modalLimiteLinks: document.getElementById('modal-limite-links'),
+  modalLimiteTitulo: document.getElementById('modal-limite-titulo'),
+  modalLimiteTexto: document.getElementById('modal-limite-texto'),
   modalBtnUpgradePro: document.getElementById('modal-btn-upgrade-pro'),
   modalLimiteBtnFechar: document.getElementById('modal-limite-btn-fechar'),
 
-  // Checkout / Plano
+  // Checkout / Planos
   btnBillingMonthly: document.getElementById('btn-billing-monthly'),
   btnBillingYearly: document.getElementById('btn-billing-yearly'),
-  precoPlano: document.getElementById('preco-plano'),
-  periodoPlano: document.getElementById('periodo-plano'),
+  checkoutPlanoNome: document.getElementById('checkout-plano-nome'),
+  checkoutPlanoValor: document.getElementById('checkout-plano-valor'),
   btnAssinarPro: document.getElementById('btn-assinar-pro'),
+  btnAssinarTexto: document.getElementById('btn-assinar-texto'),
 
   // Conta
   contaEmail: document.getElementById('conta-email'),
@@ -140,12 +144,102 @@ const el = {
   contaStatus: document.getElementById('conta-status'),
 };
 
-// Helper: Verifica se o usuário é assinante ativo do Plano Pro
-function isPlanoPro() {
-  return Boolean(state.assinatura && state.assinatura.status === 'ativo');
+// Configuração dos Planos Comerciais
+export const PLANOS_CONFIG = {
+  free: {
+    id: 'free',
+    nome: 'Plano Grátis',
+    maxLinks: 1,
+    maxEdicoes: 5,
+    maxLojas: 1,
+  },
+  starter: {
+    id: 'starter',
+    nome: 'Plano Básico',
+    mensal: 14.90,
+    anualMensal: 9.90,
+    anualTotal: 118.80,
+    maxLinks: 5,
+    maxEdicoes: Infinity,
+    maxLojas: 1,
+  },
+  pro: {
+    id: 'pro',
+    nome: 'Plano Pro',
+    mensal: 29.90,
+    anualMensal: 21.90,
+    anualTotal: 262.80,
+    maxLinks: Infinity,
+    maxEdicoes: Infinity,
+    maxLojas: 1,
+  },
+  agencia: {
+    id: 'agencia',
+    nome: 'Plano Agência',
+    mensal: 69.90,
+    anualMensal: 49.90,
+    anualTotal: 598.80,
+    maxLinks: Infinity,
+    maxEdicoes: Infinity,
+    maxLojas: 5,
+  }
+};
+
+function obterPlanoAtual() {
+  if (!state.assinatura) return PLANOS_CONFIG.free;
+
+  // Se estiver em período trial válido (7 dias)
+  if (state.assinatura.status === 'trial') {
+    const trialAte = state.assinatura.trial_ate ? new Date(state.assinatura.trial_ate) : null;
+    if (trialAte && trialAte > new Date()) {
+      const planoEscolhido = state.assinatura.plano || 'pro';
+      return { ...(PLANOS_CONFIG[planoEscolhido] || PLANOS_CONFIG.pro), isTrial: true };
+    }
+  }
+
+  // Se tiver assinatura ativa
+  if (state.assinatura.status === 'ativo') {
+    const planoId = state.assinatura.plano || 'pro';
+    return PLANOS_CONFIG[planoId] || PLANOS_CONFIG.pro;
+  }
+
+  return PLANOS_CONFIG.free;
 }
 
-function mostrarModalLimiteLinks() {
+function isPlanoPago() {
+  const p = obterPlanoAtual();
+  return p.id !== 'free';
+}
+
+function isPlanoPro() {
+  const p = obterPlanoAtual();
+  return p.id === 'pro' || p.id === 'agencia';
+}
+
+function podeCriarLink() {
+  const p = obterPlanoAtual();
+  const total = (state.links && state.links.length) || 0;
+  return total < p.maxLinks;
+}
+
+function mostrarModalLimiteLinks(msgCustom) {
+  const p = obterPlanoAtual();
+  if (el.modalLimiteTitulo) {
+    el.modalLimiteTitulo.textContent = p.id === 'free'
+      ? 'Limite do Plano Grátis'
+      : `Limite de ${p.maxLinks} Links do ${p.nome}`;
+  }
+  if (el.modalLimiteTexto) {
+    if (msgCustom) {
+      el.modalLimiteTexto.textContent = msgCustom;
+    } else if (p.id === 'free') {
+      el.modalLimiteTexto.innerHTML = 'No plano gratuito você pode criar até <strong>1 link inteligente ativo</strong>. Faça upgrade para o <strong>Plano Básico (5 links)</strong> ou <strong>Plano Pro (Ilimitado)</strong> para acelerar suas vendas.';
+    } else if (p.id === 'starter') {
+      el.modalLimiteTexto.innerHTML = 'Você atingiu o limite de <strong>5 links inteligentes ativos</strong> do Plano Básico. Faça upgrade para o <strong>Plano Pro</strong> para ter links ilimitados!';
+    } else {
+      el.modalLimiteTexto.innerHTML = 'Você atingiu o limite de links ativos do seu plano atual. Faça upgrade para cadastrar novos links.';
+    }
+  }
   if (el.modalLimiteLinks) el.modalLimiteLinks.classList.remove('hidden');
 }
 
@@ -246,21 +340,24 @@ async function carregarDadosLojaEAssinatura() {
 
 function atualizarBarraAssinatura() {
   if (!state.assinatura || !el.textoTrial) return;
-  const trialAte = new Date(state.assinatura.trial_ate);
+  const p = obterPlanoAtual();
+  const trialAte = state.assinatura.trial_ate ? new Date(state.assinatura.trial_ate) : null;
   const hoje = new Date();
-  const diffDias = Math.ceil((trialAte - hoje) / (1000 * 60 * 60 * 24));
+  const diffDias = trialAte ? Math.ceil((trialAte - hoje) / (1000 * 60 * 60 * 24)) : 0;
 
   if (state.assinatura.status === 'trial') {
     if (diffDias > 0) {
-      el.textoTrial.innerHTML = `Restam <strong>${diffDias} dias</strong> de teste gratuito`;
+      el.textoTrial.innerHTML = `Restam <strong>${diffDias} dias</strong> de teste gratuito (${p.nome})`;
       if (el.navStatusTexto) el.navStatusTexto.textContent = `Trial (${diffDias}d)`;
     } else {
-      el.textoTrial.innerHTML = `Período de teste expirado`;
-      if (el.navStatusTexto) el.navStatusTexto.textContent = 'Expirado';
+      el.textoTrial.innerHTML = `Período de teste expirado (Plano Grátis)`;
+      if (el.navStatusTexto) el.navStatusTexto.textContent = 'Grátis';
     }
   } else if (state.assinatura.status === 'ativo') {
-    el.textoTrial.innerHTML = `Assinatura Pro ativa e regular`;
-    if (el.navStatusTexto) el.navStatusTexto.textContent = 'Pro Edge';
+    el.textoTrial.innerHTML = `Assinatura ${p.nome} ativa e regular`;
+    if (el.navStatusTexto) el.navStatusTexto.textContent = p.nome;
+  } else {
+    if (el.navStatusTexto) el.navStatusTexto.textContent = 'Grátis';
   }
 }
 
@@ -272,9 +369,8 @@ async function router() {
     mostrarView('lista');
     await carregarLinks();
   } else if (hash === '#/novo') {
-    // Validação: No plano grátis, só é permitido 1 link inteligente
-    if (!isPlanoPro() && state.links && state.links.length >= 1) {
-      toast('No plano grátis é permitido apenas 1 link ativo. Faça upgrade para o Plano Pro para links ilimitados.', 'info');
+    if (!podeCriarLink()) {
+      toast('Você atingiu o limite de links do seu plano. Faça upgrade para cadastrar novos links.', 'info');
       mostrarModalLimiteLinks();
       window.location.hash = '#/';
       return;
@@ -286,6 +382,7 @@ async function router() {
     await prepararFormularioEdicao(id);
     mostrarView('form');
   } else if (hash === '#/plano') {
+    renderizarTelaPlanos();
     mostrarView('plano');
   } else if (hash === '#/conta') {
     prepararTelaConta();
@@ -431,10 +528,12 @@ function aplicarFiltrosEBusca() {
 
 function renderizarLinks() {
   if (el.contadorLinks) {
-    const pro = isPlanoPro();
-    el.contadorLinks.textContent = pro
-      ? `${state.linksFiltrados.length} de ${state.links.length} link(s) (Pro Ilimitado)`
-      : `${state.linksFiltrados.length} de 1 link (Plano Grátis)`;
+    const p = obterPlanoAtual();
+    const total = state.links.length;
+    const filtrados = state.linksFiltrados.length;
+    el.contadorLinks.textContent = p.maxLinks === Infinity
+      ? `${filtrados} de ${total} link(s) (${p.nome} · Ilimitado)`
+      : `${filtrados} de ${p.maxLinks} links (${p.nome} · ${total}/${p.maxLinks} ativos)`;
   }
 
   if (state.links.length === 0) {
@@ -466,11 +565,12 @@ function renderizarLinks() {
     const imgUrl = `${publicUrl}?v=${versaoAtual}`;
     const st = state.estatisticas[link.id] || { total: 0, recentes: 0 };
 
+    const p = obterPlanoAtual();
     const edicoesFeitas = Math.max(0, versaoAtual - 1);
     const edicoesRestantes = Math.max(0, 5 - edicoesFeitas);
 
-    const versaoBadgeHtml = pro
-      ? `<span class="inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-surface-container-high text-primary">v${versaoAtual} · Pro Ilimitado</span>`
+    const versaoBadgeHtml = p.maxEdicoes === Infinity
+      ? `<span class="inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-surface-container-high text-primary">v${versaoAtual} · ${p.nome}</span>`
       : `<span class="inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded ${edicoesFeitas >= 5 ? 'bg-error-container text-on-error-container' : 'bg-surface-container-high text-on-surface-variant'}">v${versaoAtual} · ${edicoesFeitas >= 5 ? '5/5 edições (limite)' : `${edicoesRestantes} edições rest.`}</span>`;
 
     card.innerHTML = `
@@ -652,6 +752,8 @@ function prepararFormularioNovo() {
     el.detalhesPersonalizar.open = false;
   }
 
+  atualizarContadorDescricao();
+
   if (el.ph) el.ph.style.display = 'flex';
   if (el.im) {
     el.im.classList.add('hidden');
@@ -668,7 +770,10 @@ function prepararFormularioNovo() {
         switchDestTab('url');
         if (el.inputDestino) el.inputDestino.value = draft.url;
         if (draft.title && el.inputTitulo) el.inputTitulo.value = draft.title;
-        if (draft.description && el.inputDescricao) el.inputDescricao.value = draft.description;
+        if (draft.description && el.inputDescricao) {
+          el.inputDescricao.value = draft.description.slice(0, 200);
+          atualizarContadorDescricao();
+        }
         if (el.detalhesPersonalizar) el.detalhesPersonalizar.open = true;
 
         if (draft.image) {
@@ -788,6 +893,7 @@ async function prepararFormularioEdicao(id) {
 
   if (el.inputTitulo) el.inputTitulo.value = link.titulo || '';
   if (el.inputDescricao) el.inputDescricao.value = link.descricao || '';
+  atualizarContadorDescricao();
   if (el.inputSlug) el.inputSlug.value = link.slug;
   if (el.inputValidoAte) {
     el.inputValidoAte.value = link.valido_ate ? new Date(link.valido_ate).toISOString().slice(0, 16) : '';
@@ -976,10 +1082,17 @@ async function baixarEProcessarImagemUrl(imgUrl) {
 
 // Auto-import de metadados da URL de destino
 async function importarMetadadosUrl() {
-  const urlDest = el.inputDestino ? el.inputDestino.value.trim() : '';
+  let urlDest = el.inputDestino ? el.inputDestino.value.trim() : '';
   if (!urlDest) {
     if (el.fetchMetaStatus) el.fetchMetaStatus.textContent = 'Digite uma URL primeiro';
     return;
+  }
+
+  // Se o usuário não colocou https://, normaliza e atualiza o campo de imediato
+  const normalizado = normalizarDestino(urlDest);
+  if (normalizado) {
+    urlDest = normalizado;
+    if (el.inputDestino) el.inputDestino.value = normalizado;
   }
 
   if (el.btnFetchMeta) el.btnFetchMeta.disabled = true;
@@ -1000,7 +1113,8 @@ async function importarMetadadosUrl() {
 
     // Preenche descrição
     if (el.inputDescricao && !el.inputDescricao.value.trim()) {
-      el.inputDescricao.value = data.description || '';
+      el.inputDescricao.value = (data.description || '').slice(0, 200);
+      atualizarContadorDescricao();
     }
 
     // Sugere slug amigável baseado no título ou hostname se estiver vazio
@@ -1035,8 +1149,46 @@ if (el.btnFetchMeta) {
   el.btnFetchMeta.addEventListener('click', importarMetadadosUrl);
 }
 
+if (el.inputDestino) {
+  // Ao sair do campo (blur), adiciona https:// automaticamente se o usuário não digitou
+  el.inputDestino.addEventListener('blur', () => {
+    const val = el.inputDestino.value.trim();
+    if (val) {
+      const normalizado = normalizarDestino(val);
+      if (normalizado) {
+        el.inputDestino.value = normalizado;
+        if (el.eDest) el.eDest.textContent = '';
+      }
+    }
+  });
+
+  el.inputDestino.addEventListener('input', () => {
+    if (el.eDest) el.eDest.textContent = '';
+  });
+}
+
+// Atualiza contador de caracteres da descrição curta (máx. 200)
+function atualizarContadorDescricao() {
+  if (!el.contadorDescricao) return;
+  const len = el.inputDescricao ? el.inputDescricao.value.length : 0;
+  el.contadorDescricao.textContent = `${len} / 200`;
+
+  if (len >= 200) {
+    el.contadorDescricao.className = 'text-[10px] font-mono font-bold text-error';
+  } else if (len >= 180) {
+    el.contadorDescricao.className = 'text-[10px] font-mono font-semibold text-amber-500';
+  } else {
+    el.contadorDescricao.className = 'text-[10px] font-mono font-semibold text-outline';
+  }
+}
+
 if (el.inputTitulo) el.inputTitulo.addEventListener('input', atualizarLivePreview);
-if (el.inputDescricao) el.inputDescricao.addEventListener('input', atualizarLivePreview);
+if (el.inputDescricao) {
+  el.inputDescricao.addEventListener('input', () => {
+    atualizarContadorDescricao();
+    atualizarLivePreview();
+  });
+}
 if (el.inputSlug) {
   el.inputSlug.addEventListener('input', () => {
     el.inputSlug.value = limparSlug(el.inputSlug.value);
@@ -1056,7 +1208,11 @@ function obterDestinoNormalizado() {
     return msg ? `https://wa.me/${telComDDI}?text=${encodeURIComponent(msg)}` : `https://wa.me/${telComDDI}`;
   } else {
     const destBruto = el.inputDestino ? el.inputDestino.value.trim() : '';
-    return normalizarDestino(destBruto);
+    const normalizado = normalizarDestino(destBruto);
+    if (normalizado && el.inputDestino) {
+      el.inputDestino.value = normalizado;
+    }
+    return normalizado;
   }
 }
 
@@ -1070,7 +1226,7 @@ if (el.formLink) {
       if (el.eDest) {
         el.eDest.textContent = state.tipoDestino === 'whatsapp'
           ? 'Digite um número de WhatsApp válido com DDD (Ex: 15998765432).'
-          : 'Digite uma URL válida que comece com https://.';
+          : 'Digite uma URL válida (Ex: sualoja.com.br ou https://instagram.com/sualoja).';
       }
       return;
     }
@@ -1095,10 +1251,11 @@ if (el.formLink) {
         const versaoAtual = state.linkEditando.versao || 1;
         const edicoesFeitas = Math.max(0, versaoAtual - 1);
 
-        // Bloqueio de limite de 5 alterações no plano grátis
-        if (!isPlanoPro() && edicoesFeitas >= 5) {
-          toast('Limite de 5 alterações atingido no plano grátis. Faça upgrade para o Pro.', 'error');
-          mostrarModalLimiteLinks();
+        const p = obterPlanoAtual();
+        // Bloqueio de limite de alterações se não for ilimitado
+        if (p.maxEdicoes !== Infinity && edicoesFeitas >= p.maxEdicoes) {
+          toast(`Limite de ${p.maxEdicoes} alterações atingido no ${p.nome}. Faça upgrade para o Pro.`, 'error');
+          mostrarModalLimiteLinks(`Você atingiu o limite de ${p.maxEdicoes} alterações do ${p.nome}. Faça upgrade para ter edições ilimitadas.`);
           return;
         }
 
@@ -1135,9 +1292,10 @@ if (el.formLink) {
         const linkPronto = `${window.location.origin}/${state.loja.slug}/${slugFinal}`;
         exibirResultadoCriado(linkPronto);
       } else {
-        // Bloqueio de criação de múltiplos links no plano grátis
-        if (!isPlanoPro() && state.links && state.links.length >= 1) {
-          toast('O plano grátis permite criar apenas 1 link. Faça upgrade para ter links ilimitados.', 'info');
+        // Bloqueio de criação respeitando o limite do plano contratado
+        if (!podeCriarLink()) {
+          const p = obterPlanoAtual();
+          toast(`Limite de ${p.maxLinks} links do seu plano atingido. Faça upgrade para cadastrar novos links.`, 'info');
           mostrarModalLimiteLinks();
           return;
         }
@@ -1249,40 +1407,129 @@ if (el.modalBtnFechar) {
   });
 }
 
-// CHECKOUT / PLANO PRO (#/plano)
+// CHECKOUT / PLANOS (#/plano)
 let billingCycle = 'monthly';
+let planoSelecionado = 'pro';
+
+const DADOS_EXIBICAO_PLANOS = {
+  starter: {
+    nome: 'Plano Básico (Starter)',
+    precoMensal: 'R$ 14,90',
+    periodoMensal: '/mês',
+    obsMensal: 'Cobrado mensalmente',
+    precoAnual: 'R$ 9,90',
+    periodoAnual: '/mês',
+    obsAnual: 'R$ 118,80 cobrado anual · 33% OFF',
+  },
+  pro: {
+    nome: 'Plano Pro (Negócio)',
+    precoMensal: 'R$ 29,90',
+    periodoMensal: '/mês',
+    obsMensal: 'Cobrado mensalmente',
+    precoAnual: 'R$ 21,90',
+    periodoAnual: '/mês',
+    obsAnual: 'R$ 262,80 cobrado anual · 27% OFF',
+  },
+  agencia: {
+    nome: 'Plano Agência (Escala)',
+    precoMensal: 'R$ 69,90',
+    periodoMensal: '/mês',
+    obsMensal: 'Cobrado mensalmente',
+    precoAnual: 'R$ 49,90',
+    periodoAnual: '/mês',
+    obsAnual: 'R$ 598,80 cobrado anual · 28% OFF',
+  }
+};
+
+function renderizarTelaPlanos() {
+  if (el.btnBillingMonthly && el.btnBillingYearly) {
+    if (billingCycle === 'monthly') {
+      el.btnBillingMonthly.className = 'px-5 py-2 rounded-lg text-xs font-bold transition-all shadow-xs bg-surface-container-lowest text-primary';
+      el.btnBillingYearly.className = 'px-5 py-2 rounded-lg text-xs font-medium transition-all text-on-surface-variant flex items-center gap-1.5 hover:text-on-surface';
+    } else {
+      el.btnBillingYearly.className = 'px-5 py-2 rounded-lg text-xs font-bold transition-all shadow-xs bg-surface-container-lowest text-primary flex items-center gap-1.5';
+      el.btnBillingMonthly.className = 'px-5 py-2 rounded-lg text-xs font-medium transition-all text-on-surface-variant hover:text-on-surface';
+    }
+  }
+
+  ['starter', 'pro', 'agencia'].forEach((pId) => {
+    const cardEl = document.getElementById(`card-plano-${pId}`);
+    const precoEl = document.querySelector(`.card-preco[data-plano="${pId}"]`);
+    const periodoEl = document.querySelector(`.card-periodo[data-plano="${pId}"]`);
+    const obsEl = document.querySelector(`.card-obs[data-plano="${pId}"]`);
+    const btnEl = document.querySelector(`.btn-selecionar-plano[data-plano="${pId}"]`);
+    const info = DADOS_EXIBICAO_PLANOS[pId];
+
+    if (precoEl) precoEl.textContent = billingCycle === 'monthly' ? info.precoMensal : info.precoAnual;
+    if (periodoEl) periodoEl.textContent = billingCycle === 'monthly' ? info.periodoMensal : info.periodoAnual;
+    if (obsEl) obsEl.textContent = billingCycle === 'monthly' ? info.obsMensal : info.obsAnual;
+
+    const isSel = planoSelecionado === pId;
+    if (cardEl) {
+      if (isSel) {
+        cardEl.className = 'card-plano bg-surface-container-lowest rounded-2xl p-5 border-2 border-primary shadow-md flex flex-col justify-between transition-all cursor-pointer relative ring-2 ring-primary/20';
+      } else {
+        cardEl.className = 'card-plano bg-surface-container-lowest rounded-2xl p-5 border-2 border-outline-variant/60 flex flex-col justify-between hover:border-primary/40 transition-all cursor-pointer relative';
+      }
+    }
+    if (btnEl) {
+      if (isSel) {
+        btnEl.className = 'btn-selecionar-plano w-full py-2.5 px-3 rounded-xl text-xs font-bold bg-primary text-white hover:bg-primary-container shadow-xs transition-all';
+        btnEl.textContent = 'Plano Selecionado ✓';
+      } else {
+        btnEl.className = 'btn-selecionar-plano w-full py-2.5 px-3 rounded-xl text-xs font-bold border border-outline-variant hover:bg-surface-container transition-all';
+        btnEl.textContent = pId === 'starter' ? 'Selecionar Básico' : (pId === 'pro' ? 'Selecionar Pro' : 'Selecionar Agência');
+      }
+    }
+  });
+
+  const selInfo = DADOS_EXIBICAO_PLANOS[planoSelecionado];
+  if (el.checkoutPlanoNome) el.checkoutPlanoNome.textContent = selInfo.nome;
+  if (el.checkoutPlanoValor) {
+    el.checkoutPlanoValor.textContent = billingCycle === 'monthly'
+      ? `${selInfo.precoMensal} / mês`
+      : `${selInfo.obsAnual.split('·')[0].trim()}`;
+  }
+  if (el.btnAssinarTexto) {
+    el.btnAssinarTexto.textContent = `Ativar 7 Dias Grátis do ${selInfo.nome.split('(')[0].trim()}`;
+  }
+}
 
 function setBilling(cycle) {
   billingCycle = cycle;
-  if (cycle === 'monthly') {
-    if (el.btnBillingMonthly) {
-      el.btnBillingMonthly.className = 'flex-1 py-2 text-center rounded-lg text-xs font-bold transition-all shadow-xs bg-surface-container-lowest text-primary';
-    }
-    if (el.btnBillingYearly) {
-      el.btnBillingYearly.className = 'flex-1 py-2 text-center rounded-lg text-xs font-medium transition-all text-on-surface-variant flex items-center justify-center gap-1 hover:text-on-surface';
-    }
-    if (el.precoPlano) el.precoPlano.textContent = 'R$ 29,90';
-    if (el.periodoPlano) el.periodoPlano.textContent = '/mês';
-  } else {
-    if (el.btnBillingYearly) {
-      el.btnBillingYearly.className = 'flex-1 py-2 text-center rounded-lg text-xs font-bold transition-all shadow-xs bg-surface-container-lowest text-primary flex items-center justify-center gap-1';
-    }
-    if (el.btnBillingMonthly) {
-      el.btnBillingMonthly.className = 'flex-1 py-2 text-center rounded-lg text-xs font-medium transition-all text-on-surface-variant hover:text-on-surface';
-    }
-    if (el.precoPlano) el.precoPlano.textContent = 'R$ 23,90';
-    if (el.periodoPlano) el.periodoPlano.textContent = '/mês (R$ 286,80 cobrado anual)';
+  renderizarTelaPlanos();
+}
+
+function selecionarPlano(id) {
+  if (DADOS_EXIBICAO_PLANOS[id]) {
+    planoSelecionado = id;
+    renderizarTelaPlanos();
   }
 }
 
 if (el.btnBillingMonthly) el.btnBillingMonthly.addEventListener('click', () => setBilling('monthly'));
 if (el.btnBillingYearly) el.btnBillingYearly.addEventListener('click', () => setBilling('yearly'));
 
+document.addEventListener('click', (e) => {
+  const btnSel = e.target.closest('.btn-selecionar-plano, .card-plano');
+  if (btnSel && btnSel.dataset.plano) {
+    selecionarPlano(btnSel.dataset.plano);
+  }
+});
+
 if (el.btnAssinarPro) {
   el.btnAssinarPro.addEventListener('click', () => {
-    toast('Seu teste gratuito de 7 dias do Plano Pro está ativado!', 'success');
+    const selInfo = DADOS_EXIBICAO_PLANOS[planoSelecionado];
+    toast(`Seu teste gratuito de 7 dias do ${selInfo.nome.split('(')[0].trim()} está ativado!`, 'success');
+    if (state.assinatura) {
+      state.assinatura.status = 'trial';
+      state.assinatura.plano = planoSelecionado;
+      state.assinatura.trial_ate = new Date(Date.now() + 7 * 86400000).toISOString();
+    }
     setTimeout(() => {
       window.location.hash = '#/';
+      atualizarBarraAssinatura();
+      renderizarLinks();
     }, 1200);
   });
 }
@@ -1293,7 +1540,8 @@ function prepararTelaConta() {
   if (el.contaLojaNome && state.loja) el.contaLojaNome.textContent = state.loja.nome;
   if (el.contaLojaSlug && state.loja) el.contaLojaSlug.textContent = `/${state.loja.slug}`;
   if (el.contaStatus && state.assinatura) {
-    el.contaStatus.textContent = state.assinatura.status.toUpperCase();
+    const p = obterPlanoAtual();
+    el.contaStatus.textContent = `${p.nome} (${state.assinatura.status.toUpperCase()})`;
   }
 }
 
@@ -1304,7 +1552,7 @@ if (el.btnSair) {
   });
 }
 
-// MODAL LIMITE DE LINKS (PLANO GRÁTIS)
+// MODAL LIMITE DE LINKS
 if (el.modalLimiteBtnFechar) {
   el.modalLimiteBtnFechar.addEventListener('click', fecharModalLimiteLinks);
 }
@@ -1312,11 +1560,11 @@ if (el.modalBtnUpgradePro) {
   el.modalBtnUpgradePro.addEventListener('click', fecharModalLimiteLinks);
 }
 
-// Intercepta qualquer tentativa de criar novo link quando o limite do plano grátis for atingido
+// Intercepta qualquer tentativa de criar novo link quando o limite de links for atingido
 document.addEventListener('click', (e) => {
   const linkCriar = e.target.closest('a[href="#/novo"]');
   if (linkCriar) {
-    if (!isPlanoPro() && state.links && state.links.length >= 1) {
+    if (!podeCriarLink()) {
       e.preventDefault();
       mostrarModalLimiteLinks();
     }

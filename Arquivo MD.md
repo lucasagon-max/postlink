@@ -452,15 +452,30 @@ export async function comprimirImagem(arquivo, { larguraMax = 1200, alvoKB = 300
   return blob;
 }
 
-// Destino: aceita https:// ou um número de WhatsApp
+// Destino: aceita https://, links sem protocolo (adiciona https:// automaticamente) ou um número de WhatsApp
 export function normalizarDestino(v) {
-  v = v.trim();
+  v = (v || '').trim();
+  if (!v) return null;
   if (/^\+?[\d\s().-]{10,}$/.test(v)) {
     let n = v.replace(/\D/g, '');
     if (n.length <= 11) n = '55' + n;
     return `https://wa.me/${n}`;
   }
-  return /^https:\/\/[^\s]+\.[^\s]+$/.test(v) ? v : null;
+  v = v.replace(/^\/\//, '');
+  if (/^http:\/\//i.test(v)) {
+    v = v.replace(/^http:\/\//i, 'https://');
+  } else if (!/^https:\/\//i.test(v)) {
+    v = 'https://' + v;
+  }
+  if (/\s/.test(v)) return null;
+  try {
+    const urlObj = new URL(v);
+    if (urlObj.protocol !== 'https:') return null;
+    if (!urlObj.hostname || !urlObj.hostname.includes('.') || urlObj.hostname.endsWith('.')) return null;
+    return /^https:\/\/[^\s]+\.[^\s]+$/i.test(v) ? v : null;
+  } catch (_) {
+    return null;
+  }
 }
 
 // Apelido automático, sem caracteres ambíguos (0/o, 1/l/i)
@@ -473,7 +488,7 @@ export function slugAleatorio(n = 5) {
 // Criação do link: envia a imagem, grava o registro e desfaz o envio se falhar
 export async function criarLink(sb, { arquivo, destinoBruto, titulo, descricao, validoAte, slug }) {
   const destino = normalizarDestino(destinoBruto);
-  if (!destino) throw new Error('Cole um link que comece com https:// ou um número de WhatsApp');
+  if (!destino) throw new Error('Digite uma URL válida (Ex: sualoja.com.br ou https://instagram.com/sualoja) ou um número de WhatsApp');
 
   const { data: { user } } = await sb.auth.getUser();
   const blob = await comprimirImagem(arquivo);

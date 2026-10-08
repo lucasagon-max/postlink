@@ -29,6 +29,8 @@ export async function comprimirImagem(arquivo, { larguraMax = 1200, alvoKB = 300
 
 export function normalizarDestino(v) {
   v = (v || '').trim();
+  if (!v) return null;
+
   // Se for número de telefone ou WhatsApp (ex: 11999998888, (11) 98888-7777, +5511...)
   if (/^\+?[\d\s().-]{10,}$/.test(v)) {
     let n = v.replace(/\D/g, '');
@@ -37,7 +39,32 @@ export function normalizarDestino(v) {
     }
     return `https://wa.me/${n}`;
   }
-  return /^https:\/\/[^\s]+\.[^\s]+$/i.test(v) ? v : null;
+
+  // Remove barras iniciais acidentais (ex: //seusite.com)
+  v = v.replace(/^\/\//, '');
+
+  // Se começou com http://, converte para https://
+  if (/^http:\/\//i.test(v)) {
+    v = v.replace(/^http:\/\//i, 'https://');
+  } else if (!/^https:\/\//i.test(v)) {
+    // Se o cliente não colocou https://, nós adicionamos automaticamente
+    v = 'https://' + v;
+  }
+
+  // Não pode conter espaços
+  if (/\s/.test(v)) return null;
+
+  // Validação por URL e formato seguro
+  try {
+    const urlObj = new URL(v);
+    if (urlObj.protocol !== 'https:') return null;
+    if (!urlObj.hostname || !urlObj.hostname.includes('.') || urlObj.hostname.endsWith('.')) {
+      return null;
+    }
+    return /^https:\/\/[^\s]+\.[^\s]+$/i.test(v) ? v : null;
+  } catch (_) {
+    return null;
+  }
 }
 
 const ALFABETO = 'abcdefghjkmnpqrstuvwxyz23456789';
