@@ -42,7 +42,7 @@ export async function onRequestGet({ request, params, env, waitUntil }) {
   const loja = params.loja;
   const slug = params.slug;
 
-  const RESERVADAS = ['painel', 'login', 'assets', 'termos', 'privacidade', 'favicon.ico'];
+  const RESERVADAS = ['painel', 'login', 'admin', 'assets', 'termos', 'privacidade', 'favicon.ico'];
   if (RESERVADAS.includes(loja) && env.ASSETS) {
     return env.ASSETS.fetch(request);
   }
