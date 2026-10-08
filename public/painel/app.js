@@ -158,9 +158,6 @@ const el = {
   // Checkout Transparente Cartão de Crédito
   boxCartaoTransparente: document.getElementById('box-cartao-transparente'),
   cardBrickLoading: document.getElementById('card-brick-loading'),
-  alertaPublicKey: document.getElementById('alerta-public-key'),
-  inputPublicKeyManual: document.getElementById('input-public-key-manual'),
-  btnSalvarPublicKey: document.getElementById('btn-salvar-public-key'),
   cardPaymentBrickContainer: document.getElementById('cardPaymentBrick_container'),
 
   // Conta
@@ -1799,12 +1796,18 @@ async function renderizarCardBrick() {
 
   const pubKey = await obterMpPublicKey();
   if (!pubKey) {
-    if (el.cardBrickLoading) el.cardBrickLoading.classList.add('hidden');
-    if (el.alertaPublicKey) el.alertaPublicKey.classList.remove('hidden');
+    if (el.cardBrickLoading) {
+      el.cardBrickLoading.innerHTML = `
+        <div class="p-4 rounded-xl bg-surface-container-low border border-outline-variant text-center space-y-2">
+          <span class="material-symbols-outlined text-2xl text-secondary">verified_user</span>
+          <p class="text-xs font-semibold text-on-surface">Pagamento Seguro com Cartão</p>
+          <p class="text-[11px] text-outline">Carregando gateway de pagamento...</p>
+        </div>
+      `;
+    }
     return;
   }
 
-  if (el.alertaPublicKey) el.alertaPublicKey.classList.add('hidden');
   if (el.cardBrickLoading) el.cardBrickLoading.classList.remove('hidden');
 
   try {
@@ -1893,18 +1896,6 @@ async function renderizarCardBrick() {
     if (el.cardBrickLoading) el.cardBrickLoading.classList.add('hidden');
     console.error('Erro ao inicializar Card Brick:', err);
   }
-}
-
-if (el.btnSalvarPublicKey && el.inputPublicKeyManual) {
-  el.btnSalvarPublicKey.addEventListener('click', () => {
-    const val = el.inputPublicKeyManual.value.trim();
-    if (val) {
-      mpPublicKey = val;
-      localStorage.setItem('postlink_mp_public_key', val);
-      toast('Public Key configurada com sucesso!', 'success');
-      renderizarCardBrick();
-    }
-  });
 }
 
 document.addEventListener('click', (e) => {
