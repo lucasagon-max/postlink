@@ -1,0 +1,131 @@
+{
+  "data": {
+    "markdown": "Social preview images for every link\n\n# Share any link with a custom social preview\n\nPaste your destination URL, design the card people see when it is shared,\nand publish a branded preview link that redirects to the original\npage.\n\n\nDestination URL\n\n\nCreate link\n\n\n- Works with any destination URL\n\n- Customize the image, title, and\npreview text\n\n- Share a branded link that\nredirects to the original page\n\n- Use the editor manually or\ngenerate cards with the API\n\n\n**Your Brand**@yourbrand\n\nShare a preview link with a custom social preview image.\n\n![Demo social preview image](https://social.cards/assets/public/img/demo-open-graph-new-launch.webp)\n\n**Preview link for your launch** go.example.com/product-launch redirects to the destination URL\n\n## How SocialCards works\n\n1\n\n### Paste your destination URL\n\nStart with the page, product, post, or document you want people\nto visit.\n\n\n2\n\n### Design the social preview\n\nCustomize the image, title, text, colors, and layout in the\nbrowser.\n\n\n3\n\n### Publish a preview link\n\nGet a shareable SocialCards link or use your own branded\nsubdomain.\n\n\n4\n\n### Send visitors to the original page\n\nWhen someone clicks the preview link, they are redirected to\nyour destination URL.\n\n\n## Turn plain links into branded previews\n\nInstead of relying on whatever preview your website or platform\ngenerates, create a dedicated social preview for each link you\nshare.\n\n\nBefore\n\n### Default preview\n\nGeneric image, cropped artwork, or metadata that does not match\nthe link you are sharing.\n\n\nyourbrand.com/post **Untitled page preview**\n\nShared with whatever metadata the page returns.\n\n- xGeneric or outdated\npreview image\n\n- xCropped artwork or\nwrong aspect ratio\n\n- xRequires website\nmetadata changes to fix\n\n\nAfter\n\n### SocialCards preview\n\nA custom image, title, and branded link made for the exact thing\nyou are sharing.\n\n\n![Product update social preview](https://social.cards/assets/public/img/deno-open-graph-product-update.webp)\n\n**Preview link** go.yourbrand.com/product-update\n\nRedirects to yourbrand.com/post\n\n- Custom image for each link you\nshare\n\n- Clear title and branded visual\n\n- Works without changing the\ndestination page\n\n\nNo website metadata changes needed\n\nCustom preview for each shared link\n\nWorks manually or through the API\n\n## Everything you need to control how links appear\n\nCreate polished social previews manually, publish branded preview\nlinks, or generate cards automatically from your own data.\n\n\n### Visual editor\n\nDesign social preview images directly in the browser with text,\nimages, colors, and layout controls.\n\n\n### Preview links\n\nPair any destination URL with a custom preview card and share a\nlink that redirects to the final page.\n\n\n### Custom subdomains\n\nPublish preview links on branded domains that fit your product,\nbrand, or project.\n\n\n### Saved projects\n\nReuse previous cards, update visuals, and create new versions\nfaster.\n\n\n### Image export\n\nDownload production-ready preview images for posts, docs,\nlaunches, and reports.\n\n\n### Dynamic API\n\nGenerate preview images and links from templates using products,\nblog posts, reports, or customer data.\n\n\n## Publish preview links on branded domains\n\nUse SocialCards to create a shareable preview link for any\ndestination URL. The link people see can use your branded domain,\nwhile every click still redirects to the original page.\n\n\nPreview link you share **go.yourbrand.com/spring-drop**\n\nThe branded link people see in social apps and chats.\n\n\nSocial preview **Spring drop is live**\n\nRedirects after click\n\nDestination URL **yourbrand.com/products/spring**\n\nWhere visitors arrive after clicking.\n\nNo website metadata changes required.\n\n\nBranded preview links\n\n### Share links on domains people recognize\n\nUse a branded domain for the links people see in social apps\nand chats, without changing the final destination page.\n\n\n- Replace long destination\nURLs with clean, branded preview links\n\n- Show your branded domain\nwhen links are shared\n\n- Redirect visitors to the\noriginal page behind the scenes\n\n\n\nCreate a branded link\n\n\nProduct Update **Design social cards without opening a design**\n**tool.** _social.cards/editor_\n\nImage editor\n\n### Design social cards straight from your browser\n\nStart from a blank canvas or a reusable template, then\ncustomize the image people see when your link is shared.\n\n\n- Edit text, images, colors,\nand layout visually\n\n- Reuse saved projects for\nlaunches, posts, and recurring updates\n\n- Export preview images when\nyou need static assets\n\n\n\nTry the editor\n\n\nPOST /api/cards\n\n{ template: \"launch\" }\n\n{ title: \"May report\" }\n\n200 image\\_url + link\n\nGenerated image **May report** _72% growth_\n\nResponse`image_url``preview_link`\n\nDynamic API\n\n### Generate preview images and links from your app\n\nConnect SocialCards to your product, CMS, or internal tools\nand generate previews from real data.\n\n\n- Create many variations from\none template\n\n- Personalize cards with\nruntime values\n\n- Return ready-to-share images\nand links\n\n\n\nRead API docs\n\n\n## FAQ\n\nWhat is a social preview card?\n\nA social preview card is the image and text people see when a\nlink is shared in apps like Facebook, X, Threads, Bluesky, LinkedIn, Slack, Discord, or\nmessaging apps.\n\n\nWhat is a preview link?\n\nA preview link is a shareable SocialCards link that shows your\ncustom card when shared and redirects visitors to your original\ndestination URL when clicked.\n\n\nDo I need to change my website metadata?\n\nNo. SocialCards lets you create a separate preview link, so you\ncan customize the shared preview without changing the metadata\non the destination website.\n\n\nCan I use my own domain?\n\nYes. PRO users can publish preview links on branded subdomains.\n\n\nCan I generate cards with an API?\n\nYes. The API can generate preview images and links from\ntemplates using data from your app, CMS, or product database.\n\n\nDo I need an account to try it?\n\nYou can start in the editor without an account. An account is\nneeded when you want to save projects or use PRO features.\n\n\nWhat do I unlock with PRO?\n\nPRO unlocks saved projects, branded preview links, custom\nsubdomains, and API automation.\n\n\n## Ready to make your next link look intentional?\n\nCreate a custom social preview, publish a shareable preview link,\nand send every click to the original page.\n\n\nCreate a preview link\n\nSign in to save images, links, and API settings.\n\n\nSign in with Google\nSign in with\nGitHub Sign in with\nEmail\n\n I don't have an accountYour email\n\nYour password\n\n Forgot password?\n\n\nCloseSign in",
+    "screenshot": "https://storage.googleapis.com/firecrawl-scrape-media/screenshot-efe348b4-2804-4abb-839b-e2fb09d65cc1.png?GoogleAccessId=scrape-bucket-accessor%40firecrawl.iam.gserviceaccount.com&Expires=1792075333&Signature=QwJpQeNCVem87OcZ0DhN826%2FnBq1JA1jlsHPNoozAuJ28QbhQHLMINnVzGvzwOsJriKPjeU2ZuL4Slzbwnj0WKyr1Np7nLE461WagCgjQw6TT9sih2DaHbWgEWihDXCayDmnH6J09IdBq%2BUxu0RegMn%2FcuKX5j5rbrpbj8x6aUS82n%2FMF11z%2B7L1hbGwhrVIbWDfVOMOevgsHFujMiQFEP9Qqy%2B8E96yoGuURptFGdo5gBV4JWKrvwyrJRvlIYo7%2Fmhm%2BMtjqXQ3ytPnydSReYTnbbpsrdnI34yb30DboxagptNFYG2qP9HKcGxa9fdlrHO1J9bLpD4A5KUWFdjJ%2Bw%3D%3D",
+    "metadata": {
+      "ogSiteName": "SocialCards",
+      "ogTitle": "Custom Social Previews for Any Link",
+      "description": "Create custom social previews for any link. Publish a branded preview link that redirects visitors to the original page, without changing website metadata.",
+      "ogUrl": "https://social.cards",
+      "og:url": "https://social.cards",
+      "og:title": "Custom Social Previews for Any Link",
+      "og:site_name": "SocialCards",
+      "og:description": "Create custom social previews for any link. Publish a branded preview link that redirects visitors to the original page, without changing website metadata.",
+      "viewport": "width=device-width, initial-scale=1.0",
+      "keywords": "editor, social cards, link preview images, preview links, create image, dynamic social cards, social media",
+      "title": "Custom Social Previews for Any Link - SocialCards",
+      "ogImage": "https://social.cards/assets/public/img/social-card.png",
+      "twitter:description": "Create custom social previews for any link. Publish a branded preview link that redirects visitors to the original page, without changing website metadata.",
+      "og:type": "article",
+      "og:image": "https://social.cards/assets/public/img/social-card.png",
+      "twitter:image": "https://social.cards/assets/public/img/social-card.png",
+      "twitter:title": "SocialCards",
+      "apple-mobile-web-app-title": "SocialCards",
+      "twitter:card": "summary_large_image",
+      "ogDescription": "Create custom social previews for any link. Publish a branded preview link that redirects visitors to the original page, without changing website metadata.",
+      "twitter:creator": "@socialdotcards",
+      "twitter:site": "@socialdotcards",
+      "language": "en",
+      "favicon": "https://social.cards/assets/public/img/favicon-96x96.png",
+      "scrapeId": "01a11bf6-e7e2-77b9-933b-f18b5923ba2c",
+      "sourceURL": "https://social.cards/",
+      "url": "https://social.cards/",
+      "statusCode": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "timezone": "America/New_York",
+      "proxyUsed": "basic",
+      "cacheState": "miss",
+      "indexId": "c58f65ca-5198-42d2-85b4-82fbc15e4442",
+      "creditsUsed": 1,
+      "concurrencyLimited": false
+    }
+  },
+  "scrape_id": "01a11bf6-e7e2-77b9-933b-f18b5923ba2c",
+  "id": "r_xytTIoq6zAHwgY6M0ju",
+  "startedAt": "2026-10-08T14:44:17.004Z",
+  "endedAt": "2026-10-08T14:44:22.405Z",
+  "endpoint": "scrape",
+  "formState": {
+    "parseFile": null,
+    "parseFileMeta": null,
+    "extractSetupCompleted": false,
+    "urls": [],
+    "extractSchema": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "company_mission": {
+          "type": "string"
+        },
+        "supports_sso": {
+          "type": "boolean"
+        },
+        "is_open_source": {
+          "type": "boolean"
+        },
+        "is_in_yc": {
+          "type": "boolean"
+        }
+      }
+    },
+    "extractPrompt": "Extract the company details, following the schema.",
+    "enableWebSearch": false,
+    "constrainUrls": false,
+    "options": {
+      "onlyMainContent": true,
+      "parsePDF": true,
+      "excludeTags": [],
+      "includeTags": [],
+      "waitFor": "",
+      "timeout": "",
+      "maxAge": "2 days",
+      "ignoreSitemap": false,
+      "crawlEntireDomain": false,
+      "sitemap": "include",
+      "limit": "10",
+      "maxDepth": "",
+      "excludePaths": [],
+      "includePaths": [],
+      "includeSubdomains": false,
+      "search": "",
+      "scrapeContentFromSearchResults": true,
+      "timeBasedSearch": "",
+      "location": "",
+      "includeDomains": [],
+      "excludeDomains": [],
+      "prompt": ""
+    },
+    "formats": [
+      "markdown",
+      "screenshot"
+    ],
+    "sources": [
+      "web"
+    ],
+    "categories": [],
+    "indexes": [
+      "exchange-tools"
+    ],
+    "jsonSchema": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "company_name": {
+          "type": "string"
+        },
+        "company_description": {
+          "type": "string"
+        }
+      }
+    },
+    "jsonPrompt": "",
+    "questionPrompt": "",
+    "highlightsQuery": "",
+    "agent": {},
+    "url": "social.cards/",
+    "endpoint": "scrape"
+  },
+  "status": "success",
+  "version": "eMTYjLPg8i5t0e03XWi92",
+  "isPreview": false
+}

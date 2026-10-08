@@ -409,7 +409,14 @@
                     URL de Destino Completa *
                   </label>
                   <input id="input-destino" type="text" placeholder="https://instagram.com/sualoja ou https://seusite.com.br" class="w-full text-xs rounded-lg border-outline-variant bg-surface-container-lowest py-2.5 px-3 focus:ring-primary focus:border-primary">
-                  <p class="text-[10px] text-outline mt-1">Compatível com UTMs e rastreadores externos.</p>
+                  <div class="flex flex-wrap items-center justify-between gap-1 mt-1.5">
+                    <button type="button" id="btn-fetch-meta" class="inline-flex items-center gap-1.5 text-[11px] font-bold text-primary hover:text-secondary-dark bg-surface-container hover:bg-surface-container-high px-2.5 py-1.5 rounded-lg transition-all active:scale-95">
+                      <span class="material-symbols-outlined text-sm text-secondary">auto_awesome</span>
+                      <span>Puxar dados e imagem do site automaticamente</span>
+                    </button>
+                    <span id="fetch-meta-status" class="text-[10px] text-outline"></span>
+                  </div>
+                  <p class="text-[10px] text-outline mt-1">Compatível com UTMs e qualquer endereço na web.</p>
                 </div>
               </div>
 
@@ -428,7 +435,7 @@
 
               <div class="space-y-3 pt-3">
                 <div>
-                  <label class="block text-[11px] font-bold text-on-surface-variant mb-1" for="input-titulo">Título do Cartão no WhatsApp</label>
+                  <label class="block text-[11px] font-bold text-on-surface-variant mb-1" for="input-titulo">Título do Cartão</label>
                   <input id="input-titulo" type="text" placeholder="Morangos Tatuí - Promoção do Dia" class="w-full text-xs rounded-lg border-outline-variant bg-surface-container-lowest py-2 px-2.5 focus:ring-primary focus:border-primary">
                 </div>
 
@@ -455,18 +462,24 @@
             </button>
           </form>
 
-          <!-- COLUNA 2: LIVE PREVIEW DO WHATSAPP (5 Colunas) -->
+          <!-- COLUNA 2: LIVE PREVIEW DO WHATSAPP E REDES SOCIAIS (5 Colunas) -->
           <div class="lg:col-span-5 space-y-4">
             <div class="flex items-center justify-between">
-              <span class="text-xs font-bold text-on-surface-variant flex items-center gap-1.5">
-                <span class="material-symbols-outlined text-base text-secondary">visibility</span>
-                <span>Visual no WhatsApp</span>
-              </span>
+              <!-- Seletor de canal no preview -->
+              <div class="inline-flex bg-surface-container-low p-0.5 rounded-lg border border-outline-variant/60 text-[11px] font-semibold">
+                <button type="button" id="preview-tab-wa" class="flex items-center gap-1 px-2.5 py-1 rounded-md bg-surface-container-lowest text-primary font-bold shadow-2xs transition-all">
+                  <span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                  <span>WhatsApp</span>
+                </button>
+                <button type="button" id="preview-tab-social" class="flex items-center gap-1 px-2.5 py-1 rounded-md text-on-surface-variant hover:text-on-surface transition-all">
+                  <span>Redes Sociais</span>
+                </button>
+              </div>
               <span class="text-[10px] text-outline font-semibold">Tempo Real</span>
             </div>
 
-            <!-- Moldura do WhatsApp com Wallpaper Nativo -->
-            <div class="wa-bg-pattern p-4 rounded-2xl border border-outline-variant/70 shadow-sm relative overflow-hidden">
+            <!-- Moldura 1: WhatsApp com Wallpaper Nativo -->
+            <div id="preview-frame-wa" class="wa-bg-pattern p-4 rounded-2xl border border-outline-variant/70 shadow-sm relative overflow-hidden">
               <div class="text-[10px] text-center text-[#667781] mb-2 font-medium">Hoje 14:30</div>
 
               <!-- Balão de Mensagem Nativo -->
@@ -495,6 +508,28 @@
                 <div class="flex items-center justify-end gap-1 text-[10px] text-[#667781] pr-1 pt-1">
                   <span>14:30</span>
                   <span class="material-symbols-outlined text-[13px] text-[#53BDEB]">done_all</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Moldura 2: Redes Sociais (Facebook / LinkedIn / Twitter) -->
+            <div id="preview-frame-social" class="hidden bg-surface-container-low p-4 rounded-2xl border border-outline-variant/70 shadow-sm relative">
+              <div class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-2 flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm text-primary">public</span>
+                <span>Feed (LinkedIn / Facebook / Twitter)</span>
+              </div>
+              <div class="bg-surface-container-lowest rounded-xl border border-outline-variant/70 overflow-hidden shadow-xs">
+                <div class="relative aspect-[1.91/1] bg-surface-container-high overflow-hidden">
+                  <img id="im-social" alt="" class="w-full h-full object-cover hidden">
+                  <div id="ph-social" class="w-full h-full flex flex-col items-center justify-center text-outline p-4 text-center">
+                    <span class="material-symbols-outlined text-3xl mb-1">image</span>
+                    <span class="text-[10px]">Prévia 1200x630 HD</span>
+                  </div>
+                </div>
+                <div class="p-3 bg-surface-container-lowest space-y-1">
+                  <div id="social-card-host" class="text-[10px] text-outline uppercase font-mono tracking-wide font-semibold">postlink.com.br</div>
+                  <div id="pt-social" class="text-xs font-bold text-on-surface leading-snug">Nome da Loja</div>
+                  <div id="pd-social" class="text-[11px] text-on-surface-variant line-clamp-2 leading-tight"></div>
                 </div>
               </div>
             </div>

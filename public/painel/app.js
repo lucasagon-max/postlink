@@ -70,6 +70,8 @@ const el = {
   waPhone: document.getElementById('wa-phone'),
   presetMessage: document.getElementById('preset-message'),
   inputDestino: document.getElementById('input-destino'),
+  btnFetchMeta: document.getElementById('btn-fetch-meta'),
+  fetchMetaStatus: document.getElementById('fetch-meta-status'),
   eDest: document.getElementById('e-dest'),
 
   detalhesPersonalizar: document.getElementById('detalhes-personalizar'),
@@ -79,12 +81,21 @@ const el = {
   inputValidoAte: document.getElementById('input-valido-ate'),
   btnSubmeterLink: document.getElementById('btn-submeter-link'),
 
-  // Live Preview WhatsApp
+  // Live Preview WhatsApp & Redes Sociais
+  previewTabWa: document.getElementById('preview-tab-wa'),
+  previewTabSocial: document.getElementById('preview-tab-social'),
+  previewFrameWa: document.getElementById('preview-frame-wa'),
+  previewFrameSocial: document.getElementById('preview-frame-social'),
   ph: document.getElementById('ph'),
   im: document.getElementById('im'),
   pt: document.getElementById('pt'),
   pd: document.getElementById('pd'),
   waCardHost: document.getElementById('wa-card-host'),
+  imSocial: document.getElementById('im-social'),
+  phSocial: document.getElementById('ph-social'),
+  ptSocial: document.getElementById('pt-social'),
+  pdSocial: document.getElementById('pd-social'),
+  socialCardHost: document.getElementById('social-card-host'),
 
   // Box Sucesso Inline
   res: document.getElementById('res'),
@@ -631,6 +642,8 @@ function prepararFormularioNovo() {
 
   switchDestTab('whatsapp');
 
+  if (el.fetchMetaStatus) el.fetchMetaStatus.textContent = '';
+
   if (el.inputSlug) {
     el.inputSlug.value = slugAleatorio();
   }
@@ -644,6 +657,27 @@ function prepararFormularioNovo() {
     el.im.classList.add('hidden');
     el.im.src = '';
   }
+
+  // Verifica se o usuário veio da experimentação sem login na Landing Page
+  try {
+    const rawDraft = sessionStorage.getItem('postlink_draft');
+    if (rawDraft) {
+      sessionStorage.removeItem('postlink_draft');
+      const draft = JSON.parse(rawDraft);
+      if (draft && draft.url) {
+        switchDestTab('url');
+        if (el.inputDestino) el.inputDestino.value = draft.url;
+        if (draft.title && el.inputTitulo) el.inputTitulo.value = draft.title;
+        if (draft.description && el.inputDescricao) el.inputDescricao.value = draft.description;
+        if (el.detalhesPersonalizar) el.detalhesPersonalizar.open = true;
+
+        if (draft.image) {
+          baixarEProcessarImagemUrl(draft.image);
+        }
+        toast('Dados do cartão carregados da página inicial!', 'info');
+      }
+    }
+  } catch (_) {}
 
   atualizarLivePreview();
 }
@@ -858,7 +892,9 @@ function atualizarLivePreview() {
   const lojaNome = state.loja ? state.loja.nome : 'Minha Loja';
   const titulo = (el.inputTitulo && el.inputTitulo.value.trim()) || lojaNome;
   const desc = el.inputDescricao ? el.inputDescricao.value.trim() : '';
+  const hostAtual = window.location.host || 'postlink.com.br';
 
+  // Preview WhatsApp
   if (el.pt) el.pt.textContent = titulo;
   if (el.pd) {
     el.pd.textContent = desc;
@@ -869,8 +905,134 @@ function atualizarLivePreview() {
     }
   }
   if (el.waCardHost) {
-    el.waCardHost.textContent = window.location.host || 'postlink.com.br';
+    el.waCardHost.textContent = hostAtual;
   }
+
+  // Preview Redes Sociais
+  if (el.ptSocial) el.ptSocial.textContent = titulo;
+  if (el.pdSocial) {
+    el.pdSocial.textContent = desc || 'Clique para acessar e conferir todos os detalhes.';
+  }
+  if (el.socialCardHost) {
+    el.socialCardHost.textContent = hostAtual;
+  }
+
+  // Sincroniza imagem entre WhatsApp e Redes Sociais
+  if (el.im && !el.im.classList.contains('hidden') && el.im.src) {
+    if (el.imSocial) {
+      el.imSocial.src = el.im.src;
+      el.imSocial.classList.remove('hidden');
+    }
+    if (el.phSocial) el.phSocial.classList.add('hidden');
+  } else {
+    if (el.imSocial) {
+      el.imSocial.classList.add('hidden');
+      el.imSocial.src = '';
+    }
+    if (el.phSocial) el.phSocial.classList.remove('hidden');
+  }
+}
+
+// Controle de Abas no Preview (WhatsApp vs Redes Sociais)
+if (el.previewTabWa && el.previewTabSocial) {
+  el.previewTabWa.addEventListener('click', () => {
+    if (el.previewFrameWa) el.previewFrameWa.classList.remove('hidden');
+    if (el.previewFrameSocial) el.previewFrameSocial.classList.add('hidden');
+    el.previewTabWa.className = 'flex items-center gap-1 px-2.5 py-1 rounded-md bg-surface-container-lowest text-primary font-bold shadow-2xs transition-all';
+    el.previewTabSocial.className = 'flex items-center gap-1 px-2.5 py-1 rounded-md text-on-surface-variant hover:text-on-surface transition-all';
+  });
+
+  el.previewTabSocial.addEventListener('click', () => {
+    if (el.previewFrameSocial) el.previewFrameSocial.classList.remove('hidden');
+    if (el.previewFrameWa) el.previewFrameWa.classList.add('hidden');
+    el.previewTabSocial.className = 'flex items-center gap-1 px-2.5 py-1 rounded-md bg-surface-container-lowest text-primary font-bold shadow-2xs transition-all';
+    el.previewTabWa.className = 'flex items-center gap-1 px-2.5 py-1 rounded-md text-on-surface-variant hover:text-on-surface transition-all';
+  });
+}
+
+// Baixa imagem de uma URL externa via proxy e comprime no Canvas
+async function baixarEProcessarImagemUrl(imgUrl) {
+  if (!imgUrl) return;
+  try {
+    if (el.fetchMetaStatus) el.fetchMetaStatus.textContent = 'Otimizando banner HD... ⏳';
+    const proxyUrl = '/api/proxy-image?url=' + encodeURIComponent(imgUrl);
+    const res = await fetch(proxyUrl);
+    if (!res.ok) throw new Error('Falha ao baixar imagem do site');
+    const blob = await res.blob();
+    const arquivoFake = new File([blob], 'banner-importado.jpg', { type: blob.type || 'image/jpeg' });
+    await tratarArquivoSelecionado(arquivoFake);
+    if (el.fetchMetaStatus) el.fetchMetaStatus.textContent = 'Banner e dados importados! ✨';
+  } catch (err) {
+    console.warn('Não foi possível processar imagem via proxy:', err);
+    // Fallback: tenta exibir direto no preview se possível
+    if (el.im) {
+      el.im.src = imgUrl;
+      el.im.classList.remove('hidden');
+    }
+    if (el.ph) el.ph.style.display = 'none';
+    atualizarLivePreview();
+  }
+}
+
+// Auto-import de metadados da URL de destino
+async function importarMetadadosUrl() {
+  const urlDest = el.inputDestino ? el.inputDestino.value.trim() : '';
+  if (!urlDest) {
+    if (el.fetchMetaStatus) el.fetchMetaStatus.textContent = 'Digite uma URL primeiro';
+    return;
+  }
+
+  if (el.btnFetchMeta) el.btnFetchMeta.disabled = true;
+  if (el.fetchMetaStatus) el.fetchMetaStatus.textContent = 'Buscando dados no Edge... ⚡';
+
+  try {
+    const res = await fetch('/api/fetch-metadata?url=' + encodeURIComponent(urlDest));
+    const data = await res.json();
+
+    if (!data || !data.success) {
+      throw new Error((data && data.error) || 'Não foi possível ler os metadados');
+    }
+
+    // Preenche título se não tiver preenchido manualmente
+    if (el.inputTitulo && (!el.inputTitulo.value.trim() || el.inputTitulo.value === (state.loja ? state.loja.nome : ''))) {
+      el.inputTitulo.value = data.title || '';
+    }
+
+    // Preenche descrição
+    if (el.inputDescricao && !el.inputDescricao.value.trim()) {
+      el.inputDescricao.value = data.description || '';
+    }
+
+    // Sugere slug amigável baseado no título ou hostname se estiver vazio
+    if (el.inputSlug && (!el.inputSlug.value || el.inputSlug.value.length < 4)) {
+      const slugSugestao = limparSlug(data.title || data.hostname || 'oferta');
+      if (slugSugestao) el.inputSlug.value = slugSugestao.slice(0, 30);
+    }
+
+    if (el.detalhesPersonalizar) {
+      el.detalhesPersonalizar.open = true;
+    }
+
+    atualizarLivePreview();
+
+    // Se tiver imagem e ainda não tiver arquivo selecionado
+    if (data.image && !state.arquivoBlob) {
+      await baixarEProcessarImagemUrl(data.image);
+    } else {
+      if (el.fetchMetaStatus) el.fetchMetaStatus.textContent = 'Título e descrição importados! ✨';
+    }
+
+    toast('Dados importados da página com sucesso!', 'success');
+  } catch (err) {
+    if (el.fetchMetaStatus) el.fetchMetaStatus.textContent = err.message || 'Falha ao importar';
+    toast('Não foi possível obter dados automáticos: ' + (err.message || 'Tente digitar manualmente.'), 'warning');
+  } finally {
+    if (el.btnFetchMeta) el.btnFetchMeta.disabled = false;
+  }
+}
+
+if (el.btnFetchMeta) {
+  el.btnFetchMeta.addEventListener('click', importarMetadadosUrl);
 }
 
 if (el.inputTitulo) el.inputTitulo.addEventListener('input', atualizarLivePreview);

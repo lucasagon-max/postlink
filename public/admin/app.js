@@ -223,7 +223,7 @@ function renderizarFunil() {
 // 2. CARREGAR E RENDERIZAR TABELA DE LOJISTAS
 async function carregarLojistas() {
   try {
-    const { data, error } = await sb.rpc('admin_listar_lojas', {
+    const { data, error } = await sb.rpc('admin_obter_lojas', {
       p_termo: state.termoBusca || null,
       p_status: state.filtroStatus,
       p_limite: 50,
@@ -232,7 +232,11 @@ async function carregarLojistas() {
 
     if (error) throw error;
 
-    state.lojistas = data || [];
+    let lista = data;
+    if (typeof lista === 'string') {
+      try { lista = JSON.parse(lista); } catch (e) { lista = []; }
+    }
+    state.lojistas = Array.isArray(lista) ? lista : [];
     renderizarTabelaLojistas();
   } catch (err) {
     console.error('Erro lojistas:', err);
@@ -310,10 +314,14 @@ function renderizarTabelaLojistas() {
 // 3. CARREGAR E RENDERIZAR TOP LINKS
 async function carregarTopLinks() {
   try {
-    const { data, error } = await sb.rpc('admin_listar_top_links', { p_limite: 15 });
+    const { data, error } = await sb.rpc('admin_obter_top_links', { p_limite: 15 });
     if (error) throw error;
 
-    state.topLinks = data || [];
+    let lista = data;
+    if (typeof lista === 'string') {
+      try { lista = JSON.parse(lista); } catch (e) { lista = []; }
+    }
+    state.topLinks = Array.isArray(lista) ? lista : [];
     renderizarTopLinks();
   } catch (err) {
     console.error('Erro top links:', err);
