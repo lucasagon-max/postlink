@@ -44,7 +44,7 @@ export async function onRequestPost({ request, env }) {
       });
     }
 
-    const { loja_id, email, nome, plano = 'pro', ciclo = 'monthly', metodo = 'pix' } = body;
+    const { loja_id, email, nome, cpf, plano = 'pro', ciclo = 'monthly', metodo = 'pix' } = body;
 
     if (!loja_id) {
       return new Response(JSON.stringify({ erro: 'ID da loja obrigatório' }), {
@@ -62,8 +62,6 @@ export async function onRequestPost({ request, env }) {
     if (!mpAccessToken) {
       const mockId = 'mock_pix_' + Date.now();
       const mockQrCode = '00020126580014br.gov.bcb.pix0136mock-postlink-chave-pix-teste520400005303986540' + valor.toFixed(2) + '5802BR5916PostLink Pagamento6009Sao Paulo62070503***6304MOCK';
-      
-      // QR Code SVG simples em data URI para visualização instantânea
       const mockQrBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
 
       return new Response(
@@ -86,6 +84,25 @@ export async function onRequestPost({ request, env }) {
       );
     }
 
+    // Separa nome em primeiro nome e sobrenome
+    const partesNome = (nome || 'Lojista PostLink').trim().split(/\s+/);
+    const firstName = partesNome[0] || 'Lojista';
+    const lastName = partesNome.slice(1).join(' ') || 'Cliente';
+
+    // Monta dados do pagador
+    const payerPayload = {
+      email: email || 'cliente@postlink.app',
+      first_name: firstName,
+      last_name: lastName,
+    };
+
+    const cpfLimpo = (cpf || '').replace(/\D/g, '');
+    if (cpfLimpo.length === 11) {
+      payerPayload.identification = { type: 'CPF', number: cpfLimpo };
+    } else if (cpfLimpo.length === 14) {
+      payerPayload.identification = { type: 'CNPJ', number: cpfLimpo };
+    }
+
     // Integração Real com a API do Mercado Pago
     if (metodo === 'pix') {
       const expirationDate = new Date(Date.now() + 30 * 60 * 1000).toISOString();
@@ -100,10 +117,7 @@ export async function onRequestPost({ request, env }) {
           transaction_amount: valor,
           description: `PostLink - Plano ${planoConfig.nome} (${ciclo === 'yearly' ? 'Anual' : 'Mensal'})`,
           payment_method_id: 'pix',
-          payer: {
-            email: email || 'cliente@postlink.app',
-            first_name: nome || 'Lojista',
-          },
+          payer: payerPayload,
           external_reference: JSON.stringify({
             loja_id,
             plano,
@@ -116,10 +130,17 @@ export async function onRequestPost({ request, env }) {
       const mpData = await mpResponse.json();
 
       if (!mpResponse.ok) {
+        const prefixo = mpAccessToken ? (mpAccessToken.substring(0, 8) + '...') : 'indefinido';
         return new Response(
           JSON.stringify({
             erro: 'Falha ao gerar PIX no Mercado Pago',
             detalhes: mpData.message || mpData,
+            diagnostico: {
+              status_http: mpResponse.status,
+              prefixo_token: prefixo,
+              tamanho_token: mpAccessToken ? mpAccessToken.length : 0,
+              causa: mpData.cause || null,
+            },
           }),
           {
             status: mpResponse.status,
@@ -129,6 +150,23 @@ export async function onRequestPost({ request, env }) {
       }
 
       const txData = mpData.point_of_interaction?.transaction_data || {};
+
+      if (mpData.status === 'rejected') {
+        const motivo = mpData.status_detail === 'rejected_high_risk'
+          ? 'O antifraude do Mercado Pago exige que o pagador utilize um e-mail diferente da conta vendedora e informe nome e CPF válidos.'
+          : (mpData.status_detail || 'Pagamento recusado pelo Mercado Pago');
+        return new Response(
+          JSON.stringify({
+            erro: 'Pagamento recusado pelo Mercado Pago',
+            detalhes: motivo,
+            status_detail: mpData.status_detail,
+          }),
+          {
+            status: 400,
+            headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+          }
+        );
+      }
 
       return new Response(
         JSON.stringify({
