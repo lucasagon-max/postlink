@@ -188,8 +188,8 @@ export async function onRequestPost({ request, env }) {
         }
       );
     } else {
-      // Criação de Preferência para Cartão de Crédito / Checkout Transparente
-      const preferenceResponse = await fetch('https://api.mercadopago.com/checkout/v1/preferences', {
+      // Criação de Preferência para Cartão de Crédito / Checkout Pro do Mercado Pago
+      const preferenceResponse = await fetch('https://api.mercadopago.com/checkout/preferences', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${mpAccessToken}`,
@@ -198,15 +198,17 @@ export async function onRequestPost({ request, env }) {
         body: JSON.stringify({
           items: [
             {
+              id: `plano_${plano}_${ciclo}`,
               title: `PostLink - Plano ${planoConfig.nome} (${ciclo === 'yearly' ? 'Anual' : 'Mensal'})`,
               quantity: 1,
               currency_id: 'BRL',
-              unit_price: valor,
+              unit_price: Number(valor),
             },
           ],
           payer: {
             email: email || 'cliente@postlink.app',
-            name: nome || 'Lojista',
+            name: firstName,
+            surname: lastName,
           },
           external_reference: JSON.stringify({
             loja_id,
@@ -229,6 +231,7 @@ export async function onRequestPost({ request, env }) {
           JSON.stringify({
             erro: 'Falha ao criar preferência de cartão no Mercado Pago',
             detalhes: prefData.message || prefData,
+            status_http: preferenceResponse.status,
           }),
           {
             status: preferenceResponse.status,
