@@ -348,7 +348,7 @@ function paginaTransicao({ destino, lojaNome, titulo, imagem }) {
   </main>
 
   <footer>
-    <span>Protegido por PostLink Edge Technology</span>
+    <span>Link seguro gerado via PostLink</span>
   </footer>
 
   <script>

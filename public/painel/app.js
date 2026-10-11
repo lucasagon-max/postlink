@@ -1119,14 +1119,14 @@ async function importarMetadadosUrl() {
   }
 
   if (el.btnFetchMeta) el.btnFetchMeta.disabled = true;
-  if (el.fetchMetaStatus) el.fetchMetaStatus.textContent = 'Buscando dados no Edge... ⚡';
+  if (el.fetchMetaStatus) el.fetchMetaStatus.textContent = 'Buscando informações da oferta... ⚡';
 
   try {
     const res = await fetch('/api/fetch-metadata?url=' + encodeURIComponent(urlDest));
     const data = await res.json();
 
     if (!data || !data.success) {
-      throw new Error((data && data.error) || 'Não foi possível ler os metadados');
+      throw new Error((data && data.error) || 'Não foi possível ler as informações do link');
     }
 
     // Preenche título se não tiver preenchido manualmente
@@ -1401,7 +1401,7 @@ function exibirResultadoCriado(url) {
     el.modalSucesso.classList.remove('hidden');
   }
 
-  toast('Link inteligente gerado no Edge!', 'success');
+  toast('Link inteligente criado com sucesso!', 'success');
 }
 
 // Listeners do Modal e Copy
