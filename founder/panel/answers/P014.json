@@ -1,0 +1,13 @@
+{
+  "id": "P014",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "price",
+  "reason": "Como dá pra pagar no PIX sem cadastrar cartão e tem garantia de devolução de 14 dias, vou aproveitar o teste e usar os templates prontos.",
+  "objection": "E se o WhatsApp não carregar a prévia ou a Meta mudar as regras e parar de funcionar?",
+  "would_change_my_mind": "",
+  "price_too_cheap": 8,
+  "price_cheap": 18,
+  "price_expensive": 48,
+  "price_too_expensive": 90
+}

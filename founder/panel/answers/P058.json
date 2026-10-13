@@ -1,0 +1,13 @@
+{
+  "id": "P058",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "convenience",
+  "reason": "Tenho receio de a tela de redirecionamento demorar mais de 1 segundo e o cliente desistir da compra achando que é vírus ou golpe. No WhatsApp tudo tem que ser imediato.",
+  "objection": "E se o WhatsApp não carregar a prévia ou a Meta mudar as regras e parar de funcionar?",
+  "would_change_my_mind": "Redirecionamento 100% invisível que abra a loja direto sem nenhuma tela intermediária.",
+  "price_too_cheap": 8,
+  "price_cheap": 14,
+  "price_expensive": 37,
+  "price_too_expensive": 78
+}

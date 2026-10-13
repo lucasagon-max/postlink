@@ -1,0 +1,7 @@
+# PostLink (nome reservado / provisório)
+
+- What it is: Gerador de links inteligentes para WhatsApp que transforma URLs comuns em cartões visuais interativos em alta definição (Open Graph 1200x630) com redirecionamento ultra-rápido (<1s) e métricas privadas de cliques.
+- Who it is for: Lojistas virtuais, comerciantes locais, empreendedores individuais, infoprodutores e afiliados que utilizam o WhatsApp e grupos de redes sociais como canal primário de divulgação e fechamento de vendas.
+- What it sells, at what price: Assinatura de software (SaaS) com teste gratuito de 7 dias e sem plano gratuito perpétuo. Plano Starter (R$ 14,90/mês ou R$ 11,90/mês no anual, até 5 links ativos); Plano Pro (R$ 29,90/mês ou R$ 23,90/mês no anual, links ilimitados e análise de origem/dispositivo); Plano Agência (R$ 69,90/mês ou R$ 55,90/mês no anual, até 5 lojas/marcas).
+- Where and how: 100% online no Brasil. Aquisição via prospecção direta, indicação, grupos de empreendedores/classificados e anúncios sociais. Entrega totalmente web (SaaS Jamstack hospedado em Cloudflare Pages com Cloudflare Pages Functions e Supabase).
+- Budget and constraints: Operação inicial de baixo custo (camadas gratuitas/iniciais de Cloudflare e Supabase, cobrança via Mercado Pago); equipe solo (fundador desenvolvedor); restrições legais/marca (necessidade de validação de registro de marca e conflitos no INPI com o nome "PostLink"); dependência externa do mecanismo de crawler e cache de prévias do ecossistema Meta/WhatsApp.

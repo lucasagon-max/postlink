@@ -212,15 +212,22 @@ function obterPlanoAtual() {
   if (!state.assinatura) return PLANOS_CONFIG.free;
 
   // Se estiver em período trial válido (7 dias)
+  // O teste grátis é único: 7 dias com 1 link ativo e até 5 alterações
   if (state.assinatura.status === 'trial') {
     const trialAte = state.assinatura.trial_ate ? new Date(state.assinatura.trial_ate) : null;
     if (trialAte && trialAte > new Date()) {
-      const planoEscolhido = state.assinatura.plano || 'pro';
-      return { ...(PLANOS_CONFIG[planoEscolhido] || PLANOS_CONFIG.pro), isTrial: true };
+      return {
+        ...PLANOS_CONFIG.free,
+        id: 'free',
+        nome: 'Teste Grátis (7 dias)',
+        maxLinks: 1,
+        maxEdicoes: 5,
+        isTrial: true
+      };
     }
   }
 
-  // Se tiver assinatura ativa
+  // Se tiver assinatura ativa paga
   if (state.assinatura.status === 'ativo') {
     const planoId = state.assinatura.plano || 'pro';
     return PLANOS_CONFIG[planoId] || PLANOS_CONFIG.pro;
@@ -357,6 +364,23 @@ async function carregarDadosLojaEAssinatura() {
     atualizarBarraAssinatura();
   }
 
+  // Verifica se o usuário veio de um fluxo de compra direta de plano
+  try {
+    const pendenteRaw = localStorage.getItem('postlink_checkout_pendente');
+    if (pendenteRaw) {
+      const pendente = JSON.parse(pendenteRaw);
+      localStorage.removeItem('postlink_checkout_pendente');
+      if (pendente && pendente.plano) {
+        planoSelecionado = pendente.plano;
+        billingCycle = pendente.ciclo === 'anual' ? 'yearly' : 'monthly';
+        window.location.hash = '#/plano';
+        setTimeout(() => {
+          toast(`Plano ${DADOS_EXIBICAO_PLANOS[planoSelecionado]?.nome || ''} pré-selecionado! Escolha a forma de pagamento abaixo.`, 'info');
+        }, 300);
+      }
+    }
+  } catch(e) {}
+
   window.addEventListener('hashchange', router);
   router();
 }
@@ -367,18 +391,28 @@ function atualizarBarraAssinatura() {
   const trialAte = state.assinatura.trial_ate ? new Date(state.assinatura.trial_ate) : null;
   const hoje = new Date();
   const diffDias = trialAte ? Math.ceil((trialAte - hoje) / (1000 * 60 * 60 * 24)) : 0;
+  const subtextoEl = document.getElementById('subtexto-banner-trial');
 
   if (state.assinatura.status === 'trial') {
     if (diffDias > 0) {
-      el.textoTrial.innerHTML = `Restam <strong>${diffDias} dias</strong> de teste gratuito (${p.nome})`;
+      el.textoTrial.innerHTML = `Restam <strong>${diffDias} dias</strong> de teste gratuito (1 link ativo · 5 trocas)`;
       if (el.navStatusTexto) el.navStatusTexto.textContent = `Trial (${diffDias}d)`;
+      if (subtextoEl) {
+        subtextoEl.textContent = 'Teste o PostLink no WhatsApp com 1 link ativo. Para links e alterações ilimitadas, assine um plano.';
+      }
     } else {
-      el.textoTrial.innerHTML = `Período de teste expirado (Plano Grátis)`;
-      if (el.navStatusTexto) el.navStatusTexto.textContent = 'Grátis';
+      el.textoTrial.innerHTML = `Período de teste expirado`;
+      if (el.navStatusTexto) el.navStatusTexto.textContent = 'Expirado';
+      if (subtextoEl) {
+        subtextoEl.textContent = 'Seu teste de 7 dias expirou. Assine um plano para continuar gerando links profissionais.';
+      }
     }
   } else if (state.assinatura.status === 'ativo') {
     el.textoTrial.innerHTML = `Assinatura ${p.nome} ativa e regular`;
     if (el.navStatusTexto) el.navStatusTexto.textContent = p.nome;
+    if (subtextoEl) {
+      subtextoEl.textContent = 'Sua assinatura está ativa e você tem acesso a todos os recursos contratados.';
+    }
   } else {
     if (el.navStatusTexto) el.navStatusTexto.textContent = 'Grátis';
   }
@@ -463,13 +497,12 @@ if (el.formOnboarding) {
       if (error) throw error;
 
       state.loja = data;
-      toast('Loja cadastrada com sucesso! Bem-vindo ao teste gratuito.', 'success');
-      window.location.hash = '#/';
+      toast('Loja cadastrada com sucesso!', 'success');
       await carregarDadosLojaEAssinatura();
     } catch (err) {
       toast('Erro ao cadastrar loja: ' + err.message, 'error');
       btn.disabled = false;
-      btn.textContent = 'Começar Teste Grátis (7 Dias)';
+      btn.textContent = 'Concluir Cadastro da Loja';
     }
   });
 }
@@ -492,14 +525,21 @@ async function carregarLinks() {
   }
   state.links = links || [];
 
-  // Busca estatísticas
+  // Busca estatísticas detalhadas de cliques, dispositivos e origens
   try {
-    const { data: stats } = await sb.rpc('estatisticas_links', { p_dias: 30 });
+    const { data: stats, error: errStats } = await sb.rpc('estatisticas_detalhadas_links', { p_dias: 30 });
     state.estatisticas = {};
-    if (stats) {
+    if (!errStats && stats) {
       stats.forEach((s) => {
         state.estatisticas[s.link_id] = s;
       });
+    } else {
+      const { data: statsOld } = await sb.rpc('estatisticas_links', { p_dias: 30 });
+      if (statsOld) {
+        statsOld.forEach((s) => {
+          state.estatisticas[s.link_id] = s;
+        });
+      }
     }
   } catch (_) {}
 
@@ -511,13 +551,25 @@ function atualizarMetricasBento() {
   let totalCliques = 0;
   let recentesCliques = 0;
   let linksAtivos = 0;
+  let mobileCliques = 0;
+  let desktopCliques = 0;
+  let waCliques = 0;
+  let igCliques = 0;
+  let fbCliques = 0;
+  let outrosCliques = 0;
 
   state.links.forEach((link) => {
     if (link.ativo) linksAtivos += 1;
     const st = state.estatisticas[link.id];
     if (st) {
-      totalCliques += st.total || 0;
-      recentesCliques += st.recentes || 0;
+      totalCliques += Number(st.total || 0);
+      recentesCliques += Number(st.recentes || 0);
+      mobileCliques += Number(st.mobile || 0);
+      desktopCliques += Number(st.desktop || 0);
+      waCliques += Number(st.whatsapp || 0);
+      igCliques += Number(st.instagram || 0);
+      fbCliques += Number(st.facebook || 0);
+      outrosCliques += Number(st.outros || 0);
     }
   });
 
@@ -525,6 +577,54 @@ function atualizarMetricasBento() {
   if (el.metricCliquesMes) el.metricCliquesMes.textContent = recentesCliques.toLocaleString('pt-BR');
   if (el.metricTotalLinks) el.metricTotalLinks.textContent = state.links.length;
   if (el.metricLinksAtivos) el.metricLinksAtivos.textContent = `${linksAtivos} ativos`;
+
+  // Atualização do Painel de Inteligência de Tráfego
+  const boxInteligencia = document.getElementById('box-inteligencia-metricas');
+  if (boxInteligencia) {
+    const somaDisp = mobileCliques + desktopCliques || 1;
+    const pctMob = totalCliques > 0 ? Math.round((mobileCliques / somaDisp) * 100) : 0;
+    const pctDesk = totalCliques > 0 ? (100 - pctMob) : 0;
+
+    const barMobile = document.getElementById('bar-dispositivo-mobile');
+    const barDesktop = document.getElementById('bar-dispositivo-desktop');
+    if (barMobile) barMobile.style.width = `${totalCliques > 0 ? pctMob : 50}%`;
+    if (barDesktop) barDesktop.style.width = `${totalCliques > 0 ? pctDesk : 50}%`;
+
+    const lblCountMobile = document.getElementById('label-count-mobile');
+    const lblPctMobile = document.getElementById('label-pct-mobile');
+    const lblCountDesktop = document.getElementById('label-count-desktop');
+    const lblPctDesktop = document.getElementById('label-pct-desktop');
+
+    if (lblCountMobile) lblCountMobile.textContent = mobileCliques.toLocaleString('pt-BR');
+    if (lblPctMobile) lblPctMobile.textContent = `${pctMob}%`;
+    if (lblCountDesktop) lblCountDesktop.textContent = desktopCliques.toLocaleString('pt-BR');
+    if (lblPctDesktop) lblPctDesktop.textContent = `${pctDesk}%`;
+
+    // Canais e Origens
+    const somaOrigens = totalCliques || 1;
+    const pctWa = totalCliques > 0 ? Math.round((waCliques / somaOrigens) * 100) : 0;
+    const pctIg = totalCliques > 0 ? Math.round((igCliques / somaOrigens) * 100) : 0;
+    const pctFb = totalCliques > 0 ? Math.round((fbCliques / somaOrigens) * 100) : 0;
+    const pctOutros = totalCliques > 0 ? Math.max(0, 100 - (pctWa + pctIg + pctFb)) : 0;
+
+    const lblCountWa = document.getElementById('label-count-wa');
+    const lblPctWa = document.getElementById('label-pct-wa');
+    const lblCountIg = document.getElementById('label-count-ig');
+    const lblPctIg = document.getElementById('label-pct-ig');
+    const lblCountFb = document.getElementById('label-count-fb');
+    const lblPctFb = document.getElementById('label-pct-fb');
+    const lblCountOutros = document.getElementById('label-count-outros');
+    const lblPctOutros = document.getElementById('label-pct-outros');
+
+    if (lblCountWa) lblCountWa.textContent = waCliques.toLocaleString('pt-BR');
+    if (lblPctWa) lblPctWa.textContent = `${pctWa}%`;
+    if (lblCountIg) lblCountIg.textContent = igCliques.toLocaleString('pt-BR');
+    if (lblPctIg) lblPctIg.textContent = `${pctIg}%`;
+    if (lblCountFb) lblCountFb.textContent = fbCliques.toLocaleString('pt-BR');
+    if (lblPctFb) lblPctFb.textContent = `${pctFb}%`;
+    if (lblCountOutros) lblCountOutros.textContent = outrosCliques.toLocaleString('pt-BR');
+    if (lblPctOutros) lblPctOutros.textContent = `${pctOutros}%`;
+  }
 }
 
 function aplicarFiltrosEBusca() {
@@ -596,6 +696,31 @@ function renderizarLinks() {
       ? `<span class="inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-surface-container-high text-primary">v${versaoAtual} · ${p.nome}</span>`
       : `<span class="inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded ${edicoesFeitas >= 5 ? 'bg-error-container text-on-error-container' : 'bg-surface-container-high text-on-surface-variant'}">v${versaoAtual} · ${edicoesFeitas >= 5 ? '5/5 edições (limite)' : `${edicoesRestantes} edições rest.`}</span>`;
 
+    const totClicks = Number(st.total || 0);
+    let detalheStatsHtml = '';
+    if (totClicks > 0) {
+      const somaD = (Number(st.mobile || 0) + Number(st.desktop || 0)) || 1;
+      const pctM = Math.round((Number(st.mobile || 0) / somaD) * 100);
+      const waCount = Number(st.whatsapp || 0);
+      const igCount = Number(st.instagram || 0);
+      const topNome = waCount >= igCount ? 'WhatsApp' : 'Instagram';
+      const topCount = Math.max(waCount, igCount);
+      const pctCanal = Math.round((topCount / totClicks) * 100);
+
+      detalheStatsHtml = `
+        <div class="grid grid-cols-2 gap-1.5 pt-1.5 mt-1.5 text-[11px] text-on-surface-variant border-t border-outline-variant/30">
+          <div class="flex items-center gap-1 truncate" title="${st.mobile || 0} cliques de celular">
+            <span class="material-symbols-outlined text-xs text-primary">smartphone</span>
+            <span>${pctM}% Celular</span>
+          </div>
+          <div class="flex items-center gap-1 justify-end truncate" title="Canal com mais acessos">
+            <span class="material-symbols-outlined text-xs ${topNome === 'WhatsApp' ? 'text-secondary-dark' : 'text-[#E1306C]'}">${topNome === 'WhatsApp' ? 'chat' : 'photo_camera'}</span>
+            <span>${pctCanal}% ${topNome}</span>
+          </div>
+        </div>
+      `;
+    }
+
     card.innerHTML = `
       <div>
         <div class="relative aspect-[1.91/1] rounded-xl overflow-hidden bg-surface-container-low mb-3 border border-outline-variant/40">
@@ -621,13 +746,16 @@ function renderizarLinks() {
           ${versaoBadgeHtml}
         </div>
 
-        <div class="bg-surface-container-low rounded-lg p-2 mb-3 flex items-center justify-between text-xs">
-          <span class="text-[11px] text-outline">Cliques:</span>
-          <div class="flex items-center gap-1 font-mono font-bold text-on-surface text-xs">
-            <span class="text-secondary-dark">${st.recentes} (30d)</span>
-            <span class="text-outline">/</span>
-            <span>${st.total} total</span>
+        <div class="bg-surface-container-low rounded-lg p-2 mb-3 text-xs">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] text-outline font-medium">Cliques:</span>
+            <div class="flex items-center gap-1 font-mono font-bold text-on-surface text-xs">
+              <span class="text-secondary-dark">${st.recentes || 0} (30d)</span>
+              <span class="text-outline">/</span>
+              <span>${totClicks} total</span>
+            </div>
           </div>
+          ${detalheStatsHtml}
         </div>
       </div>
 
@@ -636,7 +764,7 @@ function renderizarLinks() {
           <button type="button" class="btn-copiar bg-surface-container hover:bg-surface-container-high text-primary font-bold text-xs py-1.5 px-2 rounded-lg flex items-center justify-center gap-1 transition-all" data-url="${fullUrl}">
             <span class="material-symbols-outlined text-sm">content_copy</span> Copiar
           </button>
-          <a href="https://wa.me/?text=${encodeURIComponent(fullUrl)}" target="_blank" class="bg-secondary hover:bg-secondary-dark text-white font-bold text-xs py-1.5 px-2 rounded-lg flex items-center justify-center gap-1 transition-all">
+          <a href="https://wa.me/?text=${encodeURIComponent(fullUrl + '?src=wa')}" target="_blank" class="bg-secondary hover:bg-secondary-dark text-white font-bold text-xs py-1.5 px-2 rounded-lg flex items-center justify-center gap-1 transition-all">
             <span class="material-symbols-outlined text-sm">send</span> WhatsApp
           </a>
         </div>
@@ -1435,6 +1563,15 @@ let billingCycle = 'monthly';
 let planoSelecionado = 'pro';
 
 const DADOS_EXIBICAO_PLANOS = {
+  fundador: {
+    nome: 'Plano Fundador VIP (Pré-Venda)',
+    precoMensal: 'R$ 19,90',
+    periodoMensal: '/mês',
+    obsMensal: 'Preço vitalício garantido',
+    precoAnual: 'R$ 16,50',
+    periodoAnual: '/mês',
+    obsAnual: 'R$ 198,00 cobrado anual',
+  },
   starter: {
     nome: 'Plano Básico (Starter)',
     precoMensal: 'R$ 14,90',

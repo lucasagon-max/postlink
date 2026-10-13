@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Canal de Denúncias · PostLink</title>
+  <link rel="icon" href="/assets/img/logotipo_postlink_1x1.jpg">
+
+  <!-- Tailwind CSS com plugins -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="/assets/js/theme-config.js"></script>
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-background text-on-surface font-sans antialiased min-h-screen py-8 px-4 sm:px-6 flex flex-col justify-between selection:bg-secondary-container selection:text-on-secondary-container">
+
+  <main class="max-w-2xl mx-auto w-full bg-surface-container-lowest border border-outline-variant rounded-2xl p-6 sm:p-9 shadow-sm space-y-6">
+    
+    <!-- Topo -->
+    <div class="flex items-center justify-between pb-4 border-b border-outline-variant/60">
+      <a href="/" class="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline">
+        <span class="material-symbols-outlined text-base">arrow_back</span>
+        <span>Voltar à Página Inicial</span>
+      </a>
+      <div class="flex items-center gap-2">
+        <img src="/assets/img/logotipo_postlink_1x1.jpg" alt="PostLink" class="h-6 w-6 rounded object-cover">
+        <span class="font-extrabold text-primary text-sm tracking-tight">postlink</span>
+      </div>
+    </div>
+
+    <!-- Título & Contexto -->
+    <div class="space-y-1">
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-error-container text-on-error-container text-xs font-bold mb-2">
+        <span class="material-symbols-outlined text-sm">flag</span>
+        <span>Notice and Takedown · Segurança Comunitária</span>
+      </div>
+      <h1 class="text-xl sm:text-2xl font-extrabold text-on-surface tracking-tight">Canal de Denúncias de Abuso</h1>
+      <p class="text-xs sm:text-sm text-on-surface-variant leading-relaxed">
+        O PostLink tem tolerância zero com golpes, fraudes financeiras, pirataria e violações de direitos autorais. Se você identificou um link abusivo gerado na plataforma, reporte abaixo para análise imediata e bloqueio sumário.
+      </p>
+    </div>
+
+    <!-- FORMULÁRIO DE DENÚNCIA -->
+    <form id="form-denuncia" class="space-y-4">
+      
+      <!-- Campo 1: URL Denunciada -->
+      <div>
+        <label class="block text-xs font-bold text-on-surface mb-1" for="input-url">
+          Link do PostLink suspeito *
+        </label>
+        <div class="relative">
+          <span class="material-symbols-outlined absolute left-3 top-2.5 text-base text-outline">link</span>
+          <input
+            id="input-url"
+            type="text"
+            required
+            placeholder="Ex: postlink.top/loja/oferta ou o link que você recebeu"
+            class="w-full text-xs rounded-xl border-outline-variant bg-surface-container-low pl-9 pr-3 py-2.5 focus:ring-primary focus:border-primary text-on-surface placeholder:text-outline"
+          />
+        </div>
+        <p class="text-[11px] text-outline mt-1">Cole o link completo gerado pelo PostLink que você deseja denunciar.</p>
+      </div>
+
+      <!-- Campo 2: Motivo -->
+      <div>
+        <label class="block text-xs font-bold text-on-surface mb-1" for="select-motivo">
+          Qual a infração identificada? *
+        </label>
+        <select
+          id="select-motivo"
+          required
+          class="w-full text-xs rounded-xl border-outline-variant bg-surface-container-low px-3 py-2.5 focus:ring-primary focus:border-primary text-on-surface"
+        >
+          <option value="" disabled selected>Selecione o motivo principal...</option>
+          <option value="golpe_fraude">Golpe financeiro, estelionato ou venda enganosa</option>
+          <option value="phishing">Phishing ou site falso clonando banco, loja ou órgão público</option>
+          <option value="direitos_autorais">Violação de direitos autorais ou uso indevido da minha marca</option>
+          <option value="produto_proibido">Venda de produto proibido, contrafeito ou medicamento ilegal</option>
+          <option value="malware_virus">Disseminação de vírus, malware ou arquivo perigoso</option>
+          <option value="outro">Outra conduta em desacordo com as políticas</option>
+        </select>
+      </div>
+
+      <!-- Campo 3: Descrição e Evidências -->
+      <div>
+        <label class="block text-xs font-bold text-on-surface mb-1" for="textarea-descricao">
+          Detalhes ou evidências da infração (Opcional)
+        </label>
+        <textarea
+          id="textarea-descricao"
+          rows="3"
+          placeholder="Descreva brevemente o que torna este link abusivo ou mencione a titularidade da marca infringida..."
+          class="w-full text-xs rounded-xl border-outline-variant bg-surface-container-low p-3 focus:ring-primary focus:border-primary text-on-surface placeholder:text-outline leading-relaxed"
+        ></textarea>
+      </div>
+
+      <!-- Campo 4: E-mail de Retorno -->
+      <div>
+        <label class="block text-xs font-bold text-on-surface mb-1" for="input-email">
+          Seu e-mail de contato (Opcional)
+        </label>
+        <div class="relative">
+          <span class="material-symbols-outlined absolute left-3 top-2.5 text-base text-outline">alternate_email</span>
+          <input
+            id="input-email"
+            type="email"
+            placeholder="seu@email.com (caso queira receber retorno sobre a apuração)"
+            class="w-full text-xs rounded-xl border-outline-variant bg-surface-container-low pl-9 pr-3 py-2.5 focus:ring-primary focus:border-primary text-on-surface placeholder:text-outline"
+          />
+        </div>
+      </div>
+
+      <!-- Botão Submeter -->
+      <button
+        type="submit"
+        id="btn-submeter-denuncia"
+        class="w-full bg-error text-white text-xs font-bold py-3 px-4 rounded-xl shadow-md hover:bg-error/90 active:scale-95 transition-all flex items-center justify-center gap-2 mt-4"
+      >
+        <span class="material-symbols-outlined text-base">report</span>
+        <span>Enviar Denúncia para Investigação</span>
+      </button>
+
+      <p class="text-[11px] text-outline text-center">
+        Denúncias fundamentadas de crimes cibernéticos são apuradas em caráter de urgência pela equipe de segurança.
+      </p>
+
+    </form>
+
+    <!-- TELA DE SUCESSO (OCULTA POR PADRÃO) -->
+    <div id="box-sucesso" class="hidden text-center py-6 space-y-4">
+      <div class="w-14 h-14 mx-auto rounded-full bg-secondary-container flex items-center justify-center text-secondary-dark">
+        <span class="material-symbols-outlined text-3xl">task_alt</span>
+      </div>
+      <div class="space-y-1">
+        <h2 class="text-lg font-bold text-on-surface">Denúncia Registrada com Sucesso</h2>
+        <p class="text-xs sm:text-sm text-on-surface-variant max-w-md mx-auto leading-relaxed">
+          Nossa equipe de moderação e segurança foi notificada. O link denunciado entrará em processo de auditoria e será bloqueado sumariamente caso viole nossas políticas.
+        </p>
+      </div>
+      <div class="pt-2">
+        <button
+          type="button"
+          id="btn-nova-denuncia"
+          class="text-xs font-bold text-primary hover:underline"
+        >
+          Reportar outro link
+        </button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Rodapé -->
+  <footer class="max-w-2xl mx-auto w-full text-center text-xs text-outline py-4 space-x-4">
+    <a href="/termos/" class="hover:text-primary transition-colors">Termos de Uso</a>
+    <span>&middot;</span>
+    <a href="/privacidade/" class="hover:text-primary transition-colors">Política de Privacidade</a>
+    <span>&middot;</span>
+    <span>PostLink Security & Abuse Team</span>
+  </footer>
+
+  <div id="toast-container"></div>
+
+  <script type="module">
+    import { getSupabase } from '/assets/js/supabase-config.js';
+
+    const sb = getSupabase();
+
+    const form = document.getElementById('form-denuncia');
+    const inputUrl = document.getElementById('input-url');
+    const selectMotivo = document.getElementById('select-motivo');
+    const textareaDescricao = document.getElementById('textarea-descricao');
+    const inputEmail = document.getElementById('input-email');
+    const btnSubmit = document.getElementById('btn-submeter-denuncia');
+    const boxSucesso = document.getElementById('box-sucesso');
+    const btnNovaDenuncia = document.getElementById('btn-nova-denuncia');
+
+    // Se a URL veio pré-preenchida via parâmetro de busca ?url=...
+    const urlParams = new URLSearchParams(window.location.search);
+    const paramUrl = urlParams.get('url');
+    if (paramUrl) {
+      inputUrl.value = paramUrl;
+    }
+
+    function toast(mensagem, tipo = 'info') {
+      const c = document.getElementById('toast-container');
+      const el = document.createElement('div');
+      el.className = `toast toast-${tipo}`;
+      el.innerHTML = `<span>${mensagem}</span>`;
+      c.appendChild(el);
+      setTimeout(() => el.remove(), 4000);
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const url = inputUrl.value.trim();
+      const motivo = selectMotivo.value;
+      const descricao = textareaDescricao.value.trim();
+      const email = inputEmail.value.trim();
+
+      if (!url || !motivo) {
+        toast('Por favor, informe a URL e o motivo da denúncia.', 'error');
+        return;
+      }
+
+      btnSubmit.disabled = true;
+      btnSubmit.innerHTML = '<span class="material-symbols-outlined text-base animate-spin">refresh</span> Processando...';
+
+      try {
+        const { data, error } = await sb.rpc('denunciar_link', {
+          p_url: url,
+          p_motivo: motivo,
+          p_descricao: descricao || null,
+          p_email: email || null,
+        });
+
+        if (error) throw error;
+
+        form.classList.add('hidden');
+        boxSucesso.classList.remove('hidden');
+      } catch (err) {
+        console.error('Erro ao registrar denúncia:', err);
+        toast('Erro ao registrar denúncia: ' + (err.message || 'Tente novamente em instantes.'), 'error');
+      } finally {
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = '<span class="material-symbols-outlined text-base">report</span><span>Enviar Denúncia para Investigação</span>';
+      }
+    });
+
+    btnNovaDenuncia.addEventListener('click', () => {
+      form.reset();
+      boxSucesso.classList.add('hidden');
+      form.classList.remove('hidden');
+    });
+  </script>
+
+</body>
+</html>

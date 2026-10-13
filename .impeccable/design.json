@@ -1,0 +1,189 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-12T05:05:30Z",
+  "title": "Design System: PostLink",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Deep Maritime Navy",
+        "canonical": "#003e80",
+        "tonalRamp": ["#001a38", "#002b5a", "#003e80", "#1e56a0", "#4172b8", "#789fd4", "#b4cdff", "#d6e3ff"]
+      },
+      "primary-container": {
+        "role": "primary",
+        "displayName": "Deep Maritime Container",
+        "canonical": "#1e56a0",
+        "tonalRamp": ["#0b2342", "#133a69", "#1e56a0", "#2d70c4", "#528ede", "#8bb4ec", "#c4daf7", "#e7f0fc"]
+      },
+      "secondary": {
+        "role": "secondary",
+        "displayName": "Signal Emerald",
+        "canonical": "#22c55e",
+        "tonalRamp": ["#052e16", "#0f5128", "#166534", "#15803d", "#22c55e", "#4ade80", "#86efac", "#dcfce7"]
+      },
+      "secondary-dark": {
+        "role": "secondary",
+        "displayName": "Signal Emerald Dark",
+        "canonical": "#006e2f",
+        "tonalRamp": ["#00280f", "#00471c", "#006e2f", "#009341", "#15b858", "#4ae176", "#8bf3a9", "#dcfce7"]
+      },
+      "background": {
+        "role": "neutral",
+        "displayName": "Clean Slate Background",
+        "canonical": "#faf8ff",
+        "tonalRamp": ["#131b2e", "#2a3449", "#4b566e", "#7b86a0", "#aab4cc", "#d2d9f4", "#eaedff", "#faf8ff"]
+      },
+      "surface-card": {
+        "role": "neutral",
+        "displayName": "Pure Surface Card",
+        "canonical": "#ffffff",
+        "tonalRamp": ["#1f2937", "#374151", "#4b5563", "#6b7280", "#9ca3af", "#d1d5db", "#f3f4f6", "#ffffff"]
+      },
+      "on-surface": {
+        "role": "neutral",
+        "displayName": "Dark Navy Ink Text",
+        "canonical": "#131b2e",
+        "tonalRamp": ["#070a12", "#0c111e", "#131b2e", "#243152", "#3a4c7a", "#5a6ea1", "#8ba0d1", "#c7d4f2"]
+      },
+      "outline": {
+        "role": "neutral",
+        "displayName": "Outline Subtle",
+        "canonical": "#737782",
+        "tonalRamp": ["#1e2024", "#32353c", "#4c5059", "#737782", "#979ba5", "#bdc0ca", "#dcdee4", "#f1f2f5"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Hero headlines na landing page." },
+      "headline": { "displayName": "Headline", "purpose": "Títulos de páginas e modais." },
+      "title": { "displayName": "Title", "purpose": "Títulos de cards e métricas." },
+      "body": { "displayName": "Body", "purpose": "Corpo de texto e formulários." },
+      "label": { "displayName": "Label", "purpose": "Rótulos de campos, contadores e badges." }
+    },
+    "shadows": [
+      { "name": "subtle-surface", "value": "0 1px 2px 0 rgba(0, 0, 0, 0.05)", "purpose": "Cards e formulários em repouso." },
+      { "name": "wa-bubble-shadow", "value": "0 1px 1px rgba(11, 20, 26, 0.12)", "purpose": "Balão de mensagem do WhatsApp." },
+      { "name": "floating-toast", "value": "0 10px 25px -5px rgba(0, 0, 0, 0.12)", "purpose": "Notificações flutuantes e menus." }
+    ],
+    "motion": [
+      { "name": "ease-standard", "value": "cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "Transições padrão de hover e cores." },
+      { "name": "press-scale", "value": "scale(0.95)", "purpose": "Feedback tátil ativo em botões." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Botão de ação estrutural em azul marinho institucional.",
+      "html": "<button class=\"ds-btn-primary\"><svg class=\"ds-icon\" viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z\"/></svg><span>Novo Link</span></button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; gap: 6px; background-color: #003e80; color: #ffffff; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; font-weight: 700; padding: 8px 16px; border: none; border-radius: 8px; cursor: pointer; transition: background-color 0.15s ease, transform 0.1s ease; } .ds-btn-primary:hover { background-color: #1e56a0; } .ds-btn-primary:active { transform: scale(0.95); } .ds-icon { width: 16px; height: 16px; }"
+    },
+    {
+      "name": "Conversion Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Botão de conversão em verde WhatsApp com alto destaque.",
+      "html": "<button class=\"ds-btn-conversion\"><span>Criar Link Inteligente</span></button>",
+      "css": ".ds-btn-conversion { display: inline-flex; justify-content: center; align-items: center; width: 100%; background-color: #22c55e; color: #ffffff; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; font-weight: 700; padding: 12px 20px; border: none; border-radius: 12px; cursor: pointer; box-shadow: 0 2px 4px rgba(34, 197, 94, 0.2); transition: background-color 0.15s ease, transform 0.1s ease; } .ds-btn-conversion:hover { background-color: #006e2f; } .ds-btn-conversion:active { transform: scale(0.95); }"
+    },
+    {
+      "name": "Text Input Field",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Campo de entrada de texto com foco preciso e contraste nítido.",
+      "html": "<div class=\"ds-input-group\"><label class=\"ds-label\">URL de Destino Completa *</label><input type=\"text\" class=\"ds-input\" placeholder=\"https://sualoja.com.br/produto\" /></div>",
+      "css": ".ds-input-group { display: flex; flex-direction: column; gap: 4px; font-family: 'Plus Jakarta Sans', sans-serif; } .ds-label { font-size: 11px; font-weight: 700; color: #424751; } .ds-input { font-size: 12px; padding: 10px 12px; background-color: #ffffff; border: 1px solid #c2c6d3; border-radius: 8px; color: #131b2e; outline: none; transition: border-color 0.15s, box-shadow 0.15s; } .ds-input:focus { border-color: #003e80; box-shadow: 0 0 0 1px #003e80; }"
+    },
+    {
+      "name": "Filter Chip",
+      "kind": "chip",
+      "refersTo": "filter-chip",
+      "description": "Chip de filtragem rápida com alternância de estado.",
+      "html": "<div class=\"ds-chips-row\"><button class=\"ds-chip ds-chip-active\">Todos</button><button class=\"ds-chip\">Ativos</button><button class=\"ds-chip\">Pausados</button></div>",
+      "css": ".ds-chips-row { display: flex; gap: 6px; font-family: 'Plus Jakarta Sans', sans-serif; } .ds-chip { font-size: 12px; font-weight: 500; padding: 6px 12px; border-radius: 9999px; background-color: #f2f3ff; color: #424751; border: none; cursor: pointer; transition: all 0.15s ease; } .ds-chip:hover { background-color: #eaedff; } .ds-chip-active { background-color: #003e80; color: #ffffff; font-weight: 700; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }"
+    },
+    {
+      "name": "Metric Card",
+      "kind": "card",
+      "refersTo": "card-metric",
+      "description": "Cartão compacto de métricas com ícone e rótulos secundários.",
+      "html": "<div class=\"ds-card-metric\"><div class=\"ds-card-top\"><span class=\"ds-card-title\">Cliques Recentes (30d)</span><div class=\"ds-icon-wrap\"><svg class=\"ds-icon\" viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M7 2v11h3v9l7-12h-4l4-8z\"/></svg></div></div><div class=\"ds-card-value\">1.420</div><div class=\"ds-card-sub\">Tráfego de conversão</div></div>",
+      "css": ".ds-card-metric { background-color: #ffffff; border: 1px solid rgba(194, 198, 211, 0.5); border-radius: 12px; padding: 14px 16px; font-family: 'Plus Jakarta Sans', sans-serif; box-shadow: 0 1px 2px rgba(0,0,0,0.05); } .ds-card-top { display: flex; justify-content: space-between; align-items: center; } .ds-card-title { font-size: 12px; font-weight: 500; color: #424751; } .ds-icon-wrap { width: 28px; height: 28px; border-radius: 8px; background-color: #dcfce7; color: #006e2f; display: flex; align-items: center; justify-content: center; } .ds-card-value { font-size: 22px; font-weight: 800; color: #131b2e; margin-top: 8px; line-height: 1.1; } .ds-card-sub { font-size: 11px; color: #737782; margin-top: 2px; } .ds-icon { width: 16px; height: 16px; }"
+    },
+    {
+      "name": "WhatsApp Preview Bubble",
+      "kind": "custom",
+      "refersTo": "wa-preview-bubble",
+      "description": "Simulação hiper-realista do balão de conversa do WhatsApp com cartão Open Graph HD.",
+      "html": "<div class=\"ds-wa-frame\"><div class=\"ds-wa-bubble\"><div class=\"ds-og-card\"><div class=\"ds-og-img-ph\"><svg class=\"ds-icon-lg\" viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z\"/></svg><span>Banner 1200x630 (1.91:1)</span></div><div class=\"ds-og-meta\"><div class=\"ds-og-title\">Morangos Tatuí - Promoção Especial</div><div class=\"ds-og-host\">POSTLINK.COM.BR</div></div></div><div class=\"ds-wa-footer\"><span>14:30</span><span class=\"ds-ticks\">✓✓</span></div></div></div>",
+      "css": ".ds-wa-frame { background-color: #efeae2; padding: 16px; border-radius: 16px; border: 1px solid #c2c6d3; font-family: 'Plus Jakarta Sans', sans-serif; } .ds-wa-bubble { background-color: #E7FFDB; border: 1px solid #C8E6C9; border-radius: 12px; padding: 8px; max-width: 320px; margin-left: auto; box-shadow: 0 1px 1px rgba(11, 20, 26, 0.12); } .ds-og-card { background-color: #ffffff; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden; } .ds-og-img-ph { aspect-ratio: 1.91/1; background-color: #eaedff; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #737782; font-size: 10px; font-weight: 600; gap: 4px; } .ds-og-meta { padding: 8px 10px; } .ds-og-title { font-size: 12px; font-weight: 700; color: #111B21; line-height: 1.2; } .ds-og-host { font-size: 10px; font-family: monospace; color: #667781; margin-top: 4px; } .ds-wa-footer { display: flex; justify-content: flex-end; align-items: center; gap: 4px; font-size: 10px; color: #667781; margin-top: 4px; } .ds-ticks { color: #53BDEB; font-weight: bold; } .ds-icon-lg { width: 24px; height: 24px; }"
+    },
+    {
+      "name": "Hero CTA Button",
+      "kind": "button",
+      "refersTo": "button-hero-cta",
+      "description": "Botão de conversão de alto impacto para chamadas de ação principais na landing page.",
+      "html": "<button class=\"ds-btn-hero\"><span>Criar Link Grátis Agora</span><svg class=\"ds-icon\" viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z\"/></svg></button>",
+      "css": ".ds-btn-hero { background-color: #22c55e; color: #ffffff; font-size: 16px; font-weight: 700; padding: 16px 32px; border-radius: 12px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 10px 15px -3px rgba(34, 197, 94, 0.3); transition: all 0.15s ease; font-family: 'Plus Jakarta Sans', sans-serif; } .ds-btn-hero:hover { background-color: #006e2f; } .ds-btn-hero:active { transform: scale(0.95); } .ds-icon { width: 20px; height: 20px; }"
+    },
+    {
+      "name": "Before vs After Comparison Card",
+      "kind": "card",
+      "refersTo": "card-comparison-winner",
+      "description": "Cartão vencedor do comparativo com realce em Signal Emerald e anel externo de celebração.",
+      "html": "<div class=\"ds-card-winner\"><div class=\"ds-card-header\"><span class=\"ds-badge-emerald\">Com PostLink · Destaque máximo</span></div><p class=\"ds-card-text\">Imagem nítida e contagem real de cliques.</p></div>",
+      "css": ".ds-card-winner { background-color: #ffffff; border: 2px solid rgba(34, 197, 94, 0.4); border-radius: 16px; padding: 20px; box-shadow: 0 0 0 4px rgba(220, 252, 231, 0.3); font-family: 'Plus Jakarta Sans', sans-serif; } .ds-badge-emerald { background-color: #dcfce7; color: #007432; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 9999px; } .ds-card-text { font-size: 14px; color: #424751; margin-top: 12px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Retail Signal",
+    "overview": "O design system do PostLink foi projetado para impulsionar a conversão comercial direta através do WhatsApp e das redes sociais. Com alto contraste intencional, ele combina a solidez institucional e técnica de um software de precisão com a vibração visual imediata do varejo contemporâneo. A interface opera em uma atmosfera utilitária refinada e confiável: superfícies claras em camadas tonais sutis que recuam para dar protagonismo total ao conteúdo do link e à simulação hiper-realista da mensagem do WhatsApp.",
+    "keyCharacteristics": [
+      "Clareza utilitária com apelo de conversão: Tipografia geométrica legível combinada a ações de alto contraste.",
+      "Fidelidade nativa de mensageria: Simulação fidedigna do balão de conversa do WhatsApp com proporção 1.91:1 e padrão de fundo autêntico.",
+      "Camadas tonais limpas: Profundidade construída através de variações sutis de superfícies e bordas nítidas em vez de sombras pesadas.",
+      "Interação tátil e ágil: Feedback imediato ao toque e clique (active:scale-95)."
+    ],
+    "rules": [
+      {
+        "name": "The WhatsApp Anchor Rule",
+        "body": "O verde de conversão (#22c55e) é rigorosamente reservado para ações de conversão, estados positivos (link ativo, 100% online) e detalhes de mensageria; nunca é utilizado como fundo genérico ou borda decorativa.",
+        "section": "colors"
+      },
+      {
+        "name": "The High-Contrast Text Rule",
+        "body": "Todo texto interativo deve atender à taxa mínima de contraste de 4.5:1 contra o plano de fundo correspondente, assegurando leitura sem esforço sob luz solar em telas móveis.",
+        "section": "colors"
+      },
+      {
+        "name": "The Single-Family Harmony Rule",
+        "body": "Uma única família tipográfica (Plus Jakarta Sans) governa toda a interface, estabelecendo hierarquia exclusivamente através de peso (400 a 800), escala e entrelinha, eliminando atrito visual.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat-By-Default Rule",
+        "body": "Superfícies permanecem planas em repouso; sombras e elevações surgem unicamente como resposta a interação ativa (hover, popover, modal).",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do preservar a proporção exata de 1.91:1 (1200x630) em qualquer preview de banner Open Graph.",
+      "Do aplicar feedback tátil (active:scale-95) em botões de ação e chips.",
+      "Do usar o verde Signal Emerald (#22c55e) com moderação, limitando seu uso a CTAs definitivos e indicadores de status ativo.",
+      "Do manter todas as linhas divisórias e bordas discretas com transparência moderada (opacity: 0.4 a 0.6)."
+    ],
+    "donts": [
+      "Don't utilizar o verde Signal Emerald em fundos de tela cheia ou botões secundários de navegação.",
+      "Don't misturar fontes serifadas ou famílias tipográficas estranhas ao Plus Jakarta Sans.",
+      "Don't empregar sombras escuras ou difusas pesadas fora dos menus flutuantes/toasts.",
+      "Don't cortar ou distorcer a imagem do preview do WhatsApp; ela deve sempre preencher o container com object-cover."
+    ]
+  }
+}

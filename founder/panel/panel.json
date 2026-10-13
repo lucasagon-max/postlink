@@ -1,0 +1,88 @@
+{
+  "n": 20,
+  "seed": 954074,
+  "customer": {
+    "business": "PostLink (gerador de links com cartão Open Graph em alta definição para WhatsApp)",
+    "target": "Lojistas virtuais, afiliados e comerciantes no Brasil que vendem diariamente pelo WhatsApp",
+    "where": "Brasil",
+    "age": [
+      22,
+      52
+    ],
+    "segments": [
+      {
+        "name": "Afiliado / Operador de Grupos de Ofertas",
+        "share": 0.35,
+        "income": [
+          24000,
+          72000
+        ]
+      },
+      {
+        "name": "Lojista de E-commerce / Moda / Cosméticos",
+        "share": 0.4,
+        "income": [
+          36000,
+          120000
+        ]
+      },
+      {
+        "name": "Comércio Local / Alimentação / Serviços",
+        "share": 0.25,
+        "income": [
+          30000,
+          90000
+        ]
+      }
+    ],
+    "behaviours": [
+      {
+        "name": "Postador intensivo de ofertas",
+        "share": 0.25,
+        "how": "Posta dezenas de ofertas por dia em múltiplos grupos e precisa de agilidade máxima pelo celular."
+      },
+      {
+        "name": "Caçador de economia / Cauteloso",
+        "share": 0.2,
+        "how": "Prefere métodos manuais gratuitos (foto avulsa + texto) a assumir custos fixos mensais."
+      },
+      {
+        "name": "Orientado a conversão e CTR",
+        "share": 0.18,
+        "how": "Mede resultados e cliques; paga ferramentas com prazer se notar aumento real nas vendas."
+      },
+      {
+        "name": "Focado em estética de marca",
+        "share": 0.15,
+        "how": "Quer passar imagem profissional de loja grande; odeia poluição visual de links azuis soltos."
+      },
+      {
+        "name": "Apego ao gratuito / Cético",
+        "share": 0.12,
+        "how": "Desconfia de promessas de software e cancela qualquer ferramenta que não mostre retorno imediato."
+      },
+      {
+        "name": "Pragmático sem tempo",
+        "share": 0.1,
+        "how": "Não tem paciência para tutoriais; só usa se funcionar em 30 segundos sem precisar de suporte."
+      }
+    ],
+    "objections": [
+      "Eu já mando a foto da galeria e o link no texto de graça, por que pagar R$ 29,90 por mês?",
+      "E se o WhatsApp não carregar a prévia ou a Meta mudar as regras e parar de funcionar?",
+      "Não quero mais uma assinatura mensal fixa pesando nos meus custos todo mês.",
+      "Meus clientes compram pelo preço e pelo produto, não pela beleza da foto do link.",
+      "Quando eu mudo o preço no painel, o WhatsApp atualiza mesmo ou fica a foto antiga em cache nos grupos?",
+      "Tenho medo de o link intermediário parecer vírus e assustar quem clica no celular.",
+      "Não sou designer e não sei recortar imagens em 1200x630; vai cortar a cabeça dos meus produtos."
+    ],
+    "habits": [
+      "você administra três grupos de ofertas e posta promoções todos os dias às 9h e às 18h",
+      "você atende clientes no WhatsApp Web pelo notebook enquanto confere estoque e notas fiscais",
+      "você responde clientes pelo celular na correria do balcão da loja",
+      "você divulga links de afiliados no status do WhatsApp todo final de tarde",
+      "você usa o Canva no celular para colocar o preço na foto antes de postar nos grupos"
+    ]
+  },
+  "pitch": "Combo Fundador PostLink: transforme seus links de produtos em cartões visuais em alta resolução (1200x630) que vendem no WhatsApp com 1 toque.\nVocê recebe: links inteligentes ilimitados com redirecionamento em <1s, Pack com 50 Templates Prontos no Canva (1200x630) para nunca cortar fotos, e 30 scripts de chamadas de vendas para grupos.\nAcompanhe os cliques de cada oferta em tempo real direto no seu celular.\nGarantia blindada de 14 dias: se você não notar mais visitas e cliques nas suas ofertas, devolvemos 100% do seu dinheiro via PIX.\nLote Fundador para os primeiros 50 lojistas: R$ 19,90/mês no plano anual ou R$ 29,90/mês no PIX sem precisar cadastrar cartão de crédito.\nTeste 7 dias grátis sem compromisso."
+}

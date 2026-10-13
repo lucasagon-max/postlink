@@ -1,0 +1,13 @@
+{
+  "id": "P100",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "price",
+  "reason": "Por R$ 14,90 no plano básico eu topo testar se realmente me poupar o trabalho de mandar foto e texto separados. Mas se subir o preço eu cancelo.",
+  "objection": "Quando eu mudo o preço no painel, o WhatsApp atualiza mesmo ou fica a foto antiga em cache nos grupos?",
+  "would_change_my_mind": "",
+  "price_too_cheap": 6,
+  "price_cheap": 13,
+  "price_expensive": 41,
+  "price_too_expensive": 93
+}

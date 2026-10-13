@@ -1,0 +1,13 @@
+{
+  "id": "P017",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "price",
+  "reason": "Já faço de graça mandando a foto da galeria e o link logo abaixo. Ainda acho desnecessário pagar mensalidade se o método gratuito funciona.",
+  "objection": "Tenho medo de o link intermediário parecer vírus e assustar quem clica no celular.",
+  "would_change_my_mind": "Um plano gratuito permanente para até 3 links ou um valor simbólico de R$ 9,90 por mês.",
+  "price_too_cheap": 7,
+  "price_cheap": 19,
+  "price_expensive": 43,
+  "price_too_expensive": 91
+}

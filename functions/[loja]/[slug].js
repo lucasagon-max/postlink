@@ -42,7 +42,7 @@ export async function onRequestGet({ request, params, env, waitUntil }) {
   const loja = params.loja;
   const slug = params.slug;
 
-  const RESERVADAS = ['painel', 'login', 'admin', 'assets', 'termos', 'privacidade', 'favicon.ico', 'api'];
+  const RESERVADAS = ['painel', 'login', 'admin', 'assets', 'termos', 'privacidade', 'planos', 'denunciar', 'favicon.ico', 'api'];
   if (RESERVADAS.includes(loja) && env.ASSETS) {
     return env.ASSETS.fetch(request);
   }
@@ -98,17 +98,101 @@ export async function onRequestGet({ request, params, env, waitUntil }) {
   });
 }
 
+function detectarOrigemEDispositivo(request) {
+  const ua = request.headers.get('user-agent') || '';
+  const ref = request.headers.get('referer') || '';
+
+  // 1. Detecção de Dispositivo (Mobile vs Desktop)
+  const dispositivo = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua)
+    ? 'mobile'
+    : 'desktop';
+
+  // 2. Detecção de Origem
+  let origem = 'direto';
+
+  // A. Prioridade 1: Parâmetros explícitos de URL (?src=..., ?utm_source=..., ?ref=...)
+  try {
+    const url = new URL(request.url);
+    const paramSrc = (url.searchParams.get('src') || url.searchParams.get('utm_source') || url.searchParams.get('ref') || '').toLowerCase();
+    if (paramSrc) {
+      if (paramSrc.includes('wa') || paramSrc.includes('whats')) {
+        return { origem: 'whatsapp', dispositivo };
+      }
+      if (paramSrc.includes('ig') || paramSrc.includes('insta')) {
+        return { origem: 'instagram', dispositivo };
+      }
+      if (paramSrc.includes('fb') || paramSrc.includes('face')) {
+        return { origem: 'facebook', dispositivo };
+      }
+      if (paramSrc.includes('tg') || paramSrc.includes('tele')) {
+        return { origem: 'telegram', dispositivo };
+      }
+      if (paramSrc.includes('tt') || paramSrc.includes('tik')) {
+        return { origem: 'tiktok', dispositivo };
+      }
+      return { origem: paramSrc.slice(0, 30), dispositivo };
+    }
+  } catch (_) {}
+
+  // B. Prioridade 2: In-App Browsers via User-Agent (Instagram, Facebook, etc.)
+  if (/Instagram/i.test(ua)) {
+    return { origem: 'instagram', dispositivo };
+  }
+  if (/FBAN|FBAV|FB_IAB/i.test(ua)) {
+    return { origem: 'facebook', dispositivo };
+  }
+  if (/musical_ly|TikTok|BytedanceWebview/i.test(ua)) {
+    return { origem: 'tiktok', dispositivo };
+  }
+  if (/Telegram/i.test(ua)) {
+    return { origem: 'telegram', dispositivo };
+  }
+  if (/LinkedIn/i.test(ua)) {
+    return { origem: 'linkedin', dispositivo };
+  }
+
+  // C. Prioridade 3: Cabeçalho Referer
+  if (ref) {
+    try {
+      const refHost = new URL(ref).host.toLowerCase();
+      if (refHost.includes('whatsapp') || refHost.includes('wa.me')) {
+        return { origem: 'whatsapp', dispositivo };
+      }
+      if (refHost.includes('instagram')) {
+        return { origem: 'instagram', dispositivo };
+      }
+      if (refHost.includes('facebook') || refHost.includes('fb.com')) {
+        return { origem: 'facebook', dispositivo };
+      }
+      if (refHost.includes('t.co') || refHost.includes('twitter') || refHost.includes('x.com')) {
+        return { origem: 'x_twitter', dispositivo };
+      }
+      if (refHost.includes('t.me') || refHost.includes('telegram')) {
+        return { origem: 'telegram', dispositivo };
+      }
+      if (refHost.includes('google')) {
+        return { origem: 'google', dispositivo };
+      }
+      if (refHost.includes('youtube')) {
+        return { origem: 'youtube', dispositivo };
+      }
+      return { origem: refHost, dispositivo };
+    } catch (_) {}
+  }
+
+  // D. Prioridade 4: Heurística do WhatsApp Mobile
+  // No WhatsApp mobile nativo, o toque no link abre o navegador padrão sem passar Referer.
+  // Em acessos mobile diretos sem referer, categoriza como canal nativo do WhatsApp.
+  if (dispositivo === 'mobile' && !ref) {
+    origem = 'whatsapp';
+  }
+
+  return { origem, dispositivo };
+}
+
 async function registrarClique(env, linkId, request) {
   try {
-    let origem = null;
-    const ref = request.headers.get('referer');
-    if (ref) {
-      try {
-        origem = new URL(ref).host;
-      } catch {}
-    }
-    const ua = request.headers.get('user-agent') || '';
-    const dispositivo = /Mobi|Android|iPhone|iPad/i.test(ua) ? 'mobile' : 'desktop';
+    const { origem, dispositivo } = detectarOrigemEDispositivo(request);
     await rpc(env, 'registrar_clique', {
       p_link: linkId,
       p_origem: origem,
@@ -160,7 +244,7 @@ function paginaTransicao({ destino, lojaNome, titulo, imagem }) {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex">
   <meta http-equiv="refresh" content="2;url=${d}">
-  <title>Conexão Segura · ${nome}</title>
+  <title>Redirecionando · ${nome}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -203,7 +287,7 @@ function paginaTransicao({ destino, lojaNome, titulo, imagem }) {
       border-radius: 999px;
       font-size: 11px;
       font-weight: 700;
-      color: #007432;
+      color: #003e80;
     }
     main {
       max-width: 440px;
@@ -226,8 +310,8 @@ function paginaTransicao({ destino, lojaNome, titulo, imagem }) {
       font-size: 12px;
     }
     .status-pill {
-      background: #dcfce7;
-      color: #007432;
+      background: #eaedff;
+      color: #003e80;
       padding: 3px 8px;
       border-radius: 999px;
       font-weight: 700;
@@ -321,7 +405,7 @@ function paginaTransicao({ destino, lojaNome, titulo, imagem }) {
       <span>postlink</span>
     </div>
     <div class="shield-badge">
-      <span>🛡️ Conexão Segura</span>
+      <span>⚡ Redirecionando...</span>
     </div>
   </header>
 
@@ -329,9 +413,9 @@ function paginaTransicao({ destino, lojaNome, titulo, imagem }) {
     <div class="card">
       <div class="status-bar">
         <span style="color:#424751; font-weight:600;">
-          <span class="pulse-dot"></span>Verificando integridade...
+          <span class="pulse-dot"></span>Conectando ao servidor...
         </span>
-        <span class="status-pill">Verificado</span>
+        <span class="status-pill">Aguarde</span>
       </div>
 
       <div class="meter">
@@ -341,14 +425,15 @@ function paginaTransicao({ destino, lojaNome, titulo, imagem }) {
       ${imgTag}
 
       <h1>Redirecionando para ${nome}</h1>
-      <p>Você será transferido para o destino oficial em um instante.</p>
+      <p>Transferindo em instantes para o link de destino.</p>
 
       <a href="${d}" rel="noopener" class="btn">Abrir agora &rarr;</a>
     </div>
   </main>
 
   <footer>
-    <span>Link seguro gerado via PostLink</span>
+    <span>Redirecionamento técnico provido por PostLink</span>
+  </footer> gerado via PostLink</span>
   </footer>
 
   <script>

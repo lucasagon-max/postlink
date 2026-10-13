@@ -1,0 +1,222 @@
+[
+  {
+    "id": "P001",
+    "name": "Tariq",
+    "age": 23,
+    "segment": "Lojista de E-commerce / Moda / Cosméticos",
+    "income": 75000,
+    "behaviour": "Orientado a conversão e CTR",
+    "behaviour_how": "Mede resultados e cliques; paga ferramentas com prazer se notar aumento real nas vendas.",
+    "objection": "Não quero mais uma assinatura mensal fixa pesando nos meus custos todo mês.",
+    "habit": "você administra três grupos de ofertas e posta promoções todos os dias às 9h e às 18h"
+  },
+  {
+    "id": "P002",
+    "name": "Poppy",
+    "age": 49,
+    "segment": "Afiliado / Operador de Grupos de Ofertas",
+    "income": 28000,
+    "behaviour": "Caçador de economia / Cauteloso",
+    "behaviour_how": "Prefere métodos manuais gratuitos (foto avulsa + texto) a assumir custos fixos mensais.",
+    "objection": "Quando eu mudo o preço no painel, o WhatsApp atualiza mesmo ou fica a foto antiga em cache nos grupos?",
+    "habit": "você divulga links de afiliados no status do WhatsApp todo final de tarde"
+  },
+  {
+    "id": "P003",
+    "name": "Marco",
+    "age": 42,
+    "segment": "Comércio Local / Alimentação / Serviços",
+    "income": 76000,
+    "behaviour": "Focado em estética de marca",
+    "behaviour_how": "Quer passar imagem profissional de loja grande; odeia poluição visual de links azuis soltos.",
+    "objection": "Meus clientes compram pelo preço e pelo produto, não pela beleza da foto do link.",
+    "habit": "você responde clientes pelo celular na correria do balcão da loja"
+  },
+  {
+    "id": "P004",
+    "name": "Aria",
+    "age": 36,
+    "segment": "Comércio Local / Alimentação / Serviços",
+    "income": 51000,
+    "behaviour": "Postador intensivo de ofertas",
+    "behaviour_how": "Posta dezenas de ofertas por dia em múltiplos grupos e precisa de agilidade máxima pelo celular.",
+    "objection": "E se o WhatsApp não carregar a prévia ou a Meta mudar as regras e parar de funcionar?",
+    "habit": "você responde clientes pelo celular na correria do balcão da loja"
+  },
+  {
+    "id": "P005",
+    "name": "Mateo",
+    "age": 50,
+    "segment": "Afiliado / Operador de Grupos de Ofertas",
+    "income": 33000,
+    "behaviour": "Orientado a conversão e CTR",
+    "behaviour_how": "Mede resultados e cliques; paga ferramentas com prazer se notar aumento real nas vendas.",
+    "objection": "Não sou designer e não sei recortar imagens em 1200x630; vai cortar a cabeça dos meus produtos.",
+    "habit": "você usa o Canva no celular para colocar o preço na foto antes de postar nos grupos"
+  },
+  {
+    "id": "P006",
+    "name": "Idris",
+    "age": 26,
+    "segment": "Afiliado / Operador de Grupos de Ofertas",
+    "income": 55000,
+    "behaviour": "Postador intensivo de ofertas",
+    "behaviour_how": "Posta dezenas de ofertas por dia em múltiplos grupos e precisa de agilidade máxima pelo celular.",
+    "objection": "Quando eu mudo o preço no painel, o WhatsApp atualiza mesmo ou fica a foto antiga em cache nos grupos?",
+    "habit": "você administra três grupos de ofertas e posta promoções todos os dias às 9h e às 18h"
+  },
+  {
+    "id": "P007",
+    "name": "Declan",
+    "age": 44,
+    "segment": "Lojista de E-commerce / Moda / Cosméticos",
+    "income": 86000,
+    "behaviour": "Postador intensivo de ofertas",
+    "behaviour_how": "Posta dezenas de ofertas por dia em múltiplos grupos e precisa de agilidade máxima pelo celular.",
+    "objection": "Quando eu mudo o preço no painel, o WhatsApp atualiza mesmo ou fica a foto antiga em cache nos grupos?",
+    "habit": "você atende clientes no WhatsApp Web pelo notebook enquanto confere estoque e notas fiscais"
+  },
+  {
+    "id": "P008",
+    "name": "Diego",
+    "age": 25,
+    "segment": "Lojista de E-commerce / Moda / Cosméticos",
+    "income": 63000,
+    "behaviour": "Focado em estética de marca",
+    "behaviour_how": "Quer passar imagem profissional de loja grande; odeia poluição visual de links azuis soltos.",
+    "objection": "Eu já mando a foto da galeria e o link no texto de graça, por que pagar R$ 29,90 por mês?",
+    "habit": "você atende clientes no WhatsApp Web pelo notebook enquanto confere estoque e notas fiscais"
+  },
+  {
+    "id": "P009",
+    "name": "Sienna",
+    "age": 49,
+    "segment": "Afiliado / Operador de Grupos de Ofertas",
+    "income": 53000,
+    "behaviour": "Caçador de economia / Cauteloso",
+    "behaviour_how": "Prefere métodos manuais gratuitos (foto avulsa + texto) a assumir custos fixos mensais.",
+    "objection": "E se o WhatsApp não carregar a prévia ou a Meta mudar as regras e parar de funcionar?",
+    "habit": "você divulga links de afiliados no status do WhatsApp todo final de tarde"
+  },
+  {
+    "id": "P010",
+    "name": "Julian",
+    "age": 49,
+    "segment": "Afiliado / Operador de Grupos de Ofertas",
+    "income": 63000,
+    "behaviour": "Caçador de economia / Cauteloso",
+    "behaviour_how": "Prefere métodos manuais gratuitos (foto avulsa + texto) a assumir custos fixos mensais.",
+    "objection": "Quando eu mudo o preço no painel, o WhatsApp atualiza mesmo ou fica a foto antiga em cache nos grupos?",
+    "habit": "você atende clientes no WhatsApp Web pelo notebook enquanto confere estoque e notas fiscais"
+  },
+  {
+    "id": "P011",
+    "name": "Mira",
+    "age": 34,
+    "segment": "Lojista de E-commerce / Moda / Cosméticos",
+    "income": 76000,
+    "behaviour": "Postador intensivo de ofertas",
+    "behaviour_how": "Posta dezenas de ofertas por dia em múltiplos grupos e precisa de agilidade máxima pelo celular.",
+    "objection": "E se o WhatsApp não carregar a prévia ou a Meta mudar as regras e parar de funcionar?",
+    "habit": "você divulga links de afiliados no status do WhatsApp todo final de tarde"
+  },
+  {
+    "id": "P012",
+    "name": "Yusuf",
+    "age": 38,
+    "segment": "Comércio Local / Alimentação / Serviços",
+    "income": 66000,
+    "behaviour": "Orientado a conversão e CTR",
+    "behaviour_how": "Mede resultados e cliques; paga ferramentas com prazer se notar aumento real nas vendas.",
+    "objection": "Meus clientes compram pelo preço e pelo produto, não pela beleza da foto do link.",
+    "habit": "você responde clientes pelo celular na correria do balcão da loja"
+  },
+  {
+    "id": "P013",
+    "name": "Alma",
+    "age": 37,
+    "segment": "Afiliado / Operador de Grupos de Ofertas",
+    "income": 52000,
+    "behaviour": "Postador intensivo de ofertas",
+    "behaviour_how": "Posta dezenas de ofertas por dia em múltiplos grupos e precisa de agilidade máxima pelo celular.",
+    "objection": "Não quero mais uma assinatura mensal fixa pesando nos meus custos todo mês.",
+    "habit": "você administra três grupos de ofertas e posta promoções todos os dias às 9h e às 18h"
+  },
+  {
+    "id": "P014",
+    "name": "Gabriel",
+    "age": 27,
+    "segment": "Lojista de E-commerce / Moda / Cosméticos",
+    "income": 90000,
+    "behaviour": "Apego ao gratuito / Cético",
+    "behaviour_how": "Desconfia de promessas de software e cancela qualquer ferramenta que não mostre retorno imediato.",
+    "objection": "E se o WhatsApp não carregar a prévia ou a Meta mudar as regras e parar de funcionar?",
+    "habit": "você usa o Canva no celular para colocar o preço na foto antes de postar nos grupos"
+  },
+  {
+    "id": "P015",
+    "name": "Emil",
+    "age": 32,
+    "segment": "Lojista de E-commerce / Moda / Cosméticos",
+    "income": 116000,
+    "behaviour": "Pragmático sem tempo",
+    "behaviour_how": "Não tem paciência para tutoriais; só usa se funcionar em 30 segundos sem precisar de suporte.",
+    "objection": "Meus clientes compram pelo preço e pelo produto, não pela beleza da foto do link.",
+    "habit": "você atende clientes no WhatsApp Web pelo notebook enquanto confere estoque e notas fiscais"
+  },
+  {
+    "id": "P016",
+    "name": "Fatima",
+    "age": 51,
+    "segment": "Lojista de E-commerce / Moda / Cosméticos",
+    "income": 114000,
+    "behaviour": "Orientado a conversão e CTR",
+    "behaviour_how": "Mede resultados e cliques; paga ferramentas com prazer se notar aumento real nas vendas.",
+    "objection": "E se o WhatsApp não carregar a prévia ou a Meta mudar as regras e parar de funcionar?",
+    "habit": "você atende clientes no WhatsApp Web pelo notebook enquanto confere estoque e notas fiscais"
+  },
+  {
+    "id": "P017",
+    "name": "Ava",
+    "age": 30,
+    "segment": "Comércio Local / Alimentação / Serviços",
+    "income": 85000,
+    "behaviour": "Caçador de economia / Cauteloso",
+    "behaviour_how": "Prefere métodos manuais gratuitos (foto avulsa + texto) a assumir custos fixos mensais.",
+    "objection": "Tenho medo de o link intermediário parecer vírus e assustar quem clica no celular.",
+    "habit": "você usa o Canva no celular para colocar o preço na foto antes de postar nos grupos"
+  },
+  {
+    "id": "P018",
+    "name": "Jade",
+    "age": 51,
+    "segment": "Lojista de E-commerce / Moda / Cosméticos",
+    "income": 118000,
+    "behaviour": "Focado em estética de marca",
+    "behaviour_how": "Quer passar imagem profissional de loja grande; odeia poluição visual de links azuis soltos.",
+    "objection": "Quando eu mudo o preço no painel, o WhatsApp atualiza mesmo ou fica a foto antiga em cache nos grupos?",
+    "habit": "você responde clientes pelo celular na correria do balcão da loja"
+  },
+  {
+    "id": "P019",
+    "name": "Ravi",
+    "age": 46,
+    "segment": "Afiliado / Operador de Grupos de Ofertas",
+    "income": 44000,
+    "behaviour": "Apego ao gratuito / Cético",
+    "behaviour_how": "Desconfia de promessas de software e cancela qualquer ferramenta que não mostre retorno imediato.",
+    "objection": "Quando eu mudo o preço no painel, o WhatsApp atualiza mesmo ou fica a foto antiga em cache nos grupos?",
+    "habit": "você responde clientes pelo celular na correria do balcão da loja"
+  },
+  {
+    "id": "P020",
+    "name": "June",
+    "age": 47,
+    "segment": "Comércio Local / Alimentação / Serviços",
+    "income": 81000,
+    "behaviour": "Pragmático sem tempo",
+    "behaviour_how": "Não tem paciência para tutoriais; só usa se funcionar em 30 segundos sem precisar de suporte.",
+    "objection": "Tenho medo de o link intermediário parecer vírus e assustar quem clica no celular.",
+    "habit": "você atende clientes no WhatsApp Web pelo notebook enquanto confere estoque e notas fiscais"
+  }
+]

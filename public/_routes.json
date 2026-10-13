@@ -11,6 +11,11 @@
     "/termos/*",
     "/privacidade",
     "/privacidade/*",
+    "/planos",
+    "/planos/*",
+    "/denunciar",
+    "/admin",
+    "/admin/*",
     "/favicon.ico",
     "/"
   ]

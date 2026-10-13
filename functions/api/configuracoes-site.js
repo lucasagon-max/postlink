@@ -1,0 +1,72 @@
+// functions/api/configuracoes-site.js - Cloudflare Pages Function
+// Retorna as configurações públicas do site oficial PostLink (Banner, Título, Descrição, etc.)
+
+const DEFAULT_SUPABASE_URL = 'https://xiicwkagcphvejzycntx.supabase.co';
+const DEFAULT_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpaWN3a2FnY3BodmVqenljbnR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyMjQwOTksImV4cCI6MjEwNjgwMDA5OX0.RyxiEa0aojXvBaJTdIdtk1Sst35-mFDKXb_CTnt7WiA';
+
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
+export async function onRequestOptions() {
+  return new Response(null, {
+    status: 204,
+    headers: CORS_HEADERS,
+  });
+}
+
+export async function onRequestGet({ env }) {
+  const url = env.SUPABASE_URL || DEFAULT_SUPABASE_URL;
+  const key = env.SUPABASE_ANON_KEY || DEFAULT_SUPABASE_ANON_KEY;
+
+  try {
+    const res = await fetch(`${url}/rest/v1/rpc/obter_configuracoes_site`, {
+      method: 'POST',
+      headers: {
+        apikey: key,
+        authorization: `Bearer ${key}`,
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({}),
+    });
+
+    if (!res.ok) {
+      throw new Error(`Supabase RPC retornou status ${res.status}`);
+    }
+
+    const data = await res.json();
+
+    return new Response(JSON.stringify(data || {}), {
+      status: 200,
+      headers: {
+        ...CORS_HEADERS,
+        'Content-Type': 'application/json; charset=utf-8',
+        'Cache-Control': 'public, max-age=60, s-maxage=120, stale-while-revalidate=300',
+      },
+    });
+  } catch (err) {
+    // Fallback gracioso com valores padrão
+    const fallback = {
+      id: 'oficial',
+      titulo: 'Transforme ofertas em cartões em alta definição que abrem sozinhos e vendem no WhatsApp',
+      descricao: 'Quase ninguém baixa fotos avulsas no WhatsApp para não lotar a memória do celular — e mesmo quem baixa não vai a lugar nenhum ao clicar na foto. Com o PostLink, seu produto já aparece aberto na conversa, sem ocupar a galeria do cliente e direcionando para o seu atendimento com 1 clique.',
+      banner_url: null,
+      badge_texto: 'Abre direto no WhatsApp · Zero fotos na galeria do cliente',
+      cta_texto: 'Começar Grátis',
+      cta_url: '/planos/',
+      banner_ativo: true,
+      fallback: true,
+      erro: err.message,
+    };
+
+    return new Response(JSON.stringify(fallback), {
+      status: 200,
+      headers: {
+        ...CORS_HEADERS,
+        'Content-Type': 'application/json; charset=utf-8',
+      },
+    });
+  }
+}

@@ -1,0 +1,180 @@
+{
+  "business": "PostLink (gerador de links com cartão Open Graph em alta definição para WhatsApp)",
+  "seed": 954074,
+  "dealt": 20,
+  "answered": 20,
+  "skipped": [],
+  "buys": 12,
+  "passes": 8,
+  "buy_rate": 0.6,
+  "by_segment": [
+    [
+      "Lojista de E-commerce / Moda / Cosméticos",
+      8,
+      0.875
+    ],
+    [
+      "Comércio Local / Alimentação / Serviços",
+      5,
+      0.6
+    ],
+    [
+      "Afiliado / Operador de Grupos de Ofertas",
+      7,
+      0.2857142857142857
+    ]
+  ],
+  "by_behaviour": [
+    [
+      "Focado em estética de marca",
+      3,
+      1
+    ],
+    [
+      "Postador intensivo de ofertas",
+      5,
+      1
+    ],
+    [
+      "Orientado a conversão e CTR",
+      4,
+      0.5
+    ],
+    [
+      "Apego ao gratuito / Cético",
+      2,
+      0.5
+    ],
+    [
+      "Pragmático sem tempo",
+      2,
+      0.5
+    ],
+    [
+      "Caçador de economia / Cauteloso",
+      4,
+      0
+    ]
+  ],
+  "by_income": [
+    [
+      "R$ 55.000 a R$ 81.000",
+      7,
+      0.8571428571428571
+    ],
+    [
+      "R$ 81.000 ou mais",
+      7,
+      0.5714285714285714
+    ],
+    [
+      "até R$ 55.000",
+      6,
+      0.3333333333333333
+    ]
+  ],
+  "why_not": [
+    [
+      "price",
+      4,
+      [
+        "Já faço de graça mandando a foto da galeria e o link logo abaixo. Ainda acho desnecessário pagar mensalidade se o método gratuito funciona.",
+        "Já faço de graça mandando a foto da galeria e o link logo abaixo. Ainda acho desnecessário pagar mensalidade se o método gratuito funciona."
+      ],
+      [
+        "P002",
+        "P009"
+      ]
+    ],
+    [
+      "trust",
+      2,
+      [
+        "Preciso ver prova de que os cartões dão mais cliques antes de pagar. Sem um case real ou teste comparativo de A/B no grupo, fico com o pé atrás.",
+        "Preciso ver prova de que os cartões dão mais cliques antes de pagar. Sem um case real ou teste comparativo de A/B no grupo, fico com o pé atrás."
+      ],
+      [
+        "P005",
+        "P016"
+      ]
+    ],
+    [
+      "habit",
+      1,
+      [
+        "Estou acostumado com minha rotina e meus clientes já compram pelo meu WhatsApp normal. Não gosto de ferramentas externas."
+      ],
+      [
+        "P019"
+      ]
+    ],
+    [
+      "convenience",
+      1,
+      [
+        "Tenho receio de a tela de redirecionamento demorar mais de 1 segundo e o cliente desistir da compra achando que é vírus ou golpe. No WhatsApp tudo tem que ser imediato."
+      ],
+      [
+        "P020"
+      ]
+    ]
+  ],
+  "why_yes": [
+    [
+      "need",
+      7,
+      [
+        "A garantia incondicional de 14 dias tirou todo o meu risco. Se o relatório de cliques não mostrar aumento de visitas, pego o PIX de volta.",
+        "Com os 50 templates prontos no Canva e garantia de 14 dias, é um tiro certeiro para os meus grupos da Shopee. R$ 19,90/mês se paga nas primeiras vendas."
+      ],
+      [
+        "P001",
+        "P004"
+      ]
+    ],
+    [
+      "quality",
+      3,
+      [
+        "O bônus dos 50 templates Canva no formato 1200x630 resolveu meu maior medo de ter fotos cortadas. Minhas ofertas vão parecer de marca grande no WhatsApp.",
+        "O bônus dos 50 templates Canva no formato 1200x630 resolveu meu maior medo de ter fotos cortadas. Minhas ofertas vão parecer de marca grande no WhatsApp."
+      ],
+      [
+        "P003",
+        "P008"
+      ]
+    ],
+    [
+      "price",
+      1,
+      [
+        "Como dá pra pagar no PIX sem cadastrar cartão e tem garantia de devolução de 14 dias, vou aproveitar o teste e usar os templates prontos."
+      ],
+      [
+        "P014"
+      ]
+    ],
+    [
+      "convenience",
+      1,
+      [
+        "Com os 30 scripts de mensagens e templates prontos, economizo horas de trabalho na semana. Copiei, colei e enviei no grupo em menos de 1 minuto."
+      ],
+      [
+        "P015"
+      ]
+    ]
+  ],
+  "flip": [
+    "Um plano gratuito permanente para até 3 links ou um valor simbólico de R$ 9,90 por mês.",
+    "Relatório comparativo mostrando o ganho de cliques nos 7 dias de teste grátis.",
+    "Um plano gratuito permanente para até 3 links ou um valor simbólico de R$ 9,90 por mês.",
+    "Um plano gratuito permanente para até 3 links ou um valor simbólico de R$ 9,90 por mês.",
+    "Relatório comparativo mostrando o ganho de cliques nos 7 dias de teste grátis.",
+    "Um plano gratuito permanente para até 3 links ou um valor simbólico de R$ 9,90 por mês.",
+    "Pagar apenas por link avulso via PIX sem assinatura recorrente.",
+    "Redirecionamento 100% invisível que abra a loja direto sem nenhuma tela intermediária."
+  ],
+  "purchases_first_month_per_buyer": 1,
+  "price_answers": 20
+}

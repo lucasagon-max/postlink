@@ -22,3 +22,6 @@ Thumbs.db
 # Downloads temporários
 *.crdownload
 
+# MCP e Chaves Locais
+.mcp.json
+

@@ -1,0 +1,13 @@
+{
+  "id": "P054",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "timing",
+  "reason": "Fiquei em dúvida se o WhatsApp não vai segurar a foto velha em cache quando o produto esgotar. Não posso ter cliente reclamando de preço antigo no meu privado.",
+  "objection": "Não quero mais uma assinatura mensal fixa pesando nos meus custos todo mês.",
+  "would_change_my_mind": "Garantia de que a troca de preço no painel atualiza na hora sem bugar o cache do WhatsApp.",
+  "price_too_cheap": 6,
+  "price_cheap": 14,
+  "price_expensive": 44,
+  "price_too_expensive": 84
+}

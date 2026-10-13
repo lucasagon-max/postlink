@@ -8,6 +8,11 @@ const CORS_HEADERS = {
 };
 
 const TABELA_PRECOS = {
+  fundador: {
+    monthly: 19.90,
+    yearly: 199.00,
+    nome: 'Fundador VIP (Pré-Venda)',
+  },
   starter: {
     monthly: 14.90,
     yearly: 118.80,
@@ -123,6 +128,7 @@ export async function onRequestPost({ request, env }) {
             plano,
             ciclo,
           }),
+          notification_url: `${new URL(request.url).origin}/api/mp-webhook`,
           date_of_expiration: expirationDate,
         }),
       });
@@ -215,6 +221,7 @@ export async function onRequestPost({ request, env }) {
             plano,
             ciclo,
           }),
+          notification_url: `${new URL(request.url).origin}/api/mp-webhook`,
           back_urls: {
             success: `${new URL(request.url).origin}/painel/#/conta?pagamento=sucesso`,
             pending: `${new URL(request.url).origin}/painel/#/conta?pagamento=pendente`,

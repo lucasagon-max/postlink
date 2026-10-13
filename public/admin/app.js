@@ -1,5 +1,6 @@
 // public/admin/app.js - Painel Administrativo Executivo do PostLink
 import { getSupabase } from '/assets/js/supabase-config.js';
+import { comprimirImagem } from '/assets/js/compressao.js';
 
 const sb = getSupabase();
 
@@ -9,10 +10,15 @@ const state = {
   dashboard: null,
   lojistas: [],
   topLinks: [],
+  denuncias: [],
   lojistaSelecionado: null,
   filtroStatus: 'todos',
   termoBusca: '',
   abaAtiva: 'visao-geral',
+  siteConfig: null,
+  siteBannerBlob: null,
+  siteBannerPreviewUrl: '',
+  siteBannerRemovido: false,
 };
 
 // Mapeamento de Elementos do DOM
@@ -31,6 +37,11 @@ const el = {
   paneVisaoGeral: document.getElementById('tab-pane-visao-geral'),
   paneLojistas: document.getElementById('tab-pane-lojistas'),
   paneTopLinks: document.getElementById('tab-pane-top-links'),
+  paneDenuncias: document.getElementById('tab-pane-denuncias'),
+  paneSiteOficial: document.getElementById('tab-pane-site-oficial'),
+  tabelaDenunciasBody: document.getElementById('tabela-denuncias-body'),
+  badgeDenuncias: document.getElementById('badge-denuncias-pendentes'),
+  btnRecarregarDenuncias: document.getElementById('btn-recarregar-denuncias'),
 
   // Métricas Faturamento
   valMrr: document.getElementById('val-mrr'),
@@ -78,6 +89,53 @@ const el = {
   modalLojistaTrial: document.getElementById('modal-lojista-trial'),
   modalLojistaLinks: document.getElementById('modal-lojista-links'),
   modalLojistaBtnFechar: document.getElementById('modal-lojista-btn-fechar'),
+
+  // Editor do Site Oficial
+  btnSiteSalvar: document.getElementById('btn-site-salvar'),
+  siteSalvarIcon: document.getElementById('site-salvar-icon'),
+  siteSalvarTexto: document.getElementById('site-salvar-texto'),
+  btnSiteRestaurar: document.getElementById('btn-site-restaurar'),
+  siteStatusTag: document.getElementById('site-status-tag'),
+  siteAuditData: document.getElementById('site-audit-data'),
+  siteAuditUsuario: document.getElementById('site-audit-usuario'),
+  siteSwitchBannerAtivo: document.getElementById('site-switch-banner-ativo'),
+  siteDropzone: document.getElementById('site-dropzone'),
+  siteFileBanner: document.getElementById('site-file-banner'),
+  siteBannerPreviewBox: document.getElementById('site-banner-preview-box'),
+  siteBannerThumb: document.getElementById('site-banner-thumb'),
+  siteBannerInfoNome: document.getElementById('site-banner-info-nome'),
+  siteBannerInfoDetalhe: document.getElementById('site-banner-info-detalhe'),
+  btnTrocarBanner: document.getElementById('btn-trocar-banner'),
+  btnRemoverBanner: document.getElementById('btn-remover-banner'),
+  siteInputBannerUrl: document.getElementById('site-input-banner-url'),
+  btnAplicarUrlBanner: document.getElementById('btn-aplicar-url-banner'),
+  siteInputBadge: document.getElementById('site-input-badge'),
+  siteInputTitulo: document.getElementById('site-input-titulo'),
+  siteTituloContador: document.getElementById('site-titulo-contador'),
+  siteInputDescricao: document.getElementById('site-input-descricao'),
+  siteDescContador: document.getElementById('site-desc-contador'),
+  siteInputCtaTexto: document.getElementById('site-input-cta-texto'),
+  siteInputCtaUrl: document.getElementById('site-input-cta-url'),
+
+  // Prévia do Site Oficial
+  btnPreviewTabHero: document.getElementById('btn-preview-tab-hero'),
+  btnPreviewTabWa: document.getElementById('btn-preview-tab-wa'),
+  previewFrameHero: document.getElementById('preview-frame-hero'),
+  previewFrameWa: document.getElementById('preview-frame-wa'),
+  prevHeroBadgeWrap: document.getElementById('prev-hero-badge-wrap'),
+  prevHeroBadge: document.getElementById('prev-hero-badge'),
+  prevHeroTitulo: document.getElementById('prev-hero-titulo'),
+  prevHeroDescricao: document.getElementById('prev-hero-descricao'),
+  prevHeroBannerContainer: document.getElementById('prev-hero-banner-container'),
+  prevHeroBannerImg: document.getElementById('prev-hero-banner-img'),
+  prevHeroBannerPlaceholder: document.getElementById('prev-hero-banner-placeholder'),
+  prevHeroBannerTag: document.getElementById('prev-hero-banner-tag'),
+  prevHeroCtaTexto: document.getElementById('prev-hero-cta-texto'),
+  prevHeroTopCta: document.getElementById('prev-hero-top-cta'),
+  prevWaImg: document.getElementById('prev-wa-img'),
+  prevWaPlaceholder: document.getElementById('prev-wa-placeholder'),
+  prevWaTitulo: document.getElementById('prev-wa-titulo'),
+  prevWaDescricao: document.getElementById('prev-wa-descricao'),
 };
 
 // Utilitário de Toast
@@ -147,6 +205,8 @@ async function carregarTudo() {
     carregarDashboard(),
     carregarLojistas(),
     carregarTopLinks(),
+    carregarDenuncias(),
+    carregarConfiguracoesSite(),
   ]);
 }
 
@@ -427,6 +487,158 @@ document.querySelectorAll('.btn-acao-rapida').forEach((btn) => {
   });
 });
 
+// 4. CARREGAR E GERENCIAR DENÚNCIAS (NOTICE & TAKEDOWN)
+async function carregarDenuncias() {
+  try {
+    const { data, error } = await sb.rpc('admin_obter_denuncias', {
+      p_status: 'todas',
+      p_limite: 50,
+    });
+    if (error) throw error;
+    let lista = data;
+    if (typeof lista === 'string') {
+      try { lista = JSON.parse(lista); } catch (e) { lista = []; }
+    }
+    state.denuncias = Array.isArray(lista) ? lista : [];
+    renderizarTabelaDenuncias();
+  } catch (err) {
+    console.error('Erro denuncias:', err);
+  }
+}
+
+function renderizarTabelaDenuncias() {
+  if (!el.tabelaDenunciasBody) return;
+  const lista = state.denuncias;
+
+  // Atualiza badge de pendentes
+  const pendentes = lista.filter((d) => d.status === 'pendente').length;
+  if (el.badgeDenuncias) {
+    if (pendentes > 0) {
+      el.badgeDenuncias.textContent = pendentes;
+      el.badgeDenuncias.classList.remove('hidden');
+    } else {
+      el.badgeDenuncias.classList.add('hidden');
+    }
+  }
+
+  if (lista.length === 0) {
+    el.tabelaDenunciasBody.innerHTML = `
+      <tr>
+        <td colspan="6" class="py-12 text-center text-outline">
+          <span class="material-symbols-outlined text-3xl mb-1 text-secondary">verified_user</span>
+          <p class="font-medium text-xs">Nenhuma denúncia registrada no momento.</p>
+          <span class="text-[11px]">A plataforma opera com 100% de conformidade.</span>
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  const MOTIVOS_LABELS = {
+    golpe_fraude: { label: 'Golpe / Fraude', bg: 'bg-error-container', text: 'text-on-error-container' },
+    phishing: { label: 'Phishing / Clone', bg: 'bg-error-container', text: 'text-on-error-container' },
+    direitos_autorais: { label: 'Direitos Autorais', bg: 'bg-surface-container', text: 'text-primary' },
+    produto_proibido: { label: 'Produto Proibido', bg: 'bg-surface-container', text: 'text-error' },
+    malware_virus: { label: 'Malware / Vírus', bg: 'bg-error-container', text: 'text-on-error-container' },
+    outro: { label: 'Outro', bg: 'bg-surface-container-high', text: 'text-on-surface-variant' },
+  };
+
+  const STATUS_BADGES = {
+    pendente: 'bg-error-container text-on-error-container font-bold',
+    bloqueado: 'bg-secondary-container text-on-secondary-container font-semibold',
+    banido: 'bg-error text-white font-bold',
+    descartado: 'bg-surface-container text-outline',
+  };
+
+  el.tabelaDenunciasBody.innerHTML = lista.map((d) => {
+    const configMotivo = MOTIVOS_LABELS[d.motivo] || { label: d.motivo || 'Geral', bg: 'bg-surface-container-high', text: 'text-on-surface' };
+    const statusClass = STATUS_BADGES[d.status] || 'bg-surface-container text-outline';
+    const isResolvido = d.status !== 'pendente';
+
+    return `
+      <tr class="hover:bg-surface-container-low transition-colors">
+        <td class="py-3 px-4">
+          <span class="inline-block px-2 py-0.5 rounded-full text-[10px] uppercase ${statusClass}">
+            ${d.status}
+          </span>
+          <div class="text-[10px] text-outline mt-1 font-mono">${formatarData(d.criado_em)}</div>
+        </td>
+        <td class="py-3 px-4">
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold ${configMotivo.bg} ${configMotivo.text}">
+            ${configMotivo.label}
+          </span>
+        </td>
+        <td class="py-3 px-4 max-w-xs truncate font-mono text-[11px]" title="${d.url_denunciada || ''}">
+          <a href="${d.url_denunciada || '#'}" target="_blank" class="text-primary hover:underline flex items-center gap-1">
+            <span class="truncate">${d.url_denunciada || 'Sem URL'}</span>
+            <span class="material-symbols-outlined text-xs">open_in_new</span>
+          </a>
+        </td>
+        <td class="py-3 px-4 text-[11px]">
+          ${d.loja_nome ? `
+            <div class="font-bold text-on-surface">${d.loja_nome}</div>
+            <div class="text-outline font-mono text-[10px]">/${d.loja_slug}/${d.link_slug || ''}</div>
+            ${d.destino ? `<a href="${d.destino}" target="_blank" class="text-outline hover:text-primary truncate block max-w-xs text-[10px]">${d.destino}</a>` : ''}
+          ` : '<span class="text-outline italic">Link avulso / não localizado</span>'}
+        </td>
+        <td class="py-3 px-4 max-w-xs text-[11px] text-on-surface-variant leading-tight">
+          <p class="line-clamp-2" title="${d.descricao || ''}">${d.descricao || '<span class="text-outline italic">Sem relato</span>'}</p>
+          ${d.email_denunciante ? `<span class="text-[10px] text-outline block mt-0.5 font-mono">Contato: ${d.email_denunciante}</span>` : ''}
+        </td>
+        <td class="py-3 px-4 text-right">
+          ${isResolvido ? `
+            <span class="text-[11px] text-outline font-semibold">Resolvido</span>
+          ` : `
+            <div class="flex items-center justify-end gap-1.5">
+              ${d.link_id ? `
+                <button type="button" class="btn-acao-denuncia px-2 py-1 rounded-lg bg-error hover:bg-error/90 text-white text-[11px] font-bold shadow-2xs transition-all active:scale-95" data-id="${d.denuncia_id}" data-acao="bloquear_link">
+                  Bloquear Link
+                </button>
+              ` : ''}
+              ${d.loja_id ? `
+                <button type="button" class="btn-acao-denuncia px-2 py-1 rounded-lg bg-surface-container-high hover:bg-error-container text-on-surface hover:text-error text-[11px] font-bold border border-outline-variant/60 transition-all active:scale-95" data-id="${d.denuncia_id}" data-acao="banir_loja">
+                  Banir Loja
+                </button>
+              ` : ''}
+              <button type="button" class="btn-acao-denuncia px-2 py-1 rounded-lg bg-surface-container hover:bg-surface-container-high text-outline hover:text-on-surface text-[11px] font-medium transition-all" data-id="${d.denuncia_id}" data-acao="descartar">
+                Descartar
+              </button>
+            </div>
+          `}
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  // Eventos de clique nas ações de denúncia
+  el.tabelaDenunciasBody.querySelectorAll('.btn-acao-denuncia').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const id = btn.dataset.id;
+      const acao = btn.dataset.acao;
+      const confirmMsg = acao === 'banir_loja'
+        ? 'Tem certeza que deseja BANIR esta loja e desativar todos os links dela?'
+        : (acao === 'bloquear_link' ? 'Deseja desativar este link imediatamente?' : 'Deseja descartar esta denúncia?');
+
+      if (!confirm(confirmMsg)) return;
+
+      btn.disabled = true;
+      try {
+        const { error } = await sb.rpc('admin_resolver_denuncia', {
+          p_denuncia_id: parseInt(id, 10),
+          p_acao: acao,
+        });
+        if (error) throw error;
+        toast('Ação executada com sucesso!', 'success');
+        await carregarDenuncias();
+        await carregarLojistas();
+      } catch (err) {
+        toast('Erro ao processar: ' + err.message, 'error');
+        btn.disabled = false;
+      }
+    });
+  });
+}
+
 // 5. NAVEGAÇÃO DE ABAS
 function configurarNavegacao() {
   el.tabBtns.forEach((btn) => {
@@ -442,8 +654,23 @@ function configurarNavegacao() {
       if (el.paneVisaoGeral) el.paneVisaoGeral.classList.toggle('hidden', tab !== 'visao-geral');
       if (el.paneLojistas) el.paneLojistas.classList.toggle('hidden', tab !== 'lojistas');
       if (el.paneTopLinks) el.paneTopLinks.classList.toggle('hidden', tab !== 'top-links');
+      if (el.paneDenuncias) el.paneDenuncias.classList.toggle('hidden', tab !== 'denuncias');
+      if (el.paneSiteOficial) el.paneSiteOficial.classList.toggle('hidden', tab !== 'site-oficial');
+
+      if (tab === 'site-oficial' && !state.siteConfig) {
+        carregarConfiguracoesSite();
+      }
     });
   });
+
+  if (el.btnRecarregarDenuncias) {
+    el.btnRecarregarDenuncias.addEventListener('click', async () => {
+      el.btnRecarregarDenuncias.disabled = true;
+      toast('Recarregando denúncias…', 'info');
+      await carregarDenuncias();
+      el.btnRecarregarDenuncias.disabled = false;
+    });
+  }
 
   // Filtros de Status dos Lojistas
   document.querySelectorAll('.filtro-lojista-chip').forEach((chip) => {
@@ -487,6 +714,479 @@ function configurarNavegacao() {
   };
   if (el.btnLogout) el.btnLogout.addEventListener('click', fazerLogout);
   if (el.btnLogoutNegado) el.btnLogoutNegado.addEventListener('click', fazerLogout);
+
+  configurarEventosEditorSite();
+}
+
+// ==========================================
+// 6. EDITOR DO SITE OFICIAL (POSTLINK)
+// ==========================================
+
+// Carrega as configurações do site oficial do Supabase
+async function carregarConfiguracoesSite() {
+  try {
+    const { data, error } = await sb.rpc('obter_configuracoes_site');
+    if (error) throw error;
+
+    state.siteConfig = data || {
+      id: 'oficial',
+      titulo: 'Transforme ofertas em cartões em alta definição que abrem sozinhos e vendem no WhatsApp',
+      descricao: 'Quase ninguém baixa fotos avulsas no WhatsApp para não lotar a memória do celular — e mesmo quem baixa não vai a lugar nenhum ao clicar na foto. Com o PostLink, seu produto já aparece aberto na conversa, sem ocupar a galeria do cliente e direcionando para o seu atendimento com 1 clique.',
+      banner_url: null,
+      badge_texto: 'Abre direto no WhatsApp · Zero fotos na galeria do cliente',
+      cta_texto: 'Começar Grátis',
+      cta_url: '/planos/',
+      banner_ativo: true,
+      atualizado_em: new Date().toISOString(),
+      atualizado_por: 'sistema',
+    };
+
+    preencherFormularioSite(state.siteConfig);
+    atualizarAuditoriaSite(state.siteConfig);
+    atualizarLivePreviewSite();
+  } catch (err) {
+    console.error('Erro ao carregar configurações do site:', err);
+    toast('Não foi possível carregar as configurações do site: ' + err.message, 'error');
+  }
+}
+
+// Preenche os inputs com o objeto de dados
+function preencherFormularioSite(dados) {
+  if (!dados) return;
+
+  if (el.siteInputBadge) el.siteInputBadge.value = dados.badge_texto || '';
+  if (el.siteInputTitulo) el.siteInputTitulo.value = dados.titulo || '';
+  if (el.siteInputDescricao) el.siteInputDescricao.value = dados.descricao || '';
+  if (el.siteInputCtaTexto) el.siteInputCtaTexto.value = dados.cta_texto || 'Começar Grátis';
+  if (el.siteInputCtaUrl) el.siteInputCtaUrl.value = dados.cta_url || '/planos/';
+  if (el.siteSwitchBannerAtivo) el.siteSwitchBannerAtivo.checked = dados.banner_ativo !== false;
+
+  // Miniatura do banner atual
+  if (dados.banner_url && !state.siteBannerRemovido) {
+    if (el.siteBannerPreviewBox) el.siteBannerPreviewBox.classList.remove('hidden');
+    if (el.siteBannerThumb) el.siteBannerThumb.src = dados.banner_url;
+    if (el.siteBannerInfoNome) el.siteBannerInfoNome.textContent = 'Banner Oficial Ativo';
+    if (el.siteBannerInfoDetalhe) el.siteBannerInfoDetalhe.textContent = 'Armazenado no CDN · Alta Definição';
+    if (el.siteInputBannerUrl) el.siteInputBannerUrl.value = dados.banner_url;
+  } else if (!state.siteBannerBlob) {
+    if (el.siteBannerPreviewBox) el.siteBannerPreviewBox.classList.add('hidden');
+    if (el.siteBannerThumb) el.siteBannerThumb.src = '';
+    if (el.siteInputBannerUrl) el.siteInputBannerUrl.value = '';
+  }
+
+  atualizarContadoresTextos();
+}
+
+// Atualiza contadores numéricos de caracteres
+function atualizarContadoresTextos() {
+  if (el.siteInputTitulo && el.siteTituloContador) {
+    const len = el.siteInputTitulo.value.length;
+    el.siteTituloContador.textContent = `${len} / 120`;
+    el.siteTituloContador.className = len > 120
+      ? 'text-[10px] font-mono text-error font-bold'
+      : (len > 90 ? 'text-[10px] font-mono text-amber-500 font-semibold' : 'text-[10px] font-mono text-outline font-semibold');
+  }
+
+  if (el.siteInputDescricao && el.siteDescContador) {
+    const len = el.siteInputDescricao.value.length;
+    el.siteDescContador.textContent = `${len} / 300`;
+    el.siteDescContador.className = len > 300
+      ? 'text-[10px] font-mono text-error font-bold'
+      : (len > 250 ? 'text-[10px] font-mono text-amber-500 font-semibold' : 'text-[10px] font-mono text-outline font-semibold');
+  }
+}
+
+// Atualiza informações de auditoria
+function atualizarAuditoriaSite(dados) {
+  if (!dados) return;
+  if (el.siteAuditData) {
+    el.siteAuditData.textContent = dados.atualizado_em ? `${formatarData(dados.atualizado_em)} às ${new Date(dados.atualizado_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}` : 'Hoje';
+  }
+  if (el.siteAuditUsuario) {
+    el.siteAuditUsuario.textContent = dados.atualizado_por || (state.user ? state.user.email : 'admin');
+  }
+  if (el.siteStatusTag) {
+    el.siteStatusTag.textContent = 'Sincronizado';
+    el.siteStatusTag.className = 'inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-200 text-[11px] font-semibold border border-emerald-400/30';
+  }
+}
+
+// Atualiza ambas as prévias (Hero e WhatsApp Card) em tempo real
+function atualizarLivePreviewSite() {
+  const titulo = (el.siteInputTitulo?.value || '').trim() || 'PostLink · Smart Links em Alta Definição';
+  const descricao = (el.siteInputDescricao?.value || '').trim() || 'Transforme seus links em cartões visuais para WhatsApp.';
+  const badgeTexto = (el.siteInputBadge?.value || '').trim();
+  const ctaTexto = (el.siteInputCtaTexto?.value || '').trim() || 'Começar Grátis';
+  const bannerAtivo = el.siteSwitchBannerAtivo ? el.siteSwitchBannerAtivo.checked : true;
+
+  // Imagem do banner prioritária
+  let bannerImg = '';
+  if (!state.siteBannerRemovido) {
+    if (state.siteBannerPreviewUrl) {
+      bannerImg = state.siteBannerPreviewUrl;
+    } else if (el.siteInputBannerUrl && el.siteInputBannerUrl.value.trim()) {
+      bannerImg = el.siteInputBannerUrl.value.trim();
+    } else if (state.siteConfig && state.siteConfig.banner_url) {
+      bannerImg = state.siteConfig.banner_url;
+    }
+  }
+
+  // 1. Prévia da Hero
+  if (el.prevHeroTitulo) el.prevHeroTitulo.textContent = titulo;
+  if (el.prevHeroDescricao) el.prevHeroDescricao.textContent = descricao;
+  if (el.prevHeroBadge) el.prevHeroBadge.textContent = badgeTexto || 'Smart Links';
+  if (el.prevHeroBadgeWrap) el.prevHeroBadgeWrap.style.display = badgeTexto ? 'inline-flex' : 'none';
+  if (el.prevHeroCtaTexto) el.prevHeroCtaTexto.textContent = ctaTexto;
+  if (el.prevHeroTopCta) el.prevHeroTopCta.textContent = ctaTexto;
+
+  // Banner da Hero
+  if (bannerAtivo && bannerImg) {
+    if (el.prevHeroBannerContainer) el.prevHeroBannerContainer.classList.remove('hidden');
+    if (el.prevHeroBannerImg) {
+      el.prevHeroBannerImg.src = bannerImg;
+      el.prevHeroBannerImg.classList.remove('hidden');
+    }
+    if (el.prevHeroBannerPlaceholder) el.prevHeroBannerPlaceholder.classList.add('hidden');
+    if (el.prevHeroBannerTag) el.prevHeroBannerTag.classList.remove('hidden');
+  } else {
+    if (!bannerAtivo) {
+      if (el.prevHeroBannerContainer) el.prevHeroBannerContainer.classList.add('hidden');
+    } else {
+      if (el.prevHeroBannerContainer) el.prevHeroBannerContainer.classList.remove('hidden');
+      if (el.prevHeroBannerImg) el.prevHeroBannerImg.classList.add('hidden');
+      if (el.prevHeroBannerPlaceholder) el.prevHeroBannerPlaceholder.classList.remove('hidden');
+      if (el.prevHeroBannerTag) el.prevHeroBannerTag.classList.add('hidden');
+    }
+  }
+
+  // 2. Prévia do WhatsApp Card
+  if (el.prevWaTitulo) el.prevWaTitulo.textContent = titulo;
+  if (el.prevWaDescricao) el.prevWaDescricao.textContent = descricao;
+
+  if (bannerImg) {
+    if (el.prevWaImg) {
+      el.prevWaImg.src = bannerImg;
+      el.prevWaImg.classList.remove('hidden');
+    }
+    if (el.prevWaPlaceholder) el.prevWaPlaceholder.classList.add('hidden');
+  } else {
+    if (el.prevWaImg) el.prevWaImg.classList.add('hidden');
+    if (el.prevWaPlaceholder) el.prevWaPlaceholder.classList.remove('hidden');
+  }
+
+  // Marca status tag como "Edições Pendentes"
+  if (el.siteStatusTag && state.siteConfig) {
+    el.siteStatusTag.textContent = 'Alterações não salvas';
+    el.siteStatusTag.className = 'inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-200 text-[11px] font-semibold border border-amber-400/30';
+  }
+}
+
+// Otimiza e processa arquivo de imagem do banner
+async function tratarArquivoBannerSite(file) {
+  if (!file) return;
+  if (!file.type.startsWith('image/')) {
+    toast('Por favor, selecione uma imagem válida (JPEG, PNG ou WebP).', 'error');
+    return;
+  }
+
+  try {
+    toast('Otimizando imagem para alta definição (1200px HD)…', 'info');
+    const tamanhoOriginalKB = Math.round(file.size / 1024);
+    const blob = await comprimirImagem(file, { larguraMax: 1200, alvoKB: 300 });
+
+    state.siteBannerBlob = blob;
+    state.siteBannerRemovido = false;
+
+    if (state.siteBannerPreviewUrl && state.siteBannerPreviewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(state.siteBannerPreviewUrl);
+    }
+    state.siteBannerPreviewUrl = URL.createObjectURL(blob);
+
+    const tamanhoFinalKB = Math.round(blob.size / 1024);
+    const economia = Math.max(0, Math.round(((tamanhoOriginalKB - tamanhoFinalKB) / (tamanhoOriginalKB || 1)) * 100));
+
+    if (el.siteBannerPreviewBox) el.siteBannerPreviewBox.classList.remove('hidden');
+    if (el.siteBannerThumb) el.siteBannerThumb.src = state.siteBannerPreviewUrl;
+    if (el.siteBannerInfoNome) el.siteBannerInfoNome.textContent = file.name;
+    if (el.siteBannerInfoDetalhe) {
+      el.siteBannerInfoDetalhe.textContent = `${tamanhoOriginalKB}KB → ${tamanhoFinalKB}KB (-${economia}%) · Proporção HD Otimizada`;
+    }
+
+    if (el.siteInputBannerUrl) el.siteInputBannerUrl.value = '';
+
+    atualizarLivePreviewSite();
+    toast('Banner processado! Clique em "Salvar Alterações" para aplicar.', 'success');
+  } catch (err) {
+    console.error('Erro na compressão:', err);
+    toast('Erro ao processar imagem: ' + err.message, 'error');
+  }
+}
+
+// Salva as alterações no Supabase
+async function salvarConfiguracoesSite() {
+  if (!el.btnSiteSalvar) return;
+
+  const titulo = (el.siteInputTitulo?.value || '').trim();
+  const descricao = (el.siteInputDescricao?.value || '').trim();
+  const badgeTexto = (el.siteInputBadge?.value || '').trim();
+  const ctaTexto = (el.siteInputCtaTexto?.value || '').trim();
+  const ctaUrl = (el.siteInputCtaUrl?.value || '').trim();
+  const bannerAtivo = el.siteSwitchBannerAtivo ? el.siteSwitchBannerAtivo.checked : true;
+
+  if (!titulo) {
+    toast('O título principal não pode ficar em branco.', 'error');
+    if (el.siteInputTitulo) el.siteInputTitulo.focus();
+    return;
+  }
+
+  el.btnSiteSalvar.disabled = true;
+  if (el.siteSalvarIcon) {
+    el.siteSalvarIcon.textContent = 'progress_activity';
+    el.siteSalvarIcon.classList.add('animate-spin');
+  }
+  if (el.siteSalvarTexto) el.siteSalvarTexto.textContent = 'Salvando…';
+
+  try {
+    // Assegura sessão ativa e atualizada
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session || !session.user) {
+      toast('Sessão expirada. Faça login novamente.', 'error');
+      window.location.href = '/login/';
+      return;
+    }
+    state.user = session.user;
+
+    let bannerUrl = state.siteConfig ? state.siteConfig.banner_url : null;
+
+    if (state.siteBannerRemovido) {
+      bannerUrl = null;
+    }
+
+    const urlManual = (el.siteInputBannerUrl?.value || '').trim();
+    if (urlManual && !state.siteBannerBlob) {
+      bannerUrl = urlManual;
+    }
+
+    if (state.siteBannerBlob) {
+      toast('Enviando banner em alta resolução para o CDN…', 'info');
+      const nomeArquivo = `${state.user.id}/site_banner_${Date.now()}.jpg`;
+
+      const { error: errUpload } = await sb.storage
+        .from('banners')
+        .upload(nomeArquivo, state.siteBannerBlob, {
+          contentType: 'image/jpeg',
+          upsert: true,
+        });
+
+      if (errUpload) {
+        console.error('Erro no upload do banner:', errUpload);
+        throw new Error(`Falha no upload da imagem (${errUpload.message || 'permissão negada'})`);
+      }
+
+      const { data: urlData } = sb.storage.from('banners').getPublicUrl(nomeArquivo);
+      bannerUrl = urlData.publicUrl;
+    }
+
+    const { data: resRpc, error: errRpc } = await sb.rpc('admin_salvar_configuracoes_site', {
+      p_titulo: titulo,
+      p_descricao: descricao,
+      p_banner_url: bannerUrl,
+      p_badge_texto: badgeTexto,
+      p_cta_texto: ctaTexto,
+      p_cta_url: ctaUrl,
+      p_banner_ativo: bannerAtivo,
+    });
+
+    if (errRpc) throw errRpc;
+
+    state.siteConfig = (resRpc && resRpc.dados) ? resRpc.dados : {
+      titulo,
+      descricao,
+      banner_url: bannerUrl,
+      badge_texto: badgeTexto,
+      cta_texto: ctaTexto,
+      cta_url: ctaUrl,
+      banner_ativo: bannerAtivo,
+      atualizado_em: new Date().toISOString(),
+      atualizado_por: state.user ? state.user.email : 'admin',
+    };
+
+    state.siteBannerBlob = null;
+    state.siteBannerRemovido = false;
+
+    atualizarAuditoriaSite(state.siteConfig);
+    preencherFormularioSite(state.siteConfig);
+    atualizarLivePreviewSite();
+
+    try {
+      localStorage.setItem('postlink_site_config', JSON.stringify(state.siteConfig));
+    } catch (_) {}
+
+    toast('Configurações do site oficial atualizadas com sucesso! ✨', 'success');
+  } catch (err) {
+    console.error('Erro ao salvar site:', err);
+    toast('Erro ao salvar: ' + (err.message || err), 'error');
+  } finally {
+    el.btnSiteSalvar.disabled = false;
+    if (el.siteSalvarIcon) {
+      el.siteSalvarIcon.textContent = 'save';
+      el.siteSalvarIcon.classList.remove('animate-spin');
+    }
+    if (el.siteSalvarTexto) el.siteSalvarTexto.textContent = 'Salvar Alterações';
+  }
+}
+
+// Restaura os padrões de fábrica do PostLink
+function restaurarPadraoSite() {
+  const padrao = {
+    titulo: 'Transforme ofertas em cartões em alta definição que abrem sozinhos e vendem no WhatsApp',
+    descricao: 'Quase ninguém baixa fotos avulsas no WhatsApp para não lotar a memória do celular — e mesmo quem baixa não vai a lugar nenhum ao clicar na foto. Com o PostLink, seu produto já aparece aberto na conversa, sem ocupar a galeria do cliente e direcionando para o seu atendimento com 1 clique.',
+    badge_texto: 'Abre direto no WhatsApp · Zero fotos na galeria do cliente',
+    cta_texto: 'Começar Grátis',
+    cta_url: '/planos/',
+    banner_url: null,
+    banner_ativo: true,
+  };
+
+  if (!confirm('Deseja restaurar os textos padrão originais do PostLink? (Clique em Salvar Alterações após confirmar para gravar)')) {
+    return;
+  }
+
+  state.siteBannerBlob = null;
+  state.siteBannerRemovido = true;
+  if (state.siteBannerPreviewUrl && state.siteBannerPreviewUrl.startsWith('blob:')) {
+    URL.revokeObjectURL(state.siteBannerPreviewUrl);
+  }
+  state.siteBannerPreviewUrl = '';
+
+  preencherFormularioSite(padrao);
+  atualizarLivePreviewSite();
+  toast('Textos padrão restaurados na tela. Clique em "Salvar Alterações" para publicar.', 'info');
+}
+
+// Configura todos os ouvintes de eventos da aba do Site Oficial
+function configurarEventosEditorSite() {
+  // Inputs com sincronização de Live Preview
+  if (el.siteInputBadge) el.siteInputBadge.addEventListener('input', atualizarLivePreviewSite);
+  if (el.siteInputTitulo) {
+    el.siteInputTitulo.addEventListener('input', () => {
+      atualizarContadoresTextos();
+      atualizarLivePreviewSite();
+    });
+  }
+  if (el.siteInputDescricao) {
+    el.siteInputDescricao.addEventListener('input', () => {
+      atualizarContadoresTextos();
+      atualizarLivePreviewSite();
+    });
+  }
+  if (el.siteInputCtaTexto) el.siteInputCtaTexto.addEventListener('input', atualizarLivePreviewSite);
+  if (el.siteSwitchBannerAtivo) el.siteSwitchBannerAtivo.addEventListener('change', atualizarLivePreviewSite);
+
+  // Dropzone e Upload de Imagem
+  if (el.siteDropzone) {
+    ['dragenter', 'dragover'].forEach((eventName) => {
+      el.siteDropzone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        el.siteDropzone.classList.add('border-primary', 'bg-primary/5');
+      });
+    });
+
+    ['dragleave', 'drop'].forEach((eventName) => {
+      el.siteDropzone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        el.siteDropzone.classList.remove('border-primary', 'bg-primary/5');
+      });
+    });
+
+    el.siteDropzone.addEventListener('drop', (e) => {
+      const dt = e.dataTransfer;
+      if (dt && dt.files && dt.files.length > 0) {
+        tratarArquivoBannerSite(dt.files[0]);
+      }
+    });
+
+    el.siteDropzone.addEventListener('click', (e) => {
+      if (e.target !== el.siteFileBanner && el.siteFileBanner) {
+        el.siteFileBanner.click();
+      }
+    });
+  }
+
+  if (el.siteFileBanner) {
+    el.siteFileBanner.addEventListener('change', () => {
+      if (el.siteFileBanner.files && el.siteFileBanner.files.length > 0) {
+        tratarArquivoBannerSite(el.siteFileBanner.files[0]);
+      }
+    });
+  }
+
+  if (el.btnTrocarBanner && el.siteFileBanner) {
+    el.btnTrocarBanner.addEventListener('click', () => {
+      el.siteFileBanner.click();
+    });
+  }
+
+  if (el.btnRemoverBanner) {
+    el.btnRemoverBanner.addEventListener('click', () => {
+      state.siteBannerBlob = null;
+      state.siteBannerRemovido = true;
+      if (state.siteBannerPreviewUrl && state.siteBannerPreviewUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(state.siteBannerPreviewUrl);
+      }
+      state.siteBannerPreviewUrl = '';
+
+      if (el.siteBannerPreviewBox) el.siteBannerPreviewBox.classList.add('hidden');
+      if (el.siteBannerThumb) el.siteBannerThumb.src = '';
+      if (el.siteInputBannerUrl) el.siteInputBannerUrl.value = '';
+      if (el.siteFileBanner) el.siteFileBanner.value = '';
+
+      atualizarLivePreviewSite();
+      toast('Banner removido da prévia. Salve para aplicar no site.', 'info');
+    });
+  }
+
+  if (el.btnAplicarUrlBanner && el.siteInputBannerUrl) {
+    el.btnAplicarUrlBanner.addEventListener('click', () => {
+      const val = el.siteInputBannerUrl.value.trim();
+      if (!val) {
+        toast('Digite uma URL de imagem válida.', 'info');
+        return;
+      }
+      state.siteBannerBlob = null;
+      state.siteBannerRemovido = false;
+      state.siteBannerPreviewUrl = val;
+
+      if (el.siteBannerPreviewBox) el.siteBannerPreviewBox.classList.remove('hidden');
+      if (el.siteBannerThumb) el.siteBannerThumb.src = val;
+      if (el.siteBannerInfoNome) el.siteBannerInfoNome.textContent = 'Imagem externa por URL';
+      if (el.siteBannerInfoDetalhe) el.siteBannerInfoDetalhe.textContent = val.slice(0, 40) + '…';
+
+      atualizarLivePreviewSite();
+      toast('URL aplicada na prévia!', 'success');
+    });
+  }
+
+  // Alternância entre prévia Hero e WhatsApp Card
+  if (el.btnPreviewTabHero && el.btnPreviewTabWa) {
+    el.btnPreviewTabHero.addEventListener('click', () => {
+      if (el.previewFrameHero) el.previewFrameHero.classList.remove('hidden');
+      if (el.previewFrameWa) el.previewFrameWa.classList.add('hidden');
+      el.btnPreviewTabHero.className = 'px-2.5 py-1 rounded-md font-bold transition-all bg-surface-container-lowest text-primary shadow-2xs';
+      el.btnPreviewTabWa.className = 'px-2.5 py-1 rounded-md font-medium transition-all text-on-surface-variant hover:text-on-surface';
+    });
+
+    el.btnPreviewTabWa.addEventListener('click', () => {
+      if (el.previewFrameWa) el.previewFrameWa.classList.remove('hidden');
+      if (el.previewFrameHero) el.previewFrameHero.classList.add('hidden');
+      el.btnPreviewTabWa.className = 'px-2.5 py-1 rounded-md font-bold transition-all bg-surface-container-lowest text-primary shadow-2xs';
+      el.btnPreviewTabHero.className = 'px-2.5 py-1 rounded-md font-medium transition-all text-on-surface-variant hover:text-on-surface';
+    });
+  }
+
+  // Botões de Ação
+  if (el.btnSiteSalvar) el.btnSiteSalvar.addEventListener('click', salvarConfiguracoesSite);
+  if (el.btnSiteRestaurar) el.btnSiteRestaurar.addEventListener('click', restaurarPadraoSite);
 }
 
 // Inicia

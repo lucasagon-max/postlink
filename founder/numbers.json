@@ -1,0 +1,25 @@
+{
+  "business": "PostLink",
+  "unit": "assinatura_mensal",
+  "price": 29.90,
+  "variable": [
+    {"label": "Taxa Gateway de Pagamento (Mercado Pago Pix/Cartão)", "cost": 1.49},
+    {"label": "Infraestrutura Cloudflare (Pages + Edge Functions)", "cost": 0.15},
+    {"label": "Banco de Dados & Storage (Supabase Postgres/Storage)", "cost": 0.40},
+    {"label": "Impostos provisionados (MEI / Simples Nacional ~6%)", "cost": 1.80}
+  ],
+  "fixed_monthly": [
+    {"label": "Domínio .com.br e serviços DNS", "cost": 15.00},
+    {"label": "Ferramentas de Suporte e E-mail", "cost": 45.00},
+    {"label": "Supabase Pro (reserva de escala e backup)", "cost": 140.00}
+  ],
+  "startup": [
+    {"label": "Registro de Marca INPI (taxa federal para ME)", "cost": 355.00},
+    {"label": "Registro de Domínio .com.br (1 ano)", "cost": 40.00},
+    {"label": "Fundo de contingência e testes", "cost": 200.00}
+  ],
+  "days_per_month": 30,
+  "capacity_per_day": 50,
+  "plan_per_day": 3.33,
+  "ramp_per_day": [0.33, 0.83, 1.33, 2.00, 2.67, 3.33, 4.00, 4.67, 5.33, 6.00, 6.67, 7.33]
+}

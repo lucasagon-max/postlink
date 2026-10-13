@@ -3,70 +3,212 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Termos de Uso · PostLink</title>
+  <title>Termos de Uso e Serviço · PostLink</title>
   <link rel="icon" href="/assets/img/logotipo_postlink_1x1.jpg">
 
   <!-- Tailwind CSS com plugins -->
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script src="/assets/js/theme-config.js"></script>
   <link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
 </head>
 <body class="bg-background text-on-surface font-sans antialiased min-h-screen py-8 px-4 sm:px-6">
 
-  <div class="max-w-2xl mx-auto bg-surface-container-lowest border border-outline-variant rounded-2xl p-6 sm:p-8 shadow-sm space-y-6">
+  <div class="max-w-3xl mx-auto bg-surface-container-lowest border border-outline-variant rounded-2xl p-6 sm:p-10 shadow-sm space-y-8">
+    
+    <!-- Topo / Navegação -->
     <div class="flex items-center justify-between pb-4 border-b border-outline-variant/60">
-      <a href="/painel/" class="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline">
+      <a href="/" class="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline">
         <span class="material-symbols-outlined text-base">arrow_back</span>
-        <span>Voltar ao Painel</span>
+        <span>Voltar à Página Inicial</span>
       </a>
-      <div class="flex items-center gap-1.5">
+      <div class="flex items-center gap-2">
         <img src="/assets/img/logotipo_postlink_1x1.jpg" alt="PostLink" class="h-6 w-6 rounded object-cover">
-        <span class="font-bold text-primary text-sm">PostLink</span>
+        <span class="font-extrabold text-primary text-sm tracking-tight">postlink</span>
       </div>
     </div>
 
+    <!-- Cabeçalho -->
     <div>
-      <h1 class="text-xl font-bold text-on-surface">Termos de Uso do PostLink</h1>
-      <p class="text-xs text-outline mt-1">Última atualização: 5 de outubro de 2026</p>
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container text-primary text-xs font-bold mb-3">
+        <span class="material-symbols-outlined text-sm">gavel</span>
+        <span>Contrato de Licença e Uso de Software</span>
+      </div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-on-surface tracking-tight">Termos de Uso e Serviço</h1>
+      <p class="text-xs sm:text-sm text-outline mt-1.5">Última atualização: 12 de outubro de 2026 · Em vigor para todos os usuários cadastrados e visitantes.</p>
     </div>
 
-    <div class="space-y-4 text-xs sm:text-sm text-on-surface-variant leading-relaxed">
-      <div>
-        <h2 class="text-sm font-bold text-on-surface mb-1">1. Objeto</h2>
-        <p>
-          O PostLink é uma plataforma voltada a lojistas e empreendedores para geração de links com cartões pré-visualizáveis em alta definição no WhatsApp e redirecionamento seguro para destinos definidos pelo usuário.
-        </p>
+    <!-- Alerta de Responsabilidade -->
+    <div class="p-4 rounded-xl bg-surface-container-low border border-primary/20 text-xs sm:text-sm text-on-surface-variant leading-relaxed space-y-2">
+      <div class="flex items-center gap-2 font-bold text-primary">
+        <span class="material-symbols-outlined text-base">shield_person</span>
+        <span>Resumo de Responsabilidade</span>
       </div>
+      <p>
+        O PostLink é uma ferramenta estritamente técnica de otimização de prévias de links. <strong>O PostLink não comercializa produtos, não processa pagamentos e não avaliza a veracidade de ofertas de terceiros.</strong> Cada lojista ou usuário cadastrado é integral e exclusivamente responsável pelos destinos, imagens e transações comerciais vinculadas aos seus links.
+      </p>
+    </div>
 
-      <div>
-        <h2 class="text-sm font-bold text-on-surface mb-1">2. Uso Aceitável e Proibições Estritas</h2>
-        <p class="mb-2">É expressamente proibido utilizar o serviço para:</p>
-        <ul class="list-disc pl-5 space-y-1 text-on-surface-variant">
-          <li>Práticas de phishing, engenharia social, fraudes financeiras ou disseminação de malware;</li>
-          <li>Venda de produtos ilícitos, falsificados ou sem procedência legal;</li>
-          <li>Spam em massa em grupos ou contatos do WhatsApp;</li>
-          <li>Redirecionamento para encurtadores de links opacos ou domínios fraudulentos.</li>
+    <!-- Conteúdo das Cláusulas -->
+    <div class="space-y-6 text-xs sm:text-sm text-on-surface-variant leading-relaxed">
+
+      <!-- 1. Objeto -->
+      <section class="space-y-2">
+        <h2 class="text-base font-bold text-on-surface flex items-center gap-2">
+          <span class="text-primary font-mono text-xs px-2 py-0.5 rounded bg-surface-container">1</span>
+          Objeto e Natureza dos Serviços
+        </h2>
+        <p>
+          O <strong>PostLink</strong> é uma plataforma SaaS operada como provedora de aplicação de internet nos termos do Art. 5º, VII, da Lei Federal nº 12.965/2014 (Marco Civil da Internet). Seu objetivo exclusivo é disponibilizar infraestrutura tecnológica para que lojistas e criadores de conteúdo possam configurar e gerar links com metadados padronizados (Open Graph Protocol) otimizados para aplicativos de mensageria (como WhatsApp) e redes sociais, além de contabilizar métricas analíticas agregadas de cliques.
+        </p>
+        <p>
+          O PostLink <strong>não atua</strong> como intermediador de pagamentos, instituição financeira, garantidor de compras, marketplace, loja virtual ou transportador de mercadorias.
+        </p>
+      </section>
+
+      <!-- 2. Isenção sobre Destinos e Ofertas -->
+      <section class="space-y-2">
+        <h2 class="text-base font-bold text-on-surface flex items-center gap-2">
+          <span class="text-primary font-mono text-xs px-2 py-0.5 rounded bg-surface-container">2</span>
+          Isenção Total sobre Destinos Finais e Ofertas Comerciais
+        </h2>
+        <p>
+          O Usuário reconhece e concorda que o PostLink apenas executa a transferência técnica do visitante até o endereço web (URL) configurado pelo próprio Usuário. Em nenhuma hipótese o PostLink será considerado solidariamente responsável por:
+        </p>
+        <ul class="list-disc pl-5 space-y-1">
+          <li>Veracidade, idoneidade, legalidade, entrega, garantia ou qualidade de qualquer produto, serviço ou informação disponibilizada no link de destino final;</li>
+          <li>Eventuais perdas, danos ou prejuízos de qualquer natureza suportados pelo visitante ou consumidor final em decorrência de transações comerciais realizadas no site de destino;</li>
+          <li>Políticas de privacidade, segurança cibernética ou termos de terceiros fora da infraestrutura direta do PostLink.</li>
         </ul>
-      </div>
+      </section>
 
-      <div>
-        <h2 class="text-sm font-bold text-on-surface mb-1">3. Suspensão Imediata</h2>
+      <!-- 3. Propriedade Intelectual das Imagens -->
+      <section class="space-y-2">
+        <h2 class="text-base font-bold text-on-surface flex items-center gap-2">
+          <span class="text-primary font-mono text-xs px-2 py-0.5 rounded bg-surface-container">3</span>
+          Titularidade de Imagens, Marcas e Direitos Autorais
+        </h2>
         <p>
-          Reservamo-nos o direito de desativar imediatamente qualquer link ou conta que viole as políticas de uso ou que receba denúncias fundamentadas de abuso.
+          Ao fazer upload de imagens, logomarcas ou ilustrações para compor o cartão de visualização, o Usuário expressamente declara e garante, sob as penas das Leis nº 9.610/1998 (Direitos Autorais) e nº 9.279/1996 (Propriedade Industrial):
         </p>
-      </div>
+        <ul class="list-disc pl-5 space-y-1">
+          <li>Que é o legítimo autor e titular dos direitos patrimoniais do arquivo ou detém autorização por escrito dos detentores dos direitos para uso comercial;</li>
+          <li>Que o material enviado não infringe marcas registradas, patentes, segredos comerciais ou direitos de personalidade de terceiros;</li>
+          <li>Que não utiliza logotipos de bancos, grandes marketplaces ou marcas de renome de forma enganosa para induzir consumidores em erro ou fingir associação indevida (phishing e impersonação).</li>
+        </ul>
+        <p>
+          O PostLink reserva-se o direito de remover sumariamente qualquer imagem mediante notificação fundamentada de infração a direitos de propriedade intelectual (procedimento de <em>Notice-and-Takedown</em>).
+        </p>
+      </section>
 
-      <div>
-        <h2 class="text-sm font-bold text-on-surface mb-1">4. Assinatura e Pagamentos</h2>
+      <!-- 4. Política de Uso Aceitável (AUP) -->
+      <section class="space-y-2">
+        <h2 class="text-base font-bold text-on-surface flex items-center gap-2">
+          <span class="text-primary font-mono text-xs px-2 py-0.5 rounded bg-surface-container">4</span>
+          Política de Uso Aceitável e Vedações Estritas
+        </h2>
+        <p>É expressamente proibido utilizar o PostLink para gerar links, hospedar metadados ou veicular campanhas direcionadas a:</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 text-xs">
+          <div class="p-2.5 rounded-lg bg-surface-container-low border border-outline-variant/60">
+            <strong class="text-on-surface block text-xs">🚫 Fraudes e Estelionato</strong>
+            Páginas clonadas, phishing de instituições financeiras, leilões falsos, golpes do falso frete e falsas premiações.
+          </div>
+          <div class="p-2.5 rounded-lg bg-surface-container-low border border-outline-variant/60">
+            <strong class="text-on-surface block text-xs">🚫 Pirataria e Produtos Ilegais</strong>
+            Contrafação, venda de medicamentos controlados sem licença, armas de fogo ou substâncias ilícitas.
+          </div>
+          <div class="p-2.5 rounded-lg bg-surface-container-low border border-outline-variant/60">
+            <strong class="text-on-surface block text-xs">🚫 Malwares e Criptoviolação</strong>
+            Disseminação de vírus, spywares, ransomwares ou scripts maliciosos de invasão de dispositivos.
+          </div>
+          <div class="p-2.5 rounded-lg bg-surface-container-low border border-outline-variant/60">
+            <strong class="text-on-surface block text-xs">🚫 Esquemas Ilícitos</strong>
+            Pirâmides financeiras, jogos de azar clandestinos não autorizados e captação enganosa de recursos.
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. Banimento e Suspensão -->
+      <section class="space-y-2">
+        <h2 class="text-base font-bold text-on-surface flex items-center gap-2">
+          <span class="text-primary font-mono text-xs px-2 py-0.5 rounded bg-surface-container">5</span>
+          Suspensão Preventiva, Banimento e Perda de Assinatura
+        </h2>
         <p>
-          Após o término do período de teste gratuito (trial de 7 dias), a criação de novos links fica condicionada à contratação de um plano ativo. Em caso de cancelamento ou inadimplência, os links podem ser pausados.
+          O PostLink reserva-se a prerrogativa unilateral, soberana e inalienável de suspender preventivamente, pausar links ou <strong>banir sumariamente</strong> a conta de qualquer Usuário, sem necessidade de notificação judicial prévia, caso ocorra:
         </p>
-      </div>
+        <ul class="list-disc pl-5 space-y-1">
+          <li>Violação comprovada ou fundada suspeita de descumprimento destes Termos de Uso ou da Política de Uso Aceitável;</li>
+          <li>Recebimento de denúncias consistentes de consumidores, autoridades policiais ou titulares de marcas através de nosso canal de denúncias;</li>
+          <li>Constatação de padrões técnicos anômalos de phishing ou tentativas de burlar mecanismos de segurança da plataforma.</li>
+        </ul>
+        <p class="font-medium text-on-surface">
+          Em caso de banimento por fraude, golpe ou ato ilícito, <strong>o Usuário não terá direito a restituição, estorno ou reembolso proporcional</strong> de quaisquer valores pagos por planos ou assinaturas, sem prejuízo da adoção das medidas cíveis e criminais cabíveis.
+        </p>
+      </section>
+
+      <!-- 6. Indenização e Regresso -->
+      <section class="space-y-2">
+        <h2 class="text-base font-bold text-on-surface flex items-center gap-2">
+          <span class="text-primary font-mono text-xs px-2 py-0.5 rounded bg-surface-container">6</span>
+          Obrigação de Indenização e Direito de Regresso
+        </h2>
+        <p>
+          O Usuário concorda em defender, indenizar e manter integralmente indenes o PostLink, seus desenvolvedores, administradores e parceiros contra quaisquer processos judiciais, reclamações administrativas (Procon, Senacon), penalidades, danos patrimoniais ou morais, custas e honorários advocatícios oriundos de:
+        </p>
+        <ul class="list-disc pl-5 space-y-1">
+          <li>Atividades ilícitas, fraudulentas ou enganosas promovidas pelo Usuário através dos links gerados;</li>
+          <li>Violação de direitos autorais de imagens ou marcas comerciais carregadas na plataforma;</li>
+          <li>Descumprimento de deveres de entrega, garantia ou informação devidos aos seus respectivos clientes finais.</li>
+        </ul>
+      </section>
+
+      <!-- 7. Marco Civil e Colaboração -->
+      <section class="space-y-2">
+        <h2 class="text-base font-bold text-on-surface flex items-center gap-2">
+          <span class="text-primary font-mono text-xs px-2 py-0.5 rounded bg-surface-container">7</span>
+          Marco Civil da Internet e Colaboração com Autoridades
+        </h2>
+        <p>
+          Em cumprimento estrito ao Artigo 15 da Lei Federal nº 12.965/2014, o PostLink mantém os registros de acesso a aplicações de internet (logs de criação de conta e atualizações de links) sob sigilo pelo prazo legal de 6 (seis) meses. Mediante requisição judicial ou de autoridades policiais competentes no curso de investigação criminal, tais registros poderão ser fornecidos aos órgãos estatais.
+        </p>
+      </section>
+
+      <!-- 8. Canal de Denúncias -->
+      <section class="space-y-2">
+        <h2 class="text-base font-bold text-on-surface flex items-center gap-2">
+          <span class="text-primary font-mono text-xs px-2 py-0.5 rounded bg-surface-container">8</span>
+          Canal de Denúncias e Remoção Imediata
+        </h2>
+        <p>
+          Qualquer cidadão, consumidor ou titular de marca que identifique link em desacordo com as regras pode realizar uma denúncia formal através de nossa página pública de denúncias em <a href="/denunciar/" class="text-primary font-bold underline">postlink.top/denunciar</a> ou via e-mail direto à nossa equipe técnica.
+        </p>
+      </section>
+
+      <!-- 9. Foro -->
+      <section class="space-y-2">
+        <h2 class="text-base font-bold text-on-surface flex items-center gap-2">
+          <span class="text-primary font-mono text-xs px-2 py-0.5 rounded bg-surface-container">9</span>
+          Legislação Aplicável e Foro de Eleição
+        </h2>
+        <p>
+          Estes Termos são regidos exclusivamente pelas leis vigentes da República Federativa do Brasil. Para dirimir quaisquer litígios decorrentes deste instrumento, as partes elegem o Foro da Comarca de domicílio da sede da plataforma, renunciando a qualquer outro por mais privilegiado que seja.
+        </p>
+      </section>
+
     </div>
 
-    <div class="pt-4 border-t border-outline-variant/60 text-center">
-      <a href="/" class="text-xs text-primary font-bold hover:underline">Ir para a Página Inicial</a>
+    <!-- Rodapé -->
+    <div class="pt-6 border-t border-outline-variant/60 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-outline">
+      <div class="flex gap-4">
+        <a href="/privacidade/" class="hover:text-primary transition-colors">Política de Privacidade</a>
+        <a href="/denunciar/" class="hover:text-error transition-colors font-semibold">Canal de Denúncias</a>
+      </div>
+      <span>&copy; 2026 PostLink · Todos os direitos reservados.</span>
     </div>
+
   </div>
 
 </body>
