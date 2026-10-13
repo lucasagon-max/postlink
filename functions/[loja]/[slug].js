@@ -38,11 +38,61 @@ async function rpc(env, nome, args) {
   return r.status === 204 ? null : r.json();
 }
 
-export async function onRequestGet({ request, params, env, waitUntil }) {
+import * as mpWebhook from '../api/mp-webhook.js';
+import * as mpConfig from '../api/mp-config.js';
+import * as mpCriarPagamento from '../api/mp-criar-pagamento.js';
+import * as mpProcessarCartao from '../api/mp-processar-cartao.js';
+import * as mpVerificarPagamento from '../api/mp-verificar-pagamento.js';
+import * as fetchMetadata from '../api/fetch-metadata.js';
+import * as configSite from '../api/configuracoes-site.js';
+
+async function dispatchApi(context) {
+  const slug = context.params?.slug;
+  if (slug === 'mp-webhook') return mpWebhook.onRequest(context);
+  if (slug === 'mp-config') return mpConfig.onRequestGet(context);
+  if (slug === 'mp-criar-pagamento') return mpCriarPagamento.onRequestPost(context);
+  if (slug === 'mp-processar-cartao') return mpProcessarCartao.onRequestPost(context);
+  if (slug === 'mp-verificar-pagamento') return mpVerificarPagamento.onRequest(context);
+  if (slug === 'fetch-metadata') return fetchMetadata.onRequestGet(context);
+  if (slug === 'configuracoes-site') return configSite.onRequest(context);
+
+  return new Response(JSON.stringify({ erro: 'Endpoint não encontrado em /api/' }), {
+    status: 404,
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
+
+export async function onRequestPost(context) {
+  if (context.params?.loja === 'api') {
+    return dispatchApi(context);
+  }
+  return new Response('Método não permitido', { status: 405 });
+}
+
+export async function onRequestOptions(context) {
+  if (context.params?.loja === 'api') {
+    return dispatchApi(context);
+  }
+  return new Response(null, { status: 204 });
+}
+
+export async function onRequest(context) {
+  if (context.params?.loja === 'api') {
+    return dispatchApi(context);
+  }
+  return onRequestGet(context);
+}
+
+export async function onRequestGet(context) {
+  const { request, params, env, waitUntil } = context;
   const loja = params.loja;
   const slug = params.slug;
 
-  const RESERVADAS = ['painel', 'login', 'admin', 'assets', 'termos', 'privacidade', 'planos', 'denunciar', 'favicon.ico', 'api'];
+  if (loja === 'api') {
+    return dispatchApi(context);
+  }
+
+  const RESERVADAS = ['painel', 'login', 'admin', 'assets', 'termos', 'privacidade', 'planos', 'denunciar', 'favicon.ico'];
   if (RESERVADAS.includes(loja) && env.ASSETS) {
     return env.ASSETS.fetch(request);
   }
