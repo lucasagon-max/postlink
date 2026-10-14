@@ -2,7 +2,7 @@
 export async function onRequest(context) {
   const { request, env } = context;
   if (env.ASSETS) {
-    const url = new URL('/termos/index.html', request.url);
+    const url = new URL('/termos/', request.url);
     const resp = await env.ASSETS.fetch(url);
     return new Response(resp.body, resp);
   }
