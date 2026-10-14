@@ -53,8 +53,8 @@ async function dispatchApi(context) {
   if (slug === 'mp-criar-pagamento') return mpCriarPagamento.onRequestPost(context);
   if (slug === 'mp-processar-cartao') return mpProcessarCartao.onRequestPost(context);
   if (slug === 'mp-verificar-pagamento') return mpVerificarPagamento.onRequest(context);
-  if (slug === 'fetch-metadata') return fetchMetadata.onRequestGet(context);
-  if (slug === 'configuracoes-site') return configSite.onRequest(context);
+  if (slug === 'fetch-metadata') return fetchMetadata.onRequest(context);
+  if (slug === 'configuracoes-site') return configSite.onRequestGet(context);
 
   return new Response(JSON.stringify({ erro: 'Endpoint não encontrado em /api/' }), {
     status: 404,
@@ -94,6 +94,11 @@ export async function onRequestGet(context) {
 
   const RESERVADAS = ['painel', 'login', 'admin', 'assets', 'termos', 'privacidade', 'planos', 'denunciar', 'favicon.ico'];
   if (RESERVADAS.includes(loja) && env.ASSETS) {
+    const cleanUrl = new URL(new URL(request.url).pathname, request.url);
+    try {
+      const resp = await env.ASSETS.fetch(cleanUrl);
+      if (resp.status < 400) return resp;
+    } catch (_) {}
     return env.ASSETS.fetch(request);
   }
 

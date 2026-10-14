@@ -1,0 +1,10 @@
+// functions/painel.js - Cloudflare Pages Function para /painel
+export async function onRequest(context) {
+  const { request, env } = context;
+  if (env.ASSETS) {
+    const url = new URL('/painel/index.html', request.url);
+    const resp = await env.ASSETS.fetch(url);
+    return new Response(resp.body, resp);
+  }
+  return new Response('Painel', { status: 200, headers: { 'Content-Type': 'text/html' } });
+}

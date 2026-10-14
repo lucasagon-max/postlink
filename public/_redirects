@@ -1,0 +1,15 @@
+# Cloudflare Pages Redirects / Rewrites (Status 200 para preservação de URLs e SPAs)
+/login/*       /login/index.html       200
+/login         /login/index.html       200
+/planos/*      /planos/index.html      200
+/planos        /planos/index.html      200
+/painel/*      /painel/index.html      200
+/painel        /painel/index.html      200
+/admin/*       /admin/index.html       200
+/admin         /admin/index.html       200
+/termos/*      /termos/index.html      200
+/termos        /termos/index.html      200
+/privacidade/* /privacidade/index.html 200
+/privacidade   /privacidade/index.html 200
+/denunciar/*   /denunciar/index.html   200
+/denunciar     /denunciar/index.html   200
