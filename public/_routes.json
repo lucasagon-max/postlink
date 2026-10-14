@@ -2,21 +2,7 @@
   "version": 1,
   "include": ["/*"],
   "exclude": [
-    "/painel",
-    "/painel/*",
-    "/login",
-    "/login/*",
     "/assets/*",
-    "/termos",
-    "/termos/*",
-    "/privacidade",
-    "/privacidade/*",
-    "/planos",
-    "/planos/*",
-    "/denunciar",
-    "/admin",
-    "/admin/*",
-    "/favicon.ico",
-    "/"
+    "/favicon.ico"
   ]
 }
