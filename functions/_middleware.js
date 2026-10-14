@@ -1,21 +1,44 @@
-// functions/_middleware.js - Interceptor global do Cloudflare Pages
-// Garante resolução perfeita de páginas com parâmetros de busca (query strings),
-// rotas com ou sem trailing slash e assets estáticos, evitando falsos erros 404.
+// functions/_middleware.js - Diagnóstico e roteamento inteligente
 
 export async function onRequest(context) {
   const { request, env, next } = context;
   const url = new URL(request.url);
   const pathname = url.pathname;
 
+  // Endpoint de diagnóstico em tempo real
+  if (pathname === '/debug-assets') {
+    const testPaths = [
+      '/',
+      '/index.html',
+      '/login',
+      '/login/',
+      '/login/index.html',
+      '/planos/',
+      '/planos/index.html',
+      '/assets/css/style.css'
+    ];
+    const results = {};
+    for (const p of testPaths) {
+      try {
+        const r = await env.ASSETS.fetch(new URL(p, request.url));
+        results[p] = { status: r.status, type: r.headers.get('content-type') };
+      } catch (err) {
+        results[p] = { error: err.message };
+      }
+    }
+    return new Response(JSON.stringify(results, null, 2), {
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
   // 1. Chamadas de API do backend seguem direto para os handlers de /api/*
   if (pathname.startsWith('/api/')) {
     return next();
   }
 
-  // 2. Arquivos de ativos estáticos com extensão (CSS, JS, imagens, fontes, favicon)
+  // 2. Arquivos estáticos com extensão (CSS, JS, imagens)
   if (/\.[a-zA-Z0-9]+$/.test(pathname)) {
     if (env.ASSETS) {
-      // Normaliza para o caminho estático limpo sem interferência de query string
       const cleanAssetUrl = new URL(pathname, request.url);
       try {
         const resp = await env.ASSETS.fetch(cleanAssetUrl);
@@ -26,7 +49,7 @@ export async function onRequest(context) {
     return next();
   }
 
-  // 3. Mapeamento de rotas de páginas estáticas conhecidas
+  // 3. Mapeamento de páginas estáticas
   const ROTAS_PAGINAS = {
     '/': '/index.html',
     '/login': '/login/index.html',
@@ -58,6 +81,5 @@ export async function onRequest(context) {
     } catch (_) {}
   }
 
-  // 4. Se for qualquer outra rota, deixa o Pages despachar para as funções dinâmicas (ex: /[loja]/[slug])
   return next();
 }
