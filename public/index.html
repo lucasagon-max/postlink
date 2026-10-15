@@ -86,99 +86,75 @@
         </div>
       </div>
 
-      <!-- WIDGET INTERATIVO: EXPERIMENTE SEM CRIAR CONTA -->
-      <div class="bg-surface-container-lowest border border-outline-variant/70 hover:border-primary/40 rounded-2xl p-4 sm:p-6 shadow-sm max-w-2xl mx-auto mb-6 text-left transition-all">
-        <div class="flex items-center justify-between mb-3">
-          <div class="flex items-center gap-2">
-            <span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
-            <span class="text-xs font-bold uppercase tracking-wider text-primary">Teste agora sem criar conta</span>
-          </div>
-          <span class="text-xs text-outline font-medium hidden sm:inline">Puxamos o título e foto na hora ⚡</span>
-        </div>
+      <!-- ANTES x DEPOIS: substitui o widget "Teste agora sem criar conta" -->
+      <div class="max-w-3xl mx-auto mb-6 text-left">
+        <p class="text-center text-xs font-bold uppercase tracking-wider text-primary mb-1">A diferença que o cliente vê</p>
+        <h3 class="text-center text-lg sm:text-xl font-bold text-on-surface mb-5">Sua oferta aparece direto no WhatsApp, sem baixar</h3>
 
-        <form id="hero-demo-form" class="flex flex-col sm:flex-row gap-2">
-          <div class="relative flex-grow">
-            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-lg">link</span>
-            <input type="text" id="hero-demo-input" placeholder="Cole a URL do seu produto ou site (ex: morangostatui.com.br)" class="w-full text-xs sm:text-sm pl-9 pr-3 py-3 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all">
-          </div>
-          <button type="submit" id="hero-demo-btn" class="bg-secondary text-white font-bold text-xs sm:text-sm px-5 py-3 rounded-xl shadow-sm hover:bg-secondary-dark active:scale-95 transition-all flex items-center justify-center gap-1.5 shrink-0 min-h-[44px]">
-            <span class="material-symbols-outlined text-base">auto_awesome</span>
-            <span>Ver Cartão HD</span>
-          </button>
-        </form>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
-        <!-- Exemplos rápidos clicáveis -->
-        <div class="flex flex-wrap items-center gap-2 mt-2.5 text-xs text-on-surface-variant">
-          <span class="text-outline">Ou teste um exemplo:</span>
-          <button type="button" class="demo-chip text-primary hover:text-secondary-dark font-medium underline cursor-pointer" data-url="https://www.morangostatui.com.br">morangostatui.com.br</button>
-          <span>•</span>
-          <button type="button" class="demo-chip text-primary hover:text-secondary-dark font-medium underline cursor-pointer" data-url="https://g1.globo.com">g1.globo.com</button>
-          <span>•</span>
-          <button type="button" class="demo-chip text-primary hover:text-secondary-dark font-medium underline cursor-pointer" data-url="https://mercadolivre.com.br">mercadolivre.com.br</button>
-        </div>
+          <!-- ANTES -->
+          <div class="bg-surface-container-lowest border border-outline-variant/70 rounded-2xl p-4 shadow-sm">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="w-2.5 h-2.5 rounded-full bg-outline"></span>
+              <span class="text-xs font-bold uppercase tracking-wider text-outline">Antes: imagem como arquivo</span>
+            </div>
 
-        <!-- Indicador de Carregamento -->
-        <div id="hero-demo-loading" class="hidden mt-4 pt-4 border-t border-outline-variant/60 text-center py-6">
-          <div class="inline-flex items-center gap-2.5 text-xs font-semibold text-primary">
-            <span class="inline-block w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></span>
-            <span>Buscando imagem e informações do produto... ⚡</span>
-          </div>
-        </div>
-
-        <!-- Erro amigável -->
-        <div id="hero-demo-error" class="hidden mt-4 pt-3 border-t border-outline-variant/60 text-xs text-error font-medium flex items-center gap-2">
-          <span class="material-symbols-outlined text-base">error</span>
-          <span id="hero-demo-error-msg">Não foi possível carregar esta URL. Tente outra ou acerte o endereço.</span>
-        </div>
-
-        <!-- Área de Resultado com o Cartão WhatsApp HD -->
-        <div id="hero-demo-result" class="hidden mt-5 pt-4 border-t border-outline-variant/60">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-bold text-secondary-dark flex items-center gap-1">
-              <span class="material-symbols-outlined text-sm text-secondary">check_circle</span>
-              Como seu link vai aparecer no WhatsApp:
-            </span>
-            <span class="text-xs bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded font-bold">1200x630 HD</span>
+            <div class="rounded-xl p-3 bg-[#e7ddd3] min-h-[250px] flex flex-col gap-2">
+              <div class="self-start max-w-[88%] bg-white rounded-lg rounded-tl-none px-3 py-2 shadow-sm">
+                <p class="text-[10px] font-bold text-[#b45309] mb-0.5">Loja da Ana</p>
+                <div class="flex items-center gap-3 bg-black/5 rounded-md p-2">
+                  <span class="material-symbols-outlined text-3xl text-outline">image</span>
+                  <div class="min-w-0">
+                    <p class="text-xs font-semibold text-on-surface truncate">oferta-bolo.jpg</p>
+                    <p class="text-[10px] text-outline">JPG · 2,4 MB</p>
+                  </div>
+                  <span class="material-symbols-outlined text-xl text-outline ml-auto">download</span>
+                </div>
+                <p class="text-[10px] text-outline text-right mt-1">13:40</p>
+              </div>
+              <p class="text-[11px] text-on-surface-variant italic mt-auto pt-2">O cliente precisa baixar para ver. Muita gente ignora.</p>
+            </div>
           </div>
 
-          <!-- Balão WhatsApp Simulado Aplanado -->
-          <div class="wa-bg-pattern p-3.5 rounded-xl mb-3">
-            <div class="text-xs text-center text-[#667781] mb-1.5 font-medium">Hoje 14:30</div>
-            <div class="bg-[#E7FFDB] rounded-lg p-2 max-w-[320px] ml-auto">
-              <div class="rounded overflow-hidden bg-white mb-1">
-                <div class="relative aspect-[1.91/1] bg-surface-container-high overflow-hidden">
-                  <img id="demo-card-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E" alt="Prévia" class="w-full h-full object-cover">
-                  <div id="demo-card-placeholder" class="hidden w-full h-full flex flex-col items-center justify-center text-outline p-4 text-center">
-                    <span class="material-symbols-outlined text-3xl mb-1">image</span>
-                    <span class="text-xs">Site sem banner padrão (você pode subir o seu!)</span>
+          <!-- DEPOIS -->
+          <div class="bg-surface-container-lowest border border-primary/40 rounded-2xl p-4 shadow-sm">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+              <span class="text-xs font-bold uppercase tracking-wider text-primary">Depois: com PostLink</span>
+            </div>
+
+            <div class="rounded-xl p-3 bg-[#e7ddd3] min-h-[250px] flex flex-col gap-2">
+              <div class="self-start max-w-[88%] bg-white rounded-lg rounded-tl-none p-1.5 shadow-sm">
+                <p class="text-[10px] font-bold text-[#b45309] px-1.5 pt-0.5 mb-1">Loja da Ana</p>
+                <!-- Preview do link -->
+                <div class="rounded-md overflow-hidden bg-black/5">
+                  <div class="h-32 bg-gradient-to-br from-rose-500 via-rose-400 to-amber-300 flex flex-col items-center justify-center text-white">
+                    <span class="text-[10px] font-bold uppercase tracking-widest opacity-90">Oferta do dia</span>
+                    <span class="text-xl font-extrabold leading-tight">Bolo de Morango</span>
+                    <span class="text-base font-bold">R$ 29,90</span>
+                  </div>
+                  <div class="px-2.5 py-1.5">
+                    <p class="text-[10px] text-outline">postlink.com.br</p>
+                    <p class="text-xs font-semibold text-on-surface">Bolo de Morango · R$ 29,90</p>
                   </div>
                 </div>
-                <div class="p-2.5 bg-white">
-                  <div id="demo-card-title" class="text-xs font-bold text-[#111B21] leading-tight line-clamp-1">Título da Oferta</div>
-                  <div id="demo-card-desc" class="text-xs text-[#3B4A54] leading-snug line-clamp-2 mt-0.5">Descrição capturada automaticamente da página.</div>
-                  <div id="demo-card-url" class="text-xs text-[#667781] mt-1 font-mono uppercase font-semibold">postlink.com.br/demo</div>
-                </div>
+                <p class="text-[11px] text-[#0b6bcb] px-1.5 pt-1 truncate">postlink.com.br/bolo-morango</p>
+                <p class="text-[10px] text-outline text-right px-1.5">13:40</p>
               </div>
-              <div class="flex items-center justify-end gap-1 text-xs text-[#667781] pr-1">
-                <span>14:30</span>
-                <span class="material-symbols-outlined text-xs text-[#53BDEB]">done_all</span>
-              </div>
+              <p class="text-[11px] text-on-surface-variant italic mt-auto pt-2">A oferta já aparece na conversa. Um toque leva ao seu WhatsApp, Instagram ou catálogo.</p>
             </div>
           </div>
 
-          <!-- CTA de Conversão com os dados salvos -->
-          <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3.5 border-t border-outline-variant/60">
-            <div class="text-xs text-on-surface-variant text-center sm:text-left">
-              <span class="font-bold text-on-surface block">Gostou da prévia?</span>
-              Crie o link oficial com rastreador de cliques e redirecionamento.
-            </div>
-            <button type="button" id="btn-usar-demo" class="w-full sm:w-auto bg-secondary text-white text-xs font-bold px-4 py-2.5 rounded-lg shadow-sm hover:bg-secondary-dark active:scale-95 transition-all flex items-center justify-center gap-1.5 shrink-0 min-h-[44px]">
-              <span>Criar Link com este Cartão</span>
-              <span class="material-symbols-outlined text-base">arrow_forward</span>
-            </button>
-          </div>
         </div>
 
+        <div class="text-center mt-5">
+          <a href="#cadastro" class="inline-flex items-center justify-center gap-1.5 bg-secondary text-white font-bold text-sm px-6 py-3 rounded-xl shadow-sm hover:bg-secondary-dark active:scale-95 transition-all min-h-[44px]">
+            <span class="material-symbols-outlined text-base">auto_awesome</span>
+            <span>Testar 7 dias com minha oferta</span>
+          </a>
+          <p class="text-xs text-outline mt-2">Suba sua imagem, escolha o destino e mande o link para o seu celular.</p>
+        </div>
       </div>
 
       <!-- Navegação de Apoio / Atalhos Sutis -->
@@ -429,7 +405,7 @@
     </section>
 
     <!-- CTA FINAL / TRIAL -->
-    <section class="px-4 sm:px-6 py-16 sm:py-20 bg-gradient-to-br from-primary to-primary-container text-white text-center">
+    <section id="cadastro" class="px-4 sm:px-6 py-16 sm:py-20 bg-gradient-to-br from-primary to-primary-container text-white text-center">
       <div class="max-w-2xl mx-auto space-y-6">
         <div class="inline-flex items-center gap-1.5 bg-white/10 px-3.5 py-1.5 rounded-full text-xs font-semibold backdrop-blur-xs">
           <span class="material-symbols-outlined text-secondary text-sm">stars</span> 7 Dias de Teste Gratuito Completo
@@ -473,6 +449,7 @@
   <script>
     (function() {
       const form = document.getElementById('hero-demo-form');
+      if (!form) return;
       const input = document.getElementById('hero-demo-input');
       const btn = document.getElementById('hero-demo-btn');
       const loading = document.getElementById('hero-demo-loading');
