@@ -17,6 +17,14 @@ const state = {
   estatisticas: {},
   linkEditando: null,
   arquivoBlob: null,
+
+  // Galeria de Fotos do Usuário
+  fotosGaleria: [],
+  fotoSelecionadaGaleria: null,
+  filtroGaleria: 'todas', // 'todas' | 'em_uso' | 'nao_usadas'
+  termoBuscaGaleria: '',
+  fotoParaExcluir: null,
+  fotoTemporariaModal: null,
 };
 
 // Elementos da Interface
@@ -165,6 +173,44 @@ const el = {
   contaLojaNome: document.getElementById('conta-loja-nome'),
   contaLojaSlug: document.getElementById('conta-loja-slug'),
   contaStatus: document.getElementById('conta-status'),
+
+  // Galeria de Fotos
+  viewGaleria: document.getElementById('view-galeria'),
+  gridFotosGaleria: document.getElementById('grid-fotos-galeria'),
+  galeriaVazia: document.getElementById('galeria-vazia'),
+  contadorFotosGaleria: document.getElementById('contador-fotos-galeria'),
+  badgeTotalGaleria: document.getElementById('badge-total-galeria'),
+  inputBuscaGaleria: document.getElementById('input-busca-galeria'),
+  inputUploadGaleriaDireto: document.getElementById('input-upload-galeria-direto'),
+  btnAbrirModalGaleria: document.getElementById('btn-abrir-modal-galeria'),
+  contagemGaleriaBadge: document.getElementById('contagem-galeria-badge'),
+  bannerFotoSelecionadaGaleria: document.getElementById('banner-foto-selecionada-galeria'),
+  thumbFotoSelecionada: document.getElementById('thumb-foto-selecionada'),
+  nomeFotoSelecionada: document.getElementById('nome-foto-selecionada'),
+  btnTrocarFotoGaleria: document.getElementById('btn-trocar-foto-galeria'),
+  btnRemoverFotoGaleria: document.getElementById('btn-remover-foto-galeria'),
+  wrapperDropzone: document.getElementById('wrapper-dropzone'),
+
+  // Modais de Galeria
+  modalGaleriaSelecao: document.getElementById('modal-galeria-selecao'),
+  modalGaleriaBtnFechar: document.getElementById('modal-galeria-btn-fechar'),
+  modalGaleriaBtnCancelar: document.getElementById('modal-galeria-btn-cancelar'),
+  modalGaleriaBtnConfirmar: document.getElementById('modal-galeria-btn-confirmar'),
+  modalGaleriaGrid: document.getElementById('modal-galeria-grid'),
+  modalGaleriaBusca: document.getElementById('modal-galeria-busca'),
+  modalGaleriaSelecionadaInfo: document.getElementById('modal-galeria-selecionada-info'),
+  inputUploadModalGaleria: document.getElementById('input-upload-modal-galeria'),
+
+  // Modal Confirmação de Exclusão Segura
+  modalConfirmarExclusaoFoto: document.getElementById('modal-confirmar-exclusao-foto'),
+  modalExclusaoBtnCancelar: document.getElementById('modal-exclusao-btn-cancelar'),
+  modalExclusaoBtnConfirmar: document.getElementById('modal-exclusao-btn-confirmar'),
+  modalExclusaoThumb: document.getElementById('modal-exclusao-thumb'),
+  modalExclusaoNome: document.getElementById('modal-exclusao-nome'),
+  modalExclusaoStatus: document.getElementById('modal-exclusao-status'),
+  modalExclusaoAvisoLinks: document.getElementById('modal-exclusao-aviso-links'),
+  modalExclusaoAvisoTitulo: document.getElementById('modal-exclusao-aviso-titulo'),
+  modalExclusaoListaLinks: document.getElementById('modal-exclusao-lista-links'),
 };
 
 // Configuração dos Planos Comerciais
@@ -438,6 +484,9 @@ async function router() {
     const id = hash.replace('#/editar/', '');
     await prepararFormularioEdicao(id);
     mostrarView('form');
+  } else if (hash === '#/galeria') {
+    mostrarView('galeria');
+    await carregarGaleriaFotos();
   } else if (hash === '#/plano') {
     renderizarTelaPlanos();
     mostrarView('plano');
@@ -451,9 +500,28 @@ function mostrarView(nome) {
   if (el.viewLoading) el.viewLoading.style.display = 'none';
   if (el.viewOnboarding) el.viewOnboarding.style.display = nome === 'onboarding' ? 'block' : 'none';
   if (el.viewLista) el.viewLista.style.display = nome === 'lista' ? 'block' : 'none';
+  if (el.viewGaleria) el.viewGaleria.style.display = nome === 'galeria' ? 'block' : 'none';
   if (el.viewFormLink) el.viewFormLink.style.display = nome === 'form' ? 'block' : 'none';
   if (el.viewPlano) el.viewPlano.style.display = nome === 'plano' ? 'block' : 'none';
   if (el.viewConta) el.viewConta.style.display = nome === 'conta' ? 'block' : 'none';
+
+  // Atualiza destaque na barra inferior mobile
+  document.querySelectorAll('.nav-bottom-item').forEach((item) => {
+    const href = item.getAttribute('href');
+    const isAtivo = (nome === 'lista' && href === '#/') ||
+                    (nome === 'galeria' && href === '#/galeria') ||
+                    (nome === 'form' && href === '#/novo') ||
+                    (nome === 'plano' && href === '#/plano') ||
+                    (nome === 'conta' && href === '#/conta');
+    if (isAtivo) {
+      item.classList.add('text-primary', 'font-bold');
+      item.classList.remove('text-on-surface-variant');
+    } else {
+      item.classList.remove('text-primary', 'font-bold');
+      item.classList.add('text-on-surface-variant');
+    }
+  });
+
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -524,6 +592,7 @@ async function carregarLinks() {
     return;
   }
   state.links = links || [];
+  atualizarContagemGaleria();
 
   // Busca estatísticas detalhadas de cliques, dispositivos e origens
   try {
@@ -885,8 +954,19 @@ function prepararFormularioNovo() {
   if (el.boxVersaoStatus) el.boxVersaoStatus.classList.add('hidden');
   if (el.alertaLimiteEdicoes) el.alertaLimiteEdicoes.classList.add('hidden');
 
-  if (el.fname) el.fname.textContent = 'Escolher da galeria ou arrastar foto';
-  if (el.infoArquivo) el.infoArquivo.classList.add('hidden');
+  if (state.fotoSelecionadaGaleria) {
+    aplicarFotoGaleriaNoFormulario(state.fotoSelecionadaGaleria);
+  } else {
+    if (el.fname) el.fname.textContent = 'Fazer upload de nova foto ou arrastar aqui';
+    if (el.bannerFotoSelecionadaGaleria) el.bannerFotoSelecionadaGaleria.classList.add('hidden');
+    if (el.infoArquivo) el.infoArquivo.classList.add('hidden');
+    if (el.ph) el.ph.style.display = 'flex';
+    if (el.im) {
+      el.im.classList.add('hidden');
+      el.im.src = '';
+    }
+  }
+
   if (el.eImg) el.eImg.textContent = '';
   if (el.eDest) el.eDest.textContent = '';
   if (el.res) el.res.classList.add('hidden');
@@ -904,12 +984,7 @@ function prepararFormularioNovo() {
   }
 
   atualizarContadorDescricao();
-
-  if (el.ph) el.ph.style.display = 'flex';
-  if (el.im) {
-    el.im.classList.add('hidden');
-    el.im.src = '';
-  }
+  atualizarContagemGaleria();
 
   // Verifica se o usuário veio da experimentação sem login na Landing Page
   try {
@@ -1050,16 +1125,9 @@ async function prepararFormularioEdicao(id) {
     el.inputValidoAte.value = link.valido_ate ? new Date(link.valido_ate).toISOString().slice(0, 16) : '';
   }
 
-  // Foto existente
-  const { data: { publicUrl } } = sb.storage.from('banners').getPublicUrl(link.imagem_path);
-  const imgUrl = `${publicUrl}?v=${versaoAtual}`;
-
-  if (el.fname) el.fname.textContent = 'Trocar imagem atual';
-  if (el.im) {
-    el.im.src = imgUrl;
-    el.im.classList.remove('hidden');
-  }
-  if (el.ph) el.ph.style.display = 'none';
+  // Foto existente vinculada ao link
+  state.fotoSelecionadaGaleria = link.imagem_path;
+  aplicarFotoGaleriaNoFormulario(link.imagem_path, true);
 
   if (el.detalhesPersonalizar) {
     el.detalhesPersonalizar.open = true;
@@ -1105,6 +1173,10 @@ async function tratarArquivoSelecionado(file) {
     if (el.eImg) el.eImg.textContent = 'Por favor, selecione uma imagem (JPEG, PNG ou WebP).';
     return;
   }
+
+  // Limpa seleção da galeria pois o lojista enviou um arquivo novo local
+  state.fotoSelecionadaGaleria = null;
+  if (el.bannerFotoSelecionadaGaleria) el.bannerFotoSelecionadaGaleria.classList.add('hidden');
 
   if (el.eImg) el.eImg.textContent = '';
   if (el.fname) el.fname.textContent = file.name;
@@ -1382,7 +1454,7 @@ if (el.formLink) {
       return;
     }
 
-    if (!state.linkEditando && !state.arquivoBlob) {
+    if (!state.linkEditando && !state.arquivoBlob && !state.fotoSelecionadaGaleria) {
       if (el.eImg) el.eImg.textContent = 'Escolha uma imagem para o cartão.';
       return;
     }
@@ -1421,6 +1493,8 @@ if (el.formLink) {
             .upload(caminhoImagem, state.arquivoBlob, { contentType: 'image/jpeg' });
 
           if (errUpload) throw errUpload;
+        } else if (state.fotoSelecionadaGaleria) {
+          caminhoImagem = state.fotoSelecionadaGaleria;
         }
 
         const slugFinal = slugDesejado || state.linkEditando.slug;
@@ -1442,6 +1516,7 @@ if (el.formLink) {
         toast(`Link atualizado com sucesso! (Versão ${versao})`, 'success');
         const linkPronto = `${window.location.origin}/${state.loja.slug}/${slugFinal}`;
         exibirResultadoCriado(linkPronto);
+        carregarGaleriaFotos(true);
       } else {
         // Bloqueio de criação respeitando o limite do plano contratado
         if (!podeCriarLink()) {
@@ -1453,13 +1528,19 @@ if (el.formLink) {
 
         const linkId = crypto.randomUUID();
         const versao = 1;
-        const caminhoImagem = `${state.user.id}/${linkId}-v${versao}.jpg`;
+        let caminhoImagem = '';
 
-        const { error: errUpload } = await sb.storage
-          .from('banners')
-          .upload(caminhoImagem, state.arquivoBlob, { contentType: 'image/jpeg' });
+        if (state.fotoSelecionadaGaleria) {
+          // Reutiliza imagem salva da galeria (zero upload redundante!)
+          caminhoImagem = state.fotoSelecionadaGaleria;
+        } else {
+          caminhoImagem = `${state.user.id}/${linkId}-v${versao}.jpg`;
+          const { error: errUpload } = await sb.storage
+            .from('banners')
+            .upload(caminhoImagem, state.arquivoBlob, { contentType: 'image/jpeg' });
 
-        if (errUpload) throw errUpload;
+          if (errUpload) throw errUpload;
+        }
 
         let slugFinal = slugDesejado;
         let sucesso = false;
@@ -1489,17 +1570,22 @@ if (el.formLink) {
             continue;
           }
 
-          await sb.storage.from('banners').remove([caminhoImagem]);
+          if (!state.fotoSelecionadaGaleria) {
+            await sb.storage.from('banners').remove([caminhoImagem]);
+          }
           throw errInsert;
         }
 
         if (!sucesso) {
-          await sb.storage.from('banners').remove([caminhoImagem]);
+          if (!state.fotoSelecionadaGaleria) {
+            await sb.storage.from('banners').remove([caminhoImagem]);
+          }
           throw new Error('Não foi possível gerar um apelido livre para o link. Tente outro.');
         }
 
         const linkPronto = `${window.location.origin}/${state.loja.slug}/${slugFinal}`;
         exibirResultadoCriado(linkPronto);
+        carregarGaleriaFotos(true);
       }
     } catch (err) {
       toast('Erro ao salvar link: ' + err.message, 'error');
@@ -2163,6 +2249,590 @@ document.addEventListener('click', (e) => {
     }
   }
 });
+
+// ==========================================
+// MÓDULO: GALERIA DE FOTOS DO LOJISTA
+// ==========================================
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+async function carregarGaleriaFotos(forcar = false) {
+  if (!state.user || !state.loja) return;
+
+  // Garante que a lista de links da loja esteja atualizada para mapeamento
+  if (!state.links || state.links.length === 0 || forcar) {
+    try {
+      const { data: links } = await sb
+        .from('links')
+        .select('*')
+        .eq('loja_id', state.loja.id);
+      if (links) state.links = links;
+    } catch (_) {}
+  }
+
+  // Mapeia links ativos/pausados que utilizam cada imagem
+  const mapLinksPorImagem = {};
+  (state.links || []).forEach((link) => {
+    if (link.imagem_path) {
+      if (!mapLinksPorImagem[link.imagem_path]) {
+        mapLinksPorImagem[link.imagem_path] = [];
+      }
+      mapLinksPorImagem[link.imagem_path].push(link);
+    }
+  });
+
+  const fotosMap = new Map();
+
+  // 1. Tenta listar objetos no bucket 'banners' do storage
+  try {
+    const { data: files, error } = await sb.storage.from('banners').list(state.user.id, {
+      limit: 100,
+      sortBy: { column: 'created_at', order: 'desc' }
+    });
+    if (!error && Array.isArray(files)) {
+      files.forEach((file) => {
+        if (!file.name || file.name.startsWith('.')) return;
+        const caminho = `${state.user.id}/${file.name}`;
+        const { data: { publicUrl } } = sb.storage.from('banners').getPublicUrl(caminho);
+        fotosMap.set(caminho, {
+          caminho,
+          nome: file.name,
+          urlPublica: publicUrl,
+          criadoEm: file.created_at || new Date().toISOString(),
+          tamanho: file.metadata?.size || null,
+          linksUsando: mapLinksPorImagem[caminho] || [],
+        });
+      });
+    }
+  } catch (err) {
+    console.warn('Listagem storage:', err);
+  }
+
+  // 2. Garante que qualquer imagem usada nos links cadastrados esteja presente
+  (state.links || []).forEach((link) => {
+    if (link.imagem_path && !fotosMap.has(link.imagem_path)) {
+      const caminho = link.imagem_path;
+      const { data: { publicUrl } } = sb.storage.from('banners').getPublicUrl(caminho);
+      const nome = caminho.split('/').pop() || 'banner.jpg';
+      fotosMap.set(caminho, {
+        caminho,
+        nome,
+        urlPublica: `${publicUrl}?v=${link.versao || 1}`,
+        criadoEm: link.criado_em,
+        tamanho: null,
+        linksUsando: mapLinksPorImagem[caminho] || [],
+      });
+    }
+  });
+
+  // Ordena da mais recente para a mais antiga
+  state.fotosGaleria = Array.from(fotosMap.values()).sort((a, b) => {
+    const dataA = new Date(a.criadoEm || 0).getTime();
+    const dataB = new Date(b.criadoEm || 0).getTime();
+    return dataB - dataA;
+  });
+
+  atualizarContagemGaleria();
+  renderizarGridGaleria();
+  renderizarModalGaleria();
+}
+
+function atualizarContagemGaleria() {
+  const total = (state.fotosGaleria || []).length;
+  if (el.contagemGaleriaBadge) el.contagemGaleriaBadge.textContent = total;
+  if (el.badgeTotalGaleria) el.badgeTotalGaleria.textContent = `${total} ${total === 1 ? 'foto' : 'fotos'}`;
+}
+
+function renderizarGridGaleria() {
+  if (!el.gridFotosGaleria) return;
+
+  let filtradas = [...state.fotosGaleria];
+
+  // Filtro por categoria
+  if (state.filtroGaleria === 'em_uso') {
+    filtradas = filtradas.filter((f) => f.linksUsando.length > 0);
+  } else if (state.filtroGaleria === 'nao_usadas') {
+    filtradas = filtradas.filter((f) => f.linksUsando.length === 0);
+  }
+
+  // Filtro por busca textual
+  if (state.termoBuscaGaleria) {
+    const termo = state.termoBuscaGaleria.toLowerCase();
+    filtradas = filtradas.filter((f) => {
+      const nomeMatch = f.nome.toLowerCase().includes(termo);
+      const linkMatch = f.linksUsando.some((l) =>
+        (l.titulo && l.titulo.toLowerCase().includes(termo)) ||
+        (l.slug && l.slug.toLowerCase().includes(termo))
+      );
+      return nomeMatch || linkMatch;
+    });
+  }
+
+  if (el.contadorFotosGaleria) {
+    el.contadorFotosGaleria.textContent = `Mostrando ${filtradas.length} de ${state.fotosGaleria.length} ${state.fotosGaleria.length === 1 ? 'foto' : 'fotos'}`;
+  }
+
+  if (filtradas.length === 0) {
+    el.gridFotosGaleria.innerHTML = '';
+    if (el.galeriaVazia) el.galeriaVazia.classList.remove('hidden');
+    return;
+  }
+
+  if (el.galeriaVazia) el.galeriaVazia.classList.add('hidden');
+
+  el.gridFotosGaleria.innerHTML = filtradas.map((foto) => {
+    const qtdLinks = foto.linksUsando.length;
+    const emUso = qtdLinks > 0;
+    const dataFormatada = foto.criadoEm ? new Date(foto.criadoEm).toLocaleDateString('pt-BR') : '';
+
+    const badgeUsoHtml = emUso
+      ? `<span class="inline-flex items-center gap-1 bg-secondary text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow-xs backdrop-blur-xs">
+          <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+          <span>Em uso (${qtdLinks})</span>
+        </span>`
+      : `<span class="inline-flex items-center gap-1 bg-black/60 text-white/90 text-[10px] font-medium px-2 py-0.5 rounded-full backdrop-blur-xs">
+          Disponível
+        </span>`;
+
+    let linksListHtml = '';
+    if (emUso) {
+      linksListHtml = `
+        <div class="mt-2.5 pt-2 border-t border-outline-variant/30 text-xs">
+          <span class="text-[10px] font-bold text-outline uppercase tracking-wider block mb-1">Vinculada a:</span>
+          <div class="space-y-1">
+            ${foto.linksUsando.slice(0, 3).map((l) => `
+              <a href="#/editar/${l.id}" class="flex items-center justify-between text-xs text-primary hover:underline bg-surface-container-low px-2 py-1 rounded-md transition-colors" title="Editar link">
+                <span class="truncate max-w-[170px] font-semibold">${escapeHtml(l.titulo || l.slug)}</span>
+                <span class="material-symbols-outlined text-sm text-outline">edit</span>
+              </a>
+            `).join('')}
+            ${qtdLinks > 3 ? `<span class="text-[11px] text-outline block text-center pt-0.5">+ mais ${qtdLinks - 3} links</span>` : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    return `
+      <div class="bg-surface-container-lowest border border-outline-variant/60 hover:border-primary/50 rounded-2xl overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col justify-between group">
+        <!-- Visualizador 1.91:1 Estrito PostLink HD -->
+        <div class="relative aspect-[1.91/1] bg-surface-container-high overflow-hidden">
+          <img src="${foto.urlPublica}" alt="${escapeHtml(foto.nome)}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+          <div class="absolute top-2.5 left-2.5">
+            ${badgeUsoHtml}
+          </div>
+          <div class="absolute top-2.5 right-2.5">
+            <button type="button" class="btn-excluir-foto w-7 h-7 rounded-full bg-black/50 hover:bg-error text-white flex items-center justify-center transition-colors backdrop-blur-xs shadow-xs" data-caminho="${foto.caminho}" title="Excluir foto">
+              <span class="material-symbols-outlined text-sm">delete</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Conteúdo do Card -->
+        <div class="p-3.5 flex flex-col justify-between flex-1">
+          <div>
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-xs font-bold text-on-surface truncate" title="${escapeHtml(foto.nome)}">${escapeHtml(foto.nome)}</span>
+              ${dataFormatada ? `<span class="text-[11px] text-outline shrink-0 font-medium">${dataFormatada}</span>` : ''}
+            </div>
+            ${linksListHtml}
+          </div>
+
+          <!-- Ação do Card -->
+          <div class="mt-3 pt-2.5 border-t border-outline-variant/40 flex items-center justify-between gap-2">
+            <button type="button" class="btn-usar-em-novo-link w-full bg-primary hover:bg-primary-container text-white text-xs font-bold py-2 px-3 rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5 active:scale-95" data-caminho="${foto.caminho}">
+              <span class="material-symbols-outlined text-sm">add_link</span>
+              <span>Usar em Novo Link</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function abrirModalSelecaoGaleria() {
+  state.fotoTemporariaModal = state.fotoSelecionadaGaleria;
+  if (el.modalGaleriaSelecao) el.modalGaleriaSelecao.classList.remove('hidden');
+  if (el.modalGaleriaBusca) el.modalGaleriaBusca.value = '';
+  renderizarModalGaleria();
+  atualizarBotaoConfirmarModal();
+}
+
+function fecharModalSelecaoGaleria() {
+  if (el.modalGaleriaSelecao) el.modalGaleriaSelecao.classList.add('hidden');
+}
+
+function renderizarModalGaleria() {
+  if (!el.modalGaleriaGrid) return;
+
+  const termo = (el.modalGaleriaBusca ? el.modalGaleriaBusca.value.toLowerCase().trim() : '');
+  let fotos = [...state.fotosGaleria];
+
+  if (termo) {
+    fotos = fotos.filter((f) => {
+      const matchNome = f.nome.toLowerCase().includes(termo);
+      const matchLink = f.linksUsando.some((l) =>
+        (l.titulo && l.titulo.toLowerCase().includes(termo)) ||
+        (l.slug && l.slug.toLowerCase().includes(termo))
+      );
+      return matchNome || matchLink;
+    });
+  }
+
+  if (fotos.length === 0) {
+    el.modalGaleriaGrid.innerHTML = `
+      <div class="col-span-full py-12 text-center text-xs text-outline space-y-2">
+        <span class="material-symbols-outlined text-3xl text-outline">photo_library</span>
+        <p class="font-medium">Nenhuma foto encontrada na sua galeria.</p>
+        <p class="text-[11px]">Faça upload pelo botão acima para salvar novas fotos.</p>
+      </div>
+    `;
+    return;
+  }
+
+  el.modalGaleriaGrid.innerHTML = fotos.map((foto) => {
+    const isSelecionada = state.fotoTemporariaModal === foto.caminho;
+    const qtdLinks = foto.linksUsando.length;
+
+    return `
+      <div class="modal-foto-item cursor-pointer rounded-xl overflow-hidden border-2 transition-all group relative ${isSelecionada ? 'border-primary ring-4 ring-primary/20 shadow-md' : 'border-outline-variant/60 hover:border-primary/50'}" data-caminho="${foto.caminho}">
+        <div class="aspect-[1.91/1] bg-surface-container-high relative overflow-hidden">
+          <img src="${foto.urlPublica}" alt="${escapeHtml(foto.nome)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200">
+          ${isSelecionada ? `
+            <div class="absolute inset-0 bg-primary/20 flex items-center justify-center">
+              <span class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center shadow-md">
+                <span class="material-symbols-outlined text-lg font-bold">check</span>
+              </span>
+            </div>
+          ` : ''}
+          ${qtdLinks > 0 ? `
+            <span class="absolute bottom-1.5 left-1.5 bg-black/60 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded backdrop-blur-xs">
+              ${qtdLinks} ${qtdLinks === 1 ? 'link' : 'links'}
+            </span>
+          ` : ''}
+        </div>
+        <div class="p-2 bg-surface-container-lowest flex items-center justify-between text-xs">
+          <span class="truncate font-semibold text-on-surface" title="${escapeHtml(foto.nome)}">${escapeHtml(foto.nome)}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function atualizarBotaoConfirmarModal() {
+  if (!el.modalGaleriaBtnConfirmar) return;
+  const selecionada = state.fotosGaleria.find((f) => f.caminho === state.fotoTemporariaModal);
+  if (selecionada) {
+    el.modalGaleriaBtnConfirmar.disabled = false;
+    if (el.modalGaleriaSelecionadaInfo) {
+      el.modalGaleriaSelecionadaInfo.textContent = `Selecionada: ${selecionada.nome}`;
+    }
+  } else {
+    el.modalGaleriaBtnConfirmar.disabled = true;
+    if (el.modalGaleriaSelecionadaInfo) {
+      el.modalGaleriaSelecionadaInfo.textContent = 'Nenhuma foto selecionada';
+    }
+  }
+}
+
+function aplicarFotoGaleriaNoFormulario(caminhoImagem, isEdicao = false) {
+  state.fotoSelecionadaGaleria = caminhoImagem;
+  state.arquivoBlob = null;
+
+  let foto = state.fotosGaleria.find((f) => f.caminho === caminhoImagem);
+  let publicUrl = foto ? foto.urlPublica : null;
+
+  if (!publicUrl) {
+    const { data: { publicUrl: urlGerada } } = sb.storage.from('banners').getPublicUrl(caminhoImagem);
+    publicUrl = urlGerada;
+  }
+
+  const nomeArquivo = foto ? foto.nome : (caminhoImagem.split('/').pop() || 'banner.jpg');
+
+  if (el.thumbFotoSelecionada) el.thumbFotoSelecionada.src = publicUrl;
+  if (el.nomeFotoSelecionada) el.nomeFotoSelecionada.textContent = nomeArquivo;
+  if (el.bannerFotoSelecionadaGaleria) el.bannerFotoSelecionadaGaleria.classList.remove('hidden');
+
+  if (el.fname) el.fname.textContent = 'Fazer upload de outra foto do dispositivo';
+  if (el.infoArquivo) el.infoArquivo.classList.add('hidden');
+  if (el.eImg) el.eImg.textContent = '';
+
+  if (el.im) {
+    el.im.src = publicUrl;
+    el.im.classList.remove('hidden');
+  }
+  if (el.ph) el.ph.style.display = 'none';
+
+  atualizarLivePreview();
+}
+
+function removerFotoGaleriaDoFormulario() {
+  state.fotoSelecionadaGaleria = null;
+  state.arquivoBlob = null;
+
+  if (el.bannerFotoSelecionadaGaleria) el.bannerFotoSelecionadaGaleria.classList.add('hidden');
+  if (el.fname) el.fname.textContent = 'Fazer upload de nova foto ou arrastar aqui';
+  if (el.im) {
+    el.im.src = '';
+    el.im.classList.add('hidden');
+  }
+  if (el.ph) el.ph.style.display = 'flex';
+
+  atualizarLivePreview();
+}
+
+function usarFotoEmNovoLink(caminho) {
+  state.fotoSelecionadaGaleria = caminho;
+  window.location.hash = '#/novo';
+}
+
+function abrirModalConfirmacaoExclusao(foto) {
+  state.fotoParaExcluir = foto;
+
+  if (el.modalExclusaoThumb) el.modalExclusaoThumb.src = foto.urlPublica;
+  if (el.modalExclusaoNome) el.modalExclusaoNome.textContent = foto.nome;
+  if (el.modalExclusaoStatus) {
+    el.modalExclusaoStatus.textContent = foto.linksUsando.length > 0
+      ? `Vinculada a ${foto.linksUsando.length} link(s) ativo(s)`
+      : 'Foto livre (não vinculada a links)';
+  }
+
+  if (foto.linksUsando.length > 0) {
+    if (el.modalExclusaoAvisoLinks) el.modalExclusaoAvisoLinks.classList.remove('hidden');
+    if (el.modalExclusaoAvisoTitulo) {
+      el.modalExclusaoAvisoTitulo.textContent = `Atenção: Esta foto está ativa em ${foto.linksUsando.length} link(s)!`;
+    }
+    if (el.modalExclusaoListaLinks) {
+      el.modalExclusaoListaLinks.innerHTML = foto.linksUsando.map((l) => `
+        <div class="flex items-center justify-between bg-surface-container-lowest p-2 rounded-lg border border-outline-variant/40">
+          <div class="truncate max-w-[220px]">
+            <span class="font-bold text-on-surface block truncate">${escapeHtml(l.titulo || l.slug)}</span>
+            <span class="text-[10px] text-outline font-mono truncate">/${escapeHtml(l.slug)}</span>
+          </div>
+          <span class="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${l.ativo ? 'bg-secondary-container text-on-secondary-container' : 'bg-surface-container-high text-outline'} shrink-0">
+            ${l.ativo ? 'Ativo' : 'Pausado'}
+          </span>
+        </div>
+      `).join('');
+    }
+  } else {
+    if (el.modalExclusaoAvisoLinks) el.modalExclusaoAvisoLinks.classList.add('hidden');
+  }
+
+  if (el.modalConfirmarExclusaoFoto) el.modalConfirmarExclusaoFoto.classList.remove('hidden');
+}
+
+function fecharModalConfirmacaoExclusao() {
+  if (el.modalConfirmarExclusaoFoto) el.modalConfirmarExclusaoFoto.classList.add('hidden');
+  state.fotoParaExcluir = null;
+}
+
+async function confirmarExclusaoFoto() {
+  if (!state.fotoParaExcluir) return;
+
+  const btnConfirmar = el.modalExclusaoBtnConfirmar;
+  if (btnConfirmar) {
+    btnConfirmar.disabled = true;
+    btnConfirmar.textContent = 'Apagando…';
+  }
+
+  try {
+    const caminho = state.fotoParaExcluir.caminho;
+    const { error } = await sb.storage.from('banners').remove([caminho]);
+    if (error) throw error;
+
+    if (state.fotoSelecionadaGaleria === caminho) {
+      removerFotoGaleriaDoFormulario();
+    }
+
+    toast('Foto apagada da galeria com sucesso!', 'success');
+    fecharModalConfirmacaoExclusao();
+    await carregarGaleriaFotos(true);
+  } catch (err) {
+    toast('Erro ao apagar foto: ' + err.message, 'error');
+  } finally {
+    if (btnConfirmar) {
+      btnConfirmar.disabled = false;
+      btnConfirmar.innerHTML = '<span class="material-symbols-outlined text-base">delete</span><span>Sim, Excluir Foto</span>';
+    }
+  }
+}
+
+async function processarUploadDiretoGaleria(files) {
+  if (!files || files.length === 0) return;
+  const listaArquivos = Array.from(files).filter((f) => f.type.startsWith('image/'));
+  if (listaArquivos.length === 0) {
+    toast('Selecione arquivos de imagem válidos (JPEG, PNG ou WebP).', 'error');
+    return;
+  }
+
+  toast(`Otimizando e enviando ${listaArquivos.length} foto(s)...`, 'info');
+
+  let enviados = 0;
+  for (const file of listaArquivos) {
+    try {
+      const blob = await comprimirImagem(file, { larguraMax: 1200, alvoKB: 300 });
+      const caminho = `${state.user.id}/galeria-${Date.now()}-${slugAleatorio()}.jpg`;
+      const { error } = await sb.storage
+        .from('banners')
+        .upload(caminho, blob, { contentType: 'image/jpeg' });
+      if (!error) enviados += 1;
+    } catch (err) {
+      console.error('Erro no upload para galeria:', err);
+    }
+  }
+
+  if (enviados > 0) {
+    toast(`${enviados} foto(s) adicionada(s) à sua galeria com sucesso!`, 'success');
+    await carregarGaleriaFotos(true);
+  } else {
+    toast('Não foi possível enviar as fotos. Tente novamente.', 'error');
+  }
+}
+
+// ==========================================
+// REGISTRO DE EVENTOS DA GALERIA
+// ==========================================
+
+// Abertura do Modal de Seleção no Formulário
+if (el.btnAbrirModalGaleria) {
+  el.btnAbrirModalGaleria.addEventListener('click', abrirModalSelecaoGaleria);
+}
+if (el.btnTrocarFotoGaleria) {
+  el.btnTrocarFotoGaleria.addEventListener('click', abrirModalSelecaoGaleria);
+}
+if (el.btnRemoverFotoGaleria) {
+  el.btnRemoverFotoGaleria.addEventListener('click', removerFotoGaleriaDoFormulario);
+}
+
+// Fechamento do Modal de Seleção
+if (el.modalGaleriaBtnFechar) {
+  el.modalGaleriaBtnFechar.addEventListener('click', fecharModalSelecaoGaleria);
+}
+if (el.modalGaleriaBtnCancelar) {
+  el.modalGaleriaBtnCancelar.addEventListener('click', fecharModalSelecaoGaleria);
+}
+
+// Confirmação da Foto Selecionada no Modal
+if (el.modalGaleriaBtnConfirmar) {
+  el.modalGaleriaBtnConfirmar.addEventListener('click', () => {
+    if (state.fotoTemporariaModal) {
+      aplicarFotoGaleriaNoFormulario(state.fotoTemporariaModal);
+      fecharModalSelecaoGaleria();
+      toast('Foto da galeria aplicada com sucesso!', 'success');
+    }
+  });
+}
+
+// Busca em Tempo Real no Modal de Seleção
+if (el.modalGaleriaBusca) {
+  el.modalGaleriaBusca.addEventListener('input', renderizarModalGaleria);
+}
+
+// Seleção de Foto no Grid do Modal (Event Delegation)
+if (el.modalGaleriaGrid) {
+  el.modalGaleriaGrid.addEventListener('click', (e) => {
+    const item = e.target.closest('.modal-foto-item');
+    if (!item) return;
+    const caminho = item.dataset.caminho;
+    state.fotoTemporariaModal = caminho;
+    renderizarModalGaleria();
+    atualizarBotaoConfirmarModal();
+  });
+}
+
+// Upload Rápido Direto Dentro do Modal de Seleção
+if (el.inputUploadModalGaleria) {
+  el.inputUploadModalGaleria.addEventListener('change', async (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    toast('Otimizando imagem para alta definição...', 'info');
+    try {
+      const blob = await comprimirImagem(file, { larguraMax: 1200, alvoKB: 300 });
+      const caminho = `${state.user.id}/galeria-${Date.now()}-${slugAleatorio()}.jpg`;
+      const { error } = await sb.storage
+        .from('banners')
+        .upload(caminho, blob, { contentType: 'image/jpeg' });
+      if (error) throw error;
+
+      await carregarGaleriaFotos(true);
+      aplicarFotoGaleriaNoFormulario(caminho);
+      fecharModalSelecaoGaleria();
+      toast('Foto adicionada e aplicada ao cartão!', 'success');
+    } catch (err) {
+      toast('Erro ao enviar foto: ' + err.message, 'error');
+    }
+  });
+}
+
+// Filtros por Chips na View da Galeria
+document.querySelectorAll('.filtro-galeria-chip').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filtro-galeria-chip').forEach((b) => {
+      b.classList.remove('bg-primary', 'text-white', 'shadow-xs');
+      b.classList.add('bg-surface-container-low', 'text-on-surface-variant');
+    });
+    btn.classList.add('bg-primary', 'text-white', 'shadow-xs');
+    btn.classList.remove('bg-surface-container-low', 'text-on-surface-variant');
+
+    state.filtroGaleria = btn.dataset.filtroGaleria;
+    renderizarGridGaleria();
+  });
+});
+
+// Busca na View da Galeria
+if (el.inputBuscaGaleria) {
+  el.inputBuscaGaleria.addEventListener('input', (e) => {
+    state.termoBuscaGaleria = e.target.value.trim();
+    renderizarGridGaleria();
+  });
+}
+
+// Upload Direto na View da Galeria
+if (el.inputUploadGaleriaDireto) {
+  el.inputUploadGaleriaDireto.addEventListener('change', (e) => {
+    if (e.target.files && e.target.files.length > 0) {
+      processarUploadDiretoGaleria(e.target.files);
+    }
+  });
+}
+
+// Ações no Grid da View da Galeria (Usar em Novo Link ou Excluir)
+if (el.gridFotosGaleria) {
+  el.gridFotosGaleria.addEventListener('click', (e) => {
+    const btnUsar = e.target.closest('.btn-usar-em-novo-link');
+    if (btnUsar) {
+      const caminho = btnUsar.dataset.caminho;
+      usarFotoEmNovoLink(caminho);
+      return;
+    }
+
+    const btnExcluir = e.target.closest('.btn-excluir-foto');
+    if (btnExcluir) {
+      const caminho = btnExcluir.dataset.caminho;
+      const foto = state.fotosGaleria.find((f) => f.caminho === caminho);
+      if (foto) {
+        abrirModalConfirmacaoExclusao(foto);
+      }
+    }
+  });
+}
+
+// Modal de Confirmação de Exclusão Segura
+if (el.modalExclusaoBtnCancelar) {
+  el.modalExclusaoBtnCancelar.addEventListener('click', fecharModalConfirmacaoExclusao);
+}
+if (el.modalExclusaoBtnConfirmar) {
+  el.modalExclusaoBtnConfirmar.addEventListener('click', confirmarExclusaoFoto);
+}
 
 // Iniciar Aplicação
 init();

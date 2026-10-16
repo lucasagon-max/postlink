@@ -42,6 +42,12 @@
           <span id="nav-status-texto">Plano Pro</span>
         </a>
 
+        <!-- Botão Galeria (Desktop) -->
+        <a id="btn-galeria-top" href="#/galeria" class="hidden sm:inline-flex items-center gap-1.5 bg-surface-container hover:bg-surface-container-high text-primary text-xs font-bold px-3 py-1.5 rounded-lg border border-outline-variant/60 shadow-2xs active:scale-95 transition-all">
+          <span class="material-symbols-outlined text-base text-secondary-dark">photo_library</span>
+          <span>Galeria</span>
+        </a>
+
         <!-- Botão Novo Link (Desktop) -->
         <a id="btn-novo-link-top" href="#/novo" class="hidden sm:inline-flex items-center gap-1.5 bg-primary text-white text-xs font-bold px-3.5 py-1.5 rounded-lg shadow-xs hover:bg-primary-container active:scale-95 transition-all">
           <span class="material-symbols-outlined text-base">add_link</span>
@@ -441,17 +447,48 @@
               </div>
             </div>
 
-            <!-- 1. CAMPO DE IMAGEM & OTIMIZAÇÃO -->
-            <div class="space-y-2">
-              <label class="block text-xs font-bold text-on-surface-variant">Imagem de Destaque (Banner HD) *</label>
-              
-              <!-- Dropzone -->
-              <label for="input-arquivo" id="dropzone" class="border-2 border-dashed border-outline-variant hover:border-primary/60 bg-surface-container-low/50 hover:bg-surface-container-low transition-all rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer text-center group">
-                <span class="material-symbols-outlined text-3xl text-primary group-hover:scale-110 transition-transform mb-1">add_photo_alternate</span>
-                <span id="fname" class="text-xs font-bold text-primary">Escolher da galeria ou arrastar foto</span>
-                <span class="text-xs text-outline mt-0.5">JPG, PNG ou WEBP (recomendado 1200x630px)</span>
-              </label>
-              <input type="file" id="input-arquivo" accept="image/jpeg,image/png,image/webp" class="sr-only">
+            <!-- 1. CAMPO DE IMAGEM & GALERIA -->
+            <div class="space-y-2.5">
+              <div class="flex items-center justify-between">
+                <label class="block text-xs font-bold text-on-surface-variant">Imagem de Destaque (Banner HD) *</label>
+                <!-- Botão de atalho para seleção rápida na galeria -->
+                <button type="button" id="btn-abrir-modal-galeria" class="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:text-primary-container bg-surface-container-low hover:bg-surface-container px-2.5 py-1 rounded-lg border border-outline-variant/60 transition-all active:scale-95 shadow-2xs">
+                  <span class="material-symbols-outlined text-sm text-secondary-dark">photo_library</span>
+                  <span>Minha Galeria (<span id="contagem-galeria-badge">0</span>)</span>
+                </button>
+              </div>
+
+              <!-- Banner de foto selecionada da galeria -->
+              <div id="banner-foto-selecionada-galeria" class="hidden bg-secondary-container/30 border border-secondary/40 rounded-xl p-3 flex items-center justify-between gap-3 transition-all">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <img id="thumb-foto-selecionada" src="" alt="Foto selecionada" class="w-14 h-9 rounded-lg object-cover border border-secondary/30 shadow-2xs shrink-0">
+                  <div class="min-w-0">
+                    <div class="flex items-center gap-1.5">
+                      <span class="text-xs font-bold text-on-surface truncate" id="nome-foto-selecionada">Foto da galeria</span>
+                      <span class="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-secondary-container text-on-secondary-container shrink-0">Salva</span>
+                    </div>
+                    <span class="text-[11px] text-outline block">Reutilizada da sua nuvem · Sem upload redundante</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1 shrink-0">
+                  <button type="button" id="btn-trocar-foto-galeria" class="text-xs font-bold text-primary hover:underline px-1.5 py-1">
+                    Trocar
+                  </button>
+                  <button type="button" id="btn-remover-foto-galeria" class="text-xs text-outline hover:text-error p-1 rounded-md" title="Remover seleção">
+                    <span class="material-symbols-outlined text-base">close</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Dropzone / Upload de novo arquivo -->
+              <div id="wrapper-dropzone">
+                <label for="input-arquivo" id="dropzone" class="border-2 border-dashed border-outline-variant hover:border-primary/60 bg-surface-container-low/50 hover:bg-surface-container-low transition-all rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer text-center group">
+                  <span class="material-symbols-outlined text-3xl text-primary group-hover:scale-110 transition-transform mb-1">add_photo_alternate</span>
+                  <span id="fname" class="text-xs font-bold text-primary">Fazer upload de nova foto ou arrastar aqui</span>
+                  <span class="text-xs text-outline mt-0.5">JPG, PNG ou WEBP (otimizada automaticamente para 1200x630px)</span>
+                </label>
+                <input type="file" id="input-arquivo" accept="image/jpeg,image/png,image/webp" class="sr-only">
+              </div>
               
               <!-- Badge de Otimização Automática -->
               <div id="info-arquivo" class="hidden flex items-center justify-between bg-surface-container-low border border-outline-variant/60 p-2.5 rounded-xl">
@@ -707,6 +744,85 @@
           </div>
 
         </div>
+    </section>
+
+    <!-- VIEW: GALERIA DE FOTOS (#/galeria) -->
+    <section id="view-galeria" class="hidden space-y-6 pb-12">
+      
+      <!-- Cabeçalho Principal da Galeria -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-1">
+        <div>
+          <div class="flex items-center gap-2.5">
+            <h1 class="text-xl sm:text-2xl font-extrabold text-primary tracking-tight">Galeria de Fotos do Negócio</h1>
+            <span id="badge-total-galeria" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container">0 fotos</span>
+          </div>
+          <p class="text-xs text-on-surface-variant mt-0.5">
+            Suas fotos salvas para reutilizar nos links do WhatsApp sem precisar fazer upload toda vez.
+          </p>
+        </div>
+
+        <!-- Ação de Upload Direto para a Galeria -->
+        <div class="flex items-center gap-2 self-start sm:self-auto">
+          <label for="input-upload-galeria-direto" class="cursor-pointer inline-flex items-center gap-2 bg-secondary text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-xs hover:bg-secondary-dark active:scale-95 transition-all">
+            <span class="material-symbols-outlined text-base">cloud_upload</span>
+            <span>+ Enviar Nova Foto</span>
+          </label>
+          <input type="file" id="input-upload-galeria-direto" accept="image/jpeg,image/png,image/webp" multiple class="sr-only">
+        </div>
+      </div>
+
+      <!-- Barra de Filtros, Busca e Estatísticas -->
+      <div class="bg-surface-container-lowest border border-outline-variant/60 rounded-2xl p-4 shadow-xs space-y-3">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          
+          <!-- Chips de Filtro da Galeria -->
+          <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0" id="filtro-galeria-chips">
+            <button type="button" data-filtro-galeria="todas" class="filtro-galeria-chip px-3 py-1.5 rounded-full text-xs font-bold transition-all bg-primary text-white shadow-xs">
+              Todas as Fotos
+            </button>
+            <button type="button" data-filtro-galeria="em_uso" class="filtro-galeria-chip px-3 py-1.5 rounded-full text-xs font-medium transition-all bg-surface-container-low text-on-surface-variant hover:bg-surface-container">
+              Em uso em links
+            </button>
+            <button type="button" data-filtro-galeria="nao_usadas" class="filtro-galeria-chip px-3 py-1.5 rounded-full text-xs font-medium transition-all bg-surface-container-low text-on-surface-variant hover:bg-surface-container">
+              Não utilizadas
+            </button>
+          </div>
+
+          <!-- Campo de Busca na Galeria -->
+          <div class="relative w-full sm:w-64">
+            <span class="material-symbols-outlined absolute left-2.5 top-2.5 text-base text-outline">search</span>
+            <input id="input-busca-galeria" type="text" placeholder="Buscar por link ou foto..." class="w-full text-xs bg-surface-container-low border-0 rounded-lg pl-8 pr-3 py-2 focus:ring-1 focus:ring-primary placeholder:text-outline">
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between pt-1 border-t border-surface-container-high/60 text-xs text-on-surface-variant">
+          <span id="contador-fotos-galeria" class="font-medium">Carregando fotos...</span>
+          <span class="text-outline text-[11px] hidden sm:inline">Proporção HD 1.91:1 otimizada para WhatsApp</span>
+        </div>
+      </div>
+
+      <!-- Grid de Fotos da Galeria -->
+      <div id="grid-fotos-galeria" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Renderizado dinamicamente via JS -->
+      </div>
+
+      <!-- Estado Vazio da Galeria -->
+      <div id="galeria-vazia" class="hidden bg-surface-container-lowest border border-outline-variant/60 rounded-2xl p-10 text-center max-w-lg mx-auto shadow-xs space-y-3">
+        <div class="w-14 h-14 rounded-2xl bg-primary-fixed text-primary flex items-center justify-center mx-auto mb-2">
+          <span class="material-symbols-outlined text-3xl">photo_library</span>
+        </div>
+        <h2 class="text-lg font-bold text-on-surface">Sua Galeria está vazia</h2>
+        <p class="text-xs text-on-surface-variant leading-relaxed max-w-sm mx-auto">
+          As fotos dos seus links são salvas automaticamente aqui. Você também pode enviar fotos antecipadamente para usar quando quiser.
+        </p>
+        <div class="pt-2">
+          <label for="input-upload-galeria-direto" class="cursor-pointer inline-flex items-center gap-2 bg-primary text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-xs hover:bg-primary-container active:scale-95 transition-all">
+            <span class="material-symbols-outlined text-base">add_photo_alternate</span>
+            <span>Enviar Primeira Foto</span>
+          </label>
+        </div>
+      </div>
+
     </section>
 
     <!-- VIEW: CHECKOUT / PLANOS (#/plano) -->
@@ -1032,6 +1148,113 @@
 
   </main>
 
+  <!-- MODAL: SELEÇÃO RÁPIDA DE FOTOS DA GALERIA -->
+  <div id="modal-galeria-selecao" role="dialog" aria-modal="true" aria-labelledby="modal-galeria-titulo" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-surface-container-lowest max-w-3xl w-full rounded-2xl border border-outline-variant shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
+      
+      <!-- Topo do Modal -->
+      <div class="p-4 sm:p-5 border-b border-outline-variant/60 flex items-center justify-between bg-surface-container-low/50 shrink-0">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-primary-fixed text-primary flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-xl">photo_library</span>
+          </div>
+          <div>
+            <h2 id="modal-galeria-titulo" class="text-base sm:text-lg font-extrabold text-on-surface">Escolher Foto da Galeria</h2>
+            <p class="text-xs text-outline font-medium">Selecione uma imagem já enviada para usar neste link</p>
+          </div>
+        </div>
+        <button type="button" id="modal-galeria-btn-fechar" class="w-8 h-8 rounded-full hover:bg-surface-container flex items-center justify-center text-outline hover:text-on-surface transition-colors" title="Fechar">
+          <span class="material-symbols-outlined text-xl">close</span>
+        </button>
+      </div>
+
+      <!-- Barra de Ações Rápidas no Modal -->
+      <div class="p-3 sm:px-5 border-b border-outline-variant/40 bg-surface-container-lowest flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 shrink-0">
+        <div class="relative flex-1">
+          <span class="material-symbols-outlined absolute left-2.5 top-2.5 text-base text-outline">search</span>
+          <input id="modal-galeria-busca" type="text" placeholder="Filtrar fotos salvas..." class="w-full text-xs bg-surface-container-low border-0 rounded-lg pl-8 pr-3 py-2 focus:ring-1 focus:ring-primary placeholder:text-outline">
+        </div>
+        <label for="input-upload-modal-galeria" class="cursor-pointer inline-flex items-center justify-center gap-1.5 text-xs font-bold text-primary bg-surface-container hover:bg-surface-container-high px-3 py-2 rounded-lg border border-outline-variant/60 transition-all shrink-0">
+          <span class="material-symbols-outlined text-base text-secondary">cloud_upload</span>
+          <span>+ Enviar Nova Foto</span>
+        </label>
+        <input type="file" id="input-upload-modal-galeria" accept="image/jpeg,image/png,image/webp" class="sr-only">
+      </div>
+
+      <!-- Conteúdo com Scroll -->
+      <div id="modal-galeria-grid" class="p-4 sm:p-5 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 flex-1">
+        <!-- Itens da galeria gerados por JS -->
+      </div>
+
+      <!-- Rodapé do Modal -->
+      <div class="p-3.5 sm:px-5 border-t border-outline-variant/60 bg-surface-container-low/40 flex items-center justify-between shrink-0">
+        <span id="modal-galeria-selecionada-info" class="text-xs text-on-surface-variant font-medium truncate">Nenhuma foto selecionada</span>
+        <div class="flex items-center gap-2 shrink-0">
+          <button type="button" id="modal-galeria-btn-cancelar" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-outline hover:text-on-surface">
+            Cancelar
+          </button>
+          <button type="button" id="modal-galeria-btn-confirmar" disabled class="px-4 py-1.5 rounded-lg text-xs font-bold bg-primary text-white hover:bg-primary-container disabled:opacity-50 disabled:cursor-not-allowed shadow-xs active:scale-95 transition-all">
+            Usar Foto Selecionada
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL: CONFIRMAR EXCLUSÃO DE FOTO COM AVISO DE LINKS -->
+  <div id="modal-confirmar-exclusao-foto" role="dialog" aria-modal="true" aria-labelledby="modal-exclusao-titulo" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-surface-container-lowest max-w-md w-full rounded-2xl border border-outline-variant shadow-2xl p-5 sm:p-6 space-y-4">
+      
+      <div class="flex items-start gap-3">
+        <div id="modal-exclusao-icone-wrap" class="w-10 h-10 rounded-xl bg-error-container text-error flex items-center justify-center shrink-0 mt-0.5">
+          <span class="material-symbols-outlined text-2xl">delete_forever</span>
+        </div>
+        <div class="flex-1">
+          <h2 id="modal-exclusao-titulo" class="text-base sm:text-lg font-extrabold text-on-surface">Excluir Foto da Galeria?</h2>
+          <p id="modal-exclusao-subtitulo" class="text-xs text-on-surface-variant mt-0.5 leading-relaxed">
+            Esta ação removerá a imagem do servidor de forma permanente.
+          </p>
+        </div>
+      </div>
+
+      <!-- Card de Prévia da Foto a ser excluída -->
+      <div class="bg-surface-container-low rounded-xl p-2.5 flex items-center gap-3 border border-outline-variant/50">
+        <img id="modal-exclusao-thumb" src="" alt="Foto" class="w-20 h-11 rounded-lg object-cover border border-outline-variant/60 shrink-0">
+        <div class="min-w-0 flex-1">
+          <span id="modal-exclusao-nome" class="text-xs font-bold text-on-surface block truncate">foto.jpg</span>
+          <span id="modal-exclusao-status" class="text-[11px] text-outline block">Tamanho: --</span>
+        </div>
+      </div>
+
+      <!-- Alerta de Vínculo com Links -->
+      <div id="modal-exclusao-aviso-links" class="hidden bg-error-container/30 border border-error/30 rounded-xl p-3 space-y-2">
+        <div class="flex items-center gap-1.5 text-xs font-bold text-error">
+          <span class="material-symbols-outlined text-base">warning</span>
+          <span id="modal-exclusao-aviso-titulo">Esta foto está vinculada a links ativos!</span>
+        </div>
+        <p class="text-xs text-on-surface-variant leading-relaxed">
+          Os seguintes links usam esta foto no cartão do WhatsApp. Se você apagá-la, eles continuarão redirecionando os visitantes, mas o preview ficará sem a imagem até que você a substitua:
+        </p>
+        <div id="modal-exclusao-lista-links" class="max-h-28 overflow-y-auto space-y-1.5 pr-1 text-xs">
+          <!-- Lista de links gerada dinamicamente -->
+        </div>
+      </div>
+
+      <!-- Botões de Ação -->
+      <div class="pt-2 flex items-center justify-end gap-2">
+        <button type="button" id="modal-exclusao-btn-cancelar" class="px-4 py-2 rounded-xl text-xs font-semibold text-outline hover:text-on-surface transition-colors">
+          Cancelar
+        </button>
+        <button type="button" id="modal-exclusao-btn-confirmar" class="px-4 py-2 rounded-xl text-xs font-bold bg-error text-white hover:bg-error/90 shadow-xs active:scale-95 transition-all flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-base">delete</span>
+          <span>Sim, Excluir Foto</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
   <!-- MODAL DE SUCESSO -->
   <div id="modal-sucesso" role="dialog" aria-modal="true" aria-labelledby="modal-sucesso-titulo" class="hidden fixed inset-0 bg-black/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
     <div class="bg-surface-container-lowest max-w-sm w-full rounded-2xl p-6 text-center border border-outline-variant shadow-xl space-y-4">
@@ -1193,20 +1416,24 @@
   </div>
 
   <!-- BOTTOM NAVIGATION BAR (MOBILE) -->
-  <nav aria-label="Navegação móvel inferior" class="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface-container-lowest border-t border-outline-variant/60 shadow-lg px-4 py-2 flex items-center justify-around">
-    <a href="#/" class="flex flex-col items-center text-primary font-bold text-xs">
+  <nav aria-label="Navegação móvel inferior" class="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface-container-lowest border-t border-outline-variant/60 shadow-lg px-2 py-1.5 flex items-center justify-around">
+    <a href="#/" class="nav-bottom-item flex flex-col items-center text-primary font-bold text-xs p-1">
       <span class="material-symbols-outlined text-xl">dashboard</span>
       <span>Links</span>
     </a>
-    <a href="#/novo" class="flex flex-col items-center text-on-surface-variant hover:text-primary text-xs">
+    <a href="#/galeria" class="nav-bottom-item flex flex-col items-center text-on-surface-variant hover:text-primary text-xs p-1">
+      <span class="material-symbols-outlined text-xl">photo_library</span>
+      <span>Galeria</span>
+    </a>
+    <a href="#/novo" class="nav-bottom-item flex flex-col items-center text-on-surface-variant hover:text-primary text-xs p-1">
       <span class="material-symbols-outlined text-xl">add_circle</span>
       <span>Criar</span>
     </a>
-    <a href="#/plano" class="flex flex-col items-center text-on-surface-variant hover:text-primary text-xs">
+    <a href="#/plano" class="nav-bottom-item flex flex-col items-center text-on-surface-variant hover:text-primary text-xs p-1">
       <span class="material-symbols-outlined text-xl">workspace_premium</span>
       <span>Planos</span>
     </a>
-    <a href="#/conta" class="flex flex-col items-center text-on-surface-variant hover:text-primary text-xs">
+    <a href="#/conta" class="nav-bottom-item flex flex-col items-center text-on-surface-variant hover:text-primary text-xs p-1">
       <span class="material-symbols-outlined text-xl">person</span>
       <span>Conta</span>
     </a>
