@@ -167,3 +167,51 @@ h3 {
   from { transform: translateY(16px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
+
+/* Glassmorphism & Efeitos Visuais Modernos (Inspirados no MyGroupMetrics) */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 25px 70px -15px rgba(0, 62, 128, 0.08), 0 0 0 1px rgba(226, 232, 240, 0.7);
+}
+
+.glass-pill {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.ambient-glow-emerald {
+  background: radial-gradient(circle, rgba(34, 197, 94, 0.14) 0%, rgba(34, 197, 94, 0) 70%);
+}
+
+.ambient-glow-blue {
+  background: radial-gradient(circle, rgba(30, 86, 160, 0.12) 0%, rgba(30, 86, 160, 0) 70%);
+}
+
+.tech-dot-bg {
+  background-image: radial-gradient(#94a3b8 0.75px, transparent 0.75px);
+  background-size: 24px 24px;
+}
+
+@keyframes floatSlow {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.animate-float-slow {
+  animation: floatSlow 5s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: floatSlow 5s ease-in-out 2.5s infinite;
+}
+
