@@ -37,6 +37,7 @@ const el = {
   viewConta: document.getElementById('view-conta'),
 
   navLojaNome: document.getElementById('nav-loja-nome'),
+  btnGaleriaTop: document.getElementById('btn-galeria-top'),
   btnNovoLinkTop: document.getElementById('btn-novo-link-top'),
   btnSair: document.getElementById('btn-sair'),
   navStatusTexto: document.getElementById('nav-status-texto'),
@@ -398,6 +399,11 @@ async function carregarDadosLojaEAssinatura() {
   }
   if (el.btnNovoLinkTop) {
     el.btnNovoLinkTop.style.display = 'inline-flex';
+    el.btnNovoLinkTop.classList.remove('hidden');
+  }
+  if (el.btnGaleriaTop) {
+    el.btnGaleriaTop.style.display = 'inline-flex';
+    el.btnGaleriaTop.classList.remove('hidden');
   }
 
   const { data: assinaturas } = await sb
@@ -497,13 +503,26 @@ async function router() {
 }
 
 function mostrarView(nome) {
-  if (el.viewLoading) el.viewLoading.style.display = 'none';
-  if (el.viewOnboarding) el.viewOnboarding.style.display = nome === 'onboarding' ? 'block' : 'none';
-  if (el.viewLista) el.viewLista.style.display = nome === 'lista' ? 'block' : 'none';
-  if (el.viewGaleria) el.viewGaleria.style.display = nome === 'galeria' ? 'block' : 'none';
-  if (el.viewFormLink) el.viewFormLink.style.display = nome === 'form' ? 'block' : 'none';
-  if (el.viewPlano) el.viewPlano.style.display = nome === 'plano' ? 'block' : 'none';
-  if (el.viewConta) el.viewConta.style.display = nome === 'conta' ? 'block' : 'none';
+  const views = [
+    { name: 'loading', el: el.viewLoading },
+    { name: 'onboarding', el: el.viewOnboarding },
+    { name: 'lista', el: el.viewLista },
+    { name: 'galeria', el: el.viewGaleria },
+    { name: 'form', el: el.viewFormLink },
+    { name: 'plano', el: el.viewPlano },
+    { name: 'conta', el: el.viewConta },
+  ];
+
+  views.forEach((v) => {
+    if (!v.el) return;
+    if (v.name === nome) {
+      v.el.classList.remove('hidden');
+      v.el.style.display = 'block';
+    } else {
+      v.el.classList.add('hidden');
+      v.el.style.display = 'none';
+    }
+  });
 
   // Atualiza destaque na barra inferior mobile
   document.querySelectorAll('.nav-bottom-item').forEach((item) => {
@@ -2264,11 +2283,34 @@ function escapeHtml(str) {
     .replace(/'/g, '&#039;');
 }
 
+// Auxiliares de Persistência Local da Galeria (Garante resiliência independente de RLS)
+function obterFotosCacheLocal(userId) {
+  try {
+    const raw = localStorage.getItem(`postlink_galeria_${userId}`);
+    return raw ? JSON.parse(raw) : [];
+  } catch (_) {
+    return [];
+  }
+}
+
+function salvarFotosCacheLocal(userId, fotos) {
+  try {
+    const limpas = (fotos || []).map((f) => ({
+      caminho: f.caminho,
+      nome: f.nome,
+      urlPublica: f.urlPublica,
+      criadoEm: f.criadoEm,
+      tamanho: f.tamanho,
+    }));
+    localStorage.setItem(`postlink_galeria_${userId}`, JSON.stringify(limpas));
+  } catch (_) {}
+}
+
 async function carregarGaleriaFotos(forcar = false) {
-  if (!state.user || !state.loja) return;
+  if (!state.user) return;
 
   // Garante que a lista de links da loja esteja atualizada para mapeamento
-  if (!state.links || state.links.length === 0 || forcar) {
+  if (state.loja && (!state.links || state.links.length === 0 || forcar)) {
     try {
       const { data: links } = await sb
         .from('links')
@@ -2291,7 +2333,18 @@ async function carregarGaleriaFotos(forcar = false) {
 
   const fotosMap = new Map();
 
-  // 1. Tenta listar objetos no bucket 'banners' do storage
+  // 1. Carrega fotos salvas no cache local do usuário
+  const fotosLocais = obterFotosCacheLocal(state.user.id);
+  fotosLocais.forEach((f) => {
+    if (f.caminho) {
+      fotosMap.set(f.caminho, {
+        ...f,
+        linksUsando: mapLinksPorImagem[f.caminho] || [],
+      });
+    }
+  });
+
+  // 2. Tenta listar objetos no bucket 'banners' do storage
   try {
     const { data: files, error } = await sb.storage.from('banners').list(state.user.id, {
       limit: 100,
@@ -2316,7 +2369,7 @@ async function carregarGaleriaFotos(forcar = false) {
     console.warn('Listagem storage:', err);
   }
 
-  // 2. Garante que qualquer imagem usada nos links cadastrados esteja presente
+  // 3. Garante que qualquer imagem usada nos links cadastrados esteja presente
   (state.links || []).forEach((link) => {
     if (link.imagem_path && !fotosMap.has(link.imagem_path)) {
       const caminho = link.imagem_path;
@@ -2339,6 +2392,8 @@ async function carregarGaleriaFotos(forcar = false) {
     const dataB = new Date(b.criadoEm || 0).getTime();
     return dataB - dataA;
   });
+
+  salvarFotosCacheLocal(state.user.id, state.fotosGaleria);
 
   atualizarContagemGaleria();
   renderizarGridGaleria();
@@ -2382,11 +2437,17 @@ function renderizarGridGaleria() {
 
   if (filtradas.length === 0) {
     el.gridFotosGaleria.innerHTML = '';
-    if (el.galeriaVazia) el.galeriaVazia.classList.remove('hidden');
+    if (el.galeriaVazia) {
+      el.galeriaVazia.classList.remove('hidden');
+      el.galeriaVazia.style.display = 'block';
+    }
     return;
   }
 
-  if (el.galeriaVazia) el.galeriaVazia.classList.add('hidden');
+  if (el.galeriaVazia) {
+    el.galeriaVazia.classList.add('hidden');
+    el.galeriaVazia.style.display = 'none';
+  }
 
   el.gridFotosGaleria.innerHTML = filtradas.map((foto) => {
     const qtdLinks = foto.linksUsando.length;
@@ -2460,14 +2521,20 @@ function renderizarGridGaleria() {
 
 function abrirModalSelecaoGaleria() {
   state.fotoTemporariaModal = state.fotoSelecionadaGaleria;
-  if (el.modalGaleriaSelecao) el.modalGaleriaSelecao.classList.remove('hidden');
+  if (el.modalGaleriaSelecao) {
+    el.modalGaleriaSelecao.classList.remove('hidden');
+    el.modalGaleriaSelecao.style.display = 'flex';
+  }
   if (el.modalGaleriaBusca) el.modalGaleriaBusca.value = '';
   renderizarModalGaleria();
   atualizarBotaoConfirmarModal();
 }
 
 function fecharModalSelecaoGaleria() {
-  if (el.modalGaleriaSelecao) el.modalGaleriaSelecao.classList.add('hidden');
+  if (el.modalGaleriaSelecao) {
+    el.modalGaleriaSelecao.classList.add('hidden');
+    el.modalGaleriaSelecao.style.display = 'none';
+  }
 }
 
 function renderizarModalGaleria() {
