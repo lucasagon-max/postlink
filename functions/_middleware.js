@@ -19,14 +19,16 @@ export async function onRequest(context) {
     });
   }
 
-  // Helper para buscar asset no env.ASSETS testando múltiplos caminhos com fallback /public
+  // Helper para buscar asset no env.ASSETS testando múltiplos caminhos
+  // PRIORIZA o prefixo /public para evitar que o fallback SPA do Pages devolva a raiz /index.html
   async function fetchAssetWithFallback(assetPath) {
     if (!env.ASSETS) return null;
 
-    const tentativas = [assetPath];
+    const tentativas = [];
     if (!assetPath.startsWith('/public/')) {
       tentativas.push('/public' + (assetPath.startsWith('/') ? assetPath : '/' + assetPath));
     }
+    tentativas.push(assetPath);
 
     for (const p of tentativas) {
       try {

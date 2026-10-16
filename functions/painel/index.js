@@ -3,9 +3,9 @@ export async function onRequest(context) {
   const { request, env } = context;
   if (env.ASSETS) {
     const urls = [
-      new URL('/painel/', request.url),
-      new URL('/painel/index.html', request.url),
       new URL('/public/painel/index.html', request.url),
+      new URL('/painel/index.html', request.url),
+      new URL('/painel/', request.url),
     ];
     for (const u of urls) {
       try {
