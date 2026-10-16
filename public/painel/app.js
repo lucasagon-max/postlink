@@ -1,6 +1,6 @@
 // public/painel/app.js - Lógica SPA do Painel do Lojista (PostLink com Stitch Theme)
 import { getSupabase } from '/assets/js/supabase-config.js';
-import { comprimirImagem, normalizarDestino, slugAleatorio } from '/assets/js/compressao.js';
+import { comprimirImagem, canvasParaBlob, aplicarMolduraInteligente, normalizarDestino, slugAleatorio } from '/assets/js/compressao.js';
 
 const sb = getSupabase();
 
@@ -212,6 +212,26 @@ const el = {
   modalExclusaoAvisoLinks: document.getElementById('modal-exclusao-aviso-links'),
   modalExclusaoAvisoTitulo: document.getElementById('modal-exclusao-aviso-titulo'),
   modalExclusaoListaLinks: document.getElementById('modal-exclusao-lista-links'),
+
+  // Editor & Recorte de Imagens (Cropper.js)
+  modalEditorRecorte: document.getElementById('modal-editor-recorte'),
+  modalEditorTitulo: document.getElementById('modal-editor-titulo'),
+  modalEditorBtnFechar: document.getElementById('modal-editor-btn-fechar'),
+  modalEditorBtnCancelar: document.getElementById('modal-editor-btn-cancelar'),
+  modalEditorBtnConfirmar: document.getElementById('modal-editor-btn-confirmar'),
+  editorAspectChips: document.getElementById('editor-aspect-chips'),
+  editorCheckMoldura: document.getElementById('editor-check-moldura'),
+  editorImagemAlvo: document.getElementById('editor-imagem-alvo'),
+  editorSliderZoom: document.getElementById('editor-slider-zoom'),
+  editorBtnZoomIn: document.getElementById('editor-btn-zoom-in'),
+  editorBtnZoomOut: document.getElementById('editor-btn-zoom-out'),
+  editorBtnRotateLeft: document.getElementById('editor-btn-rotate-left'),
+  editorBtnRotateRight: document.getElementById('editor-btn-rotate-right'),
+  editorBtnFlipH: document.getElementById('editor-btn-flip-h'),
+  editorBtnReset: document.getElementById('editor-btn-reset'),
+  editorBoxSubstituicao: document.getElementById('editor-box-substituicao'),
+  editorCheckSubstituirOriginal: document.getElementById('editor-check-substituir-original'),
+  btnRecortarFotoSelecionada: document.getElementById('btn-recortar-foto-selecionada'),
 };
 
 // Configuração dos Planos Comerciais
@@ -1199,33 +1219,13 @@ async function tratarArquivoSelecionado(file) {
 
   if (el.eImg) el.eImg.textContent = '';
   if (el.fname) el.fname.textContent = file.name;
-  if (el.infoArquivo) {
-    el.infoArquivo.classList.remove('hidden');
-    if (el.detalheCompressao) el.detalheCompressao.textContent = 'Otimizando proporção 1.91:1…';
-  }
 
-  try {
-    const tamanhoOriginalKB = Math.round(file.size / 1024);
-    const blob = await comprimirImagem(file, { larguraMax: 1200, alvoKB: 300 });
-    state.arquivoBlob = blob;
-
-    const urlPreview = URL.createObjectURL(blob);
-    if (el.im) {
-      el.im.src = urlPreview;
-      el.im.classList.remove('hidden');
-    }
-    if (el.ph) el.ph.style.display = 'none';
-
-    const tamanhoFinalKB = Math.round(blob.size / 1024);
-    const economia = Math.max(0, Math.round(((tamanhoOriginalKB - tamanhoFinalKB) / tamanhoOriginalKB) * 100));
-
-    if (el.detalheCompressao) {
-      el.detalheCompressao.textContent = `${tamanhoOriginalKB}KB → ${tamanhoFinalKB}KB (-${economia}%) · Alta Definição`;
-    }
-  } catch (err) {
-    if (el.eImg) el.eImg.textContent = 'Erro ao processar imagem: ' + err.message;
-    state.arquivoBlob = null;
-  }
+  // Abre editor de recorte com o arquivo selecionado para ajuste de proporção e enquadramento
+  abrirEditorRecorte({
+    arquivoOuUrl: file,
+    modo: 'formulario',
+    aspectInicial: 1.912,
+  });
 }
 
 // Live Preview
@@ -2489,7 +2489,10 @@ function renderizarGridGaleria() {
           <div class="absolute top-2.5 left-2.5">
             ${badgeUsoHtml}
           </div>
-          <div class="absolute top-2.5 right-2.5">
+          <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5">
+            <button type="button" class="btn-recortar-foto-card w-7 h-7 rounded-full bg-black/50 hover:bg-primary text-white flex items-center justify-center transition-colors backdrop-blur-xs shadow-xs" data-caminho="${foto.caminho}" title="Recortar e ajustar proporção">
+              <span class="material-symbols-outlined text-sm">crop</span>
+            </button>
             <button type="button" class="btn-excluir-foto w-7 h-7 rounded-full bg-black/50 hover:bg-error text-white flex items-center justify-center transition-colors backdrop-blur-xs shadow-xs" data-caminho="${foto.caminho}" title="Excluir foto">
               <span class="material-symbols-outlined text-sm">delete</span>
             </button>
@@ -2872,13 +2875,28 @@ if (el.inputUploadGaleriaDireto) {
   });
 }
 
-// Ações no Grid da View da Galeria (Usar em Novo Link ou Excluir)
+// Ações no Grid da View da Galeria (Usar em Novo Link, Recortar ou Excluir)
 if (el.gridFotosGaleria) {
   el.gridFotosGaleria.addEventListener('click', (e) => {
     const btnUsar = e.target.closest('.btn-usar-em-novo-link');
     if (btnUsar) {
       const caminho = btnUsar.dataset.caminho;
       usarFotoEmNovoLink(caminho);
+      return;
+    }
+
+    const btnRecortar = e.target.closest('.btn-recortar-foto-card');
+    if (btnRecortar) {
+      const caminho = btnRecortar.dataset.caminho;
+      const foto = state.fotosGaleria.find((f) => f.caminho === caminho);
+      if (foto) {
+        abrirEditorRecorte({
+          arquivoOuUrl: foto.urlPublica,
+          modo: 'galeria',
+          fotoOriginal: foto,
+          aspectInicial: 1.912,
+        });
+      }
       return;
     }
 
@@ -2899,6 +2917,409 @@ if (el.modalExclusaoBtnCancelar) {
 }
 if (el.modalExclusaoBtnConfirmar) {
   el.modalExclusaoBtnConfirmar.addEventListener('click', confirmarExclusaoFoto);
+}
+
+// ==========================================
+// EDITOR & RECORTE DE IMAGENS PROFISSIONAL (Cropper.js)
+// ==========================================
+
+let instanciaCropper = null;
+const editorContexto = {
+  modo: 'formulario', // 'formulario' | 'galeria' | 'upload_galeria'
+  fotoOriginal: null, // objeto foto se veio da galeria
+  aspectRatioAtual: 1.912,
+  escalaX: 1,
+  escalaY: 1,
+  urlTemporariaObjeto: null,
+};
+
+function abrirEditorRecorte({ arquivoOuUrl, modo = 'formulario', fotoOriginal = null, aspectInicial = 1.912 }) {
+  if (!el.modalEditorRecorte || !el.editorImagemAlvo) return;
+
+  editorContexto.modo = modo;
+  editorContexto.fotoOriginal = fotoOriginal;
+  editorContexto.aspectRatioAtual = aspectInicial;
+  editorContexto.escalaX = 1;
+  editorContexto.escalaY = 1;
+
+  // Revoga URL temporária anterior se existir
+  if (editorContexto.urlTemporariaObjeto) {
+    try { URL.revokeObjectURL(editorContexto.urlTemporariaObjeto); } catch (_) {}
+    editorContexto.urlTemporariaObjeto = null;
+  }
+
+  let srcUrl = '';
+  if (arquivoOuUrl instanceof Blob || arquivoOuUrl instanceof File) {
+    editorContexto.urlTemporariaObjeto = URL.createObjectURL(arquivoOuUrl);
+    srcUrl = editorContexto.urlTemporariaObjeto;
+  } else if (typeof arquivoOuUrl === 'string') {
+    srcUrl = arquivoOuUrl;
+  } else {
+    toast('Formato de imagem inválido para o editor.', 'error');
+    return;
+  }
+
+  // Configuração dos chips visuais de proporção
+  document.querySelectorAll('.btn-aspect-chip').forEach((chip) => {
+    const val = chip.dataset.aspect;
+    const isAtivo = (isNaN(aspectInicial) && isNaN(Number(val))) || (Math.abs(Number(val) - aspectInicial) < 0.01);
+    if (isAtivo) {
+      chip.classList.add('bg-primary', 'text-white', 'shadow-2xs');
+      chip.classList.remove('bg-surface-container-low', 'text-on-surface');
+    } else {
+      chip.classList.remove('bg-primary', 'text-white', 'shadow-2xs');
+      chip.classList.add('bg-surface-container-low', 'text-on-surface');
+    }
+  });
+
+  // Reseta controles auxiliares
+  if (el.editorSliderZoom) el.editorSliderZoom.value = 1;
+  if (el.editorCheckMoldura) el.editorCheckMoldura.checked = false;
+
+  // Exibe opção de substituição quando estiver editando foto existente na galeria
+  if (modo === 'galeria' && fotoOriginal) {
+    if (el.editorBoxSubstituicao) {
+      el.editorBoxSubstituicao.classList.remove('hidden');
+      el.editorBoxSubstituicao.classList.add('flex');
+    }
+    if (el.editorCheckSubstituirOriginal) {
+      el.editorCheckSubstituirOriginal.checked = false;
+    }
+  } else {
+    if (el.editorBoxSubstituicao) {
+      el.editorBoxSubstituicao.classList.add('hidden');
+      el.editorBoxSubstituicao.classList.remove('flex');
+    }
+  }
+
+  // Destrói instância prévia do Cropper se existir
+  if (instanciaCropper) {
+    instanciaCropper.destroy();
+    instanciaCropper = null;
+  }
+
+  // Atualiza source da imagem alvo
+  el.editorImagemAlvo.src = srcUrl;
+
+  // Abre o modal
+  el.modalEditorRecorte.classList.remove('hidden');
+  el.modalEditorRecorte.style.display = 'flex';
+
+  const iniciarInstancia = () => {
+    if (typeof window.Cropper === 'undefined') {
+      toast('Biblioteca de recorte não carregada. Verifique sua conexão.', 'error');
+      return;
+    }
+
+    instanciaCropper = new window.Cropper(el.editorImagemAlvo, {
+      aspectRatio: isNaN(aspectInicial) ? NaN : aspectInicial,
+      viewMode: 1,
+      dragMode: 'move',
+      autoCropArea: 0.96,
+      restore: false,
+      guides: true,
+      center: true,
+      highlight: false,
+      cropBoxMovable: true,
+      cropBoxResizable: true,
+      toggleDragModeOnDblclick: false,
+      responsive: true,
+      checkOrientation: true,
+      ready() {
+        if (el.editorSliderZoom) el.editorSliderZoom.value = 1;
+      },
+      zoom(e) {
+        if (el.editorSliderZoom && e.detail && typeof e.detail.ratio === 'number') {
+          el.editorSliderZoom.value = Math.min(3, Math.max(0.2, e.detail.ratio)).toFixed(2);
+        }
+      }
+    });
+  };
+
+  if (el.editorImagemAlvo.complete) {
+    iniciarInstancia();
+  } else {
+    el.editorImagemAlvo.onload = () => {
+      iniciarInstancia();
+      el.editorImagemAlvo.onload = null;
+    };
+  }
+}
+
+function fecharEditorRecorte() {
+  if (instanciaCropper) {
+    instanciaCropper.destroy();
+    instanciaCropper = null;
+  }
+  if (editorContexto.urlTemporariaObjeto) {
+    try { URL.revokeObjectURL(editorContexto.urlTemporariaObjeto); } catch (_) {}
+    editorContexto.urlTemporariaObjeto = null;
+  }
+  if (el.modalEditorRecorte) {
+    el.modalEditorRecorte.classList.add('hidden');
+    el.modalEditorRecorte.style.display = 'none';
+  }
+}
+
+async function aplicarRecorteConfirmado() {
+  if (!instanciaCropper) return;
+
+  const btnConfirmar = el.modalEditorBtnConfirmar;
+  if (btnConfirmar) {
+    btnConfirmar.disabled = true;
+    btnConfirmar.innerHTML = '<span class="material-symbols-outlined text-base animate-spin">progress_activity</span><span>Processando...</span>';
+  }
+
+  try {
+    // 1. Obtém o canvas recortado em alta resolução (até 1600px para nitidez HD)
+    const canvasRecortado = instanciaCropper.getCroppedCanvas({
+      maxWidth: 1600,
+      maxHeight: 1600,
+      imageSmoothingEnabled: true,
+      imageSmoothingQuality: 'high',
+    });
+
+    if (!canvasRecortado) {
+      throw new Error('Falha ao processar o enquadramento selecionado.');
+    }
+
+    // 2. Aplica moldura inteligente se a opção estiver marcada
+    let canvasFinal = canvasRecortado;
+    const querMoldura = el.editorCheckMoldura && el.editorCheckMoldura.checked;
+    if (querMoldura) {
+      canvasFinal = aplicarMolduraInteligente(canvasRecortado, {
+        tipo: 'blur',
+        largura: 1200,
+        altura: 628,
+      });
+    }
+
+    // 3. Converte para Blob HD comprimido (alvo 300KB)
+    const blobFinal = await canvasParaBlob(canvasFinal, { alvoKB: 300, maxKB: 500 });
+    const tamanhoFinalKB = Math.round(blobFinal.size / 1024);
+
+    // 4. Fluxo de acordo com o contexto
+    if (editorContexto.modo === 'formulario') {
+      state.arquivoBlob = blobFinal;
+      state.fotoSelecionadaGaleria = null;
+      if (el.bannerFotoSelecionadaGaleria) el.bannerFotoSelecionadaGaleria.classList.add('hidden');
+
+      const urlPreview = URL.createObjectURL(blobFinal);
+      if (el.im) {
+        el.im.src = urlPreview;
+        el.im.classList.remove('hidden');
+      }
+      if (el.ph) el.ph.style.display = 'none';
+
+      if (el.fname) el.fname.textContent = 'Imagem recortada e otimizada';
+      if (el.infoArquivo) {
+        el.infoArquivo.classList.remove('hidden');
+        if (el.detalheCompressao) {
+          el.detalheCompressao.textContent = `${canvasFinal.width}x${canvasFinal.height}px · ${tamanhoFinalKB}KB · Pronto para o WhatsApp`;
+        }
+      }
+
+      atualizarLivePreview();
+      fecharEditorRecorte();
+      toast('Recorte aplicado com sucesso ao seu cartão!', 'success');
+
+    } else if (editorContexto.modo === 'galeria') {
+      const substituir = el.editorCheckSubstituirOriginal && el.editorCheckSubstituirOriginal.checked;
+      const foto = editorContexto.fotoOriginal;
+
+      if (substituir && foto && foto.caminho) {
+        toast('Atualizando imagem nos links vinculados...', 'info');
+        const { error: errUpload } = await sb.storage
+          .from('banners')
+          .upload(foto.caminho, blobFinal, {
+            contentType: 'image/jpeg',
+            upsert: true,
+          });
+
+        if (errUpload) throw errUpload;
+
+        // Incrementa a versão em todos os links que utilizam este caminho
+        if (state.loja) {
+          try {
+            const { data: linksVinculados } = await sb
+              .from('links')
+              .select('id, versao')
+              .eq('loja_id', state.loja.id)
+              .eq('imagem_path', foto.caminho);
+
+            if (linksVinculados && linksVinculados.length > 0) {
+              for (const l of linksVinculados) {
+                await sb.from('links').update({ versao: (l.versao || 1) + 1 }).eq('id', l.id);
+              }
+            }
+          } catch (e) {
+            console.warn('Aviso ao incrementar versões de links:', e);
+          }
+        }
+
+        toast('Imagem original e links atualizados com sucesso!', 'success');
+      } else {
+        toast('Salvando nova foto recortada na galeria...', 'info');
+        const novoCaminho = `${state.user.id}/galeria-${Date.now()}-${slugAleatorio()}.jpg`;
+        const { error: errUpload } = await sb.storage
+          .from('banners')
+          .upload(novoCaminho, blobFinal, { contentType: 'image/jpeg' });
+
+        if (errUpload) throw errUpload;
+        toast('Nova foto recortada salva na sua galeria!', 'success');
+      }
+
+      fecharEditorRecorte();
+      await carregarGaleriaFotos(true);
+
+    } else if (editorContexto.modo === 'upload_galeria') {
+      toast('Enviando foto recortada para a galeria...', 'info');
+      const novoCaminho = `${state.user.id}/galeria-${Date.now()}-${slugAleatorio()}.jpg`;
+      const { error: errUpload } = await sb.storage
+        .from('banners')
+        .upload(novoCaminho, blobFinal, { contentType: 'image/jpeg' });
+
+      if (errUpload) throw errUpload;
+
+      fecharEditorRecorte();
+      await carregarGaleriaFotos(true);
+      toast('Foto adicionada à galeria com sucesso!', 'success');
+    }
+
+  } catch (err) {
+    toast('Erro ao processar recorte: ' + err.message, 'error');
+  } finally {
+    if (btnConfirmar) {
+      btnConfirmar.disabled = false;
+      btnConfirmar.innerHTML = '<span class="material-symbols-outlined text-base">check</span><span>Confirmar Recorte</span>';
+    }
+  }
+}
+
+// ==========================================
+// REGISTRO DE EVENTOS DO EDITOR DE IMAGENS
+// ==========================================
+
+// Chips de Proporção (Aspect Ratio)
+if (el.editorAspectChips) {
+  el.editorAspectChips.addEventListener('click', (e) => {
+    const chip = e.target.closest('.btn-aspect-chip');
+    if (!chip || !instanciaCropper) return;
+
+    document.querySelectorAll('.btn-aspect-chip').forEach((c) => {
+      c.classList.remove('bg-primary', 'text-white', 'shadow-2xs');
+      c.classList.add('bg-surface-container-low', 'text-on-surface');
+    });
+    chip.classList.add('bg-primary', 'text-white', 'shadow-2xs');
+    chip.classList.remove('bg-surface-container-low', 'text-on-surface');
+
+    const aspectStr = chip.dataset.aspect;
+    const aspect = aspectStr === 'NaN' ? NaN : parseFloat(aspectStr);
+    editorContexto.aspectRatioAtual = aspect;
+    instanciaCropper.setAspectRatio(aspect);
+
+    // Sugestão de moldura inteligente para fotos verticais ou quadradas
+    if (aspectStr === '1' || aspectStr === '0.75' || aspectStr === '0.5625') {
+      if (el.editorCheckMoldura && !el.editorCheckMoldura.checked) {
+        el.editorCheckMoldura.checked = true;
+      }
+    } else if (aspectStr === '1.912') {
+      if (el.editorCheckMoldura) {
+        el.editorCheckMoldura.checked = false;
+      }
+    }
+  });
+}
+
+// Zoom In / Out e Slider
+if (el.editorBtnZoomIn) {
+  el.editorBtnZoomIn.addEventListener('click', () => {
+    if (instanciaCropper) instanciaCropper.zoom(0.1);
+  });
+}
+if (el.editorBtnZoomOut) {
+  el.editorBtnZoomOut.addEventListener('click', () => {
+    if (instanciaCropper) instanciaCropper.zoom(-0.1);
+  });
+}
+if (el.editorSliderZoom) {
+  el.editorSliderZoom.addEventListener('input', (e) => {
+    if (instanciaCropper) {
+      instanciaCropper.zoomTo(parseFloat(e.target.value));
+    }
+  });
+}
+
+// Rotação ±90°, Espelhamento e Reset
+if (el.editorBtnRotateLeft) {
+  el.editorBtnRotateLeft.addEventListener('click', () => {
+    if (instanciaCropper) instanciaCropper.rotate(-90);
+  });
+}
+if (el.editorBtnRotateRight) {
+  el.editorBtnRotateRight.addEventListener('click', () => {
+    if (instanciaCropper) instanciaCropper.rotate(90);
+  });
+}
+if (el.editorBtnFlipH) {
+  el.editorBtnFlipH.addEventListener('click', () => {
+    if (instanciaCropper) {
+      editorContexto.escalaX = (editorContexto.escalaX || 1) * -1;
+      instanciaCropper.scaleX(editorContexto.escalaX);
+    }
+  });
+}
+if (el.editorBtnReset) {
+  el.editorBtnReset.addEventListener('click', () => {
+    if (instanciaCropper) {
+      editorContexto.escalaX = 1;
+      editorContexto.escalaY = 1;
+      instanciaCropper.reset();
+      if (el.editorSliderZoom) el.editorSliderZoom.value = 1;
+    }
+  });
+}
+
+// Fechamento e Confirmação
+if (el.modalEditorBtnFechar) {
+  el.modalEditorBtnFechar.addEventListener('click', fecharEditorRecorte);
+}
+if (el.modalEditorBtnCancelar) {
+  el.modalEditorBtnCancelar.addEventListener('click', fecharEditorRecorte);
+}
+if (el.modalEditorBtnConfirmar) {
+  el.modalEditorBtnConfirmar.addEventListener('click', aplicarRecorteConfirmado);
+}
+
+// Botão de Recorte da Foto Selecionada no Formulário
+if (el.btnRecortarFotoSelecionada) {
+  el.btnRecortarFotoSelecionada.addEventListener('click', () => {
+    if (state.fotoSelecionadaGaleria) {
+      const foto = state.fotosGaleria.find((f) => f.caminho === state.fotoSelecionadaGaleria);
+      const url = foto ? foto.urlPublica : (el.thumbFotoSelecionada ? el.thumbFotoSelecionada.src : null);
+      if (url) {
+        abrirEditorRecorte({
+          arquivoOuUrl: url,
+          modo: 'formulario',
+          aspectInicial: 1.912,
+        });
+      }
+    } else if (state.arquivoBlob) {
+      abrirEditorRecorte({
+        arquivoOuUrl: state.arquivoBlob,
+        modo: 'formulario',
+        aspectInicial: 1.912,
+      });
+    } else if (el.im && el.im.src && !el.im.classList.contains('hidden')) {
+      abrirEditorRecorte({
+        arquivoOuUrl: el.im.src,
+        modo: 'formulario',
+        aspectInicial: 1.912,
+      });
+    } else {
+      toast('Selecione ou envie uma imagem primeiro para recortar.', 'info');
+    }
+  });
 }
 
 // Iniciar Aplicação

@@ -3,7 +3,7 @@
 
 export async function comprimirImagem(arquivo, { larguraMax = 1200, alvoKB = 300 } = {}) {
   const bmp = await createImageBitmap(arquivo);
-  const escala = Math.min(1, larguraMax / bmp.width);
+  const escala = Math.min(1, larguraMax / Math.max(bmp.width, bmp.height));
   const canvas = document.createElement('canvas');
   canvas.width = Math.round(bmp.width * escala);
   canvas.height = Math.round(bmp.height * escala);
@@ -14,17 +14,69 @@ export async function comprimirImagem(arquivo, { larguraMax = 1200, alvoKB = 300
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.drawImage(bmp, 0, 0, canvas.width, canvas.height);
 
-  let q = 0.85;
+  return canvasParaBlob(canvas, { alvoKB });
+}
+
+export async function canvasParaBlob(canvas, { alvoKB = 300, maxKB = 500 } = {}) {
+  let q = 0.88;
   let blob;
   do {
     blob = await new Promise((ok) => canvas.toBlob(ok, 'image/jpeg', q));
-    q -= 0.1;
-  } while (blob.size > alvoKB * 1024 && q > 0.4);
+    q -= 0.08;
+  } while (blob.size > alvoKB * 1024 && q > 0.35);
 
-  if (blob.size > 500 * 1024) {
-    throw new Error('A imagem selecionada é muito pesada (acima de 500 KB mesmo após compressão). Por favor, escolha outra foto.');
+  if (blob.size > maxKB * 1024) {
+    throw new Error('A imagem selecionada é muito pesada mesmo após compressão. Por favor, escolha outra foto.');
   }
   return blob;
+}
+
+export function aplicarMolduraInteligente(canvasFonte, { tipo = 'blur', corSolida = '#ffffff', largura = 1200, altura = 628 } = {}) {
+  const canvasDestino = document.createElement('canvas');
+  canvasDestino.width = largura;
+  canvasDestino.height = altura;
+  const ctx = canvasDestino.getContext('2d');
+
+  if (tipo === 'blur') {
+    // 1. Fundo Desfocado (Cover ampliado com blur suave e leve escurecimento para contraste)
+    ctx.save();
+    try {
+      ctx.filter = 'blur(20px) brightness(0.85)';
+    } catch (_) {}
+    
+    const escalaCover = Math.max(largura / canvasFonte.width, altura / canvasFonte.height) * 1.15;
+    const wCover = canvasFonte.width * escalaCover;
+    const hCover = canvasFonte.height * escalaCover;
+    const xCover = (largura - wCover) / 2;
+    const yCover = (altura - hCover) / 2;
+    ctx.drawImage(canvasFonte, xCover, yCover, wCover, hCover);
+    ctx.restore();
+
+    // Vinheta / Overlay suave para acabamento premium
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+    ctx.fillRect(0, 0, largura, altura);
+  } else {
+    // Fundo sólido limpo
+    ctx.fillStyle = corSolida;
+    ctx.fillRect(0, 0, largura, altura);
+  }
+
+  // 2. Imagem Principal Centralizada (Contain) com borda arredondada e sombra suave
+  const escalaContain = Math.min((largura * 0.94) / canvasFonte.width, (altura * 0.94) / canvasFonte.height);
+  const wPrincipal = Math.round(canvasFonte.width * escalaContain);
+  const hPrincipal = Math.round(canvasFonte.height * escalaContain);
+  const xPrincipal = Math.round((largura - wPrincipal) / 2);
+  const yPrincipal = Math.round((altura - hPrincipal) / 2);
+
+  ctx.save();
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.25)';
+  ctx.shadowBlur = 16;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 4;
+  ctx.drawImage(canvasFonte, xPrincipal, yPrincipal, wPrincipal, hPrincipal);
+  ctx.restore();
+
+  return canvasDestino;
 }
 
 export function normalizarDestino(v) {
