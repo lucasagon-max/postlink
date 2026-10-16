@@ -94,11 +94,24 @@ export async function onRequestGet(context) {
 
   const RESERVADAS = ['painel', 'login', 'admin', 'assets', 'termos', 'privacidade', 'planos', 'denunciar', 'favicon.ico'];
   if (RESERVADAS.includes(loja) && env.ASSETS) {
-    const cleanUrl = new URL(new URL(request.url).pathname, request.url);
-    try {
-      const resp = await env.ASSETS.fetch(cleanUrl);
-      if (resp.status < 400) return resp;
-    } catch (_) {}
+    const rawPath = new URL(request.url).pathname;
+    const tentativas = [rawPath];
+    if (!rawPath.endsWith('/index.html') && !rawPath.includes('.')) {
+      tentativas.push(rawPath.replace(/\/$/, '') + '/index.html');
+    }
+    if (!rawPath.startsWith('/public/')) {
+      tentativas.push('/public' + rawPath);
+      if (!rawPath.endsWith('/index.html') && !rawPath.includes('.')) {
+        tentativas.push('/public' + rawPath.replace(/\/$/, '') + '/index.html');
+      }
+    }
+
+    for (const p of tentativas) {
+      try {
+        const resp = await env.ASSETS.fetch(new URL(p, request.url));
+        if (resp && resp.status < 400) return resp;
+      } catch (_) {}
+    }
     return env.ASSETS.fetch(request);
   }
 
