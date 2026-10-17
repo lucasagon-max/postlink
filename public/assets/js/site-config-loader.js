@@ -54,6 +54,22 @@
       }
     }
 
+    // 4.1. Textos da Pré-visualização do Link Compartilhado
+    const elPreviewTexto = document.getElementById('hero-preview-texto');
+    if (elPreviewTexto && (config.preview_descricao || config.preview_texto)) {
+      elPreviewTexto.textContent = config.preview_descricao || config.preview_texto;
+    }
+
+    const elPreviewTitulo = document.getElementById('hero-preview-titulo');
+    if (elPreviewTitulo && config.preview_titulo) {
+      elPreviewTitulo.textContent = config.preview_titulo;
+    }
+
+    const elPreviewSubtitulo = document.getElementById('hero-preview-subtitulo');
+    if (elPreviewSubtitulo && config.preview_subtitulo) {
+      elPreviewSubtitulo.textContent = config.preview_subtitulo;
+    }
+
     // 5. Botões de CTA
     const navCtaBtn = document.getElementById('nav-cta-btn');
     if (navCtaBtn && config.cta_texto) {

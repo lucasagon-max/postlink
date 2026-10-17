@@ -57,6 +57,9 @@ export async function onRequestGet({ env }) {
       cta_texto: 'Começar Grátis',
       cta_url: '/planos/',
       banner_ativo: true,
+      preview_titulo: 'Lançamento Especial · Oferta Exclusiva com 1 Clique',
+      preview_descricao: 'Compartilhe ofertas no WhatsApp com um cartão visual em alta definição que abre sozinho! 👇',
+      preview_subtitulo: 'postlink.com.br/sua-loja ➔ Redireciona para o destino',
       fallback: true,
       erro: err.message,
     };

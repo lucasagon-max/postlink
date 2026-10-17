@@ -109,6 +109,15 @@ const el = {
   btnRemoverBanner: document.getElementById('btn-remover-banner'),
   siteInputBannerUrl: document.getElementById('site-input-banner-url'),
   btnAplicarUrlBanner: document.getElementById('btn-aplicar-url-banner'),
+  
+  // Card de Pré-visualização do Link Compartilhado
+  siteInputPreviewTitulo: document.getElementById('site-input-preview-titulo'),
+  sitePreviewTituloContador: document.getElementById('site-preview-titulo-contador'),
+  siteInputPreviewTexto: document.getElementById('site-input-preview-texto'),
+  sitePreviewTextoContador: document.getElementById('site-preview-texto-contador'),
+  siteInputPreviewSubtitulo: document.getElementById('site-input-preview-subtitulo'),
+
+  // Textos da Hero (Esquerda)
   siteInputBadge: document.getElementById('site-input-badge'),
   siteInputTitulo: document.getElementById('site-input-titulo'),
   siteTituloContador: document.getElementById('site-titulo-contador'),
@@ -130,6 +139,9 @@ const el = {
   prevHeroBannerImg: document.getElementById('prev-hero-banner-img'),
   prevHeroBannerPlaceholder: document.getElementById('prev-hero-banner-placeholder'),
   prevHeroBannerTag: document.getElementById('prev-hero-banner-tag'),
+  prevHeroPreviewTexto: document.getElementById('prev-hero-preview-texto'),
+  prevHeroPreviewTitulo: document.getElementById('prev-hero-preview-titulo'),
+  prevHeroPreviewSubtitulo: document.getElementById('prev-hero-preview-subtitulo'),
   prevHeroCtaTexto: document.getElementById('prev-hero-cta-texto'),
   prevHeroTopCta: document.getElementById('prev-hero-top-cta'),
   prevWaImg: document.getElementById('prev-wa-img'),
@@ -737,6 +749,9 @@ async function carregarConfiguracoesSite() {
       cta_texto: 'Começar Grátis',
       cta_url: '/planos/',
       banner_ativo: true,
+      preview_titulo: 'Lançamento Especial · Oferta Exclusiva com 1 Clique',
+      preview_descricao: 'Compartilhe ofertas no WhatsApp com um cartão visual em alta definição que abre sozinho! 👇',
+      preview_subtitulo: 'postlink.com.br/sua-loja ➔ Redireciona para o destino',
       atualizado_em: new Date().toISOString(),
       atualizado_por: 'sistema',
     };
@@ -754,6 +769,18 @@ async function carregarConfiguracoesSite() {
 function preencherFormularioSite(dados) {
   if (!dados) return;
 
+  // Campos do Card da Prévia
+  if (el.siteInputPreviewTitulo) {
+    el.siteInputPreviewTitulo.value = dados.preview_titulo || 'Lançamento Especial · Oferta Exclusiva com 1 Clique';
+  }
+  if (el.siteInputPreviewTexto) {
+    el.siteInputPreviewTexto.value = dados.preview_descricao || dados.preview_texto || 'Compartilhe ofertas no WhatsApp com um cartão visual em alta definição que abre sozinho! 👇';
+  }
+  if (el.siteInputPreviewSubtitulo) {
+    el.siteInputPreviewSubtitulo.value = dados.preview_subtitulo || 'postlink.com.br/sua-loja ➔ Redireciona para o destino';
+  }
+
+  // Textos da Hero (Esquerda)
   if (el.siteInputBadge) el.siteInputBadge.value = dados.badge_texto || '';
   if (el.siteInputTitulo) el.siteInputTitulo.value = dados.titulo || '';
   if (el.siteInputDescricao) el.siteInputDescricao.value = dados.descricao || '';
@@ -779,6 +806,22 @@ function preencherFormularioSite(dados) {
 
 // Atualiza contadores numéricos de caracteres
 function atualizarContadoresTextos() {
+  if (el.siteInputPreviewTitulo && el.sitePreviewTituloContador) {
+    const len = el.siteInputPreviewTitulo.value.length;
+    el.sitePreviewTituloContador.textContent = `${len} / 90`;
+    el.sitePreviewTituloContador.className = len > 90
+      ? 'text-[10px] font-mono text-error font-bold'
+      : (len > 70 ? 'text-[10px] font-mono text-amber-500 font-semibold' : 'text-[10px] font-mono text-outline font-semibold');
+  }
+
+  if (el.siteInputPreviewTexto && el.sitePreviewTextoContador) {
+    const len = el.siteInputPreviewTexto.value.length;
+    el.sitePreviewTextoContador.textContent = `${len} / 180`;
+    el.sitePreviewTextoContador.className = len > 180
+      ? 'text-[10px] font-mono text-error font-bold'
+      : (len > 150 ? 'text-[10px] font-mono text-amber-500 font-semibold' : 'text-[10px] font-mono text-outline font-semibold');
+  }
+
   if (el.siteInputTitulo && el.siteTituloContador) {
     const len = el.siteInputTitulo.value.length;
     el.siteTituloContador.textContent = `${len} / 120`;
@@ -813,11 +856,16 @@ function atualizarAuditoriaSite(dados) {
 
 // Atualiza ambas as prévias (Hero e WhatsApp Card) em tempo real
 function atualizarLivePreviewSite() {
-  const titulo = (el.siteInputTitulo?.value || '').trim() || 'PostLink · Smart Links em Alta Definição';
-  const descricao = (el.siteInputDescricao?.value || '').trim() || 'Transforme seus links em cartões visuais para WhatsApp.';
+  const titulo = (el.siteInputTitulo?.value || '').trim() || 'Transforme ofertas em cartões em alta definição que abrem sozinhos e vendem no WhatsApp';
+  const descricao = (el.siteInputDescricao?.value || '').trim() || 'Quase ninguém baixa fotos avulsas no WhatsApp para não lotar a memória do celular.';
   const badgeTexto = (el.siteInputBadge?.value || '').trim();
   const ctaTexto = (el.siteInputCtaTexto?.value || '').trim() || 'Começar Grátis';
   const bannerAtivo = el.siteSwitchBannerAtivo ? el.siteSwitchBannerAtivo.checked : true;
+
+  // Dados específicos do Cartão de Pré-visualização
+  const previewTitulo = (el.siteInputPreviewTitulo?.value || '').trim() || 'Lançamento Especial · Oferta Exclusiva com 1 Clique';
+  const previewTexto = (el.siteInputPreviewTexto?.value || '').trim() || 'Compartilhe ofertas no WhatsApp com um cartão visual em alta definição que abre sozinho! 👇';
+  const previewSubtitulo = (el.siteInputPreviewSubtitulo?.value || '').trim() || 'postlink.com.br/sua-loja ➔ Redireciona para o destino';
 
   // Imagem do banner prioritária
   let bannerImg = '';
@@ -839,6 +887,11 @@ function atualizarLivePreviewSite() {
   if (el.prevHeroCtaTexto) el.prevHeroCtaTexto.textContent = ctaTexto;
   if (el.prevHeroTopCta) el.prevHeroTopCta.textContent = ctaTexto;
 
+  // Elementos do Cartão de Pré-visualização na Hero
+  if (el.prevHeroPreviewTexto) el.prevHeroPreviewTexto.textContent = previewTexto;
+  if (el.prevHeroPreviewTitulo) el.prevHeroPreviewTitulo.textContent = previewTitulo;
+  if (el.prevHeroPreviewSubtitulo) el.prevHeroPreviewSubtitulo.textContent = previewSubtitulo;
+
   // Banner da Hero
   const bannerFinal = bannerImg || '/assets/img/logotipo_postlink.jpg';
   if (bannerAtivo && bannerFinal) {
@@ -857,8 +910,8 @@ function atualizarLivePreviewSite() {
   }
 
   // 2. Prévia do WhatsApp Card
-  if (el.prevWaTitulo) el.prevWaTitulo.textContent = titulo;
-  if (el.prevWaDescricao) el.prevWaDescricao.textContent = descricao;
+  if (el.prevWaTitulo) el.prevWaTitulo.textContent = previewTitulo || titulo;
+  if (el.prevWaDescricao) el.prevWaDescricao.textContent = previewTexto || descricao;
 
   const waImgFinal = bannerImg || '/assets/img/logotipo_postlink.jpg';
   if (el.prevWaImg) {
@@ -926,6 +979,11 @@ async function salvarConfiguracoesSite() {
   const ctaUrl = (el.siteInputCtaUrl?.value || '').trim();
   const bannerAtivo = el.siteSwitchBannerAtivo ? el.siteSwitchBannerAtivo.checked : true;
 
+  // Dados do Card de Pré-visualização
+  const previewTitulo = (el.siteInputPreviewTitulo?.value || '').trim() || 'Lançamento Especial · Oferta Exclusiva com 1 Clique';
+  const previewDescricao = (el.siteInputPreviewTexto?.value || '').trim() || 'Compartilhe ofertas no WhatsApp com um cartão visual em alta definição que abre sozinho! 👇';
+  const previewSubtitulo = (el.siteInputPreviewSubtitulo?.value || '').trim() || 'postlink.com.br/sua-loja ➔ Redireciona para o destino';
+
   if (!titulo) {
     toast('O título principal não pode ficar em branco.', 'error');
     if (el.siteInputTitulo) el.siteInputTitulo.focus();
@@ -988,6 +1046,9 @@ async function salvarConfiguracoesSite() {
       p_cta_texto: ctaTexto,
       p_cta_url: ctaUrl,
       p_banner_ativo: bannerAtivo,
+      p_preview_titulo: previewTitulo,
+      p_preview_descricao: previewDescricao,
+      p_preview_subtitulo: previewSubtitulo,
     });
 
     if (errRpc) throw errRpc;
@@ -1000,6 +1061,9 @@ async function salvarConfiguracoesSite() {
       cta_texto: ctaTexto,
       cta_url: ctaUrl,
       banner_ativo: bannerAtivo,
+      preview_titulo: previewTitulo,
+      preview_descricao: previewDescricao,
+      preview_subtitulo: previewSubtitulo,
       atualizado_em: new Date().toISOString(),
       atualizado_por: state.user ? state.user.email : 'admin',
     };
@@ -1039,6 +1103,9 @@ function restaurarPadraoSite() {
     cta_url: '/planos/',
     banner_url: null,
     banner_ativo: true,
+    preview_titulo: 'Lançamento Especial · Oferta Exclusiva com 1 Clique',
+    preview_descricao: 'Compartilhe ofertas no WhatsApp com um cartão visual em alta definição que abre sozinho! 👇',
+    preview_subtitulo: 'postlink.com.br/sua-loja ➔ Redireciona para o destino',
   };
 
   if (!confirm('Deseja restaurar os textos padrão originais do PostLink? (Clique em Salvar Alterações após confirmar para gravar)')) {
@@ -1059,7 +1126,24 @@ function restaurarPadraoSite() {
 
 // Configura todos os ouvintes de eventos da aba do Site Oficial
 function configurarEventosEditorSite() {
-  // Inputs com sincronização de Live Preview
+  // Inputs com sincronização de Live Preview do Card de Prévia
+  if (el.siteInputPreviewTitulo) {
+    el.siteInputPreviewTitulo.addEventListener('input', () => {
+      atualizarContadoresTextos();
+      atualizarLivePreviewSite();
+    });
+  }
+  if (el.siteInputPreviewTexto) {
+    el.siteInputPreviewTexto.addEventListener('input', () => {
+      atualizarContadoresTextos();
+      atualizarLivePreviewSite();
+    });
+  }
+  if (el.siteInputPreviewSubtitulo) {
+    el.siteInputPreviewSubtitulo.addEventListener('input', atualizarLivePreviewSite);
+  }
+
+  // Inputs da Hero (Esquerda)
   if (el.siteInputBadge) el.siteInputBadge.addEventListener('input', atualizarLivePreviewSite);
   if (el.siteInputTitulo) {
     el.siteInputTitulo.addEventListener('input', () => {
