@@ -743,44 +743,70 @@
                   </div>
                 </div>
 
-                <!-- Mini Hero Section -->
-                <div class="text-center py-2 space-y-3">
-                  <!-- Badge -->
-                  <div id="prev-hero-badge-wrap" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container text-[10px] font-bold border border-secondary/20 max-w-full">
-                    <span class="material-symbols-outlined text-xs text-secondary-dark">bolt</span>
-                    <span id="prev-hero-badge" class="truncate">Abre direto no WhatsApp · Zero fotos na galeria do cliente</span>
-                  </div>
-
-                  <!-- Título -->
-                  <h3 id="prev-hero-titulo" class="text-sm sm:text-base font-extrabold text-primary tracking-tight leading-snug">
-                    Transforme ofertas em cartões em alta definição que abrem sozinhos e vendem no WhatsApp
-                  </h3>
-
-                  <!-- Subtítulo -->
-                  <p id="prev-hero-descricao" class="text-[11px] text-on-surface-variant leading-relaxed line-clamp-3">
-                    Quase ninguém baixa fotos avulsas no WhatsApp para não lotar a memória do celular — e mesmo quem baixa não vai a lugar nenhum ao clicar na foto. Com o PostLink, seu produto já aparece aberto na conversa.
-                  </p>
-
-                  <!-- Banner Oficial em Destaque na Prévia -->
-                  <div id="prev-hero-banner-container" class="mt-2 transition-all">
-                    <div class="relative overflow-hidden rounded-xl border border-primary/20 shadow-sm bg-surface-container-low group">
-                      <img id="prev-hero-banner-img" src="" alt="Banner Oficial" class="w-full aspect-[1.91/1] object-cover">
-                      <div id="prev-hero-banner-placeholder" class="hidden aspect-[1.91/1] w-full flex flex-col items-center justify-center p-4 bg-surface-container text-outline text-center">
-                        <span class="material-symbols-outlined text-2xl mb-1 text-primary/40">image</span>
-                        <span class="text-[10px] font-medium">Banner desativado ou sem foto</span>
+                <!-- Mini Hero Section (Estilo social.cards - 2 Colunas) -->
+                <div class="py-2">
+                  <div class="grid grid-cols-1 sm:grid-cols-12 gap-3.5 items-start text-left">
+                    
+                    <!-- Lado Esquerdo: Textos e Botão -->
+                    <div class="sm:col-span-7 space-y-2">
+                      <!-- Badge -->
+                      <div id="prev-hero-badge-wrap" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container text-[10px] font-bold border border-secondary/20 max-w-full">
+                        <span class="material-symbols-outlined text-xs text-secondary-dark">bolt</span>
+                        <span id="prev-hero-badge" class="truncate">Abre direto no WhatsApp · Zero fotos na galeria do cliente</span>
                       </div>
-                      <div id="prev-hero-banner-tag" class="absolute top-2 right-2 bg-black/60 backdrop-blur-xs text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
-                        HD Banner
+
+                      <!-- Título -->
+                      <h3 id="prev-hero-titulo" class="text-xs sm:text-sm font-extrabold text-primary tracking-tight leading-snug line-clamp-3">
+                        Transforme ofertas em cartões em alta definição que abrem sozinhos e vendem no WhatsApp
+                      </h3>
+
+                      <!-- Subtítulo -->
+                      <p id="prev-hero-descricao" class="text-[10px] text-on-surface-variant leading-relaxed line-clamp-3">
+                        Quase ninguém baixa fotos avulsas no WhatsApp para não lotar a memória do celular — e mesmo quem baixa não vai a lugar nenhum ao clicar na foto. Com o PostLink, seu produto já aparece aberto na conversa.
+                      </p>
+
+                      <!-- CTA Button -->
+                      <div class="pt-1">
+                        <div id="prev-hero-cta" class="inline-flex items-center justify-center gap-1 bg-secondary text-white text-[11px] font-bold px-3 py-1.5 rounded-lg shadow-xs">
+                          <span id="prev-hero-cta-texto">Começar Grátis</span>
+                          <span class="material-symbols-outlined text-xs">arrow_forward</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <!-- CTA Button -->
-                  <div class="pt-1">
-                    <div id="prev-hero-cta" class="inline-flex items-center justify-center gap-1 bg-secondary text-white text-xs font-bold px-4 py-2 rounded-xl shadow-xs">
-                      <span id="prev-hero-cta-texto">Começar Grátis</span>
-                      <span class="material-symbols-outlined text-xs">arrow_forward</span>
+                    <!-- Lado Direito: Miniatura do Card Social de Prévia -->
+                    <div class="sm:col-span-5">
+                      <div class="rounded-xl border border-outline-variant/60 bg-surface-container-lowest overflow-hidden shadow-xs">
+                        <div class="p-2 border-b border-outline-variant/40 flex items-center justify-between">
+                          <div class="flex items-center gap-1.5 truncate">
+                            <div class="w-4 h-4 rounded-full bg-emerald-100 flex items-center justify-center text-[8px] font-bold text-emerald-800">PL</div>
+                            <span class="text-[9px] font-bold text-on-surface truncate">Sua Loja</span>
+                          </div>
+                          <span class="text-[8px] font-bold px-1 py-0.2 rounded bg-emerald-50 text-emerald-700">Ao Vivo</span>
+                        </div>
+
+                        <!-- Banner Oficial em Destaque na Prévia -->
+                        <div id="prev-hero-banner-container" class="transition-all">
+                          <div class="relative overflow-hidden bg-surface-container-low group">
+                            <img id="prev-hero-banner-img" src="" alt="Banner Oficial" class="w-full aspect-[1.91/1] object-cover">
+                            <div id="prev-hero-banner-placeholder" class="hidden aspect-[1.91/1] w-full flex flex-col items-center justify-center p-2 bg-surface-container text-outline text-center">
+                              <span class="material-symbols-outlined text-lg mb-0.5 text-primary/40">image</span>
+                              <span class="text-[9px] font-medium">Banner desativado ou sem foto</span>
+                            </div>
+                            <div id="prev-hero-banner-tag" class="absolute top-1 right-1 bg-black/60 backdrop-blur-xs text-white text-[8px] font-bold px-1 py-0.5 rounded">
+                              HD Banner
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="p-2 bg-white">
+                          <p class="text-[8px] font-mono text-outline uppercase font-bold">postlink.com.br</p>
+                          <p class="text-[10px] font-bold text-on-surface leading-tight truncate">Oferta Especial em HD</p>
+                          <p class="text-[8px] text-secondary-dark truncate mt-0.5">Redireciona com 1 clique</p>
+                        </div>
+                      </div>
                     </div>
+
                   </div>
                 </div>
 

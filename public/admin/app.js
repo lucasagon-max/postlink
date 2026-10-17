@@ -840,39 +840,32 @@ function atualizarLivePreviewSite() {
   if (el.prevHeroTopCta) el.prevHeroTopCta.textContent = ctaTexto;
 
   // Banner da Hero
-  if (bannerAtivo && bannerImg) {
+  const bannerFinal = bannerImg || '/assets/img/logotipo_postlink.jpg';
+  if (bannerAtivo && bannerFinal) {
     if (el.prevHeroBannerContainer) el.prevHeroBannerContainer.classList.remove('hidden');
     if (el.prevHeroBannerImg) {
-      el.prevHeroBannerImg.src = bannerImg;
+      el.prevHeroBannerImg.src = bannerFinal;
       el.prevHeroBannerImg.classList.remove('hidden');
     }
     if (el.prevHeroBannerPlaceholder) el.prevHeroBannerPlaceholder.classList.add('hidden');
     if (el.prevHeroBannerTag) el.prevHeroBannerTag.classList.remove('hidden');
   } else {
-    if (!bannerAtivo) {
-      if (el.prevHeroBannerContainer) el.prevHeroBannerContainer.classList.add('hidden');
-    } else {
-      if (el.prevHeroBannerContainer) el.prevHeroBannerContainer.classList.remove('hidden');
-      if (el.prevHeroBannerImg) el.prevHeroBannerImg.classList.add('hidden');
-      if (el.prevHeroBannerPlaceholder) el.prevHeroBannerPlaceholder.classList.remove('hidden');
-      if (el.prevHeroBannerTag) el.prevHeroBannerTag.classList.add('hidden');
-    }
+    if (el.prevHeroBannerContainer) el.prevHeroBannerContainer.classList.remove('hidden');
+    if (el.prevHeroBannerImg) el.prevHeroBannerImg.classList.add('hidden');
+    if (el.prevHeroBannerPlaceholder) el.prevHeroBannerPlaceholder.classList.remove('hidden');
+    if (el.prevHeroBannerTag) el.prevHeroBannerTag.classList.add('hidden');
   }
 
   // 2. Prévia do WhatsApp Card
   if (el.prevWaTitulo) el.prevWaTitulo.textContent = titulo;
   if (el.prevWaDescricao) el.prevWaDescricao.textContent = descricao;
 
-  if (bannerImg) {
-    if (el.prevWaImg) {
-      el.prevWaImg.src = bannerImg;
-      el.prevWaImg.classList.remove('hidden');
-    }
-    if (el.prevWaPlaceholder) el.prevWaPlaceholder.classList.add('hidden');
-  } else {
-    if (el.prevWaImg) el.prevWaImg.classList.add('hidden');
-    if (el.prevWaPlaceholder) el.prevWaPlaceholder.classList.remove('hidden');
+  const waImgFinal = bannerImg || '/assets/img/logotipo_postlink.jpg';
+  if (el.prevWaImg) {
+    el.prevWaImg.src = waImgFinal;
+    el.prevWaImg.classList.remove('hidden');
   }
+  if (el.prevWaPlaceholder) el.prevWaPlaceholder.classList.add('hidden');
 
   // Marca status tag como "Edições Pendentes"
   if (el.siteStatusTag && state.siteConfig) {

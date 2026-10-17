@@ -35,18 +35,22 @@
       elDesc.textContent = config.descricao;
     }
 
-    // 4. Banner Oficial da Home
+    // 4. Banner Oficial da Home no Preview de Link Compartilhado
     const bannerContainer = document.getElementById('hero-banner-container');
     const bannerImg = document.getElementById('hero-banner-img');
-    if (bannerContainer && bannerImg) {
+    if (bannerImg) {
       const bannerAtivo = config.banner_ativo !== false;
       const temUrl = Boolean(config.banner_url && config.banner_url.trim());
+      const defaultImg = '/assets/img/logotipo_postlink.jpg';
 
-      if (bannerAtivo && temUrl) {
-        bannerImg.src = config.banner_url.trim();
-        bannerContainer.classList.remove('hidden');
+      if (bannerAtivo) {
+        bannerImg.src = temUrl ? config.banner_url.trim() : defaultImg;
+        if (bannerContainer) {
+          bannerContainer.classList.remove('hidden');
+          bannerContainer.classList.remove('opacity-40');
+        }
       } else {
-        bannerContainer.classList.add('hidden');
+        if (bannerContainer) bannerContainer.classList.add('opacity-40');
       }
     }
 
@@ -56,6 +60,17 @@
       const spanTexto = navCtaBtn.querySelector('span');
       if (spanTexto) spanTexto.textContent = config.cta_texto;
       if (config.cta_url) navCtaBtn.href = config.cta_url;
+    }
+    const heroCtaBtn = document.getElementById('hero-cta-btn');
+    const heroCtaTexto = document.getElementById('hero-cta-texto');
+    if (heroCtaBtn && config.cta_texto) {
+      if (heroCtaTexto) {
+        heroCtaTexto.textContent = config.cta_texto;
+      } else {
+        const spanTexto = heroCtaBtn.querySelector('span');
+        if (spanTexto) spanTexto.textContent = config.cta_texto;
+      }
+      if (config.cta_url) heroCtaBtn.href = config.cta_url;
     }
 
     // 6. Atualiza Meta Tags Open Graph & Twitter Card

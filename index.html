@@ -60,474 +60,186 @@
   <!-- MAIN CONTENT -->
   <main class="flex-grow">
     
-    <!-- HERO SECTION (LIGHT MODE VÍTREO COM ILUMINAÇÃO AMBIENTE) -->
-    <section class="relative px-4 sm:px-6 pt-12 sm:pt-20 pb-16 sm:pb-24 text-center max-w-5xl mx-auto overflow-hidden">
+    <!-- HERO SECTION (ESTILO SOCIAL.CARDS - 2 COLUNAS: TEXTO NA ESQUERDA & PRÉVIA DO LINK NA DIREITA) -->
+    <section class="relative px-4 sm:px-6 lg:px-8 pt-10 sm:pt-16 pb-16 sm:pb-24 max-w-6xl mx-auto overflow-hidden">
       
-      <!-- Fundo de Iluminação Ambiente e Malha Técnica (Inspirado no MGM) -->
+      <!-- Fundo de Iluminação Ambiente Sutil e Malha Técnica -->
       <div class="absolute inset-0 pointer-events-none -z-10 overflow-hidden">
-        <div class="absolute -top-32 left-1/2 -translate-x-1/2 w-[850px] h-[500px] ambient-glow-emerald blur-3xl opacity-70"></div>
-        <div class="absolute top-24 -right-20 w-[450px] h-[450px] ambient-glow-blue blur-3xl opacity-50"></div>
-        <div class="absolute inset-0 tech-dot-bg opacity-35 [mask-image:radial-gradient(ellipse_60%_50%_at_50%_30%,#000_70%,transparent_100%)]"></div>
+        <div class="absolute -top-32 left-1/4 w-[600px] h-[500px] ambient-glow-emerald blur-3xl opacity-60"></div>
+        <div class="absolute top-20 right-0 w-[500px] h-[450px] ambient-glow-blue blur-3xl opacity-40"></div>
+        <div class="absolute inset-0 tech-dot-bg opacity-30 [mask-image:radial-gradient(ellipse_60%_50%_at_50%_30%,#000_70%,transparent_100%)]"></div>
       </div>
 
-      <!-- Pill Badge Dinâmica com Indicador Luminoso Pulsante -->
-      <div id="hero-badge-wrap" class="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full glass-pill text-xs font-semibold text-slate-700 mb-6 border border-emerald-500/25 shadow-xs hover:border-emerald-500/50 transition-all cursor-default group">
-        <span class="relative flex h-2 w-2">
-          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
-          <span class="relative inline-flex rounded-full h-2 w-2 bg-secondary"></span>
-        </span>
-        <span class="bg-secondary/15 text-secondary-dark text-[10px] font-black uppercase px-1.5 py-0.5 rounded tracking-wider border border-secondary/20">NOVO 2.0</span>
-        <span id="hero-badge-texto" class="text-slate-700 font-medium">Abre direto no WhatsApp · Zero fotos na galeria do cliente</span>
-        <span class="material-symbols-outlined text-sm text-slate-400 group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
-      </div>
-
-      <!-- Título Principal de Alto Impacto -->
-      <h1 id="hero-titulo" class="text-3xl sm:text-5xl lg:text-6xl font-black text-on-surface tracking-tight leading-[1.14] mb-6 max-w-4xl mx-auto">
-        Transforme ofertas em <br class="hidden sm:inline">
-        <span class="bg-gradient-to-r from-primary via-[#1a5fb4] to-secondary-dark bg-clip-text text-transparent">cartões em alta definição</span> que <span class="relative inline-block text-secondary-dark font-black underline decoration-secondary decoration-wavy decoration-2 underline-offset-4">abrem sozinhos e vendem</span> no WhatsApp
-      </h1>
-
-      <!-- Subtítulo Fluido e Convincente -->
-      <p id="hero-descricao" class="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed font-normal">
-        Quase ninguém baixa fotos avulsas no WhatsApp para não lotar a memória do celular — e mesmo quem baixa não vai a lugar nenhum ao clicar na foto. Com o PostLink, seu produto já aparece aberto na conversa, sem ocupar a galeria do cliente e direcionando para o seu atendimento com 1 clique.
-      </p>
-
-      <!-- Botões de Ação Principais (Dual CTA) -->
-      <div class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-12 sm:mb-14">
-        <a href="/planos/" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gradient-to-r from-secondary to-[#16a34a] text-white text-sm sm:text-base font-bold px-7 py-3.5 rounded-xl shadow-[0_12px_24px_-6px_rgba(34,197,94,0.4)] hover:shadow-[0_16px_32px_-6px_rgba(34,197,94,0.5)] active:scale-95 transition-all">
-          <span class="material-symbols-outlined text-xl">auto_awesome</span>
-          <span>Começar Teste de 7 Dias Grátis</span>
-          <span class="material-symbols-outlined text-lg">arrow_forward</span>
-        </a>
-        <a href="#comparativo" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 glass-pill text-slate-700 hover:text-primary text-sm sm:text-base font-semibold px-6 py-3.5 rounded-xl border border-slate-200/80 hover:border-slate-300 hover:bg-white active:scale-95 transition-all">
-          <span class="material-symbols-outlined text-lg text-secondary-dark">play_circle</span>
-          <span>Ver Comparativo Prático</span>
-        </a>
-      </div>
-
-      <!-- Banner Oficial em Destaque (Configurável no Painel Admin) -->
-      <div id="hero-banner-container" class="hidden max-w-3xl mx-auto mb-8 transition-all duration-300">
-        <div class="relative overflow-hidden rounded-2xl border border-primary/20 shadow-md group hover:shadow-xl transition-shadow bg-surface-container-lowest">
-          <img id="hero-banner-img" src="" alt="PostLink Banner Oficial" class="w-full aspect-[1.91/1] sm:aspect-[2.1/1] object-cover transition-transform duration-500 hover:scale-[1.01]" loading="lazy">
-        </div>
-      </div>
-
-      <!-- MOCKUP CENTRAL VIVO E INTERATIVO (SHOWCASE VÍTREO ESTILO MGM) -->
-      <div class="relative max-w-4xl mx-auto mb-12 text-left">
+      <!-- Grid Principal de 2 Colunas no Desktop -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
         
-        <!-- Glow decorativo atrás do card central -->
-        <div class="absolute -inset-1 bg-gradient-to-r from-emerald-500/20 via-primary/10 to-emerald-500/20 rounded-[32px] blur-xl opacity-75 -z-10"></div>
-        
-        <!-- Micro-badges flutuantes decorativos (Desktop) -->
-        <div class="hidden lg:block absolute -top-5 -right-6 z-20 animate-float-slow">
-          <div class="glass-pill px-3.5 py-2 rounded-2xl shadow-lg border border-emerald-500/20 flex items-center gap-2.5 bg-white/95">
-            <div class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-black text-xs">
-              📈
-            </div>
-            <div>
-              <p class="text-[11px] font-black text-slate-800 leading-tight">+380% Mais Cliques</p>
-              <p class="text-[9px] text-slate-500">vs Fotos comuns baixadas</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="hidden lg:block absolute -bottom-5 -left-6 z-20 animate-float-delayed">
-          <div class="glass-pill px-3.5 py-2 rounded-2xl shadow-lg border border-blue-500/20 flex items-center gap-2.5 bg-white/95">
-            <div class="w-7 h-7 rounded-lg bg-blue-100 text-primary flex items-center justify-center font-black text-xs">
-              💾
-            </div>
-            <div>
-              <p class="text-[11px] font-black text-slate-800 leading-tight">Zero Fotos Salvas</p>
-              <p class="text-[9px] text-slate-500">Galeria do cliente 100% limpa</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Frame Vítreo Principal -->
-        <div class="glass-panel rounded-3xl p-3 sm:p-6 overflow-hidden relative shadow-2xl">
+        <!-- COLUNA ESQUERDA: TEXTO, VALOR E CONVERSÃO (7 colunas no desktop) -->
+        <div class="lg:col-span-7 text-left space-y-6">
           
-          <!-- Header do Mockup (macOS Dots + Abas Interativas + Live Status) -->
-          <div class="flex flex-wrap items-center justify-between gap-3 pb-4 mb-4 border-b border-slate-200/70">
-            <!-- macOS Window Dots & Identificação -->
-            <div class="flex items-center gap-2">
-              <span class="w-3 h-3 rounded-full bg-[#ff5f56] inline-block border border-[#e0443e]"></span>
-              <span class="w-3 h-3 rounded-full bg-[#ffbd2e] inline-block border border-[#dea123]"></span>
-              <span class="w-3 h-3 rounded-full bg-[#27c93f] inline-block border border-[#1aab29]"></span>
-              <span class="ml-2 text-xs font-bold text-slate-700 hidden sm:inline-flex items-center gap-1.5">
-                <span class="material-symbols-outlined text-sm text-secondary-dark">chat</span> WhatsApp Smart Preview
-              </span>
-            </div>
+          <!-- Pill Badge Dinâmica com Indicador Luminoso Pulsante -->
+          <div id="hero-badge-wrap" class="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full glass-pill text-xs font-semibold text-slate-700 border border-emerald-500/25 shadow-xs hover:border-emerald-500/50 transition-all cursor-default group">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-secondary"></span>
+            </span>
+            <span class="bg-secondary/15 text-secondary-dark text-[10px] font-black uppercase px-1.5 py-0.5 rounded tracking-wider border border-secondary/20">NOVO 2.0</span>
+            <span id="hero-badge-texto" class="text-slate-700 font-medium">Abre direto no WhatsApp · Zero fotos na galeria do cliente</span>
+          </div>
 
-            <!-- Seletor de Abas Dinâmico (Estilo MGM) -->
-            <div class="inline-flex p-1 rounded-xl bg-slate-100/90 border border-slate-200/80 text-xs font-semibold" role="tablist">
-              <button type="button" id="tab-btn-chat" onclick="window.switchHeroTab('chat')" class="px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 bg-white text-primary shadow-xs font-bold">
-                <span class="material-symbols-outlined text-sm text-secondary">forum</span>
-                <span>WhatsApp Ao Vivo</span>
-              </button>
-              <button type="button" id="tab-btn-metrics" onclick="window.switchHeroTab('metrics')" class="px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 text-slate-500 hover:text-slate-800">
-                <span class="material-symbols-outlined text-sm">monitoring</span>
-                <span>Métricas em Tempo Real</span>
-              </button>
-              <button type="button" id="tab-btn-diff" onclick="window.switchHeroTab('diff')" class="px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 text-slate-500 hover:text-slate-800">
-                <span class="material-symbols-outlined text-sm">compare</span>
-                <span>Antes vs Depois</span>
-              </button>
-            </div>
+          <!-- Título Principal de Alto Impacto (Headline) -->
+          <h1 id="hero-titulo" class="text-3xl sm:text-4xl lg:text-5xl font-black text-on-surface tracking-tight leading-[1.12]">
+            Transforme ofertas em <br class="hidden sm:inline">
+            <span class="bg-gradient-to-r from-primary via-[#1a5fb4] to-secondary-dark bg-clip-text text-transparent">cartões em alta definição</span> que <span class="relative inline-block text-secondary-dark font-black underline decoration-secondary decoration-wavy decoration-2 underline-offset-4">abrem sozinhos e vendem</span> no WhatsApp
+          </h1>
 
-            <!-- Status Indicator com Contador Vivo de Cliques -->
-            <div class="hidden md:flex items-center gap-2 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200/80 text-[11px] font-bold text-emerald-800">
-              <span class="relative flex h-2 w-2">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-              </span>
-              <span>Link HD Ativo · <span id="hero-live-clicks">24</span> cliques hoje</span>
+          <!-- Subtítulo Fluido e Convincente (Descrição) -->
+          <p id="hero-descricao" class="text-base sm:text-lg text-slate-600 leading-relaxed font-normal max-w-xl">
+            Quase ninguém baixa fotos avulsas no WhatsApp para não lotar a memória do celular — e mesmo quem baixa não vai a lugar nenhum ao clicar na foto. Com o PostLink, seu produto já aparece aberto na conversa, sem ocupar a galeria do cliente e direcionando para o seu atendimento com 1 clique.
+          </p>
+
+          <!-- Botões de Ação Principais (CTA) -->
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-1">
+            <a id="hero-cta-btn" href="/planos/" class="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-secondary to-[#16a34a] text-white text-sm sm:text-base font-bold px-7 py-3.5 rounded-xl shadow-[0_12px_24px_-6px_rgba(34,197,94,0.4)] hover:shadow-[0_16px_32px_-6px_rgba(34,197,94,0.5)] active:scale-95 transition-all">
+              <span class="material-symbols-outlined text-xl">auto_awesome</span>
+              <span id="hero-cta-texto">Começar Teste de 7 Dias Grátis</span>
+              <span class="material-symbols-outlined text-lg">arrow_forward</span>
+            </a>
+            <a href="/login/" class="inline-flex items-center justify-center gap-1.5 glass-pill text-slate-700 hover:text-primary text-sm sm:text-base font-semibold px-5 py-3.5 rounded-xl border border-slate-200/80 hover:border-slate-300 hover:bg-white active:scale-95 transition-all">
+              <span>Já tem conta? Entrar</span>
+            </a>
+          </div>
+
+          <!-- Checklist de Benefícios e Autoridade (Estilo social.cards hero-checks) -->
+          <ul class="space-y-2.5 pt-2 text-xs sm:text-sm text-slate-600 font-medium">
+            <li class="flex items-center gap-2.5">
+              <span class="material-symbols-outlined text-secondary text-base shrink-0 font-bold">check_circle</span>
+              <span>Abre instantaneamente no WhatsApp sem exigir download</span>
+            </li>
+            <li class="flex items-center gap-2.5">
+              <span class="material-symbols-outlined text-secondary text-base shrink-0 font-bold">check_circle</span>
+              <span>0 KB na galeria: não lota a memória do celular do comprador</span>
+            </li>
+            <li class="flex items-center gap-2.5">
+              <span class="material-symbols-outlined text-secondary text-base shrink-0 font-bold">check_circle</span>
+              <span>Cartão 100% clicável com redirecionamento direto para fechar pedidos</span>
+            </li>
+            <li class="flex items-center gap-2.5">
+              <span class="material-symbols-outlined text-secondary text-base shrink-0 font-bold">check_circle</span>
+              <span>Altere a foto e o destino quando quiser no painel sem mudar o link compartilhado</span>
+            </li>
+          </ul>
+
+        </div>
+
+        <!-- COLUNA DIREITA: EXEMPLO DE PRÉ-VISUALIZAÇÃO DO LINK COMPARTILHADO (5 colunas no desktop) -->
+        <div class="lg:col-span-5 relative">
+          
+          <!-- Glow sutil e suave atrás do cartão social -->
+          <div class="absolute -inset-2 bg-gradient-to-tr from-emerald-500/20 via-primary/15 to-emerald-500/10 rounded-[32px] blur-xl opacity-75 -z-10"></div>
+          
+          <!-- Micro-badge flutuante decorativo -->
+          <div class="hidden sm:block absolute -top-4 -right-3 z-20 animate-float-slow">
+            <div class="glass-pill px-3 py-1.5 rounded-xl shadow-md border border-emerald-500/25 flex items-center gap-2 bg-white/95">
+              <span class="material-symbols-outlined text-secondary text-base">verified</span>
+              <span class="text-[11px] font-black text-slate-800">Visualização em HD</span>
             </div>
           </div>
 
-          <!-- ABA 1: CHAT WHATSAPP AO VIVO COM CARD INTERATIVO -->
-          <div id="hero-tab-chat" class="transition-all duration-300">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
-              
-              <!-- Coluna Principal: Tela de Celular WhatsApp Estilizada -->
-              <div class="lg:col-span-8 rounded-2xl overflow-hidden border border-slate-300/80 shadow-md bg-[#efeae2] flex flex-col">
-                
-                <!-- WhatsApp Header -->
-                <div class="bg-[#005c4b] text-white px-4 py-2.5 flex items-center justify-between">
-                  <div class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 rounded-full bg-emerald-700 flex items-center justify-center font-bold text-xs ring-1 ring-white/30 text-white">
-                      LA
-                    </div>
-                    <div>
-                      <div class="flex items-center gap-1">
-                        <p class="text-xs font-bold leading-none text-white">Loja da Ana (Oficial)</p>
-                        <span class="material-symbols-outlined text-sm text-[#25d366]" style="font-variation-settings: 'FILL' 1;">verified</span>
-                      </div>
-                      <p class="text-[10px] text-emerald-200/90 leading-tight">online agora</p>
-                    </div>
+          <!-- Card de Post em Rede Social com o Link Compartilhado (Estilo social.cards hero-post-card) -->
+          <div class="bg-white rounded-2xl border border-slate-200/90 shadow-[0_20px_50px_-15px_rgba(0,62,128,0.08),0_0_0_1px_rgba(226,232,240,0.7)] overflow-hidden transition-all duration-300 hover:shadow-2xl text-left">
+            
+            <!-- Cabeçalho do Post Social (Autor) -->
+            <div class="p-4 sm:p-5 pb-3">
+              <div class="flex items-center justify-between gap-3 mb-2.5">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-sm ring-1 ring-slate-200 overflow-hidden shrink-0 shadow-2xs">
+                    <img src="/assets/img/logotipo_postlink_1x1.jpg" alt="PostLink" class="w-full h-full object-cover">
                   </div>
-                  <div class="flex items-center gap-3 text-emerald-100">
-                    <span class="material-symbols-outlined text-lg">videocam</span>
-                    <span class="material-symbols-outlined text-lg">call</span>
-                    <span class="material-symbols-outlined text-lg">more_vert</span>
-                  </div>
-                </div>
-
-                <!-- Chat Messages Canvas -->
-                <div class="wa-bg-pattern p-3 sm:p-5 flex-grow space-y-4">
-                  
-                  <!-- Balão 1: O Jeito Antigo (Foto avulsa com borrão e indicador de download estilo WhatsApp oficial) -->
-                  <div class="max-w-[88%] sm:max-w-[72%] bg-white rounded-2xl rounded-tl-none p-1.5 shadow-sm border border-slate-200/70 opacity-90 hover:opacity-100 transition-opacity">
-                    <!-- Remetente e Status -->
-                    <div class="flex items-center justify-between px-2 pt-1 pb-1">
-                      <p class="text-xs font-bold text-[#00a884] leading-none">Loja da Ana</p>
-                      <span class="text-[9px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200/60 uppercase">Sem PostLink</span>
-                    </div>
-
-                    <!-- Foto Borrada com o botão central de download (idêntico ao WhatsApp oficial) -->
-                    <div class="relative aspect-[1.3/1] w-full rounded-xl overflow-hidden bg-slate-900 my-1 select-none">
-                      <!-- Imagem borrada simulada de alta fidelidade -->
-                      <div class="absolute inset-0 bg-gradient-to-br from-amber-600 via-rose-500 to-amber-200 filter blur-lg scale-110 opacity-80"></div>
-                      <div class="absolute inset-0 flex flex-col items-center justify-center filter blur-md scale-110 pointer-events-none">
-                        <div class="w-16 h-16 rounded-full bg-amber-100/60 mb-2"></div>
-                        <div class="h-3 w-28 bg-white/80 rounded"></div>
-                        <div class="h-2 w-20 bg-white/60 rounded mt-1"></div>
-                      </div>
-
-                      <!-- Pílula Central de Download do WhatsApp: ícone download + tamanho (299 kB) -->
-                      <div class="absolute inset-0 flex items-center justify-center">
-                        <div class="bg-black/65 backdrop-blur-xs text-white px-3.5 py-1.5 rounded-full flex items-center gap-2 shadow-lg border border-white/15">
-                          <span class="material-symbols-outlined text-base">download</span>
-                          <span class="text-xs font-bold tracking-tight font-mono">299 kB</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Legenda da Mensagem e Horário -->
-                    <div class="px-2 pt-1.5 pb-1">
-                      <p class="text-xs font-bold text-slate-800 leading-tight">🍰 Bolo Especial de Morango</p>
-                      <p class="text-[11px] text-slate-600 mt-0.5 leading-snug">Super promoção hoje! Entregas a partir das 15h. Peça pelo WhatsApp.</p>
-                      <div class="flex items-center justify-end text-[10px] text-slate-400 mt-1">
-                        <span>14:28</span>
-                      </div>
-                    </div>
-
-                    <!-- Aviso de atrito -->
-                    <div class="mt-1 pt-1.5 border-t border-slate-100 px-1">
-                      <p class="text-[10px] text-red-600 font-semibold flex items-center gap-1">
-                        <span class="material-symbols-outlined text-xs">block</span>
-                        A foto fica borrada. O cliente não baixa para não lotar a galeria.
-                      </p>
-                    </div>
-                  </div>
-
-                  <!-- Balão 2: O Jeito PostLink (Card HD Instantâneo) -->
-                  <div class="max-w-[95%] sm:max-w-[85%] bg-[#d9fdd3] rounded-2xl rounded-tr-none p-2 shadow-sm border border-emerald-300/80 ml-auto ring-2 ring-emerald-500/20">
-                    <div class="flex items-center justify-between px-2 pt-1 pb-1 text-[10px]">
-                      <span class="font-extrabold text-emerald-800 flex items-center gap-1">
-                        <span class="material-symbols-outlined text-xs text-secondary-dark" style="font-variation-settings: 'FILL' 1;">stars</span>
-                        Com PostLink (Cartão HD Aberto)
-                      </span>
-                      <span class="text-emerald-900/60 font-medium">14:29 · Enviado</span>
-                    </div>
-
-                    <!-- Cartão Interativo Renderizado -->
-                    <div id="hero-interactive-card" onclick="window.simulateCardClick()" class="cursor-pointer group/card rounded-xl overflow-hidden bg-white border border-emerald-500/30 shadow-xs hover:shadow-md transition-all">
-                      <!-- Imagem / Banner HD de Demonstração -->
-                      <div class="relative aspect-[1.91/1] w-full overflow-hidden bg-gradient-to-tr from-rose-500 via-rose-400 to-amber-300 flex flex-col items-center justify-center text-white p-4">
-                        <!-- Badge HD sobre a imagem -->
-                        <div class="absolute top-2 left-2 bg-black/45 backdrop-blur-md text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1">
-                          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                          HD Open Graph
-                        </div>
-                        <span class="text-[11px] font-extrabold uppercase tracking-widest text-amber-100">Super Oferta do Dia</span>
-                        <h4 class="text-xl sm:text-2xl font-black tracking-tight drop-shadow-sm text-center">Bolo Especial de Morango</h4>
-                        <div class="mt-1 bg-white/20 backdrop-blur-xs px-3 py-0.5 rounded-full text-xs font-extrabold">
-                          R$ 29,90 <span class="text-[10px] font-normal opacity-90">(peça 2 com frete grátis)</span>
-                        </div>
-                        
-                        <!-- Overlay de clique interativo -->
-                        <div class="absolute inset-0 bg-primary/25 backdrop-blur-[2px] opacity-0 group-hover/card:opacity-100 transition-opacity flex items-center justify-center">
-                          <span class="bg-white text-primary text-xs font-black px-3.5 py-2 rounded-xl shadow-lg flex items-center gap-1.5 transform scale-95 group-hover/card:scale-100 transition-transform">
-                            <span class="material-symbols-outlined text-base text-secondary-dark">touch_app</span> Clique para testar!
-                          </span>
-                        </div>
-                      </div>
-
-                      <!-- Rodapé do Card -->
-                      <div class="p-3 bg-white flex items-center justify-between gap-2 border-t border-slate-100">
-                        <div class="min-w-0">
-                          <p class="text-[10px] text-slate-400 font-bold tracking-wide">POSTLINK.COM.BR</p>
-                          <p class="text-xs font-extrabold text-slate-800 truncate">🍰 Bolo Especial de Morango · Peça com 1 Clique</p>
-                        </div>
-                        <span class="material-symbols-outlined text-secondary-dark text-base shrink-0 group-hover/card:translate-x-1 transition-transform">arrow_forward</span>
-                      </div>
-                    </div>
-
-                    <!-- Texto do Link e Confirmação -->
-                    <div class="px-2 pt-2 pb-1 flex items-center justify-between text-[11px]">
-                      <a href="javascript:void(0)" onclick="window.simulateCardClick()" class="text-[#0b6bcb] font-semibold hover:underline truncate">
-                        postlink.com.br/bolo-morango-especial
-                      </a>
-                      <span class="text-emerald-900/60 text-[10px] flex items-center gap-0.5 ml-2 shrink-0">
-                        14:29 <span class="material-symbols-outlined text-xs text-[#53bdeb]" style="font-variation-settings: 'FILL' 1;">done_all</span>
-                      </span>
-                    </div>
-                  </div>
-
-                  <!-- Feedback Toast de Teste de Clique dentro do Mockup -->
-                  <div id="mockup-click-toast" class="hidden transition-all duration-300 bg-emerald-600 text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-lg flex items-center justify-center gap-2 mx-auto max-w-sm text-center">
-                    <span class="material-symbols-outlined text-base">check_circle</span>
-                    <span>Clique registrado com sucesso! Redirecionando para seu WhatsApp...</span>
-                  </div>
-
-                </div>
-              </div>
-
-              <!-- Coluna Lateral: Destaques & Métricas Vivas em Cards Vítreos (Estilo MGM) -->
-              <div class="lg:col-span-4 flex flex-col justify-between gap-3">
-                
-                <!-- Card Lateral 1: Abertura Instantânea -->
-                <div class="glass-panel p-4 rounded-2xl hover:border-emerald-500/40 transition-all group">
-                  <div class="flex items-center justify-between mb-2">
-                    <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold">
-                      <span class="material-symbols-outlined text-lg text-secondary-dark">bolt</span>
-                    </div>
-                    <span class="text-[11px] font-black text-secondary-dark bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/70">3.8x Mais Cliques</span>
-                  </div>
-                  <h4 class="text-xs font-bold text-slate-800 mb-1">Abre Sozinho na Conversa</h4>
-                  <p class="text-[11px] text-slate-500 leading-relaxed">
-                    O cliente bate o olho e já vê o produto com preço e foto nítida. Zero esforço, zero perda de vendas.
-                  </p>
-                </div>
-
-                <!-- Card Lateral 2: Galeria do Cliente 100% Livre -->
-                <div class="glass-panel p-4 rounded-2xl hover:border-emerald-500/40 transition-all group">
-                  <div class="flex items-center justify-between mb-2">
-                    <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-800 flex items-center justify-center font-bold">
-                      <span class="material-symbols-outlined text-lg text-primary">cloud_done</span>
-                    </div>
-                    <span class="text-[11px] font-bold text-primary bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200/70">0 KB Salvos</span>
-                  </div>
-                  <h4 class="text-xs font-bold text-slate-800 mb-1">Galeria Livre e Sem Memória Cheia</h4>
-                  <p class="text-[11px] text-slate-500 leading-relaxed">
-                    Não salva fotos pesadas no celular do cliente. As pessoas adoram e compram com muito mais tranquilidade.
-                  </p>
-                </div>
-
-                <!-- Card Lateral 3: 1 Toque Leva ao Fechamento -->
-                <div class="glass-panel p-4 rounded-2xl hover:border-emerald-500/40 transition-all group">
-                  <div class="flex items-center justify-between mb-2">
-                    <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center font-bold">
-                      <span class="material-symbols-outlined text-lg text-amber-700">touch_app</span>
-                    </div>
-                    <span class="text-[11px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200/70">100% Clicável</span>
-                  </div>
-                  <h4 class="text-xs font-bold text-slate-800 mb-1">A Foto Vira o Próprio Botão</h4>
-                  <p class="text-[11px] text-slate-500 leading-relaxed">
-                    Tocar no cartão abre direto o seu link de pagamento, catálogo ou conversa com mensagem pré-preenchida.
-                  </p>
-                </div>
-
-              </div>
-
-            </div>
-          </div>
-
-          <!-- ABA 2: PAINEL DE MÉTRICAS EM TEMPO REAL (ESTILO MGM) -->
-          <div id="hero-tab-metrics" class="hidden transition-all duration-300">
-            <div class="space-y-4">
-              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div class="glass-panel p-4 rounded-2xl">
-                  <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wide">Total de Aberturas</p>
-                  <p class="text-2xl font-black text-slate-800 mt-1">1.842</p>
-                  <p class="text-[10px] font-bold text-emerald-600 flex items-center gap-0.5 mt-1">
-                    <span class="material-symbols-outlined text-xs">trending_up</span> +34% esta semana
-                  </p>
-                </div>
-                <div class="glass-panel p-4 rounded-2xl">
-                  <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wide">Cliques no Card</p>
-                  <p class="text-2xl font-black text-primary mt-1">648</p>
-                  <p class="text-[10px] font-bold text-emerald-600 flex items-center gap-0.5 mt-1">
-                    <span class="material-symbols-outlined text-xs">trending_up</span> Taxa de 35.1%
-                  </p>
-                </div>
-                <div class="glass-panel p-4 rounded-2xl">
-                  <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wide">Vendas / Conversas</p>
-                  <p class="text-2xl font-black text-secondary-dark mt-1">214</p>
-                  <p class="text-[10px] font-bold text-emerald-600 flex items-center gap-0.5 mt-1">
-                    <span class="material-symbols-outlined text-xs">verified</span> 1 a cada 3 cliques
-                  </p>
-                </div>
-                <div class="glass-panel p-4 rounded-2xl">
-                  <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wide">Memória Poupada</p>
-                  <p class="text-2xl font-black text-slate-800 mt-1">4.4 GB</p>
-                  <p class="text-[10px] font-semibold text-slate-500 mt-1">Nos celulares dos clientes</p>
-                </div>
-              </div>
-
-              <!-- Gráfico Simulado de Desempenho com Gradiente Elegante -->
-              <div class="glass-panel p-5 rounded-2xl">
-                <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
                   <div>
-                    <h4 class="text-xs font-bold text-slate-800">Desempenho de Cliques por Dia</h4>
-                    <p class="text-[11px] text-slate-400">Comparação: PostLink Card vs Foto Comum</p>
-                  </div>
-                  <div class="flex items-center gap-3 text-xs font-semibold">
-                    <span class="flex items-center gap-1.5 text-secondary-dark"><span class="w-2.5 h-2.5 rounded-full bg-secondary"></span> Com PostLink</span>
-                    <span class="flex items-center gap-1.5 text-slate-400"><span class="w-2.5 h-2.5 rounded-full bg-slate-300"></span> Sem PostLink</span>
+                    <div class="flex items-center gap-1.5">
+                      <span class="text-sm font-bold text-slate-900 leading-none">Sua Loja Oficial</span>
+                      <span class="material-symbols-outlined text-sm text-secondary" style="font-variation-settings: 'FILL' 1;">verified</span>
+                    </div>
+                    <span class="text-xs text-slate-400 font-mono">@sualoja · postlink.com.br</span>
                   </div>
                 </div>
+                <span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/70">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  Prévia Ativa
+                </span>
+              </div>
+              
+              <p class="text-xs sm:text-sm text-slate-700 leading-snug">
+                Compartilhe ofertas no WhatsApp com um cartão visual em alta definição que abre sozinho! 👇
+              </p>
+            </div>
+
+            <!-- O Cartão de Pré-visualização do Link Compartilhado (Open Graph Card) -->
+            <div class="px-4 sm:px-5 pb-4">
+              <div id="hero-shared-link-card" onclick="window.simulateCardClick ? window.simulateCardClick() : null" class="group/card block rounded-xl overflow-hidden border border-slate-200/90 bg-white hover:border-emerald-500/50 hover:shadow-md transition-all cursor-pointer shadow-2xs" title="Clique para testar o cartão de prévia">
                 
-                <!-- Barras Visuais Comparativas -->
-                <div class="grid grid-cols-7 gap-2 h-28 items-end pt-4 border-b border-slate-200/80 pb-2">
-                  <div class="flex flex-col items-center gap-1 h-full justify-end">
-                    <div class="w-full flex items-end justify-center gap-1 h-full">
-                      <div class="w-3 sm:w-4 bg-slate-200 rounded-t h-[25%]"></div>
-                      <div class="w-3 sm:w-4 bg-gradient-to-t from-secondary to-emerald-400 rounded-t h-[75%] shadow-xs"></div>
-                    </div>
-                    <span class="text-[10px] text-slate-400">Seg</span>
+                <!-- Área do Banner Oficial da Home (Configurável no Painel Admin) -->
+                <div id="hero-banner-container" class="relative aspect-[1.91/1] w-full overflow-hidden bg-slate-100 select-none">
+                  <img id="hero-banner-img" src="/assets/img/logotipo_postlink.jpg" alt="Prévia do Link Compartilhado" class="w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-[1.02]">
+                  
+                  <!-- Badges sobre o Banner -->
+                  <div class="absolute top-2.5 left-2.5 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    HD Open Graph
                   </div>
-                  <div class="flex flex-col items-center gap-1 h-full justify-end">
-                    <div class="w-full flex items-end justify-center gap-1 h-full">
-                      <div class="w-3 sm:w-4 bg-slate-200 rounded-t h-[20%]"></div>
-                      <div class="w-3 sm:w-4 bg-gradient-to-t from-secondary to-emerald-400 rounded-t h-[65%] shadow-xs"></div>
-                    </div>
-                    <span class="text-[10px] text-slate-400">Ter</span>
-                  </div>
-                  <div class="flex flex-col items-center gap-1 h-full justify-end">
-                    <div class="w-full flex items-end justify-center gap-1 h-full">
-                      <div class="w-3 sm:w-4 bg-slate-200 rounded-t h-[30%]"></div>
-                      <div class="w-3 sm:w-4 bg-gradient-to-t from-secondary to-emerald-400 rounded-t h-[80%] shadow-xs"></div>
-                    </div>
-                    <span class="text-[10px] text-slate-400">Qua</span>
-                  </div>
-                  <div class="flex flex-col items-center gap-1 h-full justify-end">
-                    <div class="w-full flex items-end justify-center gap-1 h-full">
-                      <div class="w-3 sm:w-4 bg-slate-200 rounded-t h-[22%]"></div>
-                      <div class="w-3 sm:w-4 bg-gradient-to-t from-secondary to-emerald-400 rounded-t h-[70%] shadow-xs"></div>
-                    </div>
-                    <span class="text-[10px] text-slate-400">Qui</span>
-                  </div>
-                  <div class="flex flex-col items-center gap-1 h-full justify-end">
-                    <div class="w-full flex items-end justify-center gap-1 h-full">
-                      <div class="w-3 sm:w-4 bg-slate-200 rounded-t h-[35%]"></div>
-                      <div class="w-3 sm:w-4 bg-gradient-to-t from-secondary to-emerald-400 rounded-t h-[95%] shadow-xs"></div>
-                    </div>
-                    <span class="text-[10px] text-slate-400 font-bold text-secondary-dark">Sex</span>
-                  </div>
-                  <div class="flex flex-col items-center gap-1 h-full justify-end">
-                    <div class="w-full flex items-end justify-center gap-1 h-full">
-                      <div class="w-3 sm:w-4 bg-slate-200 rounded-t h-[40%]"></div>
-                      <div class="w-3 sm:w-4 bg-gradient-to-t from-secondary to-emerald-400 rounded-t h-[100%] shadow-xs"></div>
-                    </div>
-                    <span class="text-[10px] text-slate-400 font-bold text-secondary-dark">Sáb</span>
-                  </div>
-                  <div class="flex flex-col items-center gap-1 h-full justify-end">
-                    <div class="w-full flex items-end justify-center gap-1 h-full">
-                      <div class="w-3 sm:w-4 bg-slate-200 rounded-t h-[25%]"></div>
-                      <div class="w-3 sm:w-4 bg-gradient-to-t from-secondary to-emerald-400 rounded-t h-[85%] shadow-xs"></div>
-                    </div>
-                    <span class="text-[10px] text-slate-400">Dom</span>
+                  <div class="absolute top-2.5 right-2.5 bg-white/95 backdrop-blur-md text-slate-800 text-[10px] font-bold px-2 py-0.5 rounded-md shadow-xs flex items-center gap-1 group-hover/card:bg-secondary group-hover/card:text-white transition-colors">
+                    <span class="material-symbols-outlined text-xs">touch_app</span>
+                    <span>Toque para testar</span>
                   </div>
                 </div>
+
+                <!-- Rodapé do Cartão com Título e Rota de Redirecionamento -->
+                <div class="p-3.5 bg-white border-t border-slate-100 flex items-start justify-between gap-3">
+                  <div class="min-w-0">
+                    <p class="text-[10px] font-mono uppercase font-bold text-slate-400 tracking-wider">POSTLINK.COM.BR</p>
+                    <h4 class="text-xs sm:text-sm font-extrabold text-slate-900 leading-snug truncate mt-0.5">
+                      Lançamento Especial · Oferta Exclusiva com 1 Clique
+                    </h4>
+                    <p class="text-[11px] text-slate-500 leading-tight mt-1 flex items-center gap-1 truncate">
+                      <span class="material-symbols-outlined text-xs text-secondary-dark shrink-0">turn_right</span>
+                      <span class="font-medium text-slate-600">postlink.com.br/sua-loja ➔ Redireciona para o destino</span>
+                    </p>
+                  </div>
+                  <div class="w-8 h-8 rounded-lg bg-emerald-50 text-secondary-dark flex items-center justify-center shrink-0 group-hover/card:bg-secondary group-hover/card:text-white transition-all shadow-2xs mt-0.5">
+                    <span class="material-symbols-outlined text-base">arrow_outward</span>
+                  </div>
+                </div>
+
               </div>
             </div>
-          </div>
 
-          <!-- ABA 3: COMPARATIVO ANTES VS DEPOIS DETALHADO -->
-          <div id="hero-tab-diff" class="hidden transition-all duration-300">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <!-- ANTES -->
-              <div class="bg-slate-50/80 border border-slate-200 rounded-2xl p-5">
-                <div class="flex items-center gap-2 mb-3">
-                  <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
-                  <span class="text-xs font-bold uppercase tracking-wider text-red-600">O jeito antigo (Perdendo vendas)</span>
-                </div>
-                <ul class="text-xs text-slate-600 space-y-3">
-                  <li class="flex items-start gap-2">
-                    <span class="material-symbols-outlined text-sm text-red-500 shrink-0 mt-0.5">close</span>
-                    <span><strong>Download manual:</strong> o cliente precisa tocar para baixar a imagem.</span>
-                  </li>
-                  <li class="flex items-start gap-2">
-                    <span class="material-symbols-outlined text-sm text-red-500 shrink-0 mt-0.5">close</span>
-                    <span><strong>Lota o celular:</strong> memória cheia faz o cliente apagar fotos e desativar downloads.</span>
-                  </li>
-                  <li class="flex items-start gap-2">
-                    <span class="material-symbols-outlined text-sm text-red-500 shrink-0 mt-0.5">close</span>
-                    <span><strong>Sem link:</strong> clicar na foto só abre tela preta em full-screen sem ir a lugar nenhum.</span>
-                  </li>
-                </ul>
-              </div>
-
-              <!-- DEPOIS -->
-              <div class="bg-emerald-50/70 border border-emerald-300/80 rounded-2xl p-5">
-                <div class="flex items-center gap-2 mb-3">
-                  <span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
-                  <span class="text-xs font-bold uppercase tracking-wider text-secondary-dark">Com o PostLink (Multiplicando resultados)</span>
-                </div>
-                <ul class="text-xs text-slate-700 space-y-3">
-                  <li class="flex items-start gap-2">
-                    <span class="material-symbols-outlined text-sm text-secondary-dark shrink-0 mt-0.5">check_circle</span>
-                    <span><strong>Abre sozinho:</strong> o cliente vê sua oferta de imediato e em alta definição.</span>
-                  </li>
-                  <li class="flex items-start gap-2">
-                    <span class="material-symbols-outlined text-sm text-secondary-dark shrink-0 mt-0.5">check_circle</span>
-                    <span><strong>0 KB na galeria:</strong> zero peso ou incômodo na memória do celular do comprador.</span>
-                  </li>
-                  <li class="flex items-start gap-2">
-                    <span class="material-symbols-outlined text-sm text-secondary-dark shrink-0 mt-0.5">check_circle</span>
-                    <span><strong>Foto clicável:</strong> 1 toque encaminha direto para fechar o pedido no WhatsApp.</span>
-                  </li>
-                </ul>
-              </div>
+            <!-- Toast de Feedback Interativo ao Clicar no Card -->
+            <div id="mockup-click-toast" class="hidden transition-all duration-300 mx-4 sm:mx-5 mb-3 bg-emerald-600 text-white text-xs font-bold px-3 py-2 rounded-xl shadow-md flex items-center justify-center gap-1.5 text-center">
+              <span class="material-symbols-outlined text-sm">check_circle</span>
+              <span>Link testado com sucesso! Redirecionamento instantâneo acionado.</span>
             </div>
+
+            <!-- Rodapé do Post Social (Métricas & Benefícios de visualização) -->
+            <div class="px-4 sm:px-5 py-2.5 bg-slate-50/90 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+              <div class="flex items-center gap-3">
+                <span class="flex items-center gap-1 font-semibold text-emerald-700 text-[11px] sm:text-xs">
+                  <span class="material-symbols-outlined text-sm text-secondary">bolt</span> Abre direto sem download
+                </span>
+                <span class="hidden sm:inline-flex items-center gap-1 text-slate-500 text-[11px]">
+                  <span class="material-symbols-outlined text-sm text-slate-400">memory</span> 0 KB salvos
+                </span>
+              </div>
+              <span class="text-[10px] font-mono text-slate-400 font-semibold">100% Clicável</span>
+            </div>
+
           </div>
 
         </div>
+
       </div>
 
       <!-- CLUSTER DE CREDIBILIDADE & MULTICANAL INTEGRADO -->
-      <div class="glass-panel rounded-2xl p-4 sm:p-5 max-w-3xl mx-auto space-y-3 shadow-xs">
+      <div class="glass-panel rounded-2xl p-4 sm:p-5 max-w-4xl mx-auto mt-12 sm:mt-16 space-y-3 shadow-xs">
         <!-- Linha Multicanal -->
         <div class="flex flex-wrap items-center justify-center gap-2 text-xs text-slate-600">
           <span class="font-bold text-secondary-dark flex items-center gap-1">
