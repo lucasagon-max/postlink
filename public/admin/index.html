@@ -539,210 +539,371 @@
           <!-- COLUNA ESQUERDA: FORMULÁRIO DE EDIÇÃO (7 colunas em telas grandes) -->
           <div class="lg:col-span-7 space-y-5">
 
-            <!-- CARD 1: CARTÃO DE PRÉ-VISUALIZAÇÃO DE EXEMPLO (DEMONSTRAÇÃO DA LANDING PAGE) -->
-            <div class="bg-surface-container-lowest border-2 border-primary/20 rounded-2xl p-5 shadow-xs space-y-5">
-              <div class="flex items-center justify-between pb-3 border-b border-outline-variant/50">
-                <div class="flex items-center gap-2.5">
-                  <div class="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                    <span class="material-symbols-outlined text-xl">preview</span>
-                  </div>
-                  <div>
-                    <div class="flex items-center gap-2">
-                      <h2 class="text-sm font-bold text-on-surface">Card de Exemplo da Prévia (Landing Page)</h2>
-                      <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">Demonstração Visual</span>
-                    </div>
-                    <p class="text-[11px] text-on-surface-variant">Coloque a foto do produto/oferta e os textos para o visitante ver como fica o cartão aberto no WhatsApp</p>
-                  </div>
-                </div>
+            <!-- SELETOR DE SUB-ABAS DE EDIÇÃO -->
+            <div class="bg-surface-container-lowest border border-outline-variant/60 rounded-2xl p-2 shadow-xs flex flex-wrap items-center gap-2">
+              <button type="button" id="btn-subtab-landing" class="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all bg-primary text-white shadow-2xs">
+                <span class="material-symbols-outlined text-base">view_quilt</span>
+                <span>1. Exemplo na Landing Page</span>
+                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-white/20 text-white">Vitrine</span>
+              </button>
+              <button type="button" id="btn-subtab-oficial" class="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-medium transition-all text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface">
+                <span class="material-symbols-outlined text-base">share</span>
+                <span>2. Link Oficial PostLink</span>
+                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-800">WhatsApp / Redes</span>
+              </button>
+            </div>
 
-                <!-- Toggle: Exibir Foto na Prévia -->
-                <label class="flex items-center gap-2 cursor-pointer select-none" title="Ativar ou desativar exibição da imagem no cartão de prévia">
-                  <span class="text-xs font-semibold text-on-surface-variant">Exibir Foto</span>
-                  <input type="checkbox" id="site-switch-banner-ativo" class="sr-only peer" checked>
-                  <div class="w-10 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></div>
-                </label>
-              </div>
+            <!-- SUB-ABA 1: EXEMPLO NA LANDING PAGE (VITRINE DO PRODUTO + HERO) -->
+            <div id="subtab-pane-landing" class="space-y-5">
 
-              <!-- 1. Imagem de Exemplo da Prévia -->
-              <div class="space-y-2">
-                <div class="flex items-center justify-between">
-                  <label class="text-xs font-bold text-on-surface flex items-center gap-1.5">
-                    <span class="material-symbols-outlined text-sm text-primary">photo_camera</span>
-                    <span>1. Imagem de Exemplo do Anúncio (Foto da Prévia)</span>
-                  </label>
-                  <span class="text-[10px] text-outline font-semibold">1200 × 630 px (HD Open Graph)</span>
-                </div>
-                <p class="text-[11px] text-outline">
-                  Envie uma imagem chamativa de um produto real ou promoção para demonstrar a alta conversão do sistema.
-                </p>
-
-                <!-- Área de Upload / Dropzone -->
-                <div id="site-dropzone" class="relative border-2 border-dashed border-outline-variant hover:border-primary/60 rounded-2xl p-5 text-center transition-all bg-surface-container-low/40 hover:bg-surface-container-low cursor-pointer group">
-                  <input type="file" id="site-file-banner" accept="image/jpeg,image/png,image/webp" class="hidden">
-                  
-                  <div class="space-y-2">
-                    <div class="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
-                      <span class="material-symbols-outlined text-2xl">add_photo_alternate</span>
+              <!-- CARD 1: CARTÃO DE PRÉ-VISUALIZAÇÃO DE EXEMPLO (DEMONSTRAÇÃO DA LANDING PAGE) -->
+              <div class="bg-surface-container-lowest border-2 border-primary/20 rounded-2xl p-5 shadow-xs space-y-5">
+                <div class="flex items-center justify-between pb-3 border-b border-outline-variant/50">
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                      <span class="material-symbols-outlined text-xl">preview</span>
                     </div>
                     <div>
-                      <span class="text-xs font-bold text-primary group-hover:underline">Clique para enviar a foto de exemplo da prévia</span>
-                      <span class="text-xs text-on-surface-variant"> ou arraste o arquivo aqui</span>
+                      <div class="flex items-center gap-2">
+                        <h2 class="text-sm font-bold text-on-surface">Card de Exemplo da Prévia (Landing Page)</h2>
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">Demonstração Visual</span>
+                      </div>
+                      <p class="text-[11px] text-on-surface-variant">Coloque a foto do produto/oferta e os textos para o visitante ver como fica o cartão aberto no WhatsApp</p>
                     </div>
+                  </div>
+
+                  <!-- Toggle: Exibir Foto na Prévia -->
+                  <label class="flex items-center gap-2 cursor-pointer select-none" title="Ativar ou desativar exibição da imagem no cartão de prévia">
+                    <span class="text-xs font-semibold text-on-surface-variant">Exibir Foto</span>
+                    <input type="checkbox" id="site-switch-banner-ativo" class="sr-only peer" checked>
+                    <div class="w-10 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></div>
+                  </label>
+                </div>
+
+                <!-- 1. Imagem de Exemplo da Prévia -->
+                <div class="space-y-2">
+                  <div class="flex items-center justify-between">
+                    <label class="text-xs font-bold text-on-surface flex items-center gap-1.5">
+                      <span class="material-symbols-outlined text-sm text-primary">photo_camera</span>
+                      <span>1. Imagem de Exemplo do Anúncio (Foto da Prévia)</span>
+                    </label>
+                    <span class="text-[10px] text-outline font-semibold">1200 × 630 px (HD Open Graph)</span>
+                  </div>
+                  <p class="text-[11px] text-outline">
+                    Envie uma imagem chamativa de um produto real ou promoção para demonstrar a alta conversão do sistema.
+                  </p>
+
+                  <!-- Área de Upload / Dropzone -->
+                  <div id="site-dropzone" class="relative border-2 border-dashed border-outline-variant hover:border-primary/60 rounded-2xl p-5 text-center transition-all bg-surface-container-low/40 hover:bg-surface-container-low cursor-pointer group">
+                    <input type="file" id="site-file-banner" accept="image/jpeg,image/png,image/webp" class="hidden">
+                    
+                    <div class="space-y-2">
+                      <div class="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
+                        <span class="material-symbols-outlined text-2xl">add_photo_alternate</span>
+                      </div>
+                      <div>
+                        <span class="text-xs font-bold text-primary group-hover:underline">Clique para enviar a foto de exemplo da prévia</span>
+                        <span class="text-xs text-on-surface-variant"> ou arraste o arquivo aqui</span>
+                      </div>
+                      <p class="text-[11px] text-outline">
+                        Formatos aceitos: JPEG, PNG ou WebP até 2MB · O sistema otimiza automaticamente em alta definição
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- Miniatura e Controles da Imagem Carregada -->
+                  <div id="site-banner-preview-box" class="hidden p-3 rounded-xl bg-surface-container-low border border-outline-variant/60 flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-3 overflow-hidden">
+                      <img id="site-banner-thumb" src="" alt="Banner Preview" class="w-16 h-10 object-cover rounded-lg border border-outline-variant/40 shrink-0">
+                      <div class="truncate text-left">
+                        <div id="site-banner-info-nome" class="text-xs font-bold text-on-surface truncate">foto-exemplo.jpg</div>
+                        <div id="site-banner-info-detalhe" class="text-[10px] text-secondary-dark font-semibold">Pronto para salvar · Alta definição</div>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center gap-1.5 shrink-0">
+                      <button id="btn-trocar-banner" type="button" class="px-2.5 py-1.5 rounded-lg bg-surface-container-lowest hover:bg-surface-container text-xs font-medium text-on-surface border border-outline-variant/60 transition-all">
+                        Trocar Foto
+                      </button>
+                      <button id="btn-remover-banner" type="button" class="px-2.5 py-1.5 rounded-lg bg-error-container/40 hover:bg-error-container text-xs font-medium text-error transition-all" title="Remover foto da prévia">
+                        Remover
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Ou URL Direta do Banner -->
+                  <div class="space-y-1.5 pt-1">
+                    <label for="site-input-banner-url" class="block text-xs font-semibold text-on-surface flex items-center justify-between">
+                      <span>Ou informe uma URL direta da foto (opcional):</span>
+                      <span class="text-[10px] text-outline font-normal">Ex: link de CDN ou imagem externa</span>
+                    </label>
+                    <div class="flex gap-2">
+                      <input type="url" id="site-input-banner-url" placeholder="https://exemplo.com/foto-do-produto.jpg" class="flex-grow text-xs px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all">
+                      <button id="btn-aplicar-url-banner" type="button" class="px-3 py-2 bg-surface-container hover:bg-surface-container-high text-xs font-bold text-on-surface rounded-xl border border-outline-variant/60 transition-all shrink-0">
+                        Aplicar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Divisor sutil -->
+                <div class="border-t border-outline-variant/40 pt-2 space-y-4">
+                  
+                  <!-- 2. Título da Prévia no Cartão -->
+                  <div class="space-y-1.5">
+                    <div class="flex items-center justify-between">
+                      <label for="site-input-preview-titulo" class="text-xs font-bold text-on-surface flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-sm text-secondary-dark">title</span>
+                        <span>2. Título da Prévia no Cartão</span>
+                      </label>
+                      <span id="site-preview-titulo-contador" class="text-[10px] font-mono text-outline font-semibold">0 / 90</span>
+                    </div>
+                    <input type="text" id="site-input-preview-titulo" placeholder="Lançamento Especial · Oferta Exclusiva com 1 Clique" class="w-full text-xs sm:text-sm px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all">
                     <p class="text-[11px] text-outline">
-                      Formatos aceitos: JPEG, PNG ou WebP até 2MB · O sistema otimiza automaticamente em alta definição
+                      Título em negrito exibido na base do cartão que chama a atenção imediata do usuário.
                     </p>
                   </div>
+
+                  <!-- 3. Descrição / Texto da Mensagem que acompanha o Link -->
+                  <div class="space-y-1.5">
+                    <div class="flex items-center justify-between">
+                      <label for="site-input-preview-texto" class="text-xs font-bold text-on-surface flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-sm text-secondary-dark">chat</span>
+                        <span>3. Mensagem / Legenda que Acompanha o Link</span>
+                      </label>
+                      <span id="site-preview-texto-contador" class="text-[10px] font-mono text-outline font-semibold">0 / 180</span>
+                    </div>
+                    <textarea id="site-input-preview-texto" rows="2" placeholder="Compartilhe ofertas no WhatsApp com um cartão visual em alta definição que abre sozinho! 👇" class="w-full text-xs px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all resize-y leading-relaxed"></textarea>
+                    <p class="text-[11px] text-outline">
+                      O texto que simula a mensagem na conversa do WhatsApp acima do cartão.
+                    </p>
+                  </div>
+
+                  <!-- 4. Subtítulo / Rota de Redirecionamento -->
+                  <div class="space-y-1.5">
+                    <label for="site-input-preview-subtitulo" class="text-xs font-bold text-on-surface flex items-center gap-1.5">
+                      <span class="material-symbols-outlined text-sm text-secondary-dark">link</span>
+                      <span>4. Subtítulo / Link de Destino Exibido</span>
+                    </label>
+                    <input type="text" id="site-input-preview-subtitulo" placeholder="postlink.com.br/sua-loja ➔ Redireciona para o destino" class="w-full text-xs px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all">
+                    <p class="text-[11px] text-outline">
+                      A rota do link exibida no rodapé para transmitir segurança e credibilidade.
+                    </p>
+                  </div>
+
                 </div>
 
-                <!-- Miniatura e Controles da Imagem Carregada -->
-                <div id="site-banner-preview-box" class="hidden p-3 rounded-xl bg-surface-container-low border border-outline-variant/60 flex items-center justify-between gap-3">
-                  <div class="flex items-center gap-3 overflow-hidden">
-                    <img id="site-banner-thumb" src="" alt="Banner Preview" class="w-16 h-10 object-cover rounded-lg border border-outline-variant/40 shrink-0">
-                    <div class="truncate text-left">
-                      <div id="site-banner-info-nome" class="text-xs font-bold text-on-surface truncate">foto-exemplo.jpg</div>
-                      <div id="site-banner-info-detalhe" class="text-[10px] text-secondary-dark font-semibold">Pronto para salvar · Alta definição</div>
+              </div>
+
+              <!-- CARD 2: HEADLINE & TEXTOS PRINCIPAIS DA HERO (ESQUERDA) -->
+              <div class="bg-surface-container-lowest border border-outline-variant/60 rounded-2xl p-5 shadow-xs space-y-4">
+                <div class="flex items-center gap-2 pb-3 border-b border-outline-variant/50">
+                  <div class="w-8 h-8 rounded-xl bg-secondary-container/30 text-secondary-dark flex items-center justify-center">
+                    <span class="material-symbols-outlined text-lg">edit_note</span>
+                  </div>
+                  <div>
+                    <h2 class="text-sm font-bold text-on-surface">Textos da Hero (Lado Esquerdo do Site)</h2>
+                    <p class="text-[11px] text-on-surface-variant">Defina a proposta de valor e apresentação que o visitante lê ao entrar</p>
+                  </div>
+                </div>
+
+                <!-- Badge de Destaque / Pílula do Topo -->
+                <div class="space-y-1.5">
+                  <div class="flex items-center justify-between">
+                    <label for="site-input-badge" class="text-xs font-semibold text-on-surface">Pílula de Destaque (Topo do Título)</label>
+                    <span class="text-[10px] text-outline">Pequena chamada em destaque</span>
+                  </div>
+                  <input type="text" id="site-input-badge" placeholder="Abre direto no WhatsApp · Zero fotos na galeria do cliente" class="w-full text-xs px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all">
+                </div>
+
+                <!-- Título Principal (H1) -->
+                <div class="space-y-1.5">
+                  <div class="flex items-center justify-between">
+                    <label for="site-input-titulo" class="text-xs font-semibold text-on-surface">Título Principal da Hero (Headline)</label>
+                    <span id="site-titulo-contador" class="text-[10px] font-mono text-outline font-semibold">0 / 120</span>
+                  </div>
+                  <textarea id="site-input-titulo" rows="3" placeholder="Transforme ofertas em cartões em alta definição que abrem sozinhos e vendem no WhatsApp" class="w-full text-xs sm:text-sm px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all resize-y leading-snug"></textarea>
+                  <p class="text-[11px] text-outline">
+                    Dica: Frases de impacto claras aumentam a conversão de novos lojistas em até 35%.
+                  </p>
+                </div>
+
+                <!-- Descrição / Subtítulo -->
+                <div class="space-y-1.5">
+                  <div class="flex items-center justify-between">
+                    <label for="site-input-descricao" class="text-xs font-semibold text-on-surface">Descrição Detalhada (Subtítulo)</label>
+                    <span id="site-desc-contador" class="text-[10px] font-mono text-outline font-semibold">0 / 300</span>
+                  </div>
+                  <textarea id="site-input-descricao" rows="4" placeholder="Quase ninguém baixa fotos avulsas no WhatsApp para não lotar a memória do celular — e mesmo quem baixa não vai a lugar nenhum ao clicar na foto. Com o PostLink, seu produto já aparece aberto na conversa, sem ocupar a galeria do cliente e direcionando para o seu atendimento com 1 clique." class="w-full text-xs px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all resize-y leading-relaxed"></textarea>
+                </div>
+              </div>
+
+              <!-- CARD 3: CHAMADA PARA AÇÃO (CTA) -->
+              <div class="bg-surface-container-lowest border border-outline-variant/60 rounded-2xl p-5 shadow-xs space-y-4">
+                <div class="flex items-center gap-2 pb-3 border-b border-outline-variant/50">
+                  <div class="w-8 h-8 rounded-xl bg-primary-container/20 text-primary flex items-center justify-center">
+                    <span class="material-symbols-outlined text-lg">smart_button</span>
+                  </div>
+                  <div>
+                    <h2 class="text-sm font-bold text-on-surface">Botão de Conversão (CTA)</h2>
+                    <p class="text-[11px] text-on-surface-variant">Personalize o texto do botão principal do cabeçalho e da hero</p>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div class="space-y-1.5">
+                    <label for="site-input-cta-texto" class="text-xs font-semibold text-on-surface">Texto do Botão</label>
+                    <input type="text" id="site-input-cta-texto" placeholder="Começar Grátis" class="w-full text-xs px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all">
+                  </div>
+                  <div class="space-y-1.5">
+                    <label for="site-input-cta-url" class="text-xs font-semibold text-on-surface">Destino do Clique</label>
+                    <input type="text" id="site-input-cta-url" placeholder="/planos/" class="w-full text-xs px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all">
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- SUB-ABA 2: PRÉVIA OFICIAL DO DOMÍNIO POSTLINK (WHATSAPP / REDES SOCIAIS) -->
+            <div id="subtab-pane-oficial" class="space-y-5 hidden">
+
+              <!-- CARD DEDICADO: CONFIGURAÇÃO DE COMPARTILHAMENTO DO LINK POSTLINK.COM.BR -->
+              <div class="bg-surface-container-lowest border-2 border-emerald-500/20 rounded-2xl p-5 shadow-xs space-y-5">
+                <div class="flex items-center justify-between pb-3 border-b border-outline-variant/50">
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-700 flex items-center justify-center">
+                      <span class="material-symbols-outlined text-xl">share</span>
+                    </div>
+                    <div>
+                      <div class="flex items-center gap-2">
+                        <h2 class="text-sm font-bold text-on-surface">Prévia Oficial de Compartilhamento</h2>
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">postlink.com.br</span>
+                      </div>
+                      <p class="text-[11px] text-on-surface-variant">Como seu site aparece quando alguém compartilha o link oficial do PostLink no WhatsApp ou redes</p>
                     </div>
                   </div>
 
-                  <div class="flex items-center gap-1.5 shrink-0">
-                    <button id="btn-trocar-banner" type="button" class="px-2.5 py-1.5 rounded-lg bg-surface-container-lowest hover:bg-surface-container text-xs font-medium text-on-surface border border-outline-variant/60 transition-all">
-                      Trocar Foto
-                    </button>
-                    <button id="btn-remover-banner" type="button" class="px-2.5 py-1.5 rounded-lg bg-error-container/40 hover:bg-error-container text-xs font-medium text-error transition-all" title="Remover foto da prévia">
-                      Remover
-                    </button>
+                  <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-container-low text-[10px] font-mono text-outline">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                    <span>Open Graph</span>
                   </div>
                 </div>
 
-                <!-- Ou URL Direta do Banner -->
-                <div class="space-y-1.5 pt-1">
-                  <label for="site-input-banner-url" class="block text-xs font-semibold text-on-surface flex items-center justify-between">
-                    <span>Ou informe uma URL direta da foto (opcional):</span>
-                    <span class="text-[10px] text-outline font-normal">Ex: link de CDN ou imagem externa</span>
-                  </label>
-                  <div class="flex gap-2">
-                    <input type="url" id="site-input-banner-url" placeholder="https://exemplo.com/foto-do-produto.jpg" class="flex-grow text-xs px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all">
-                    <button id="btn-aplicar-url-banner" type="button" class="px-3 py-2 bg-surface-container hover:bg-surface-container-high text-xs font-bold text-on-surface rounded-xl border border-outline-variant/60 transition-all shrink-0">
-                      Aplicar
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Divisor sutil -->
-              <div class="border-t border-outline-variant/40 pt-2 space-y-4">
-                
-                <!-- 2. Título da Prévia no Cartão -->
-                <div class="space-y-1.5">
+                <!-- 1. Imagem / Banner Institucional Oficial -->
+                <div class="space-y-2">
                   <div class="flex items-center justify-between">
-                    <label for="site-input-preview-titulo" class="text-xs font-bold text-on-surface flex items-center gap-1.5">
-                      <span class="material-symbols-outlined text-sm text-secondary-dark">title</span>
-                      <span>2. Título da Prévia no Cartão</span>
+                    <label class="text-xs font-bold text-on-surface flex items-center gap-1.5">
+                      <span class="material-symbols-outlined text-sm text-secondary-dark">image</span>
+                      <span>1. Imagem / Banner Oficial do PostLink</span>
                     </label>
-                    <span id="site-preview-titulo-contador" class="text-[10px] font-mono text-outline font-semibold">0 / 90</span>
+                    <span class="text-[10px] text-outline font-semibold">1200 × 630 px (Proporção 1.91:1)</span>
                   </div>
-                  <input type="text" id="site-input-preview-titulo" placeholder="Lançamento Especial · Oferta Exclusiva com 1 Clique" class="w-full text-xs sm:text-sm px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all">
                   <p class="text-[11px] text-outline">
-                    Título em negrito exibido na base do cartão que chama a atenção imediata do usuário.
+                    A imagem principal da marca que aparece no topo do balão de conversa quando o link institucional é enviado.
                   </p>
-                </div>
 
-                <!-- 3. Descrição / Texto da Mensagem que acompanha o Link -->
-                <div class="space-y-1.5">
-                  <div class="flex items-center justify-between">
-                    <label for="site-input-preview-texto" class="text-xs font-bold text-on-surface flex items-center gap-1.5">
-                      <span class="material-symbols-outlined text-sm text-secondary-dark">chat</span>
-                      <span>3. Mensagem / Legenda que Acompanha o Link</span>
+                  <!-- Área de Upload / Dropzone Oficial -->
+                  <div id="site-dropzone-oficial" class="relative border-2 border-dashed border-outline-variant hover:border-emerald-500/60 rounded-2xl p-5 text-center transition-all bg-surface-container-low/40 hover:bg-surface-container-low cursor-pointer group">
+                    <input type="file" id="site-file-oficial" accept="image/jpeg,image/png,image/webp" class="hidden">
+                    
+                    <div class="space-y-2">
+                      <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-700 flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
+                        <span class="material-symbols-outlined text-2xl">cloud_upload</span>
+                      </div>
+                      <div>
+                        <span class="text-xs font-bold text-secondary-dark group-hover:underline">Clique para enviar a imagem oficial da marca</span>
+                        <span class="text-xs text-on-surface-variant"> ou arraste o arquivo aqui</span>
+                      </div>
+                      <p class="text-[11px] text-outline">
+                        Recomendado: Logotipo oficial ou banner de alta resolução · JPEG, PNG ou WebP até 2MB
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- Miniatura e Controles da Imagem Oficial Carregada -->
+                  <div id="site-oficial-preview-box" class="hidden p-3 rounded-xl bg-surface-container-low border border-outline-variant/60 flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-3 overflow-hidden">
+                      <img id="site-oficial-thumb" src="" alt="Banner Oficial" class="w-16 h-10 object-cover rounded-lg border border-outline-variant/40 shrink-0">
+                      <div class="truncate text-left">
+                        <div id="site-oficial-info-nome" class="text-xs font-bold text-on-surface truncate">banner-postlink.jpg</div>
+                        <div id="site-oficial-info-detalhe" class="text-[10px] text-secondary-dark font-semibold">Pronto para salvar · Alta definição</div>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center gap-1.5 shrink-0">
+                      <button id="btn-trocar-oficial-img" type="button" class="px-2.5 py-1.5 rounded-lg bg-surface-container-lowest hover:bg-surface-container text-xs font-medium text-on-surface border border-outline-variant/60 transition-all">
+                        Trocar Imagem
+                      </button>
+                      <button id="btn-remover-oficial-img" type="button" class="px-2.5 py-1.5 rounded-lg bg-error-container/40 hover:bg-error-container text-xs font-medium text-error transition-all" title="Remover imagem oficial">
+                        Remover
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Ou URL Direta da Imagem Oficial -->
+                  <div class="space-y-1.5 pt-1">
+                    <label for="site-input-oficial-img-url" class="block text-xs font-semibold text-on-surface flex items-center justify-between">
+                      <span>Ou cole uma URL direta da imagem oficial (opcional):</span>
+                      <span class="text-[10px] text-outline font-normal">Ex: link de CDN ou imagem externa</span>
                     </label>
-                    <span id="site-preview-texto-contador" class="text-[10px] font-mono text-outline font-semibold">0 / 180</span>
+                    <div class="flex gap-2">
+                      <input type="url" id="site-input-oficial-img-url" placeholder="https://postlink.com.br/assets/img/logotipo_postlink.jpg" class="flex-grow text-xs px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all">
+                      <button id="btn-aplicar-url-oficial" type="button" class="px-3 py-2 bg-surface-container hover:bg-surface-container-high text-xs font-bold text-on-surface rounded-xl border border-outline-variant/60 transition-all shrink-0">
+                        Aplicar
+                      </button>
+                    </div>
                   </div>
-                  <textarea id="site-input-preview-texto" rows="2" placeholder="Compartilhe ofertas no WhatsApp com um cartão visual em alta definição que abre sozinho! 👇" class="w-full text-xs px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all resize-y leading-relaxed"></textarea>
-                  <p class="text-[11px] text-outline">
-                    O texto que simula a mensagem na conversa do WhatsApp acima do cartão.
-                  </p>
                 </div>
 
-                <!-- 4. Subtítulo / Rota de Redirecionamento -->
-                <div class="space-y-1.5">
-                  <label for="site-input-preview-subtitulo" class="text-xs font-bold text-on-surface flex items-center gap-1.5">
-                    <span class="material-symbols-outlined text-sm text-secondary-dark">link</span>
-                    <span>4. Subtítulo / Link de Destino Exibido</span>
-                  </label>
-                  <input type="text" id="site-input-preview-subtitulo" placeholder="postlink.com.br/sua-loja ➔ Redireciona para o destino" class="w-full text-xs px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all">
-                  <p class="text-[11px] text-outline">
-                    A rota do link exibida no rodapé para transmitir segurança e credibilidade.
-                  </p>
+                <!-- Divisor sutil -->
+                <div class="border-t border-outline-variant/40 pt-2 space-y-4">
+
+                  <!-- 2. Título Oficial de Compartilhamento -->
+                  <div class="space-y-1.5">
+                    <div class="flex items-center justify-between">
+                      <label for="site-input-oficial-titulo" class="text-xs font-bold text-on-surface flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-sm text-secondary-dark">title</span>
+                        <span>2. Título de Compartilhamento no WhatsApp (OG Title)</span>
+                      </label>
+                      <span id="site-oficial-titulo-contador" class="text-[10px] font-mono text-outline font-semibold">0 / 90</span>
+                    </div>
+                    <input type="text" id="site-input-oficial-titulo" placeholder="PostLink · Smart Links em Alta Definição para WhatsApp" class="w-full text-xs sm:text-sm px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all">
+                    <p class="text-[11px] text-outline">
+                      Título em negrito exibido no balão de mensagem quando alguém compartilha postlink.com.br.
+                    </p>
+                  </div>
+
+                  <!-- 3. Descrição Oficial de Compartilhamento -->
+                  <div class="space-y-1.5">
+                    <div class="flex items-center justify-between">
+                      <label for="site-input-oficial-descricao" class="text-xs font-bold text-on-surface flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-sm text-secondary-dark">description</span>
+                        <span>3. Descrição Institucional (OG Description)</span>
+                      </label>
+                      <span id="site-oficial-desc-contador" class="text-[10px] font-mono text-outline font-semibold">0 / 180</span>
+                    </div>
+                    <textarea id="site-input-oficial-descricao" rows="3" placeholder="Transforme fotos e ofertas em cartões em alta definição que abrem sozinhos no WhatsApp e aumentam suas vendas." class="w-full text-xs px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all resize-y leading-relaxed"></textarea>
+                    <p class="text-[11px] text-outline">
+                      Resumo da proposta de valor exibido abaixo do título no cartão de compartilhamento do WhatsApp.
+                    </p>
+                  </div>
+
+                  <!-- 4. Rota Canônica do PostLink -->
+                  <div class="space-y-1.5">
+                    <label class="text-xs font-bold text-on-surface flex items-center gap-1.5">
+                      <span class="material-symbols-outlined text-sm text-secondary-dark">link</span>
+                      <span>4. Link Canônico Oficial</span>
+                    </label>
+                    <div class="flex items-center gap-2 bg-surface-container-low px-3.5 py-2.5 rounded-xl border border-outline-variant/60 text-xs font-mono text-on-surface">
+                      <span class="material-symbols-outlined text-sm text-emerald-600">verified</span>
+                      <span>https://www.postlink.com.br/</span>
+                    </div>
+                  </div>
+
                 </div>
 
               </div>
 
-            </div>
-
-            <!-- CARD 3: HEADLINE & TEXTOS PRINCIPAIS DA HERO (ESQUERDA) -->
-            <div class="bg-surface-container-lowest border border-outline-variant/60 rounded-2xl p-5 shadow-xs space-y-4">
-              <div class="flex items-center gap-2 pb-3 border-b border-outline-variant/50">
-                <div class="w-8 h-8 rounded-xl bg-secondary-container/30 text-secondary-dark flex items-center justify-center">
-                  <span class="material-symbols-outlined text-lg">edit_note</span>
-                </div>
-                <div>
-                  <h2 class="text-sm font-bold text-on-surface">Textos da Hero (Lado Esquerdo do Site)</h2>
-                  <p class="text-[11px] text-on-surface-variant">Defina a proposta de valor e apresentação que o visitante lê ao entrar</p>
-                </div>
-              </div>
-
-              <!-- Badge de Destaque / Pílula do Topo -->
-              <div class="space-y-1.5">
-                <div class="flex items-center justify-between">
-                  <label for="site-input-badge" class="text-xs font-semibold text-on-surface">Pílula de Destaque (Topo do Título)</label>
-                  <span class="text-[10px] text-outline">Pequena chamada em destaque</span>
-                </div>
-                <input type="text" id="site-input-badge" placeholder="Abre direto no WhatsApp · Zero fotos na galeria do cliente" class="w-full text-xs px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all">
-              </div>
-
-              <!-- Título Principal (H1) -->
-              <div class="space-y-1.5">
-                <div class="flex items-center justify-between">
-                  <label for="site-input-titulo" class="text-xs font-semibold text-on-surface">Título Principal da Hero (Headline)</label>
-                  <span id="site-titulo-contador" class="text-[10px] font-mono text-outline font-semibold">0 / 120</span>
-                </div>
-                <textarea id="site-input-titulo" rows="3" placeholder="Transforme ofertas em cartões em alta definição que abrem sozinhos e vendem no WhatsApp" class="w-full text-xs sm:text-sm px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all resize-y leading-snug"></textarea>
-                <p class="text-[11px] text-outline">
-                  Dica: Frases de impacto claras aumentam a conversão de novos lojistas em até 35%.
-                </p>
-              </div>
-
-              <!-- Descrição / Subtítulo -->
-              <div class="space-y-1.5">
-                <div class="flex items-center justify-between">
-                  <label for="site-input-descricao" class="text-xs font-semibold text-on-surface">Descrição Detalhada (Subtítulo)</label>
-                  <span id="site-desc-contador" class="text-[10px] font-mono text-outline font-semibold">0 / 300</span>
-                </div>
-                <textarea id="site-input-descricao" rows="4" placeholder="Quase ninguém baixa fotos avulsas no WhatsApp para não lotar a memória do celular — e mesmo quem baixa não vai a lugar nenhum ao clicar na foto. Com o PostLink, seu produto já aparece aberto na conversa, sem ocupar a galeria do cliente e direcionando para o seu atendimento com 1 clique." class="w-full text-xs px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all resize-y leading-relaxed"></textarea>
-              </div>
-            </div>
-
-            <!-- CARD 3: CHAMADA PARA AÇÃO (CTA) -->
-            <div class="bg-surface-container-lowest border border-outline-variant/60 rounded-2xl p-5 shadow-xs space-y-4">
-              <div class="flex items-center gap-2 pb-3 border-b border-outline-variant/50">
-                <div class="w-8 h-8 rounded-xl bg-primary-container/20 text-primary flex items-center justify-center">
-                  <span class="material-symbols-outlined text-lg">smart_button</span>
-                </div>
-                <div>
-                  <h2 class="text-sm font-bold text-on-surface">Botão de Conversão (CTA)</h2>
-                  <p class="text-[11px] text-on-surface-variant">Personalize o texto do botão principal do cabeçalho e da hero</p>
-                </div>
-              </div>
-
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div class="space-y-1.5">
-                  <label for="site-input-cta-texto" class="text-xs font-semibold text-on-surface">Texto do Botão</label>
-                  <input type="text" id="site-input-cta-texto" placeholder="Começar Grátis" class="w-full text-xs px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all">
-                </div>
-                <div class="space-y-1.5">
-                  <label for="site-input-cta-url" class="text-xs font-semibold text-on-surface">Destino do Clique</label>
-                  <input type="text" id="site-input-cta-url" placeholder="/planos/" class="w-full text-xs px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all">
-                </div>
-              </div>
             </div>
 
             <!-- CARD 4: AUDITORIA E DADOS TÉCNICOS -->

@@ -35,16 +35,16 @@
       elDesc.textContent = config.descricao;
     }
 
-    // 4. Banner Oficial da Home no Preview de Link Compartilhado
+    // 4. Banner / Foto de Exemplo da Vitrine na Landing Page
     const bannerContainer = document.getElementById('hero-banner-container');
     const bannerImg = document.getElementById('hero-banner-img');
     if (bannerImg) {
       const bannerAtivo = config.banner_ativo !== false;
-      const temUrl = Boolean(config.banner_url && config.banner_url.trim());
+      const vitrineUrl = (config.preview_imagem_url || config.banner_url || '').trim();
       const defaultImg = '/assets/img/logotipo_postlink.jpg';
 
       if (bannerAtivo) {
-        bannerImg.src = temUrl ? config.banner_url.trim() : defaultImg;
+        bannerImg.src = vitrineUrl ? vitrineUrl : defaultImg;
         if (bannerContainer) {
           bannerContainer.classList.remove('hidden');
           bannerContainer.classList.remove('opacity-40');
@@ -54,7 +54,7 @@
       }
     }
 
-    // 4.1. Textos da Pré-visualização do Link Compartilhado
+    // 4.1. Textos da Pré-visualização de Exemplo na Landing Page
     const elPreviewTexto = document.getElementById('hero-preview-texto');
     if (elPreviewTexto && (config.preview_descricao || config.preview_texto)) {
       elPreviewTexto.textContent = config.preview_descricao || config.preview_texto;
@@ -89,26 +89,25 @@
       if (config.cta_url) heroCtaBtn.href = config.cta_url;
     }
 
-    // 6. Atualiza Meta Tags Open Graph & Twitter Card
-    if (config.titulo) {
-      const ogTitle = document.getElementById('og-title') || document.querySelector('meta[property="og:title"]');
-      const twTitle = document.getElementById('tw-title') || document.querySelector('meta[name="twitter:title"]');
-      if (ogTitle) ogTitle.setAttribute('content', `${config.titulo} · PostLink`);
-      if (twTitle) twTitle.setAttribute('content', `${config.titulo} · PostLink`);
-    }
+    // 6. Atualiza Meta Tags Open Graph & Twitter Card do Link Oficial PostLink
+    const ogTitleContent = config.oficial_og_titulo || (config.titulo ? `${config.titulo} · PostLink` : 'PostLink · Smart Links em Alta Definição para WhatsApp');
+    const ogTitle = document.getElementById('og-title') || document.querySelector('meta[property="og:title"]');
+    const twTitle = document.getElementById('tw-title') || document.querySelector('meta[name="twitter:title"]');
+    if (ogTitle) ogTitle.setAttribute('content', ogTitleContent);
+    if (twTitle) twTitle.setAttribute('content', ogTitleContent);
 
-    if (config.descricao) {
-      const ogDesc = document.getElementById('og-desc') || document.querySelector('meta[property="og:description"]');
-      const twDesc = document.getElementById('tw-desc') || document.querySelector('meta[name="twitter:description"]');
-      if (ogDesc) ogDesc.setAttribute('content', config.descricao);
-      if (twDesc) twDesc.setAttribute('content', config.descricao);
-    }
+    const ogDescContent = config.oficial_og_descricao || config.descricao || 'Transforme fotos e ofertas em cartões inteligentes de alta definição que abrem sozinhos no WhatsApp e vendem com 1 clique.';
+    const ogDesc = document.getElementById('og-desc') || document.querySelector('meta[property="og:description"]');
+    const twDesc = document.getElementById('tw-desc') || document.querySelector('meta[name="twitter:description"]');
+    if (ogDesc) ogDesc.setAttribute('content', ogDescContent);
+    if (twDesc) twDesc.setAttribute('content', ogDescContent);
 
-    if (config.banner_url && config.banner_ativo !== false) {
+    const ogImgContent = config.oficial_og_imagem_url || config.banner_url;
+    if (ogImgContent) {
       const ogImg = document.getElementById('og-image') || document.querySelector('meta[property="og:image"]');
       const twImg = document.getElementById('tw-image') || document.querySelector('meta[name="twitter:image"]');
-      if (ogImg) ogImg.setAttribute('content', config.banner_url);
-      if (twImg) twImg.setAttribute('content', config.banner_url);
+      if (ogImg) ogImg.setAttribute('content', ogImgContent);
+      if (twImg) twImg.setAttribute('content', ogImgContent);
     }
   }
 

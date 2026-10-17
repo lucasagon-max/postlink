@@ -60,6 +60,10 @@ export async function onRequestGet({ env }) {
       preview_titulo: 'Lançamento Especial · Oferta Exclusiva com 1 Clique',
       preview_descricao: 'Compartilhe ofertas no WhatsApp com um cartão visual em alta definição que abre sozinho! 👇',
       preview_subtitulo: 'postlink.com.br/sua-loja ➔ Redireciona para o destino',
+      preview_imagem_url: null,
+      oficial_og_titulo: 'PostLink · Smart Links em Alta Definição para WhatsApp',
+      oficial_og_descricao: 'Transforme fotos e ofertas em cartões em alta definição que abrem sozinhos no WhatsApp e aumentam suas vendas.',
+      oficial_og_imagem_url: null,
       fallback: true,
       erro: err.message,
     };

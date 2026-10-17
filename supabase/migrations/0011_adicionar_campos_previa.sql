@@ -141,3 +141,43 @@ begin
   return v_res;
 end;
 $$;
+
+-- 5. Atualiza a função is_super_admin para validação resiliente (por auth.uid e por auth.jwt)
+create or replace function public.is_super_admin()
+returns boolean
+language plpgsql
+security definer
+set search_path = public, auth
+stable
+as $$
+declare
+  v_uid uuid;
+  v_email text;
+begin
+  v_uid := auth.uid();
+  v_email := lower(coalesce(auth.jwt() ->> 'email', ''));
+
+  if (v_email = '' or v_email is null) and v_uid is not null then
+    select lower(email) into v_email
+    from auth.users
+    where id = v_uid;
+  end if;
+
+  if v_email = '' or v_email is null then
+    return false;
+  end if;
+
+  return (
+    v_email in ('lucas.a.gon@gmail.com', 'carmen.cattel@gmail.com', 'morangostatui@gmail.com')
+    or exists (
+      select 1 from public.administradores
+      where lower(email) = v_email
+    )
+  );
+end;
+$$;
+
+-- 6. Assegura permissões de execução para authenticated
+grant execute on function public.admin_salvar_configuracoes_site(text, text, text, text, text, text, boolean, text, text, text) to authenticated;
+grant execute on function public.is_super_admin() to authenticated;
+

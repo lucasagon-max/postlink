@@ -15,10 +15,16 @@ const state = {
   filtroStatus: 'todos',
   termoBusca: '',
   abaAtiva: 'visao-geral',
+  subabaSiteAtiva: 'landing', // 'landing' | 'oficial'
   siteConfig: null,
+  // 1. Imagem de Exemplo da Vitrine (Landing Page)
   siteBannerBlob: null,
   siteBannerPreviewUrl: '',
   siteBannerRemovido: false,
+  // 2. Imagem Oficial (Link de Compartilhamento postlink.com.br)
+  siteOficialBlob: null,
+  siteOficialPreviewUrl: '',
+  siteOficialRemovido: false,
 };
 
 // Mapeamento de Elementos do DOM
@@ -90,7 +96,7 @@ const el = {
   modalLojistaLinks: document.getElementById('modal-lojista-links'),
   modalLojistaBtnFechar: document.getElementById('modal-lojista-btn-fechar'),
 
-  // Editor do Site Oficial
+  // Editor do Site Oficial - Cabeçalho e Auditoria
   btnSiteSalvar: document.getElementById('btn-site-salvar'),
   siteSalvarIcon: document.getElementById('site-salvar-icon'),
   siteSalvarTexto: document.getElementById('site-salvar-texto'),
@@ -98,6 +104,14 @@ const el = {
   siteStatusTag: document.getElementById('site-status-tag'),
   siteAuditData: document.getElementById('site-audit-data'),
   siteAuditUsuario: document.getElementById('site-audit-usuario'),
+
+  // Sub-abas de Edição do Site
+  btnSubtabLanding: document.getElementById('btn-subtab-landing'),
+  btnSubtabOficial: document.getElementById('btn-subtab-oficial'),
+  subtabPaneLanding: document.getElementById('subtab-pane-landing'),
+  subtabPaneOficial: document.getElementById('subtab-pane-oficial'),
+
+  // Sub-aba 1: Exemplo na Landing Page (Vitrine de Demonstração)
   siteSwitchBannerAtivo: document.getElementById('site-switch-banner-ativo'),
   siteDropzone: document.getElementById('site-dropzone'),
   siteFileBanner: document.getElementById('site-file-banner'),
@@ -109,15 +123,11 @@ const el = {
   btnRemoverBanner: document.getElementById('btn-remover-banner'),
   siteInputBannerUrl: document.getElementById('site-input-banner-url'),
   btnAplicarUrlBanner: document.getElementById('btn-aplicar-url-banner'),
-  
-  // Card de Pré-visualização do Link Compartilhado
   siteInputPreviewTitulo: document.getElementById('site-input-preview-titulo'),
   sitePreviewTituloContador: document.getElementById('site-preview-titulo-contador'),
   siteInputPreviewTexto: document.getElementById('site-input-preview-texto'),
   sitePreviewTextoContador: document.getElementById('site-preview-texto-contador'),
   siteInputPreviewSubtitulo: document.getElementById('site-input-preview-subtitulo'),
-
-  // Textos da Hero (Esquerda)
   siteInputBadge: document.getElementById('site-input-badge'),
   siteInputTitulo: document.getElementById('site-input-titulo'),
   siteTituloContador: document.getElementById('site-titulo-contador'),
@@ -126,7 +136,23 @@ const el = {
   siteInputCtaTexto: document.getElementById('site-input-cta-texto'),
   siteInputCtaUrl: document.getElementById('site-input-cta-url'),
 
-  // Prévia do Site Oficial
+  // Sub-aba 2: Link Oficial PostLink (WhatsApp & Redes)
+  siteDropzoneOficial: document.getElementById('site-dropzone-oficial'),
+  siteFileOficial: document.getElementById('site-file-oficial'),
+  siteOficialPreviewBox: document.getElementById('site-oficial-preview-box'),
+  siteOficialThumb: document.getElementById('site-oficial-thumb'),
+  siteOficialInfoNome: document.getElementById('site-oficial-info-nome'),
+  siteOficialInfoDetalhe: document.getElementById('site-oficial-info-detalhe'),
+  btnTrocarOficialImg: document.getElementById('btn-trocar-oficial-img'),
+  btnRemoverOficialImg: document.getElementById('btn-remover-oficial-img'),
+  siteInputOficialImgUrl: document.getElementById('site-input-oficial-img-url'),
+  btnAplicarUrlOficial: document.getElementById('btn-aplicar-url-oficial'),
+  siteInputOficialTitulo: document.getElementById('site-input-oficial-titulo'),
+  siteOficialTituloContador: document.getElementById('site-oficial-titulo-contador'),
+  siteInputOficialDescricao: document.getElementById('site-input-oficial-descricao'),
+  siteOficialDescContador: document.getElementById('site-oficial-desc-contador'),
+
+  // Live Preview do Site Oficial (Coluna Direita)
   btnPreviewTabHero: document.getElementById('btn-preview-tab-hero'),
   btnPreviewTabWa: document.getElementById('btn-preview-tab-wa'),
   previewFrameHero: document.getElementById('preview-frame-hero'),
@@ -734,6 +760,52 @@ function configurarNavegacao() {
 // 6. EDITOR DO SITE OFICIAL (POSTLINK)
 // ==========================================
 
+// Alterna entre as sub-abas do Editor (1. Vitrine Landing Page / 2. Link Oficial)
+function alternarSubabaSite(aba) {
+  state.subabaSiteAtiva = aba;
+
+  if (aba === 'landing') {
+    if (el.btnSubtabLanding) {
+      el.btnSubtabLanding.className = 'flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all bg-primary text-white shadow-2xs';
+    }
+    if (el.btnSubtabOficial) {
+      el.btnSubtabOficial.className = 'flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-medium transition-all text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface';
+    }
+    if (el.subtabPaneLanding) el.subtabPaneLanding.classList.remove('hidden');
+    if (el.subtabPaneOficial) el.subtabPaneOficial.classList.add('hidden');
+
+    // Ao ir para a Vitrine da Landing Page, exibe automaticamente a prévia da Hero
+    ativarPreviewFrame('hero');
+  } else {
+    if (el.btnSubtabOficial) {
+      el.btnSubtabOficial.className = 'flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all bg-primary text-white shadow-2xs';
+    }
+    if (el.btnSubtabLanding) {
+      el.btnSubtabLanding.className = 'flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-medium transition-all text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface';
+    }
+    if (el.subtabPaneOficial) el.subtabPaneOficial.classList.remove('hidden');
+    if (el.subtabPaneLanding) el.subtabPaneLanding.classList.add('hidden');
+
+    // Ao ir para o Link Oficial, exibe automaticamente o Balão de WhatsApp
+    ativarPreviewFrame('wa');
+  }
+}
+
+// Alterna entre o frame da Hero e o balão do WhatsApp no Live Preview
+function ativarPreviewFrame(tipo) {
+  if (tipo === 'hero') {
+    if (el.previewFrameHero) el.previewFrameHero.classList.remove('hidden');
+    if (el.previewFrameWa) el.previewFrameWa.classList.add('hidden');
+    if (el.btnPreviewTabHero) el.btnPreviewTabHero.className = 'px-2.5 py-1 rounded-md font-bold transition-all bg-surface-container-lowest text-primary shadow-2xs';
+    if (el.btnPreviewTabWa) el.btnPreviewTabWa.className = 'px-2.5 py-1 rounded-md font-medium transition-all text-on-surface-variant hover:text-on-surface';
+  } else {
+    if (el.previewFrameWa) el.previewFrameWa.classList.remove('hidden');
+    if (el.previewFrameHero) el.previewFrameHero.classList.add('hidden');
+    if (el.btnPreviewTabWa) el.btnPreviewTabWa.className = 'px-2.5 py-1 rounded-md font-bold transition-all bg-surface-container-lowest text-primary shadow-2xs';
+    if (el.btnPreviewTabHero) el.btnPreviewTabHero.className = 'px-2.5 py-1 rounded-md font-medium transition-all text-on-surface-variant hover:text-on-surface';
+  }
+}
+
 // Carrega as configurações do site oficial do Supabase
 async function carregarConfiguracoesSite() {
   try {
@@ -752,6 +824,10 @@ async function carregarConfiguracoesSite() {
       preview_titulo: 'Lançamento Especial · Oferta Exclusiva com 1 Clique',
       preview_descricao: 'Compartilhe ofertas no WhatsApp com um cartão visual em alta definição que abre sozinho! 👇',
       preview_subtitulo: 'postlink.com.br/sua-loja ➔ Redireciona para o destino',
+      preview_imagem_url: null,
+      oficial_og_titulo: 'PostLink · Smart Links em Alta Definição para WhatsApp',
+      oficial_og_descricao: 'Transforme fotos e ofertas em cartões em alta definição que abrem sozinhos no WhatsApp e aumentam suas vendas.',
+      oficial_og_imagem_url: null,
       atualizado_em: new Date().toISOString(),
       atualizado_por: 'sistema',
     };
@@ -765,11 +841,11 @@ async function carregarConfiguracoesSite() {
   }
 }
 
-// Preenche os inputs com o objeto de dados
+// Preenche os inputs com o objeto de dados recebido do banco
 function preencherFormularioSite(dados) {
   if (!dados) return;
 
-  // Campos do Card da Prévia
+  // --- SUB-ABA 1: EXEMPLO NA LANDING PAGE ---
   if (el.siteInputPreviewTitulo) {
     el.siteInputPreviewTitulo.value = dados.preview_titulo || 'Lançamento Especial · Oferta Exclusiva com 1 Clique';
   }
@@ -780,7 +856,6 @@ function preencherFormularioSite(dados) {
     el.siteInputPreviewSubtitulo.value = dados.preview_subtitulo || 'postlink.com.br/sua-loja ➔ Redireciona para o destino';
   }
 
-  // Textos da Hero (Esquerda)
   if (el.siteInputBadge) el.siteInputBadge.value = dados.badge_texto || '';
   if (el.siteInputTitulo) el.siteInputTitulo.value = dados.titulo || '';
   if (el.siteInputDescricao) el.siteInputDescricao.value = dados.descricao || '';
@@ -788,17 +863,40 @@ function preencherFormularioSite(dados) {
   if (el.siteInputCtaUrl) el.siteInputCtaUrl.value = dados.cta_url || '/planos/';
   if (el.siteSwitchBannerAtivo) el.siteSwitchBannerAtivo.checked = dados.banner_ativo !== false;
 
-  // Miniatura do banner atual
-  if (dados.banner_url && !state.siteBannerRemovido) {
+  // Miniatura da foto da Vitrine de Exemplo
+  const vitrineImg = dados.preview_imagem_url || dados.banner_url;
+  if (vitrineImg && !state.siteBannerRemovido) {
     if (el.siteBannerPreviewBox) el.siteBannerPreviewBox.classList.remove('hidden');
-    if (el.siteBannerThumb) el.siteBannerThumb.src = dados.banner_url;
-    if (el.siteBannerInfoNome) el.siteBannerInfoNome.textContent = 'Banner Oficial Ativo';
-    if (el.siteBannerInfoDetalhe) el.siteBannerInfoDetalhe.textContent = 'Armazenado no CDN · Alta Definição';
-    if (el.siteInputBannerUrl) el.siteInputBannerUrl.value = dados.banner_url;
+    if (el.siteBannerThumb) el.siteBannerThumb.src = vitrineImg;
+    if (el.siteBannerInfoNome) el.siteBannerInfoNome.textContent = 'Foto de Exemplo Ativa';
+    if (el.siteBannerInfoDetalhe) el.siteBannerInfoDetalhe.textContent = 'Vitrine da Landing Page · Alta Definição';
+    if (el.siteInputBannerUrl) el.siteInputBannerUrl.value = vitrineImg;
   } else if (!state.siteBannerBlob) {
     if (el.siteBannerPreviewBox) el.siteBannerPreviewBox.classList.add('hidden');
     if (el.siteBannerThumb) el.siteBannerThumb.src = '';
     if (el.siteInputBannerUrl) el.siteInputBannerUrl.value = '';
+  }
+
+  // --- SUB-ABA 2: LINK OFICIAL POSTLINK ---
+  if (el.siteInputOficialTitulo) {
+    el.siteInputOficialTitulo.value = dados.oficial_og_titulo || 'PostLink · Smart Links em Alta Definição para WhatsApp';
+  }
+  if (el.siteInputOficialDescricao) {
+    el.siteInputOficialDescricao.value = dados.oficial_og_descricao || 'Transforme fotos e ofertas em cartões em alta definição que abrem sozinhos no WhatsApp e aumentam suas vendas.';
+  }
+
+  // Miniatura da imagem Oficial do PostLink
+  const oficialImg = dados.oficial_og_imagem_url || dados.banner_url || '/assets/img/logotipo_postlink.jpg';
+  if (dados.oficial_og_imagem_url && !state.siteOficialRemovido) {
+    if (el.siteOficialPreviewBox) el.siteOficialPreviewBox.classList.remove('hidden');
+    if (el.siteOficialThumb) el.siteOficialThumb.src = dados.oficial_og_imagem_url;
+    if (el.siteOficialInfoNome) el.siteOficialInfoNome.textContent = 'Imagem Oficial Ativa';
+    if (el.siteOficialInfoDetalhe) el.siteOficialInfoDetalhe.textContent = 'CDN PostLink · Redes Sociais';
+    if (el.siteInputOficialImgUrl) el.siteInputOficialImgUrl.value = dados.oficial_og_imagem_url;
+  } else if (!state.siteOficialBlob) {
+    if (el.siteOficialPreviewBox) el.siteOficialPreviewBox.classList.add('hidden');
+    if (el.siteOficialThumb) el.siteOficialThumb.src = '';
+    if (el.siteInputOficialImgUrl) el.siteInputOficialImgUrl.value = '';
   }
 
   atualizarContadoresTextos();
@@ -806,6 +904,7 @@ function preencherFormularioSite(dados) {
 
 // Atualiza contadores numéricos de caracteres
 function atualizarContadoresTextos() {
+  // Vitrine
   if (el.siteInputPreviewTitulo && el.sitePreviewTituloContador) {
     const len = el.siteInputPreviewTitulo.value.length;
     el.sitePreviewTituloContador.textContent = `${len} / 90`;
@@ -837,6 +936,23 @@ function atualizarContadoresTextos() {
       ? 'text-[10px] font-mono text-error font-bold'
       : (len > 250 ? 'text-[10px] font-mono text-amber-500 font-semibold' : 'text-[10px] font-mono text-outline font-semibold');
   }
+
+  // Link Oficial
+  if (el.siteInputOficialTitulo && el.siteOficialTituloContador) {
+    const len = el.siteInputOficialTitulo.value.length;
+    el.siteOficialTituloContador.textContent = `${len} / 90`;
+    el.siteOficialTituloContador.className = len > 90
+      ? 'text-[10px] font-mono text-error font-bold'
+      : (len > 70 ? 'text-[10px] font-mono text-amber-500 font-semibold' : 'text-[10px] font-mono text-outline font-semibold');
+  }
+
+  if (el.siteInputOficialDescricao && el.siteOficialDescContador) {
+    const len = el.siteInputOficialDescricao.value.length;
+    el.siteOficialDescContador.textContent = `${len} / 180`;
+    el.siteOficialDescContador.className = len > 180
+      ? 'text-[10px] font-mono text-error font-bold'
+      : (len > 150 ? 'text-[10px] font-mono text-amber-500 font-semibold' : 'text-[10px] font-mono text-outline font-semibold');
+  }
 }
 
 // Atualiza informações de auditoria
@@ -854,32 +970,50 @@ function atualizarAuditoriaSite(dados) {
   }
 }
 
-// Atualiza ambas as prévias (Hero e WhatsApp Card) em tempo real
+// Atualiza ambas as prévias (Hero e WhatsApp Card) em tempo real com fontes totalmente separadas
 function atualizarLivePreviewSite() {
+  // 1. Dados da Landing Page (Vitrine)
   const titulo = (el.siteInputTitulo?.value || '').trim() || 'Transforme ofertas em cartões em alta definição que abrem sozinhos e vendem no WhatsApp';
   const descricao = (el.siteInputDescricao?.value || '').trim() || 'Quase ninguém baixa fotos avulsas no WhatsApp para não lotar a memória do celular.';
   const badgeTexto = (el.siteInputBadge?.value || '').trim();
   const ctaTexto = (el.siteInputCtaTexto?.value || '').trim() || 'Começar Grátis';
   const bannerAtivo = el.siteSwitchBannerAtivo ? el.siteSwitchBannerAtivo.checked : true;
 
-  // Dados específicos do Cartão de Pré-visualização
   const previewTitulo = (el.siteInputPreviewTitulo?.value || '').trim() || 'Lançamento Especial · Oferta Exclusiva com 1 Clique';
   const previewTexto = (el.siteInputPreviewTexto?.value || '').trim() || 'Compartilhe ofertas no WhatsApp com um cartão visual em alta definição que abre sozinho! 👇';
   const previewSubtitulo = (el.siteInputPreviewSubtitulo?.value || '').trim() || 'postlink.com.br/sua-loja ➔ Redireciona para o destino';
 
-  // Imagem do banner prioritária
-  let bannerImg = '';
+  // Imagem prioritária da Vitrine
+  let vitrineImg = '';
   if (!state.siteBannerRemovido) {
     if (state.siteBannerPreviewUrl) {
-      bannerImg = state.siteBannerPreviewUrl;
+      vitrineImg = state.siteBannerPreviewUrl;
     } else if (el.siteInputBannerUrl && el.siteInputBannerUrl.value.trim()) {
-      bannerImg = el.siteInputBannerUrl.value.trim();
-    } else if (state.siteConfig && state.siteConfig.banner_url) {
-      bannerImg = state.siteConfig.banner_url;
+      vitrineImg = el.siteInputBannerUrl.value.trim();
+    } else if (state.siteConfig && (state.siteConfig.preview_imagem_url || state.siteConfig.banner_url)) {
+      vitrineImg = state.siteConfig.preview_imagem_url || state.siteConfig.banner_url;
     }
   }
 
-  // 1. Prévia da Hero
+  // 2. Dados Oficiais (Link postlink.com.br)
+  const oficialTitulo = (el.siteInputOficialTitulo?.value || '').trim() || 'PostLink · Smart Links em Alta Definição para WhatsApp';
+  const oficialDescricao = (el.siteInputOficialDescricao?.value || '').trim() || 'Transforme fotos e ofertas em cartões em alta definição que abrem sozinhos no WhatsApp e aumentam suas vendas.';
+
+  // Imagem prioritária Oficial
+  let oficialImg = '';
+  if (!state.siteOficialRemovido) {
+    if (state.siteOficialPreviewUrl) {
+      oficialImg = state.siteOficialPreviewUrl;
+    } else if (el.siteInputOficialImgUrl && el.siteInputOficialImgUrl.value.trim()) {
+      oficialImg = el.siteInputOficialImgUrl.value.trim();
+    } else if (state.siteConfig && state.siteConfig.oficial_og_imagem_url) {
+      oficialImg = state.siteConfig.oficial_og_imagem_url;
+    } else if (state.siteConfig && state.siteConfig.banner_url) {
+      oficialImg = state.siteConfig.banner_url;
+    }
+  }
+
+  // --- A. RENDERIZAÇÃO DA MINI HERO (VITRINE) ---
   if (el.prevHeroTitulo) el.prevHeroTitulo.textContent = titulo;
   if (el.prevHeroDescricao) el.prevHeroDescricao.textContent = descricao;
   if (el.prevHeroBadge) el.prevHeroBadge.textContent = badgeTexto || 'Smart Links';
@@ -887,17 +1021,15 @@ function atualizarLivePreviewSite() {
   if (el.prevHeroCtaTexto) el.prevHeroCtaTexto.textContent = ctaTexto;
   if (el.prevHeroTopCta) el.prevHeroTopCta.textContent = ctaTexto;
 
-  // Elementos do Cartão de Pré-visualização na Hero
   if (el.prevHeroPreviewTexto) el.prevHeroPreviewTexto.textContent = previewTexto;
   if (el.prevHeroPreviewTitulo) el.prevHeroPreviewTitulo.textContent = previewTitulo;
   if (el.prevHeroPreviewSubtitulo) el.prevHeroPreviewSubtitulo.textContent = previewSubtitulo;
 
-  // Banner da Hero
-  const bannerFinal = bannerImg || '/assets/img/logotipo_postlink.jpg';
-  if (bannerAtivo && bannerFinal) {
+  const vitrineFinal = vitrineImg || '/assets/img/logotipo_postlink.jpg';
+  if (bannerAtivo && vitrineFinal) {
     if (el.prevHeroBannerContainer) el.prevHeroBannerContainer.classList.remove('hidden');
     if (el.prevHeroBannerImg) {
-      el.prevHeroBannerImg.src = bannerFinal;
+      el.prevHeroBannerImg.src = vitrineFinal;
       el.prevHeroBannerImg.classList.remove('hidden');
     }
     if (el.prevHeroBannerPlaceholder) el.prevHeroBannerPlaceholder.classList.add('hidden');
@@ -909,11 +1041,11 @@ function atualizarLivePreviewSite() {
     if (el.prevHeroBannerTag) el.prevHeroBannerTag.classList.add('hidden');
   }
 
-  // 2. Prévia do WhatsApp Card
-  if (el.prevWaTitulo) el.prevWaTitulo.textContent = previewTitulo || titulo;
-  if (el.prevWaDescricao) el.prevWaDescricao.textContent = previewTexto || descricao;
+  // --- B. RENDERIZAÇÃO DO WHATSAPP CARD (LINK OFICIAL POSTLINK) ---
+  if (el.prevWaTitulo) el.prevWaTitulo.textContent = oficialTitulo;
+  if (el.prevWaDescricao) el.prevWaDescricao.textContent = oficialDescricao;
 
-  const waImgFinal = bannerImg || '/assets/img/logotipo_postlink.jpg';
+  const waImgFinal = oficialImg || '/assets/img/logotipo_postlink.jpg';
   if (el.prevWaImg) {
     el.prevWaImg.src = waImgFinal;
     el.prevWaImg.classList.remove('hidden');
@@ -927,7 +1059,7 @@ function atualizarLivePreviewSite() {
   }
 }
 
-// Otimiza e processa arquivo de imagem do banner
+// Otimiza e processa arquivo de imagem da foto de exemplo da vitrine
 async function tratarArquivoBannerSite(file) {
   if (!file) return;
   if (!file.type.startsWith('image/')) {
@@ -936,7 +1068,7 @@ async function tratarArquivoBannerSite(file) {
   }
 
   try {
-    toast('Otimizando imagem para alta definição (1200px HD)…', 'info');
+    toast('Otimizando foto de exemplo para alta definição (1200px HD)…', 'info');
     const tamanhoOriginalKB = Math.round(file.size / 1024);
     const blob = await comprimirImagem(file, { larguraMax: 1200, alvoKB: 300 });
 
@@ -961,17 +1093,59 @@ async function tratarArquivoBannerSite(file) {
     if (el.siteInputBannerUrl) el.siteInputBannerUrl.value = '';
 
     atualizarLivePreviewSite();
-    toast('Banner processado! Clique em "Salvar Alterações" para aplicar.', 'success');
+    toast('Foto de exemplo processada! Clique em "Salvar Alterações" para aplicar.', 'success');
   } catch (err) {
     console.error('Erro na compressão:', err);
     toast('Erro ao processar imagem: ' + err.message, 'error');
   }
 }
 
-// Salva as alterações no Supabase
+// Otimiza e processa arquivo de imagem do link oficial PostLink
+async function tratarArquivoOficialSite(file) {
+  if (!file) return;
+  if (!file.type.startsWith('image/')) {
+    toast('Por favor, selecione uma imagem válida (JPEG, PNG ou WebP).', 'error');
+    return;
+  }
+
+  try {
+    toast('Otimizando imagem oficial para redes sociais (1200x630 HD)…', 'info');
+    const tamanhoOriginalKB = Math.round(file.size / 1024);
+    const blob = await comprimirImagem(file, { larguraMax: 1200, alvoKB: 300 });
+
+    state.siteOficialBlob = blob;
+    state.siteOficialRemovido = false;
+
+    if (state.siteOficialPreviewUrl && state.siteOficialPreviewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(state.siteOficialPreviewUrl);
+    }
+    state.siteOficialPreviewUrl = URL.createObjectURL(blob);
+
+    const tamanhoFinalKB = Math.round(blob.size / 1024);
+    const economia = Math.max(0, Math.round(((tamanhoOriginalKB - tamanhoFinalKB) / (tamanhoOriginalKB || 1)) * 100));
+
+    if (el.siteOficialPreviewBox) el.siteOficialPreviewBox.classList.remove('hidden');
+    if (el.siteOficialThumb) el.siteOficialThumb.src = state.siteOficialPreviewUrl;
+    if (el.siteOficialInfoNome) el.siteOficialInfoNome.textContent = file.name;
+    if (el.siteOficialInfoDetalhe) {
+      el.siteOficialInfoDetalhe.textContent = `${tamanhoOriginalKB}KB → ${tamanhoFinalKB}KB (-${economia}%) · Proporção OG Otimizada`;
+    }
+
+    if (el.siteInputOficialImgUrl) el.siteInputOficialImgUrl.value = '';
+
+    atualizarLivePreviewSite();
+    toast('Imagem oficial processada! Clique em "Salvar Alterações" para aplicar.', 'success');
+  } catch (err) {
+    console.error('Erro na compressão da imagem oficial:', err);
+    toast('Erro ao processar imagem oficial: ' + err.message, 'error');
+  }
+}
+
+// Salva as alterações no Supabase (grava ambos os grupos de forma independente)
 async function salvarConfiguracoesSite() {
   if (!el.btnSiteSalvar) return;
 
+  // Dados da Landing Page
   const titulo = (el.siteInputTitulo?.value || '').trim();
   const descricao = (el.siteInputDescricao?.value || '').trim();
   const badgeTexto = (el.siteInputBadge?.value || '').trim();
@@ -979,13 +1153,16 @@ async function salvarConfiguracoesSite() {
   const ctaUrl = (el.siteInputCtaUrl?.value || '').trim();
   const bannerAtivo = el.siteSwitchBannerAtivo ? el.siteSwitchBannerAtivo.checked : true;
 
-  // Dados do Card de Pré-visualização
   const previewTitulo = (el.siteInputPreviewTitulo?.value || '').trim() || 'Lançamento Especial · Oferta Exclusiva com 1 Clique';
   const previewDescricao = (el.siteInputPreviewTexto?.value || '').trim() || 'Compartilhe ofertas no WhatsApp com um cartão visual em alta definição que abre sozinho! 👇';
   const previewSubtitulo = (el.siteInputPreviewSubtitulo?.value || '').trim() || 'postlink.com.br/sua-loja ➔ Redireciona para o destino';
 
+  // Dados Oficiais de Compartilhamento
+  const oficialOgTitulo = (el.siteInputOficialTitulo?.value || '').trim() || 'PostLink · Smart Links em Alta Definição para WhatsApp';
+  const oficialOgDescricao = (el.siteInputOficialDescricao?.value || '').trim() || 'Transforme fotos e ofertas em cartões em alta definição que abrem sozinhos no WhatsApp e aumentam suas vendas.';
+
   if (!titulo) {
-    toast('O título principal não pode ficar em branco.', 'error');
+    toast('O título principal da Landing Page não pode ficar em branco.', 'error');
     if (el.siteInputTitulo) el.siteInputTitulo.focus();
     return;
   }
@@ -998,7 +1175,7 @@ async function salvarConfiguracoesSite() {
   if (el.siteSalvarTexto) el.siteSalvarTexto.textContent = 'Salvando…';
 
   try {
-    // Assegura sessão ativa e atualizada
+    // Assegura sessão ativa
     const { data: { session } } = await sb.auth.getSession();
     if (!session || !session.user) {
       toast('Sessão expirada. Faça login novamente.', 'error');
@@ -1007,41 +1184,78 @@ async function salvarConfiguracoesSite() {
     }
     state.user = session.user;
 
-    let bannerUrl = state.siteConfig ? state.siteConfig.banner_url : null;
+    // 1. Processar Foto de Exemplo da Vitrine (preview_imagem_url)
+    let previewImgUrl = state.siteConfig ? (state.siteConfig.preview_imagem_url || state.siteConfig.banner_url) : null;
 
     if (state.siteBannerRemovido) {
-      bannerUrl = null;
+      previewImgUrl = null;
     }
 
-    const urlManual = (el.siteInputBannerUrl?.value || '').trim();
-    if (urlManual && !state.siteBannerBlob) {
-      bannerUrl = urlManual;
+    const urlManualVitrine = (el.siteInputBannerUrl?.value || '').trim();
+    if (urlManualVitrine && !state.siteBannerBlob) {
+      previewImgUrl = urlManualVitrine;
     }
 
     if (state.siteBannerBlob) {
-      toast('Enviando banner em alta resolução para o CDN…', 'info');
-      const nomeArquivo = `${state.user.id}/site_banner_${Date.now()}.jpg`;
+      toast('Enviando foto de exemplo da vitrine para o CDN…', 'info');
+      const nomeArquivoVitrine = `${state.user.id}/site_preview_${Date.now()}.jpg`;
 
-      const { error: errUpload } = await sb.storage
+      const { error: errUploadVitrine } = await sb.storage
         .from('banners')
-        .upload(nomeArquivo, state.siteBannerBlob, {
+        .upload(nomeArquivoVitrine, state.siteBannerBlob, {
           contentType: 'image/jpeg',
           upsert: true,
         });
 
-      if (errUpload) {
-        console.error('Erro no upload do banner:', errUpload);
-        throw new Error(`Falha no upload da imagem (${errUpload.message || 'permissão negada'})`);
+      if (errUploadVitrine) {
+        console.error('Erro no upload da foto da vitrine:', errUploadVitrine);
+        throw new Error(`Falha no upload da foto da vitrine (${errUploadVitrine.message || 'permissão negada'})`);
       }
 
-      const { data: urlData } = sb.storage.from('banners').getPublicUrl(nomeArquivo);
-      bannerUrl = urlData.publicUrl;
+      const { data: urlDataVitrine } = sb.storage.from('banners').getPublicUrl(nomeArquivoVitrine);
+      previewImgUrl = urlDataVitrine.publicUrl;
     }
 
+    // 2. Processar Imagem Oficial de Compartilhamento (oficial_og_imagem_url)
+    let oficialImgUrl = state.siteConfig ? (state.siteConfig.oficial_og_imagem_url || state.siteConfig.banner_url) : null;
+
+    if (state.siteOficialRemovido) {
+      oficialImgUrl = null;
+    }
+
+    const urlManualOficial = (el.siteInputOficialImgUrl?.value || '').trim();
+    if (urlManualOficial && !state.siteOficialBlob) {
+      oficialImgUrl = urlManualOficial;
+    }
+
+    if (state.siteOficialBlob) {
+      toast('Enviando imagem oficial do PostLink para o CDN…', 'info');
+      const nomeArquivoOficial = `${state.user.id}/site_oficial_${Date.now()}.jpg`;
+
+      const { error: errUploadOficial } = await sb.storage
+        .from('banners')
+        .upload(nomeArquivoOficial, state.siteOficialBlob, {
+          contentType: 'image/jpeg',
+          upsert: true,
+        });
+
+      if (errUploadOficial) {
+        console.error('Erro no upload da imagem oficial:', errUploadOficial);
+        throw new Error(`Falha no upload da imagem oficial (${errUploadOficial.message || 'permissão negada'})`);
+      }
+
+      const { data: urlDataOficial } = sb.storage.from('banners').getPublicUrl(nomeArquivoOficial);
+      oficialImgUrl = urlDataOficial.publicUrl;
+    }
+
+    // Fallback retrocompatível para banner_url
+    const bannerUrlRetro = previewImgUrl || oficialImgUrl || null;
+
+    // 3. Invocar RPC com os 14 parâmetros no Supabase
     const { data: resRpc, error: errRpc } = await sb.rpc('admin_salvar_configuracoes_site', {
       p_titulo: titulo,
       p_descricao: descricao,
-      p_banner_url: bannerUrl,
+      p_banner_url: bannerUrlRetro,
       p_badge_texto: badgeTexto,
       p_cta_texto: ctaTexto,
       p_cta_url: ctaUrl,
@@ -1049,6 +1263,10 @@ async function salvarConfiguracoesSite() {
       p_preview_titulo: previewTitulo,
       p_preview_descricao: previewDescricao,
       p_preview_subtitulo: previewSubtitulo,
+      p_preview_imagem_url: previewImgUrl,
+      p_oficial_og_titulo: oficialOgTitulo,
+      p_oficial_og_descricao: oficialOgDescricao,
+      p_oficial_og_imagem_url: oficialImgUrl,
     });
 
     if (errRpc) throw errRpc;
@@ -1056,7 +1274,7 @@ async function salvarConfiguracoesSite() {
     state.siteConfig = (resRpc && resRpc.dados) ? resRpc.dados : {
       titulo,
       descricao,
-      banner_url: bannerUrl,
+      banner_url: bannerUrlRetro,
       badge_texto: badgeTexto,
       cta_texto: ctaTexto,
       cta_url: ctaUrl,
@@ -1064,12 +1282,19 @@ async function salvarConfiguracoesSite() {
       preview_titulo: previewTitulo,
       preview_descricao: previewDescricao,
       preview_subtitulo: previewSubtitulo,
+      preview_imagem_url: previewImgUrl,
+      oficial_og_titulo: oficialOgTitulo,
+      oficial_og_descricao: oficialOgDescricao,
+      oficial_og_imagem_url: oficialImgUrl,
       atualizado_em: new Date().toISOString(),
       atualizado_por: state.user ? state.user.email : 'admin',
     };
 
+    // Reseta blobs temporários após gravação bem-sucedida
     state.siteBannerBlob = null;
     state.siteBannerRemovido = false;
+    state.siteOficialBlob = null;
+    state.siteOficialRemovido = false;
 
     atualizarAuditoriaSite(state.siteConfig);
     preencherFormularioSite(state.siteConfig);
@@ -1079,7 +1304,7 @@ async function salvarConfiguracoesSite() {
       localStorage.setItem('postlink_site_config', JSON.stringify(state.siteConfig));
     } catch (_) {}
 
-    toast('Configurações do site oficial atualizadas com sucesso! ✨', 'success');
+    toast('Configurações salvas e publicadas com sucesso! ✨', 'success');
   } catch (err) {
     console.error('Erro ao salvar site:', err);
     toast('Erro ao salvar: ' + (err.message || err), 'error');
@@ -1106,6 +1331,10 @@ function restaurarPadraoSite() {
     preview_titulo: 'Lançamento Especial · Oferta Exclusiva com 1 Clique',
     preview_descricao: 'Compartilhe ofertas no WhatsApp com um cartão visual em alta definição que abre sozinho! 👇',
     preview_subtitulo: 'postlink.com.br/sua-loja ➔ Redireciona para o destino',
+    preview_imagem_url: null,
+    oficial_og_titulo: 'PostLink · Smart Links em Alta Definição para WhatsApp',
+    oficial_og_descricao: 'Transforme fotos e ofertas em cartões em alta definição que abrem sozinhos no WhatsApp e aumentam suas vendas.',
+    oficial_og_imagem_url: null,
   };
 
   if (!confirm('Deseja restaurar os textos padrão originais do PostLink? (Clique em Salvar Alterações após confirmar para gravar)')) {
@@ -1119,6 +1348,13 @@ function restaurarPadraoSite() {
   }
   state.siteBannerPreviewUrl = '';
 
+  state.siteOficialBlob = null;
+  state.siteOficialRemovido = true;
+  if (state.siteOficialPreviewUrl && state.siteOficialPreviewUrl.startsWith('blob:')) {
+    URL.revokeObjectURL(state.siteOficialPreviewUrl);
+  }
+  state.siteOficialPreviewUrl = '';
+
   preencherFormularioSite(padrao);
   atualizarLivePreviewSite();
   toast('Textos padrão restaurados na tela. Clique em "Salvar Alterações" para publicar.', 'info');
@@ -1126,7 +1362,15 @@ function restaurarPadraoSite() {
 
 // Configura todos os ouvintes de eventos da aba do Site Oficial
 function configurarEventosEditorSite() {
-  // Inputs com sincronização de Live Preview do Card de Prévia
+  // 1. Sub-abas de Edição
+  if (el.btnSubtabLanding) {
+    el.btnSubtabLanding.addEventListener('click', () => alternarSubabaSite('landing'));
+  }
+  if (el.btnSubtabOficial) {
+    el.btnSubtabOficial.addEventListener('click', () => alternarSubabaSite('oficial'));
+  }
+
+  // 2. Sub-aba 1 (Vitrine / Landing Page): Inputs e contadores
   if (el.siteInputPreviewTitulo) {
     el.siteInputPreviewTitulo.addEventListener('input', () => {
       atualizarContadoresTextos();
@@ -1142,8 +1386,6 @@ function configurarEventosEditorSite() {
   if (el.siteInputPreviewSubtitulo) {
     el.siteInputPreviewSubtitulo.addEventListener('input', atualizarLivePreviewSite);
   }
-
-  // Inputs da Hero (Esquerda)
   if (el.siteInputBadge) el.siteInputBadge.addEventListener('input', atualizarLivePreviewSite);
   if (el.siteInputTitulo) {
     el.siteInputTitulo.addEventListener('input', () => {
@@ -1160,7 +1402,7 @@ function configurarEventosEditorSite() {
   if (el.siteInputCtaTexto) el.siteInputCtaTexto.addEventListener('input', atualizarLivePreviewSite);
   if (el.siteSwitchBannerAtivo) el.siteSwitchBannerAtivo.addEventListener('change', atualizarLivePreviewSite);
 
-  // Dropzone e Upload de Imagem
+  // Dropzone da foto de exemplo da vitrine
   if (el.siteDropzone) {
     ['dragenter', 'dragover'].forEach((eventName) => {
       el.siteDropzone.addEventListener(eventName, (e) => {
@@ -1219,7 +1461,7 @@ function configurarEventosEditorSite() {
       if (el.siteFileBanner) el.siteFileBanner.value = '';
 
       atualizarLivePreviewSite();
-      toast('Banner removido da prévia. Salve para aplicar no site.', 'info');
+      toast('Foto de exemplo removida da prévia. Salve para aplicar.', 'info');
     });
   }
 
@@ -1240,28 +1482,115 @@ function configurarEventosEditorSite() {
       if (el.siteBannerInfoDetalhe) el.siteBannerInfoDetalhe.textContent = val.slice(0, 40) + '…';
 
       atualizarLivePreviewSite();
-      toast('URL aplicada na prévia!', 'success');
+      toast('URL da foto aplicada na prévia!', 'success');
     });
   }
 
-  // Alternância entre prévia Hero e WhatsApp Card
+  // 3. Sub-aba 2 (Link Oficial PostLink): Inputs e contadores
+  if (el.siteInputOficialTitulo) {
+    el.siteInputOficialTitulo.addEventListener('input', () => {
+      atualizarContadoresTextos();
+      atualizarLivePreviewSite();
+    });
+  }
+  if (el.siteInputOficialDescricao) {
+    el.siteInputOficialDescricao.addEventListener('input', () => {
+      atualizarContadoresTextos();
+      atualizarLivePreviewSite();
+    });
+  }
+
+  // Dropzone da imagem oficial
+  if (el.siteDropzoneOficial) {
+    ['dragenter', 'dragover'].forEach((eventName) => {
+      el.siteDropzoneOficial.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        el.siteDropzoneOficial.classList.add('border-emerald-500', 'bg-emerald-500/5');
+      });
+    });
+
+    ['dragleave', 'drop'].forEach((eventName) => {
+      el.siteDropzoneOficial.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        el.siteDropzoneOficial.classList.remove('border-emerald-500', 'bg-emerald-500/5');
+      });
+    });
+
+    el.siteDropzoneOficial.addEventListener('drop', (e) => {
+      const dt = e.dataTransfer;
+      if (dt && dt.files && dt.files.length > 0) {
+        tratarArquivoOficialSite(dt.files[0]);
+      }
+    });
+
+    el.siteDropzoneOficial.addEventListener('click', (e) => {
+      if (e.target !== el.siteFileOficial && el.siteFileOficial) {
+        el.siteFileOficial.click();
+      }
+    });
+  }
+
+  if (el.siteFileOficial) {
+    el.siteFileOficial.addEventListener('change', () => {
+      if (el.siteFileOficial.files && el.siteFileOficial.files.length > 0) {
+        tratarArquivoOficialSite(el.siteFileOficial.files[0]);
+      }
+    });
+  }
+
+  if (el.btnTrocarOficialImg && el.siteFileOficial) {
+    el.btnTrocarOficialImg.addEventListener('click', () => {
+      el.siteFileOficial.click();
+    });
+  }
+
+  if (el.btnRemoverOficialImg) {
+    el.btnRemoverOficialImg.addEventListener('click', () => {
+      state.siteOficialBlob = null;
+      state.siteOficialRemovido = true;
+      if (state.siteOficialPreviewUrl && state.siteOficialPreviewUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(state.siteOficialPreviewUrl);
+      }
+      state.siteOficialPreviewUrl = '';
+
+      if (el.siteOficialPreviewBox) el.siteOficialPreviewBox.classList.add('hidden');
+      if (el.siteOficialThumb) el.siteOficialThumb.src = '';
+      if (el.siteInputOficialImgUrl) el.siteInputOficialImgUrl.value = '';
+      if (el.siteFileOficial) el.siteFileOficial.value = '';
+
+      atualizarLivePreviewSite();
+      toast('Imagem oficial removida da prévia. Salve para aplicar.', 'info');
+    });
+  }
+
+  if (el.btnAplicarUrlOficial && el.siteInputOficialImgUrl) {
+    el.btnAplicarUrlOficial.addEventListener('click', () => {
+      const val = el.siteInputOficialImgUrl.value.trim();
+      if (!val) {
+        toast('Digite uma URL de imagem válida.', 'info');
+        return;
+      }
+      state.siteOficialBlob = null;
+      state.siteOficialRemovido = false;
+      state.siteOficialPreviewUrl = val;
+
+      if (el.siteOficialPreviewBox) el.siteOficialPreviewBox.classList.remove('hidden');
+      if (el.siteOficialThumb) el.siteOficialThumb.src = val;
+      if (el.siteOficialInfoNome) el.siteOficialInfoNome.textContent = 'Imagem externa oficial por URL';
+      if (el.siteOficialInfoDetalhe) el.siteOficialInfoDetalhe.textContent = val.slice(0, 40) + '…';
+
+      atualizarLivePreviewSite();
+      toast('URL da imagem oficial aplicada na prévia!', 'success');
+    });
+  }
+
+  // 4. Alternância entre prévia Hero e WhatsApp Card (Live Preview)
   if (el.btnPreviewTabHero && el.btnPreviewTabWa) {
-    el.btnPreviewTabHero.addEventListener('click', () => {
-      if (el.previewFrameHero) el.previewFrameHero.classList.remove('hidden');
-      if (el.previewFrameWa) el.previewFrameWa.classList.add('hidden');
-      el.btnPreviewTabHero.className = 'px-2.5 py-1 rounded-md font-bold transition-all bg-surface-container-lowest text-primary shadow-2xs';
-      el.btnPreviewTabWa.className = 'px-2.5 py-1 rounded-md font-medium transition-all text-on-surface-variant hover:text-on-surface';
-    });
-
-    el.btnPreviewTabWa.addEventListener('click', () => {
-      if (el.previewFrameWa) el.previewFrameWa.classList.remove('hidden');
-      if (el.previewFrameHero) el.previewFrameHero.classList.add('hidden');
-      el.btnPreviewTabWa.className = 'px-2.5 py-1 rounded-md font-bold transition-all bg-surface-container-lowest text-primary shadow-2xs';
-      el.btnPreviewTabHero.className = 'px-2.5 py-1 rounded-md font-medium transition-all text-on-surface-variant hover:text-on-surface';
-    });
+    el.btnPreviewTabHero.addEventListener('click', () => ativarPreviewFrame('hero'));
+    el.btnPreviewTabWa.addEventListener('click', () => ativarPreviewFrame('wa'));
   }
 
-  // Botões de Ação
+  // 5. Botões de Ação
   if (el.btnSiteSalvar) el.btnSiteSalvar.addEventListener('click', salvarConfiguracoesSite);
   if (el.btnSiteRestaurar) el.btnSiteRestaurar.addEventListener('click', restaurarPadraoSite);
 }
