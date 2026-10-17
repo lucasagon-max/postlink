@@ -764,27 +764,52 @@ function configurarNavegacao() {
 function alternarSubabaSite(aba) {
   state.subabaSiteAtiva = aba;
 
+  const btnLanding = el.btnSubtabLanding || document.getElementById('btn-subtab-landing');
+  const btnOficial = el.btnSubtabOficial || document.getElementById('btn-subtab-oficial');
+  const badgeLanding = document.getElementById('subtab-badge-landing');
+  const badgeOficial = document.getElementById('subtab-badge-oficial');
+  const paneLanding = el.subtabPaneLanding || document.getElementById('subtab-pane-landing');
+  const paneOficial = el.subtabPaneOficial || document.getElementById('subtab-pane-oficial');
+
   if (aba === 'landing') {
-    if (el.btnSubtabLanding) {
-      el.btnSubtabLanding.className = 'flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all bg-primary text-white shadow-2xs';
+    if (btnLanding) {
+      btnLanding.className = 'flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all bg-primary text-white shadow-2xs cursor-pointer';
     }
-    if (el.btnSubtabOficial) {
-      el.btnSubtabOficial.className = 'flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-medium transition-all text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface';
+    if (btnOficial) {
+      btnOficial.className = 'flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-medium transition-all text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface cursor-pointer';
     }
-    if (el.subtabPaneLanding) el.subtabPaneLanding.classList.remove('hidden');
-    if (el.subtabPaneOficial) el.subtabPaneOficial.classList.add('hidden');
+    if (badgeLanding) badgeLanding.className = 'text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-white/20 text-white';
+    if (badgeOficial) badgeOficial.className = 'text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-800';
+
+    if (paneLanding) {
+      paneLanding.classList.remove('hidden');
+      paneLanding.style.display = 'block';
+    }
+    if (paneOficial) {
+      paneOficial.classList.add('hidden');
+      paneOficial.style.display = 'none';
+    }
 
     // Ao ir para a Vitrine da Landing Page, exibe automaticamente a prévia da Hero
     ativarPreviewFrame('hero');
   } else {
-    if (el.btnSubtabOficial) {
-      el.btnSubtabOficial.className = 'flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all bg-primary text-white shadow-2xs';
+    if (btnOficial) {
+      btnOficial.className = 'flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all bg-primary text-white shadow-2xs cursor-pointer';
     }
-    if (el.btnSubtabLanding) {
-      el.btnSubtabLanding.className = 'flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-medium transition-all text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface';
+    if (btnLanding) {
+      btnLanding.className = 'flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-medium transition-all text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface cursor-pointer';
     }
-    if (el.subtabPaneOficial) el.subtabPaneOficial.classList.remove('hidden');
-    if (el.subtabPaneLanding) el.subtabPaneLanding.classList.add('hidden');
+    if (badgeOficial) badgeOficial.className = 'text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-white/20 text-white';
+    if (badgeLanding) badgeLanding.className = 'text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-primary/10 text-primary';
+
+    if (paneOficial) {
+      paneOficial.classList.remove('hidden');
+      paneOficial.style.display = 'block';
+    }
+    if (paneLanding) {
+      paneLanding.classList.add('hidden');
+      paneLanding.style.display = 'none';
+    }
 
     // Ao ir para o Link Oficial, exibe automaticamente o Balão de WhatsApp
     ativarPreviewFrame('wa');
@@ -793,18 +818,39 @@ function alternarSubabaSite(aba) {
 
 // Alterna entre o frame da Hero e o balão do WhatsApp no Live Preview
 function ativarPreviewFrame(tipo) {
+  const frameHero = el.previewFrameHero || document.getElementById('preview-frame-hero');
+  const frameWa = el.previewFrameWa || document.getElementById('preview-frame-wa');
+  const btnHero = el.btnPreviewTabHero || document.getElementById('btn-preview-tab-hero');
+  const btnWa = el.btnPreviewTabWa || document.getElementById('btn-preview-tab-wa');
+
   if (tipo === 'hero') {
-    if (el.previewFrameHero) el.previewFrameHero.classList.remove('hidden');
-    if (el.previewFrameWa) el.previewFrameWa.classList.add('hidden');
-    if (el.btnPreviewTabHero) el.btnPreviewTabHero.className = 'px-2.5 py-1 rounded-md font-bold transition-all bg-surface-container-lowest text-primary shadow-2xs';
-    if (el.btnPreviewTabWa) el.btnPreviewTabWa.className = 'px-2.5 py-1 rounded-md font-medium transition-all text-on-surface-variant hover:text-on-surface';
+    if (frameHero) {
+      frameHero.classList.remove('hidden');
+      frameHero.style.display = 'block';
+    }
+    if (frameWa) {
+      frameWa.classList.add('hidden');
+      frameWa.style.display = 'none';
+    }
+    if (btnHero) btnHero.className = 'px-2.5 py-1 rounded-md font-bold transition-all bg-surface-container-lowest text-primary shadow-2xs cursor-pointer';
+    if (btnWa) btnWa.className = 'px-2.5 py-1 rounded-md font-medium transition-all text-on-surface-variant hover:text-on-surface cursor-pointer';
   } else {
-    if (el.previewFrameWa) el.previewFrameWa.classList.remove('hidden');
-    if (el.previewFrameHero) el.previewFrameHero.classList.add('hidden');
-    if (el.btnPreviewTabWa) el.btnPreviewTabWa.className = 'px-2.5 py-1 rounded-md font-bold transition-all bg-surface-container-lowest text-primary shadow-2xs';
-    if (el.btnPreviewTabHero) el.btnPreviewTabHero.className = 'px-2.5 py-1 rounded-md font-medium transition-all text-on-surface-variant hover:text-on-surface';
+    if (frameWa) {
+      frameWa.classList.remove('hidden');
+      frameWa.style.display = 'block';
+    }
+    if (frameHero) {
+      frameHero.classList.add('hidden');
+      frameHero.style.display = 'none';
+    }
+    if (btnWa) btnWa.className = 'px-2.5 py-1 rounded-md font-bold transition-all bg-surface-container-lowest text-primary shadow-2xs cursor-pointer';
+    if (btnHero) btnHero.className = 'px-2.5 py-1 rounded-md font-medium transition-all text-on-surface-variant hover:text-on-surface cursor-pointer';
   }
 }
+
+// Exporta globalmente para máxima disponibilidade e suporte a cliques
+window.alternarSubabaSite = alternarSubabaSite;
+window.ativarPreviewFrame = ativarPreviewFrame;
 
 // Carrega as configurações do site oficial do Supabase
 async function carregarConfiguracoesSite() {
@@ -1362,12 +1408,51 @@ function restaurarPadraoSite() {
 
 // Configura todos os ouvintes de eventos da aba do Site Oficial
 function configurarEventosEditorSite() {
-  // 1. Sub-abas de Edição
-  if (el.btnSubtabLanding) {
-    el.btnSubtabLanding.addEventListener('click', () => alternarSubabaSite('landing'));
+  // Delegação global de cliques para sub-abas e botões de preview
+  document.addEventListener('click', (e) => {
+    const btnOficial = e.target.closest('#btn-subtab-oficial, [data-subtab="oficial"]');
+    if (btnOficial) {
+      e.preventDefault();
+      alternarSubabaSite('oficial');
+      return;
+    }
+
+    const btnLanding = e.target.closest('#btn-subtab-landing, [data-subtab="landing"]');
+    if (btnLanding) {
+      e.preventDefault();
+      alternarSubabaSite('landing');
+      return;
+    }
+
+    const btnWa = e.target.closest('#btn-preview-tab-wa');
+    if (btnWa) {
+      e.preventDefault();
+      ativarPreviewFrame('wa');
+      return;
+    }
+
+    const btnHero = e.target.closest('#btn-preview-tab-hero');
+    if (btnHero) {
+      e.preventDefault();
+      ativarPreviewFrame('hero');
+      return;
+    }
+  });
+
+  // 1. Sub-abas de Edição (ouvintes diretos)
+  const bLanding = el.btnSubtabLanding || document.getElementById('btn-subtab-landing');
+  if (bLanding) {
+    bLanding.addEventListener('click', (e) => {
+      e.preventDefault();
+      alternarSubabaSite('landing');
+    });
   }
-  if (el.btnSubtabOficial) {
-    el.btnSubtabOficial.addEventListener('click', () => alternarSubabaSite('oficial'));
+  const bOficial = el.btnSubtabOficial || document.getElementById('btn-subtab-oficial');
+  if (bOficial) {
+    bOficial.addEventListener('click', (e) => {
+      e.preventDefault();
+      alternarSubabaSite('oficial');
+    });
   }
 
   // 2. Sub-aba 1 (Vitrine / Landing Page): Inputs e contadores
