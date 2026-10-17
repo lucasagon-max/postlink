@@ -46,7 +46,22 @@ begin
 end;
 $$;
 
--- 3. Atualiza a RPC de salvamento administrativo public.admin_salvar_configuracoes_site(...)
+-- 3. Renomeia assinatura legada de 7 parâmetros para evitar ambiguidade (Could not choose the best candidate function)
+do $$
+begin
+  if exists (
+    select 1 from pg_proc p
+    join pg_namespace n on p.pronamespace = n.oid
+    where n.nspname = 'public' 
+      and p.proname = 'admin_salvar_configuracoes_site' 
+      and p.pronargs = 7
+  ) then
+    execute 'alter function public.admin_salvar_configuracoes_site(text, text, text, text, text, text, boolean) rename to admin_salvar_configuracoes_site_legada';
+  end if;
+end;
+$$;
+
+-- 4. Atualiza a RPC de salvamento administrativo public.admin_salvar_configuracoes_site(...)
 create or replace function public.admin_salvar_configuracoes_site(
   p_titulo text,
   p_descricao text,
