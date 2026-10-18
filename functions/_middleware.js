@@ -160,7 +160,30 @@ export async function onRequest(context) {
   if (/\.[a-zA-Z0-9]+$/.test(pathname)) {
     const assetResp = await fetchAssetWithFallback(pathname);
     if (assetResp) {
-      return new Response(assetResp.body, assetResp);
+      const ext = pathname.split('.').pop().toLowerCase();
+      const mimeTypes = {
+        ico: 'image/x-icon',
+        png: 'image/png',
+        jpg: 'image/jpeg',
+        jpeg: 'image/jpeg',
+        webp: 'image/webp',
+        svg: 'image/svg+xml',
+        gif: 'image/gif',
+        css: 'text/css; charset=utf-8',
+        js: 'application/javascript; charset=utf-8',
+        json: 'application/json; charset=utf-8',
+        woff2: 'font/woff2',
+        woff: 'font/woff',
+        map: 'application/json; charset=utf-8'
+      };
+      const newHeaders = new Headers(assetResp.headers);
+      if (mimeTypes[ext]) {
+        newHeaders.set('content-type', mimeTypes[ext]);
+      }
+      return new Response(assetResp.body, {
+        status: assetResp.status,
+        headers: newHeaders
+      });
     }
     return next();
   }
