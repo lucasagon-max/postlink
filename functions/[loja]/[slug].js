@@ -283,6 +283,10 @@ function paginaOG({ link, url, imagem }) {
   <meta charset="utf-8">
   <meta name="robots" content="noindex">
   <title>${t}</title>
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <meta property="og:type" content="website">
   <meta property="og:title" content="${t}">
   ${d}
@@ -313,6 +317,10 @@ function paginaTransicao({ destino, lojaNome, titulo, imagem }) {
   <meta name="robots" content="noindex">
   <meta http-equiv="refresh" content="2;url=${d}">
   <title>Redirecionando · ${nome}</title>
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -470,6 +478,7 @@ function paginaTransicao({ destino, lojaNome, titulo, imagem }) {
 <body>
   <header>
     <div class="brand">
+      <img src="/favicon-32x32.png" alt="PostLink" style="width:24px; height:24px; border-radius:6px; object-fit:contain; display:inline-block;">
       <span>postlink</span>
     </div>
     <div class="shield-badge">
@@ -528,6 +537,9 @@ function paginaMensagem(titulo, detalhe = '') {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex">
   <title>${t} · PostLink</title>
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
