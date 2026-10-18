@@ -102,11 +102,19 @@
     if (ogDesc) ogDesc.setAttribute('content', ogDescContent);
     if (twDesc) twDesc.setAttribute('content', ogDescContent);
 
-    const ogImgContent = config.oficial_og_imagem_url || config.banner_url;
+    let ogImgContent = config.oficial_og_imagem_url || config.banner_url || 'https://www.postlink.com.br/assets/img/banner_postlink_og_1200x630.jpg';
+    if (ogImgContent.startsWith('/')) {
+      ogImgContent = 'https://www.postlink.com.br' + ogImgContent;
+    } else if (ogImgContent.startsWith('https://postlink.com.br/')) {
+      ogImgContent = ogImgContent.replace('https://postlink.com.br/', 'https://www.postlink.com.br/');
+    }
+
     if (ogImgContent) {
       const ogImg = document.getElementById('og-image') || document.querySelector('meta[property="og:image"]');
+      const ogImgSec = document.querySelector('meta[property="og:image:secure_url"]');
       const twImg = document.getElementById('tw-image') || document.querySelector('meta[name="twitter:image"]');
       if (ogImg) ogImg.setAttribute('content', ogImgContent);
+      if (ogImgSec) ogImgSec.setAttribute('content', ogImgContent);
       if (twImg) twImg.setAttribute('content', ogImgContent);
     }
   }
