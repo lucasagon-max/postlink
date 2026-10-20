@@ -64,7 +64,7 @@
       </div>
 
       <!-- BOTÃO GOOGLE OFICIAL (GOOGLE IDENTITY SERVICES) -->
-      <div class="w-full flex flex-col items-center">
+      <div id="google-section" class="w-full flex flex-col items-center">
         <!-- Container onde o Google renderiza o botão oficial seguro -->
         <div id="google-btn-wrapper" class="w-full flex justify-center min-h-[42px]"></div>
 
@@ -81,14 +81,14 @@
       </div>
 
       <!-- DIVISOR -->
-      <div class="relative flex py-1 items-center">
+      <div id="divisor-social" class="relative flex py-1 items-center">
         <div class="flex-grow border-t border-outline-variant/60"></div>
         <span class="flex-shrink mx-3 text-[11px] text-outline uppercase font-semibold">ou com e-mail e senha</span>
         <div class="flex-grow border-t border-outline-variant/60"></div>
       </div>
 
       <!-- ABAS / TOGGLE: ENTRAR vs CADASTRAR -->
-      <div class="bg-surface-container-low p-1 rounded-xl grid grid-cols-2 gap-1 border border-outline-variant/60">
+      <div id="container-abas" class="bg-surface-container-low p-1 rounded-xl grid grid-cols-2 gap-1 border border-outline-variant/60">
         <button id="tab-login" type="button" class="py-1.5 px-3 rounded-lg text-xs font-bold transition-all shadow-xs bg-surface-container-lowest text-primary">
           Entrar
         </button>
@@ -231,6 +231,66 @@
         </button>
       </form>
 
+      <!-- FORMULÁRIO 3: NOVA SENHA (RECUPERAÇÃO VIA LINK) -->
+      <form id="form-nova-senha" class="hidden space-y-3.5">
+        <div class="bg-primary-fixed/20 p-2.5 rounded-xl border border-primary/20 text-center mb-1">
+          <p class="text-[11px] text-primary font-medium">Link de recuperação validado! Defina sua nova senha de acesso.</p>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-on-surface-variant mb-1" for="nova-senha">
+            Nova Senha *
+          </label>
+          <div class="relative">
+            <span class="material-symbols-outlined absolute left-3 top-2.5 text-base text-outline">lock</span>
+            <input
+              id="nova-senha"
+              type="password"
+              placeholder="Mínimo 6 caracteres"
+              required
+              minlength="6"
+              autocomplete="new-password"
+              class="w-full text-xs rounded-xl border-outline-variant bg-surface-container-low pl-9 pr-9 py-2.5 focus:ring-primary focus:border-primary text-on-surface placeholder:text-outline"
+            />
+            <button type="button" class="btn-toggle-senha absolute right-2.5 top-2.5 text-outline hover:text-on-surface" data-target="nova-senha">
+              <span class="material-symbols-outlined text-base">visibility</span>
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-on-surface-variant mb-1" for="nova-senha-confirm">
+            Confirme a Nova Senha *
+          </label>
+          <div class="relative">
+            <span class="material-symbols-outlined absolute left-3 top-2.5 text-base text-outline">lock_reset</span>
+            <input
+              id="nova-senha-confirm"
+              type="password"
+              placeholder="Repita a nova senha"
+              required
+              minlength="6"
+              autocomplete="new-password"
+              class="w-full text-xs rounded-xl border-outline-variant bg-surface-container-low pl-9 pr-9 py-2.5 focus:ring-primary focus:border-primary text-on-surface placeholder:text-outline"
+            />
+            <button type="button" class="btn-toggle-senha absolute right-2.5 top-2.5 text-outline hover:text-on-surface" data-target="nova-senha-confirm">
+              <span class="material-symbols-outlined text-base">visibility</span>
+            </button>
+          </div>
+        </div>
+
+        <button id="btn-submit-nova-senha" type="submit" class="w-full bg-primary hover:bg-primary-container text-white text-xs font-bold py-3 rounded-xl shadow-md active:scale-95 transition-all flex items-center justify-center gap-1.5 mt-2">
+          <span>Salvar Nova Senha e Entrar</span>
+          <span class="material-symbols-outlined text-base">check_circle</span>
+        </button>
+
+        <div class="flex items-center justify-center pt-1">
+          <button id="btn-cancelar-nova-senha" type="button" class="text-[11px] text-outline hover:text-on-surface transition-colors">
+            Cancelar e ir para o login
+          </button>
+        </div>
+      </form>
+
       <!-- RECUPERAÇÃO DE SENHA (MODAL INLINE) -->
       <div id="box-recuperar" class="hidden space-y-3 pt-2">
         <div class="bg-surface-container-low p-3 rounded-xl border border-outline-variant/60 space-y-2">
@@ -305,6 +365,15 @@
     const btnConfirmarReenvio = document.getElementById('btn-confirmar-reenvio');
     const btnCancelarReenvio = document.getElementById('btn-cancelar-reenvio');
 
+    const formNovaSenha = document.getElementById('form-nova-senha');
+    const novaSenhaInput = document.getElementById('nova-senha');
+    const novaSenhaConfirmInput = document.getElementById('nova-senha-confirm');
+    const btnSubmitNovaSenha = document.getElementById('btn-submit-nova-senha');
+    const btnCancelarNovaSenha = document.getElementById('btn-cancelar-nova-senha');
+    const googleSection = document.getElementById('google-section');
+    const divisorSocial = document.getElementById('divisor-social');
+    const containerAbas = document.getElementById('container-abas');
+
     function toast(mensagem, tipo = 'info') {
       const c = document.getElementById('toast-container');
       const el = document.createElement('div');
@@ -339,10 +408,31 @@
       return msg;
     }
 
-    // Alternar Abas (Login vs Cadastro)
+    // Alternar Abas (Login vs Cadastro vs Redefinir Senha)
     function setModo(modo) {
       if (boxReenviarAtivacao) boxReenviarAtivacao.classList.add('hidden');
       if (boxRecuperar) boxRecuperar.classList.add('hidden');
+
+      if (modo === 'redefinir_senha') {
+        if (googleSection) googleSection.classList.add('hidden');
+        if (divisorSocial) divisorSocial.classList.add('hidden');
+        if (containerAbas) containerAbas.classList.add('hidden');
+
+        formLogin.classList.add('hidden');
+        formCadastro.classList.add('hidden');
+        if (formNovaSenha) formNovaSenha.classList.remove('hidden');
+
+        authTitulo.textContent = 'Criar Nova Senha';
+        authSubtitulo.textContent = 'Digite sua nova senha de acesso abaixo:';
+        return;
+      }
+
+      // Restaura cabeçalho padrão
+      if (googleSection) googleSection.classList.remove('hidden');
+      if (divisorSocial) divisorSocial.classList.remove('hidden');
+      if (containerAbas) containerAbas.classList.remove('hidden');
+      if (formNovaSenha) formNovaSenha.classList.add('hidden');
+
       if (modo === 'login') {
         tabLogin.className = 'py-1.5 px-3 rounded-lg text-xs font-bold transition-all shadow-xs bg-surface-container-lowest text-primary';
         tabCadastro.className = 'py-1.5 px-3 rounded-lg text-xs font-medium transition-all text-on-surface-variant hover:text-on-surface';
@@ -717,17 +807,91 @@
       });
     }
 
-    // Checar se já está logado
+    // 6. REDEFINIÇÃO DE SENHA (SUBMISSÃO DA NOVA SENHA)
+    let modoRedefinicaoAtivo = false;
+
+    // Detecta se a URL já contém parâmetro/hash de recuperação de senha (#access_token=...&type=recovery ou ?type=recovery)
+    function verificarFluxoRecuperacaoUrl() {
+      const hash = window.location.hash || '';
+      const search = window.location.search || '';
+      if (hash.includes('type=recovery') || search.includes('type=recovery')) {
+        modoRedefinicaoAtivo = true;
+        setModo('redefinir_senha');
+      }
+    }
+    verificarFluxoRecuperacaoUrl();
+
+    if (formNovaSenha) {
+      formNovaSenha.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const senha = novaSenhaInput.value;
+        const confirm = novaSenhaConfirmInput.value;
+
+        if (!senha || senha.length < 6) {
+          toast('A nova senha deve ter no mínimo 6 caracteres.', 'error');
+          novaSenhaInput.focus();
+          return;
+        }
+
+        if (senha !== confirm) {
+          toast('As senhas digitadas não coincidem.', 'error');
+          novaSenhaConfirmInput.focus();
+          return;
+        }
+
+        btnSubmitNovaSenha.disabled = true;
+        btnSubmitNovaSenha.innerHTML = '<div class="spinner w-4 h-4 border-white border-t-transparent"></div> Salvando senha…';
+
+        try {
+          const { data, error } = await sb.auth.updateUser({ password: senha });
+          if (error) throw error;
+
+          toast('Senha redefinida com sucesso! Acessando seu painel…', 'success');
+          modoRedefinicaoAtivo = false;
+          try {
+            history.replaceState(null, '', window.location.pathname);
+          } catch (_) {}
+
+          setTimeout(() => {
+            redirecionarAposAuth();
+          }, 1000);
+        } catch (err) {
+          toast(traduzirErro(err.message), 'error');
+          btnSubmitNovaSenha.disabled = false;
+          btnSubmitNovaSenha.innerHTML = '<span>Salvar Nova Senha e Entrar</span><span class="material-symbols-outlined text-base">check_circle</span>';
+        }
+      });
+    }
+
+    if (btnCancelarNovaSenha) {
+      btnCancelarNovaSenha.addEventListener('click', () => {
+        modoRedefinicaoAtivo = false;
+        try {
+          history.replaceState(null, '', window.location.pathname);
+        } catch (_) {}
+        setModo('login');
+      });
+    }
+
+    // Checar se já está logado (apenas se NÃO for recuperação de senha)
     async function checarSessao() {
+      if (modoRedefinicaoAtivo) return;
       const { data: { session } } = await sb.auth.getSession();
-      if (session) {
+      if (session && !modoRedefinicaoAtivo) {
         redirecionarAposAuth();
       }
     }
     checarSessao();
 
     sb.auth.onAuthStateChange((event, session) => {
-      if (session) {
+      if (event === 'PASSWORD_RECOVERY') {
+        modoRedefinicaoAtivo = true;
+        setModo('redefinir_senha');
+        toast('Sua identidade foi validada com sucesso! Digite sua nova senha.', 'info');
+        return;
+      }
+
+      if (session && !modoRedefinicaoAtivo) {
         redirecionarAposAuth();
       }
     });

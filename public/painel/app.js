@@ -2243,6 +2243,67 @@ function prepararTelaConta() {
   }
 }
 
+// ALTERAR SENHA NO PAINEL
+const btnToggleTrocarSenha = document.getElementById('btn-toggle-trocar-senha-painel');
+const formTrocarSenhaPainel = document.getElementById('form-trocar-senha-painel');
+const btnCancelarTrocarSenha = document.getElementById('btn-cancelar-trocar-senha-painel');
+const painelNovaSenha = document.getElementById('painel-nova-senha');
+const painelNovaSenhaConfirm = document.getElementById('painel-nova-senha-confirm');
+const btnSubmitTrocarSenha = document.getElementById('btn-submit-trocar-senha-painel');
+
+if (btnToggleTrocarSenha && formTrocarSenhaPainel) {
+  btnToggleTrocarSenha.addEventListener('click', () => {
+    formTrocarSenhaPainel.classList.toggle('hidden');
+    if (!formTrocarSenhaPainel.classList.contains('hidden') && painelNovaSenha) {
+      painelNovaSenha.focus();
+    }
+  });
+}
+
+if (btnCancelarTrocarSenha && formTrocarSenhaPainel) {
+  btnCancelarTrocarSenha.addEventListener('click', () => {
+    formTrocarSenhaPainel.classList.add('hidden');
+    if (painelNovaSenha) painelNovaSenha.value = '';
+    if (painelNovaSenhaConfirm) painelNovaSenhaConfirm.value = '';
+  });
+}
+
+if (formTrocarSenhaPainel) {
+  formTrocarSenhaPainel.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const s1 = painelNovaSenha.value;
+    const s2 = painelNovaSenhaConfirm.value;
+
+    if (!s1 || s1.length < 6) {
+      toast('A nova senha deve ter no mínimo 6 caracteres.', 'error');
+      painelNovaSenha.focus();
+      return;
+    }
+    if (s1 !== s2) {
+      toast('As senhas digitadas não coincidem.', 'error');
+      painelNovaSenhaConfirm.focus();
+      return;
+    }
+
+    btnSubmitTrocarSenha.disabled = true;
+    btnSubmitTrocarSenha.innerHTML = '<div class="spinner w-3.5 h-3.5 border-white border-t-transparent"></div> Salvando…';
+
+    try {
+      const { error } = await sb.auth.updateUser({ password: s1 });
+      if (error) throw error;
+      toast('Senha alterada com sucesso!', 'success');
+      formTrocarSenhaPainel.classList.add('hidden');
+      painelNovaSenha.value = '';
+      painelNovaSenhaConfirm.value = '';
+    } catch (err) {
+      toast('Erro ao alterar senha: ' + (err.message || 'Tente novamente.'), 'error');
+    } finally {
+      btnSubmitTrocarSenha.disabled = false;
+      btnSubmitTrocarSenha.innerHTML = '<span>Salvar Senha</span>';
+    }
+  });
+}
+
 if (el.btnSair) {
   el.btnSair.addEventListener('click', async () => {
     await sb.auth.signOut();

@@ -1152,6 +1152,38 @@
         </div>
       </div>
 
+      <!-- Alterar Senha dentro do Painel -->
+      <div class="pt-3 border-t border-outline-variant/60 space-y-2.5">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-on-surface flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-base text-primary">lock_reset</span>
+            Alterar Senha
+          </span>
+          <button id="btn-toggle-trocar-senha-painel" type="button" class="text-[11px] text-primary hover:underline font-semibold">
+            Modificar
+          </button>
+        </div>
+
+        <form id="form-trocar-senha-painel" class="hidden space-y-2.5 bg-surface-container-low p-3 rounded-xl border border-outline-variant/60">
+          <div>
+            <label class="block text-[11px] font-medium text-on-surface-variant mb-1" for="painel-nova-senha">Nova Senha</label>
+            <input id="painel-nova-senha" type="password" minlength="6" placeholder="Mínimo 6 caracteres" required class="w-full text-xs rounded-lg border-outline-variant bg-surface-container-lowest px-3 py-2 text-on-surface focus:ring-primary focus:border-primary">
+          </div>
+          <div>
+            <label class="block text-[11px] font-medium text-on-surface-variant mb-1" for="painel-nova-senha-confirm">Confirmar Nova Senha</label>
+            <input id="painel-nova-senha-confirm" type="password" minlength="6" placeholder="Repita a nova senha" required class="w-full text-xs rounded-lg border-outline-variant bg-surface-container-lowest px-3 py-2 text-on-surface focus:ring-primary focus:border-primary">
+          </div>
+          <div class="flex gap-2 pt-1">
+            <button id="btn-submit-trocar-senha-painel" type="submit" class="flex-1 bg-secondary hover:bg-secondary-dark text-white text-xs font-bold py-2 rounded-lg shadow-2xs transition-all flex items-center justify-center gap-1">
+              <span>Salvar Senha</span>
+            </button>
+            <button id="btn-cancelar-trocar-senha-painel" type="button" class="text-xs text-outline hover:text-on-surface px-2">
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </div>
+
       <div class="pt-2 flex flex-col gap-2">
         <a href="#/plano" class="w-full bg-primary text-white text-xs font-bold py-2.5 rounded-xl shadow-xs text-center hover:bg-primary-container transition-all">
           Gerenciar Plano Pro
