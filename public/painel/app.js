@@ -42,11 +42,27 @@ const el = {
   btnSair: document.getElementById('btn-sair'),
   navStatusTexto: document.getElementById('nav-status-texto'),
 
-  // Onboarding
+  // Onboarding (2 Passos)
   formOnboarding: document.getElementById('form-onboarding'),
+  onboardingStep1: document.getElementById('onboarding-step-1'),
+  onboardingStep2: document.getElementById('onboarding-step-2'),
+  onboardingStepIndicator: document.getElementById('onboarding-step-indicator'),
+  onboardingProgressBar: document.getElementById('onboarding-progress-bar'),
+  btnOnboardingStep1Next: document.getElementById('btn-onboarding-step1-next'),
+  btnOnboardingStep2Back: document.getElementById('btn-onboarding-step2-back'),
+  onboardingResponsavel: document.getElementById('onboarding-responsavel'),
+  onboardingWhatsapp: document.getElementById('onboarding-whatsapp'),
   onboardingNome: document.getElementById('onboarding-nome'),
   onboardingSlug: document.getElementById('onboarding-slug'),
   onboardingPrefixo: document.getElementById('onboarding-prefixo'),
+  onboardingCidade: document.getElementById('onboarding-cidade'),
+  onboardingEstado: document.getElementById('onboarding-estado'),
+  onboardingRamo: document.getElementById('onboarding-ramo'),
+  onboardingRamoOutroWrap: document.getElementById('onboarding-ramo-outro-wrap'),
+  onboardingRamoOutro: document.getElementById('onboarding-ramo-outro'),
+  onboardingExpectativa: document.getElementById('onboarding-expectativa'),
+  onboardingExpectativaDetalhes: document.getElementById('onboarding-expectativa-detalhes'),
+  btnSalvarLoja: document.getElementById('btn-salvar-loja'),
 
   // Lista & Métricas
   bannerTrial: document.getElementById('banner-trial'),
@@ -77,6 +93,7 @@ const el = {
   paneWhatsapp: document.getElementById('pane-whatsapp'),
   paneUrl: document.getElementById('pane-url'),
   waPhone: document.getElementById('wa-phone'),
+  waPhoneOrigemBadge: document.getElementById('wa-phone-origem-badge'),
   presetMessage: document.getElementById('preset-message'),
   inputDestino: document.getElementById('input-destino'),
   btnFetchMeta: document.getElementById('btn-fetch-meta'),
@@ -169,11 +186,25 @@ const el = {
   cardBrickLoading: document.getElementById('card-brick-loading'),
   cardPaymentBrickContainer: document.getElementById('cardPaymentBrick_container'),
 
-  // Conta
+  // Conta & Perfil
   contaEmail: document.getElementById('conta-email'),
+  contaResponsavel: document.getElementById('conta-responsavel'),
+  contaWhatsapp: document.getElementById('conta-whatsapp'),
   contaLojaNome: document.getElementById('conta-loja-nome'),
   contaLojaSlug: document.getElementById('conta-loja-slug'),
+  contaLocalizacao: document.getElementById('conta-localizacao'),
+  contaRamo: document.getElementById('conta-ramo'),
+  contaExpectativa: document.getElementById('conta-expectativa'),
   contaStatus: document.getElementById('conta-status'),
+  btnToggleEditarPerfilPainel: document.getElementById('btn-toggle-editar-perfil-painel'),
+  formEditarPerfilPainel: document.getElementById('form-editar-perfil-painel'),
+  btnCancelarEditarPerfilPainel: document.getElementById('btn-cancelar-editar-perfil-painel'),
+  painelPerfilResponsavel: document.getElementById('painel-perfil-responsavel'),
+  painelPerfilWhatsapp: document.getElementById('painel-perfil-whatsapp'),
+  painelPerfilCidade: document.getElementById('painel-perfil-cidade'),
+  painelPerfilEstado: document.getElementById('painel-perfil-estado'),
+  painelPerfilRamo: document.getElementById('painel-perfil-ramo'),
+  painelPerfilExpectativa: document.getElementById('painel-perfil-expectativa'),
 
   // Galeria de Fotos
   viewGaleria: document.getElementById('view-galeria'),
@@ -564,10 +595,44 @@ function mostrarView(nome) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// ONBOARDING
+// HELPER: Máscara e Formatação de Telefone (WhatsApp Brasil)
+function aplicarMascaraTelefoneInput(input) {
+  if (!input) return;
+  input.addEventListener('input', (e) => {
+    let val = e.target.value.replace(/\D/g, '').slice(0, 11);
+    if (val.length > 10) {
+      val = val.replace(/^(\d{2})(\d{5})(\d{4}).*/, '($1) $2-$3');
+    } else if (val.length > 6) {
+      val = val.replace(/^(\d{2})(\d{4})(\d{0,4}).*/, '($1) $2-$3');
+    } else if (val.length > 2) {
+      val = val.replace(/^(\d{2})(\d{0,5})/, '($1) $2');
+    } else if (val.length > 0) {
+      val = val.replace(/^(\d{0,2})/, '($1');
+    }
+    e.target.value = val;
+  });
+}
+
+function formatarTelefoneVisual(num) {
+  if (!num) return '';
+  const digits = String(num).replace(/\D/g, '');
+  if (digits.length === 11) {
+    return digits.replace(/^(\d{2})(\d{5})(\d{4})$/, '($1) $2-$3');
+  }
+  if (digits.length === 10) {
+    return digits.replace(/^(\d{2})(\d{4})(\d{4})$/, '($1) $2-$3');
+  }
+  return num;
+}
+
+// ONBOARDING (Fluxo Guiado em 2 Passos)
+if (el.onboardingWhatsapp) {
+  aplicarMascaraTelefoneInput(el.onboardingWhatsapp);
+}
+
 if (el.onboardingNome) {
   el.onboardingNome.addEventListener('input', () => {
-    if (!el.onboardingSlug.dataset.manual) {
+    if (el.onboardingSlug && !el.onboardingSlug.dataset.manual) {
       el.onboardingSlug.value = limparSlug(el.onboardingNome.value).slice(0, 30);
     }
   });
@@ -580,36 +645,169 @@ if (el.onboardingSlug) {
   });
 }
 
-if (el.formOnboarding) {
-  el.formOnboarding.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const nome = el.onboardingNome.value.trim();
-    const slug = limparSlug(el.onboardingSlug.value.trim());
+// Avançar do Passo 1 para o Passo 2
+if (el.btnOnboardingStep1Next) {
+  el.btnOnboardingStep1Next.addEventListener('click', () => {
+    const responsavel = el.onboardingResponsavel ? el.onboardingResponsavel.value.trim() : '';
+    const whatsapp = el.onboardingWhatsapp ? el.onboardingWhatsapp.value.replace(/\D/g, '') : '';
+    const nome = el.onboardingNome ? el.onboardingNome.value.trim() : '';
+    const slug = el.onboardingSlug ? limparSlug(el.onboardingSlug.value.trim()) : '';
+    const cidade = el.onboardingCidade ? el.onboardingCidade.value.trim() : '';
+    const estado = el.onboardingEstado ? el.onboardingEstado.value.trim() : '';
 
-    if (!nome || !slug) {
-      toast('Preencha o nome e o identificador do negócio.', 'error');
+    if (!responsavel) {
+      toast('Por favor, informe seu nome completo.', 'error');
+      if (el.onboardingResponsavel) el.onboardingResponsavel.focus();
       return;
     }
 
-    const btn = document.getElementById('btn-salvar-loja');
-    btn.disabled = true;
-    btn.textContent = 'Criando loja…';
+    if (whatsapp.length < 10) {
+      toast('Por favor, insira um número de WhatsApp comercial válido com DDD.', 'error');
+      if (el.onboardingWhatsapp) el.onboardingWhatsapp.focus();
+      return;
+    }
+
+    if (!nome) {
+      toast('Por favor, informe o nome da sua loja ou marca.', 'error');
+      if (el.onboardingNome) el.onboardingNome.focus();
+      return;
+    }
+
+    if (!slug || slug.length < 2) {
+      toast('Por favor, defina um identificador (slug) válido para a sua loja.', 'error');
+      if (el.onboardingSlug) el.onboardingSlug.focus();
+      return;
+    }
+
+    if (!cidade) {
+      toast('Por favor, informe a cidade onde fica a sua empresa.', 'error');
+      if (el.onboardingCidade) el.onboardingCidade.focus();
+      return;
+    }
+
+    if (!estado) {
+      toast('Por favor, selecione o estado (UF) da sua empresa.', 'error');
+      if (el.onboardingEstado) el.onboardingEstado.focus();
+      return;
+    }
+
+    // Transição para o Passo 2
+    if (el.onboardingStep1) el.onboardingStep1.classList.add('hidden');
+    if (el.onboardingStep2) el.onboardingStep2.classList.remove('hidden');
+    if (el.onboardingStepIndicator) el.onboardingStepIndicator.textContent = 'Passo 2 de 2';
+    if (el.onboardingProgressBar) {
+      el.onboardingProgressBar.style.width = '100%';
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}
+
+// Voltar do Passo 2 para o Passo 1
+if (el.btnOnboardingStep2Back) {
+  el.btnOnboardingStep2Back.addEventListener('click', () => {
+    if (el.onboardingStep2) el.onboardingStep2.classList.add('hidden');
+    if (el.onboardingStep1) el.onboardingStep1.classList.remove('hidden');
+    if (el.onboardingStepIndicator) el.onboardingStepIndicator.textContent = 'Passo 1 de 2';
+    if (el.onboardingProgressBar) {
+      el.onboardingProgressBar.style.width = '50%';
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}
+
+// Seleção de Chips de Ramo de Atividade
+document.querySelectorAll('.chip-ramo').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.chip-ramo').forEach((b) => {
+      b.className = 'chip-ramo p-2.5 rounded-xl border border-outline-variant bg-surface-container-low hover:border-primary text-xs font-semibold text-on-surface flex flex-col items-center gap-1 text-center transition-all';
+    });
+    btn.className = 'chip-ramo p-2.5 rounded-xl border-2 border-primary bg-primary-fixed/25 text-primary text-xs font-bold flex flex-col items-center gap-1 text-center transition-all shadow-xs';
+
+    const ramo = btn.dataset.ramo;
+    if (el.onboardingRamo) el.onboardingRamo.value = ramo;
+
+    if (ramo === 'Outro') {
+      if (el.onboardingRamoOutroWrap) el.onboardingRamoOutroWrap.classList.remove('hidden');
+      if (el.onboardingRamoOutro) el.onboardingRamoOutro.focus();
+    } else {
+      if (el.onboardingRamoOutroWrap) el.onboardingRamoOutroWrap.classList.add('hidden');
+    }
+  });
+});
+
+// Seleção de Cards de Expectativas
+document.querySelectorAll('.card-expectativa').forEach((card) => {
+  card.addEventListener('click', () => {
+    document.querySelectorAll('.card-expectativa').forEach((c) => {
+      c.className = 'card-expectativa p-3 rounded-2xl border border-outline-variant bg-surface-container-low hover:border-primary cursor-pointer transition-all flex items-start gap-3';
+    });
+    card.className = 'card-expectativa p-3 rounded-2xl border-2 border-primary bg-primary-fixed/20 ring-1 ring-primary cursor-pointer transition-all flex items-start gap-3 shadow-xs';
+
+    const exp = card.dataset.expectativa;
+    if (el.onboardingExpectativa) el.onboardingExpectativa.value = exp;
+  });
+});
+
+// Submissão Final do Onboarding
+if (el.formOnboarding) {
+  el.formOnboarding.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const responsavel = el.onboardingResponsavel ? el.onboardingResponsavel.value.trim() : '';
+    const whatsapp = el.onboardingWhatsapp ? el.onboardingWhatsapp.value.trim() : '';
+    const nome = el.onboardingNome ? el.onboardingNome.value.trim() : '';
+    const slug = el.onboardingSlug ? limparSlug(el.onboardingSlug.value.trim()) : '';
+    const cidade = el.onboardingCidade ? el.onboardingCidade.value.trim() : '';
+    const estado = el.onboardingEstado ? el.onboardingEstado.value.trim() : '';
+
+    let ramo = el.onboardingRamo ? el.onboardingRamo.value.trim() : '';
+    if (ramo === 'Outro' && el.onboardingRamoOutro && el.onboardingRamoOutro.value.trim()) {
+      ramo = el.onboardingRamoOutro.value.trim();
+    }
+    if (!ramo) {
+      toast('Por favor, selecione o ramo do seu negócio na etapa 2.', 'info');
+      return;
+    }
+
+    const expectativa = el.onboardingExpectativa ? el.onboardingExpectativa.value.trim() : '';
+    if (!expectativa) {
+      toast('Por favor, selecione o que você mais espera do PostLink.', 'info');
+      return;
+    }
+
+    const expectativaDetalhes = el.onboardingExpectativaDetalhes ? el.onboardingExpectativaDetalhes.value.trim() : '';
+
+    const btn = el.btnSalvarLoja || document.getElementById('btn-salvar-loja');
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '<div class="spinner w-4 h-4 border-white border-t-transparent mx-auto"></div><span>Criando seu espaço...</span>';
+    }
 
     try {
       const { data, error } = await sb.rpc('criar_loja', {
         p_nome: nome,
         p_slug: slug,
+        p_responsavel_nome: responsavel,
+        p_whatsapp: whatsapp,
+        p_cidade: cidade,
+        p_estado: estado,
+        p_ramo_atividade: ramo,
+        p_expectativa: expectativa,
+        p_expectativa_detalhes: expectativaDetalhes || null,
       });
 
       if (error) throw error;
 
       state.loja = data;
-      toast('Loja cadastrada com sucesso!', 'success');
+      const primeiroNome = responsavel.split(' ')[0] || 'Lojista';
+      toast(`🎉 Bem-vindo(a) ao PostLink, ${primeiroNome}! Seu perfil foi configurado com sucesso!`, 'success');
       await carregarDadosLojaEAssinatura();
     } catch (err) {
       toast('Erro ao cadastrar loja: ' + err.message, 'error');
-      btn.disabled = false;
-      btn.textContent = 'Concluir Cadastro da Loja';
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<span>Concluir Cadastro</span><span class="material-symbols-outlined text-base">check_circle</span>';
+      }
     }
   });
 }
@@ -950,6 +1148,12 @@ function switchDestTab(tipo) {
     }
     if (el.paneWhatsapp) el.paneWhatsapp.classList.remove('hidden');
     if (el.paneUrl) el.paneUrl.classList.add('hidden');
+
+    // Se estiver criando novo link e o campo estiver vazio, pré-preenche com o WhatsApp da loja
+    if (el.waPhone && !el.waPhone.value.trim() && state.loja && state.loja.whatsapp && !state.linkEditando) {
+      el.waPhone.value = formatarTelefoneVisual(state.loja.whatsapp);
+      if (el.waPhoneOrigemBadge) el.waPhoneOrigemBadge.classList.remove('hidden');
+    }
   } else {
     if (el.tabUrlBtn) {
       el.tabUrlBtn.className = 'flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-surface-container-lowest text-primary text-xs font-bold shadow-xs transition-all';
@@ -1011,6 +1215,14 @@ function prepararFormularioNovo() {
   if (el.res) el.res.classList.add('hidden');
 
   switchDestTab('whatsapp');
+
+  // Pré-define com o WhatsApp cadastrado do lojista
+  if (el.waPhone && state.loja && state.loja.whatsapp) {
+    el.waPhone.value = formatarTelefoneVisual(state.loja.whatsapp);
+    if (el.waPhoneOrigemBadge) el.waPhoneOrigemBadge.classList.remove('hidden');
+  } else if (el.waPhoneOrigemBadge) {
+    el.waPhoneOrigemBadge.classList.add('hidden');
+  }
 
   if (el.fetchMetaStatus) el.fetchMetaStatus.textContent = '';
 
@@ -1145,15 +1357,27 @@ async function prepararFormularioEdicao(id) {
     try {
       const u = new URL(link.destino);
       const tel = u.pathname.replace(/^\//, '').replace(/^55/, '');
-      if (el.waPhone) el.waPhone.value = tel;
+      if (el.waPhone) el.waPhone.value = formatarTelefoneVisual(tel);
       const msg = u.searchParams.get('text');
       if (el.presetMessage && msg) el.presetMessage.value = msg;
+
+      // Exibe badge caso o número do link corresponda ao WhatsApp cadastrado do negócio
+      const digitsLink = (tel || '').replace(/\D/g, '');
+      const digitsLoja = (state.loja?.whatsapp || '').replace(/\D/g, '');
+      if (el.waPhoneOrigemBadge) {
+        if (digitsLink && digitsLoja && digitsLink === digitsLoja) {
+          el.waPhoneOrigemBadge.classList.remove('hidden');
+        } else {
+          el.waPhoneOrigemBadge.classList.add('hidden');
+        }
+      }
     } catch (_) {
       if (el.inputDestino) el.inputDestino.value = link.destino;
     }
   } else {
     switchDestTab('url');
     if (el.inputDestino) el.inputDestino.value = link.destino;
+    if (el.waPhoneOrigemBadge) el.waPhoneOrigemBadge.classList.add('hidden');
   }
 
   if (el.inputTitulo) el.inputTitulo.value = link.titulo || '';
@@ -1438,6 +1662,22 @@ if (el.inputSlug) {
   });
 }
 
+if (el.waPhone) {
+  aplicarMascaraTelefoneInput(el.waPhone);
+  el.waPhone.addEventListener('input', () => {
+    if (el.eDest) el.eDest.textContent = '';
+    if (el.waPhoneOrigemBadge) {
+      const digitsInput = el.waPhone.value.replace(/\D/g, '');
+      const digitsLoja = (state.loja?.whatsapp || '').replace(/\D/g, '');
+      if (digitsInput && digitsLoja && digitsInput === digitsLoja) {
+        el.waPhoneOrigemBadge.classList.remove('hidden');
+      } else {
+        el.waPhoneOrigemBadge.classList.add('hidden');
+      }
+    }
+  });
+}
+
 // Montar Destino Final
 function obterDestinoNormalizado() {
   if (state.tipoDestino === 'whatsapp') {
@@ -1445,7 +1685,12 @@ function obterDestinoNormalizado() {
     if (!rawTel || rawTel.length < 10) {
       return null;
     }
-    const telComDDI = rawTel.startsWith('55') ? rawTel : `55${rawTel}`;
+    let telComDDI = rawTel;
+    if (rawTel.length === 10 || rawTel.length === 11) {
+      telComDDI = `55${rawTel}`;
+    } else if (rawTel.length >= 12 && !rawTel.startsWith('55')) {
+      telComDDI = `55${rawTel}`;
+    }
     const msg = el.presetMessage ? el.presetMessage.value.trim() : '';
     return msg ? `https://wa.me/${telComDDI}?text=${encodeURIComponent(msg)}` : `https://wa.me/${telComDDI}`;
   } else {
@@ -2232,7 +2477,7 @@ if (el.pixBtnSimular) {
   });
 }
 
-// CONTA
+// CONTA & PERFIL
 function prepararTelaConta() {
   if (el.contaEmail && state.user) el.contaEmail.textContent = state.user.email;
   if (el.contaLojaNome && state.loja) el.contaLojaNome.textContent = state.loja.nome;
@@ -2241,6 +2486,103 @@ function prepararTelaConta() {
     const p = obterPlanoAtual();
     el.contaStatus.textContent = `${p.nome} (${state.assinatura.status.toUpperCase()})`;
   }
+
+  if (el.contaResponsavel && state.loja) {
+    el.contaResponsavel.textContent = state.loja.responsavel_nome || 'Não informado';
+  }
+  if (el.contaWhatsapp && state.loja) {
+    el.contaWhatsapp.textContent = formatarTelefoneVisual(state.loja.whatsapp) || 'Não informado';
+  }
+  if (el.contaLocalizacao && state.loja) {
+    const loc = [state.loja.cidade, state.loja.estado].filter(Boolean).join(' - ');
+    el.contaLocalizacao.textContent = loc || 'Não informado';
+  }
+  if (el.contaRamo && state.loja) {
+    el.contaRamo.textContent = state.loja.ramo_atividade || 'Não informado';
+  }
+  if (el.contaExpectativa && state.loja) {
+    let exp = state.loja.expectativa || 'Não informado';
+    if (state.loja.expectativa_detalhes) {
+      exp += ` ("${state.loja.expectativa_detalhes}")`;
+    }
+    el.contaExpectativa.textContent = exp;
+  }
+}
+
+// EDITAR PERFIL DO NEGÓCIO NO PAINEL
+if (el.painelPerfilWhatsapp) {
+  aplicarMascaraTelefoneInput(el.painelPerfilWhatsapp);
+}
+
+if (el.btnToggleEditarPerfilPainel && el.formEditarPerfilPainel) {
+  el.btnToggleEditarPerfilPainel.addEventListener('click', () => {
+    el.formEditarPerfilPainel.classList.toggle('hidden');
+    if (!el.formEditarPerfilPainel.classList.contains('hidden') && state.loja) {
+      if (el.painelPerfilResponsavel) el.painelPerfilResponsavel.value = state.loja.responsavel_nome || '';
+      if (el.painelPerfilWhatsapp) el.painelPerfilWhatsapp.value = formatarTelefoneVisual(state.loja.whatsapp) || '';
+      if (el.painelPerfilCidade) el.painelPerfilCidade.value = state.loja.cidade || '';
+      if (el.painelPerfilEstado) el.painelPerfilEstado.value = state.loja.estado || '';
+      if (el.painelPerfilRamo) el.painelPerfilRamo.value = state.loja.ramo_atividade || '';
+      if (el.painelPerfilExpectativa) el.painelPerfilExpectativa.value = state.loja.expectativa || '';
+      if (el.painelPerfilResponsavel) el.painelPerfilResponsavel.focus();
+    }
+  });
+}
+
+if (el.btnCancelarEditarPerfilPainel && el.formEditarPerfilPainel) {
+  el.btnCancelarEditarPerfilPainel.addEventListener('click', () => {
+    el.formEditarPerfilPainel.classList.add('hidden');
+  });
+}
+
+if (el.formEditarPerfilPainel) {
+  el.formEditarPerfilPainel.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!state.loja || !state.user) return;
+
+    const responsavel = el.painelPerfilResponsavel ? el.painelPerfilResponsavel.value.trim() : '';
+    const whatsapp = el.painelPerfilWhatsapp ? el.painelPerfilWhatsapp.value.trim() : '';
+    const cidade = el.painelPerfilCidade ? el.painelPerfilCidade.value.trim() : '';
+    const estado = el.painelPerfilEstado ? el.painelPerfilEstado.value.trim().toUpperCase() : '';
+    const ramo = el.painelPerfilRamo ? el.painelPerfilRamo.value.trim() : '';
+    const expectativa = el.painelPerfilExpectativa ? el.painelPerfilExpectativa.value.trim() : '';
+
+    const btn = document.getElementById('btn-submit-editar-perfil-painel');
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Salvando...';
+    }
+
+    try {
+      const { data, error } = await sb
+        .from('lojas')
+        .update({
+          responsavel_nome: responsavel || null,
+          whatsapp: whatsapp || null,
+          cidade: cidade || null,
+          estado: estado || null,
+          ramo_atividade: ramo || null,
+          expectativa: expectativa || null,
+        })
+        .eq('id', state.user.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      state.loja = data;
+      prepararTelaConta();
+      el.formEditarPerfilPainel.classList.add('hidden');
+      toast('Perfil do negócio atualizado com sucesso!', 'success');
+    } catch (err) {
+      toast('Erro ao atualizar perfil: ' + err.message, 'error');
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<span>Salvar Perfil</span>';
+      }
+    }
+  });
 }
 
 // ALTERAR SENHA NO PAINEL

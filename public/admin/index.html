@@ -387,9 +387,9 @@
             <table class="w-full text-left text-xs">
               <thead class="bg-surface-container-low border-b border-outline-variant/60 text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">
                 <tr>
-                  <th class="py-3 px-4">Lojista / Loja</th>
-                  <th class="py-3 px-4">E-mail Cadastrado</th>
-                  <th class="py-3 px-4">Status da Assinatura</th>
+                  <th class="py-3 px-4">Lojista / Empresa</th>
+                  <th class="py-3 px-4">E-mail &amp; WhatsApp</th>
+                  <th class="py-3 px-4">Status &amp; Ramo</th>
                   <th class="py-3 px-4">Links / Versões</th>
                   <th class="py-3 px-4">Cliques Totais</th>
                   <th class="py-3 px-4">Data Cadastro</th>
@@ -1100,12 +1100,12 @@
 
   <!-- MODAL DE AÇÃO RÁPIDA NO LOJISTA -->
   <div id="modal-acao-lojista" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
-    <div class="bg-surface-container-lowest max-w-md w-full rounded-2xl p-6 border border-outline-variant shadow-xl space-y-4">
+    <div class="bg-surface-container-lowest max-w-lg w-full rounded-2xl p-6 border border-outline-variant shadow-xl space-y-4 max-h-[90vh] overflow-y-auto">
       
       <div class="flex items-start justify-between pb-3 border-b border-outline-variant/60">
         <div>
           <span class="text-[10px] font-bold uppercase tracking-wider text-outline">Gerenciamento Administrativo</span>
-          <h3 id="modal-lojista-nome" class="text-base font-bold text-on-surface">Nome da Loja</h3>
+          <h3 id="modal-lojista-nome" class="text-base sm:text-lg font-bold text-on-surface">Nome da Loja</h3>
           <p id="modal-lojista-sub" class="text-xs text-on-surface-variant font-mono">/slug · email@lojista.com</p>
         </div>
         <button id="modal-lojista-btn-fechar" type="button" class="text-outline hover:text-on-surface p-1">
@@ -1113,19 +1113,49 @@
         </button>
       </div>
 
-      <!-- Informações Atuais -->
-      <div class="bg-surface-container-low p-3 rounded-xl border border-outline-variant/50 space-y-2 text-xs">
-        <div class="flex justify-between">
+      <!-- Informações Atuais & Perfil do Lojista -->
+      <div class="bg-surface-container-low p-3.5 rounded-xl border border-outline-variant/50 space-y-2 text-xs">
+        <div class="flex justify-between items-center">
+          <span class="text-outline">Responsável:</span>
+          <strong id="modal-lojista-responsavel" class="text-on-surface">--</strong>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-outline">WhatsApp Comercial:</span>
+          <div id="modal-lojista-whatsapp-wrap">
+            <a id="modal-lojista-whatsapp-link" href="#" target="_blank" class="inline-flex items-center gap-1.5 text-emerald-800 bg-emerald-100 hover:bg-emerald-200 px-2.5 py-1 rounded-full font-bold text-xs transition-colors">
+              <span class="material-symbols-outlined text-sm text-emerald-600">chat</span>
+              <span id="modal-lojista-whatsapp">--</span>
+              <span class="material-symbols-outlined text-xs">open_in_new</span>
+            </a>
+          </div>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-outline">Localização:</span>
+          <span id="modal-lojista-localizacao" class="text-on-surface font-medium">--</span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-outline">Ramo de Atividade:</span>
+          <span id="modal-lojista-ramo" class="bg-surface-container-high px-2 py-0.5 rounded text-[11px] font-bold text-on-surface">--</span>
+        </div>
+        <div class="flex justify-between items-center">
           <span class="text-outline">Status Atual:</span>
           <span id="modal-lojista-status" class="font-bold">Trial</span>
         </div>
-        <div class="flex justify-between">
+        <div class="flex justify-between items-center">
           <span class="text-outline">Período de Teste:</span>
           <span id="modal-lojista-trial" class="font-mono">Restam 5 dias</span>
         </div>
-        <div class="flex justify-between">
+        <div class="flex justify-between items-center">
           <span class="text-outline">Links Cadastrados:</span>
           <span id="modal-lojista-links" class="font-mono">1 link</span>
+        </div>
+
+        <!-- Alinhamento de Expectativa -->
+        <div class="pt-2 border-t border-outline-variant/40 space-y-1">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-outline block">O que espera do PostLink:</span>
+          <p id="modal-lojista-expectativa" class="text-xs text-on-surface bg-surface-container-lowest p-2 rounded-lg border border-outline-variant/40 leading-relaxed font-medium">
+            --
+          </p>
         </div>
       </div>
 

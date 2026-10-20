@@ -91,6 +91,12 @@ const el = {
   modalAcaoLojista: document.getElementById('modal-acao-lojista'),
   modalLojistaNome: document.getElementById('modal-lojista-nome'),
   modalLojistaSub: document.getElementById('modal-lojista-sub'),
+  modalLojistaResponsavel: document.getElementById('modal-lojista-responsavel'),
+  modalLojistaWhatsapp: document.getElementById('modal-lojista-whatsapp'),
+  modalLojistaWhatsappLink: document.getElementById('modal-lojista-whatsapp-link'),
+  modalLojistaLocalizacao: document.getElementById('modal-lojista-localizacao'),
+  modalLojistaRamo: document.getElementById('modal-lojista-ramo'),
+  modalLojistaExpectativa: document.getElementById('modal-lojista-expectativa'),
   modalLojistaStatus: document.getElementById('modal-lojista-status'),
   modalLojistaTrial: document.getElementById('modal-lojista-trial'),
   modalLojistaLinks: document.getElementById('modal-lojista-links'),
@@ -200,6 +206,19 @@ function formatarData(dataIso) {
   if (!dataIso) return '-';
   const d = new Date(dataIso);
   return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+
+// Formatação Visual de Telefone
+function formatarTelefoneVisual(num) {
+  if (!num) return '';
+  const digits = String(num).replace(/\D/g, '');
+  if (digits.length === 11) {
+    return digits.replace(/^(\d{2})(\d{5})(\d{4})$/, '($1) $2-$3');
+  }
+  if (digits.length === 10) {
+    return digits.replace(/^(\d{2})(\d{4})(\d{4})$/, '($1) $2-$3');
+  }
+  return num;
 }
 
 // Inicialização e Verificação de Permissões
@@ -369,17 +388,42 @@ function renderizarTabelaLojistas() {
       badgeStatus = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-error-container text-on-error-container">✕ Expirado</span>';
     }
 
+    const localizacao = [lj.cidade, lj.estado].filter(Boolean).join(' - ');
+    const zapDigitos = (lj.whatsapp || '').replace(/\D/g, '');
+    let btnWhatsApp = '';
+    if (zapDigitos) {
+      const fullZap = zapDigitos.startsWith('55') ? zapDigitos : `55${zapDigitos}`;
+      const saudacaoNome = lj.responsavel_nome ? lj.responsavel_nome.split(' ')[0] : 'lojista';
+      const msgTexto = encodeURIComponent(`Olá ${saudacaoNome}! Sou da equipe do PostLink. Vi que você cadastrou sua loja ${lj.nome}. Como posso te ajudar a começar?`);
+      btnWhatsApp = `
+        <div class="mt-1">
+          <a href="https://wa.me/${fullZap}?text=${msgTexto}" target="_blank" class="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-md bg-emerald-100 hover:bg-emerald-200 text-emerald-800 transition-colors" title="Conversar no WhatsApp">
+            <span class="material-symbols-outlined text-xs text-emerald-600">chat</span>
+            <span>${formatarTelefoneVisual(lj.whatsapp)}</span>
+          </a>
+        </div>
+      `;
+    }
+
+    const badgeRamo = lj.ramo_atividade
+      ? `<span class="inline-block px-2 py-0.5 rounded-md text-[10px] font-semibold bg-surface-container-high text-on-surface">${lj.ramo_atividade}</span>`
+      : '';
+
     return `
       <tr class="hover:bg-surface-container-low/60 transition-colors">
         <td class="py-3 px-4">
           <div class="font-bold text-on-surface">${lj.nome}</div>
           <div class="text-[11px] font-mono text-primary">/${lj.slug}</div>
+          ${lj.responsavel_nome ? `<div class="text-[11px] text-on-surface-variant flex items-center gap-1 mt-0.5"><span class="material-symbols-outlined text-xs text-outline">person</span> ${lj.responsavel_nome}</div>` : ''}
+          ${localizacao ? `<div class="text-[10px] text-outline flex items-center gap-1"><span class="material-symbols-outlined text-xs">location_on</span> ${localizacao}</div>` : ''}
         </td>
-        <td class="py-3 px-4 font-mono text-xs text-on-surface-variant">
-          ${lj.email}
+        <td class="py-3 px-4 text-xs text-on-surface-variant">
+          <div class="font-mono">${lj.email}</div>
+          ${btnWhatsApp}
         </td>
         <td class="py-3 px-4">
           ${badgeStatus}
+          ${badgeRamo ? `<div class="mt-1">${badgeRamo}</div>` : ''}
         </td>
         <td class="py-3 px-4 font-mono">
           <span class="font-bold">${lj.total_links}</span> link(s) <span class="text-outline text-[11px]">(máx v${lj.max_versao})</span>
@@ -478,6 +522,46 @@ function abrirModalAcao(lojista) {
       : (lojista.status_assinatura === 'ativo' ? 'Assinatura Pro Regular' : 'Período Expirado');
   }
   if (el.modalLojistaLinks) el.modalLojistaLinks.textContent = `${lojista.total_links} links cadastrados (máx v${lojista.max_versao})`;
+
+  if (el.modalLojistaResponsavel) {
+    el.modalLojistaResponsavel.textContent = lojista.responsavel_nome || 'Não informado';
+  }
+
+  if (el.modalLojistaWhatsapp) {
+    const zapVisual = formatarTelefoneVisual(lojista.whatsapp);
+    el.modalLojistaWhatsapp.textContent = zapVisual || 'Não informado';
+    
+    if (el.modalLojistaWhatsappLink) {
+      const zapDigitos = (lojista.whatsapp || '').replace(/\D/g, '');
+      if (zapDigitos) {
+        const fullZap = zapDigitos.startsWith('55') ? zapDigitos : `55${zapDigitos}`;
+        const saudacaoNome = lojista.responsavel_nome ? lojista.responsavel_nome.split(' ')[0] : 'lojista';
+        const msg = encodeURIComponent(`Olá ${saudacaoNome}! Sou da equipe do PostLink. Vi que você cadastrou sua loja ${lojista.nome}. Como posso te ajudar a começar?`);
+        el.modalLojistaWhatsappLink.href = `https://wa.me/${fullZap}?text=${msg}`;
+        el.modalLojistaWhatsappLink.style.display = 'inline-flex';
+      } else {
+        el.modalLojistaWhatsappLink.removeAttribute('href');
+        el.modalLojistaWhatsappLink.style.display = 'none';
+      }
+    }
+  }
+
+  if (el.modalLojistaLocalizacao) {
+    const loc = [lojista.cidade, lojista.estado].filter(Boolean).join(' - ');
+    el.modalLojistaLocalizacao.textContent = loc || 'Não informado';
+  }
+
+  if (el.modalLojistaRamo) {
+    el.modalLojistaRamo.textContent = lojista.ramo_atividade || 'Não informado';
+  }
+
+  if (el.modalLojistaExpectativa) {
+    let exp = lojista.expectativa || 'Não informado durante o cadastro';
+    if (lojista.expectativa_detalhes) {
+      exp += `\n\nDetalhes adicionais do lojista: "${lojista.expectativa_detalhes}"`;
+    }
+    el.modalLojistaExpectativa.textContent = exp;
+  }
 
   if (el.modalAcaoLojista) el.modalAcaoLojista.classList.remove('hidden');
 }
