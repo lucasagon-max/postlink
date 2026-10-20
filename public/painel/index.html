@@ -1943,6 +1943,165 @@
     </div>
   </div>
 
+  <!-- MODAL: HORÁRIOS DE PICO E DESEMPENHO POR HORA -->
+  <div id="modal-horarios-link" role="dialog" aria-modal="true" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 hidden">
+    <div class="bg-surface-container-lowest max-w-xl w-full rounded-3xl border border-outline-variant/70 shadow-2xl flex flex-col max-h-[92vh] overflow-hidden animate-scale-in">
+      
+      <!-- Cabeçalho do Modal -->
+      <div class="px-5 py-4 border-b border-outline-variant/40 flex items-center justify-between bg-surface-container-low/40">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-10 h-10 rounded-2xl bg-secondary-container text-on-secondary-container flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-xl">schedule</span>
+          </div>
+          <div class="min-w-0">
+            <h3 class="text-base font-bold text-on-surface leading-tight truncate">Horário de Pico de Cliques</h3>
+            <p id="modal-horarios-link-nome" class="text-xs text-on-surface-variant font-mono truncate">Carregando link...</p>
+          </div>
+        </div>
+        <button id="btn-fechar-modal-horarios" type="button" class="w-9 h-9 rounded-xl hover:bg-surface-container-high text-on-surface-variant flex items-center justify-center active:scale-95 transition-all" title="Fechar">
+          <span class="material-symbols-outlined text-xl">close</span>
+        </button>
+      </div>
+
+      <!-- Conteúdo do Modal (Scrollável) -->
+      <div class="p-5 overflow-y-auto space-y-4">
+        
+        <!-- Barra de Filtros de Período -->
+        <div class="flex items-center justify-between gap-2 flex-wrap">
+          <div class="text-xs font-semibold text-on-surface-variant flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-base text-primary">calendar_today</span>
+            <span>Período analisado:</span>
+          </div>
+          <div class="inline-flex p-1 rounded-xl bg-surface-container border border-outline-variant/40 text-xs font-semibold" id="filtro-periodo-horarios">
+            <button type="button" class="btn-periodo-horarios px-3 py-1 rounded-lg transition-all bg-surface-container-lowest text-primary shadow-2xs font-bold" data-dias="30">30 dias</button>
+            <button type="button" class="btn-periodo-horarios px-3 py-1 rounded-lg transition-all text-on-surface-variant hover:text-on-surface" data-dias="7">7 dias</button>
+            <button type="button" class="btn-periodo-horarios px-3 py-1 rounded-lg transition-all text-on-surface-variant hover:text-on-surface" data-dias="0">Histórico total</button>
+          </div>
+        </div>
+
+        <!-- Card de Recomendação Estratégica (Insight de Disparo) -->
+        <div id="card-recomendacao-horario" class="p-4 rounded-2xl bg-secondary-container/40 border border-secondary/30 flex items-start gap-3">
+          <div class="w-8 h-8 rounded-xl bg-secondary text-white flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
+            <span class="material-symbols-outlined text-base">insights</span>
+          </div>
+          <div class="space-y-0.5 min-w-0">
+            <h4 class="text-xs font-bold text-on-secondary-container uppercase tracking-wider">Melhor momento para postar no WhatsApp</h4>
+            <p id="texto-recomendacao-horario" class="text-xs font-medium text-on-surface leading-relaxed">
+              Analisando o padrão dos seus cliques...
+            </p>
+          </div>
+        </div>
+
+        <!-- Área do Histograma de 24 Horas -->
+        <div class="bg-surface-container-low/50 rounded-2xl p-4 border border-outline-variant/40 space-y-3">
+          <div class="flex items-center justify-between text-xs">
+            <span class="font-bold text-on-surface flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-base text-primary">bar_chart</span>
+              <span>Distribuição por Hora (00h - 23h)</span>
+            </span>
+            <span id="label-detalhe-hora-hover" class="font-mono text-xs font-bold text-primary">
+              Toque ou passe o mouse nas barras
+            </span>
+          </div>
+
+          <!-- Container do Gráfico -->
+          <div id="container-grafico-horarios" class="h-44 w-full flex items-end gap-1 pt-6 pb-2 px-1 relative">
+            <!-- Barras injetadas via JS -->
+          </div>
+
+          <!-- Eixo Horizontal de Horários (Marcadores de Tempo) -->
+          <div class="flex justify-between text-xs font-mono text-outline px-1 border-t border-outline-variant/30 pt-1.5">
+            <span>00h</span>
+            <span>04h</span>
+            <span>08h</span>
+            <span>12h</span>
+            <span>16h</span>
+            <span>20h</span>
+            <span>23h</span>
+          </div>
+        </div>
+
+        <!-- Resumo dos 4 Turnos do Dia -->
+        <div class="space-y-1.5">
+          <h4 class="text-xs font-bold text-on-surface">Volume de Acessos por Turno</h4>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <!-- Manhã -->
+            <div class="bg-surface-container-low/60 rounded-xl p-2.5 border border-outline-variant/30 space-y-1">
+              <div class="flex items-center gap-1.5 text-xs text-on-surface-variant font-medium">
+                <span class="material-symbols-outlined text-base text-amber-500">wb_sunny</span>
+                <span>Manhã (6h-12h)</span>
+              </div>
+              <div class="flex items-baseline justify-between font-mono">
+                <span id="turno-qtd-manha" class="text-sm font-extrabold text-on-surface">0</span>
+                <span id="turno-pct-manha" class="text-xs font-bold text-outline">0%</span>
+              </div>
+            </div>
+
+            <!-- Tarde -->
+            <div class="bg-surface-container-low/60 rounded-xl p-2.5 border border-outline-variant/30 space-y-1">
+              <div class="flex items-center gap-1.5 text-xs text-on-surface-variant font-medium">
+                <span class="material-symbols-outlined text-base text-orange-500">wb_twilight</span>
+                <span>Tarde (12h-18h)</span>
+              </div>
+              <div class="flex items-baseline justify-between font-mono">
+                <span id="turno-qtd-tarde" class="text-sm font-extrabold text-on-surface">0</span>
+                <span id="turno-pct-tarde" class="text-xs font-bold text-outline">0%</span>
+              </div>
+            </div>
+
+            <!-- Noite -->
+            <div class="bg-surface-container-low/60 rounded-xl p-2.5 border border-outline-variant/30 space-y-1">
+              <div class="flex items-center gap-1.5 text-xs text-on-surface-variant font-medium">
+                <span class="material-symbols-outlined text-base text-indigo-500">bedtime</span>
+                <span>Noite (18h-00h)</span>
+              </div>
+              <div class="flex items-baseline justify-between font-mono">
+                <span id="turno-qtd-noite" class="text-sm font-extrabold text-on-surface">0</span>
+                <span id="turno-pct-noite" class="text-xs font-bold text-outline">0%</span>
+              </div>
+            </div>
+
+            <!-- Madrugada -->
+            <div class="bg-surface-container-low/60 rounded-xl p-2.5 border border-outline-variant/30 space-y-1">
+              <div class="flex items-center gap-1.5 text-xs text-on-surface-variant font-medium">
+                <span class="material-symbols-outlined text-base text-slate-500">nights_stay</span>
+                <span>Madrugada (0h-6h)</span>
+              </div>
+              <div class="flex items-baseline justify-between font-mono">
+                <span id="turno-qtd-madrugada" class="text-sm font-extrabold text-on-surface">0</span>
+                <span id="turno-pct-madrugada" class="text-xs font-bold text-outline">0%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Estado Vazio (quando 0 cliques) -->
+        <div id="estado-vazio-horarios" class="hidden py-8 text-center space-y-2">
+          <div class="w-12 h-12 rounded-2xl bg-surface-container text-outline flex items-center justify-center mx-auto">
+            <span class="material-symbols-outlined text-2xl">query_stats</span>
+          </div>
+          <h4 class="text-xs font-bold text-on-surface">Nenhum clique registrado neste período</h4>
+          <p class="text-xs text-on-surface-variant max-w-sm mx-auto leading-relaxed">
+            Compartilhe seu link no WhatsApp ou redes sociais para começar a acompanhar o mapa de horários.
+          </p>
+        </div>
+
+      </div>
+
+      <!-- Rodapé do Modal -->
+      <div class="px-5 py-3 border-t border-outline-variant/40 bg-surface-container-low/30 flex items-center justify-between">
+        <span class="text-xs text-outline font-medium flex items-center gap-1">
+          <span class="material-symbols-outlined text-sm">schedule</span>
+          <span>Fuso de Brasília (UTC-3)</span>
+        </span>
+        <button id="btn-concluir-modal-horarios" type="button" class="bg-surface-container hover:bg-surface-container-high text-on-surface font-bold text-xs px-4 py-2 rounded-xl active:scale-95 transition-all">
+          Fechar
+        </button>
+      </div>
+
+    </div>
+  </div>
+
   <!-- BOTTOM NAVIGATION BAR (MOBILE) -->
   <nav aria-label="Navegação móvel inferior" class="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface-container-lowest border-t border-outline-variant/60 shadow-lg px-2 py-1.5 flex items-center justify-around">
     <a href="#/" class="nav-bottom-item flex flex-col items-center text-primary font-bold text-xs p-1">
@@ -1975,7 +2134,7 @@
   <div id="toast-container"></div>
 
   <!-- Script principal do Painel SPA (com timestamp anti-cache) -->
-  <script type="module" src="/painel/app.js?v=20261016_cropper_v1"></script>
+  <script type="module" src="/painel/app.js?v=20261020_horarios_v1"></script>
 
 </body>
 </html>

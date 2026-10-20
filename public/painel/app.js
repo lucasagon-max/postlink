@@ -25,6 +25,10 @@ const state = {
   termoBuscaGaleria: '',
   fotoParaExcluir: null,
   fotoTemporariaModal: null,
+
+  // Horários de Pico e Métricas por Hora
+  picosHorarios: {},
+  modalHorarios: { linkId: null, linkTitulo: '', linkSlug: '', dias: 30 },
 };
 
 // Elementos da Interface
@@ -279,6 +283,17 @@ const el = {
   editorBoxSubstituicao: document.getElementById('editor-box-substituicao'),
   editorCheckSubstituirOriginal: document.getElementById('editor-check-substituir-original'),
   btnRecortarFotoSelecionada: document.getElementById('btn-recortar-foto-selecionada'),
+
+  // Modal de Horários de Pico e Métricas 24h
+  modalHorariosLink: document.getElementById('modal-horarios-link'),
+  modalHorariosLinkNome: document.getElementById('modal-horarios-link-nome'),
+  btnFecharModalHorarios: document.getElementById('btn-fechar-modal-horarios'),
+  btnConcluirModalHorarios: document.getElementById('btn-concluir-modal-horarios'),
+  containerGraficoHorarios: document.getElementById('container-grafico-horarios'),
+  labelDetalheHoraHover: document.getElementById('label-detalhe-hora-hover'),
+  textoRecomendacaoHorario: document.getElementById('texto-recomendacao-horario'),
+  cardRecomendacaoHorario: document.getElementById('card-recomendacao-horario'),
+  estadoVazioHorarios: document.getElementById('estado-vazio-horarios'),
 };
 
 // Configuração dos Planos Comerciais
@@ -929,6 +944,17 @@ async function carregarLinks() {
     }
   } catch (_) {}
 
+  // Busca resumo dos horários de pico dos links
+  try {
+    const { data: picos, error: errPicos } = await sb.rpc('obter_resumo_horarios_links', { p_dias: 30 });
+    state.picosHorarios = {};
+    if (!errPicos && picos) {
+      picos.forEach((p) => {
+        state.picosHorarios[p.link_id] = p;
+      });
+    }
+  } catch (_) {}
+
   atualizarMetricasBento();
   aplicarFiltrosEBusca();
 }
@@ -1107,6 +1133,31 @@ function renderizarLinks() {
       `;
     }
 
+    // Horário de Pico do Link
+    const pico = state.picosHorarios[link.id];
+    let textoPico = 'Sem cliques ainda';
+    let temPico = false;
+    if (pico && pico.hora_pico >= 0 && Number(pico.cliques_pico) > 0) {
+      temPico = true;
+      const hInicio = String(pico.hora_pico).padStart(2, '0');
+      const hFim = String((pico.hora_pico + 1) % 24).padStart(2, '0');
+      textoPico = `${hInicio}h - ${hFim}h (${Number(pico.cliques_pico).toLocaleString('pt-BR')} cliques)`;
+    }
+
+    const picoHorarioHtml = `
+      <div class="pt-1.5 mt-1.5 border-t border-outline-variant/30 flex items-center justify-between gap-1 text-[11px]">
+        <div class="flex items-center gap-1 truncate" title="${temPico ? `Horário com maior volume de cliques: ${textoPico}` : 'Nenhum clique registrado ainda'}">
+          <span class="material-symbols-outlined text-xs ${temPico ? 'text-secondary-dark' : 'text-outline'}">schedule</span>
+          <span class="text-outline font-medium">Pico:</span>
+          <span class="font-bold ${temPico ? 'text-on-surface' : 'text-on-surface-variant'} font-mono">${textoPico}</span>
+        </div>
+        <button type="button" class="btn-abrir-horarios inline-flex items-center gap-0.5 text-primary hover:text-primary-container font-bold text-[11px] shrink-0 active:scale-95 transition-all cursor-pointer" data-link-id="${link.id}" data-link-titulo="${link.titulo || state.loja.nome}" data-link-slug="${link.slug}">
+          <span>Gráfico</span>
+          <span class="material-symbols-outlined text-xs">chevron_right</span>
+        </button>
+      </div>
+    `;
+
     card.innerHTML = `
       <div>
         <div class="relative aspect-[1.91/1] rounded-xl overflow-hidden bg-surface-container-low mb-3 border border-outline-variant/40">
@@ -1142,6 +1193,7 @@ function renderizarLinks() {
             </div>
           </div>
           ${detalheStatsHtml}
+          ${picoHorarioHtml}
         </div>
       </div>
 
@@ -1179,6 +1231,15 @@ function renderizarLinks() {
         btn.innerHTML = '<span class="material-symbols-outlined text-sm">content_copy</span> Copiar';
       }, 1800);
       toast('Link copiado para a área de transferência!', 'success');
+    });
+  });
+
+  document.querySelectorAll('.btn-abrir-horarios').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const linkId = btn.dataset.linkId;
+      const linkTitulo = btn.dataset.linkTitulo;
+      const linkSlug = btn.dataset.linkSlug;
+      abrirModalHorarios(linkId, linkTitulo, linkSlug);
     });
   });
 
@@ -3967,6 +4028,242 @@ if (el.btnRecortarFotoSelecionada) {
     }
   });
 }
+
+// ==========================================
+// MÓDULO: INTELIGÊNCIA DE HORÁRIOS DE PICO
+// ==========================================
+
+async function abrirModalHorarios(linkId, linkTitulo, linkSlug) {
+  state.modalHorarios = {
+    linkId,
+    linkTitulo,
+    linkSlug,
+    dias: 30
+  };
+
+  if (el.modalHorariosLinkNome) {
+    el.modalHorariosLinkNome.textContent = `/${state.loja ? state.loja.slug : ''}/${linkSlug} · ${linkTitulo}`;
+  }
+
+  // Reseta visual dos botões de período para 30 dias
+  atualizarBotoesPeriodoHorarios(30);
+
+  if (el.modalHorariosLink) {
+    el.modalHorariosLink.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+  }
+
+  await carregarDadosHorarios(linkId, 30);
+}
+
+function fecharModalHorarios() {
+  if (el.modalHorariosLink) {
+    el.modalHorariosLink.classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
+  }
+}
+
+function atualizarBotoesPeriodoHorarios(diasAtivo) {
+  document.querySelectorAll('.btn-periodo-horarios').forEach((btn) => {
+    const d = Number(btn.dataset.dias);
+    if (d === diasAtivo) {
+      btn.className = 'btn-periodo-horarios px-3 py-1 rounded-lg transition-all bg-surface-container-lowest text-primary shadow-2xs font-bold';
+    } else {
+      btn.className = 'btn-periodo-horarios px-3 py-1 rounded-lg transition-all text-on-surface-variant hover:text-on-surface font-semibold';
+    }
+  });
+}
+
+async function carregarDadosHorarios(linkId, dias) {
+  state.modalHorarios.dias = dias;
+  atualizarBotoesPeriodoHorarios(dias);
+
+  const container = el.containerGraficoHorarios;
+  const labelHover = el.labelDetalheHoraHover;
+  const textoRecomendacao = el.textoRecomendacaoHorario;
+  const cardRecomendacao = el.cardRecomendacaoHorario;
+  const estadoVazio = el.estadoVazioHorarios;
+
+  if (labelHover) labelHover.textContent = 'Carregando dados...';
+  if (textoRecomendacao) textoRecomendacao.textContent = 'Analisando distribuição de acessos...';
+
+  // Skeleton loading das 24 barras
+  if (container) {
+    container.classList.remove('hidden');
+    container.innerHTML = Array.from({ length: 24 }).map(() => `
+      <div class="flex-1 flex flex-col justify-end items-center h-full">
+        <div class="w-full bg-surface-container-high/60 rounded-t-sm animate-pulse" style="height: ${Math.floor(Math.random() * 50) + 15}%;"></div>
+      </div>
+    `).join('');
+  }
+
+  try {
+    const { data, error } = await sb.rpc('obter_horarios_cliques_link', {
+      p_link_id: linkId,
+      p_dias: dias
+    });
+
+    if (error) throw error;
+
+    const horas = data || [];
+    let totalCliques = 0;
+    let maxCliques = 0;
+    let horaPico = -1;
+
+    horas.forEach((h) => {
+      const q = Number(h.total || 0);
+      totalCliques += q;
+      if (q > maxCliques) {
+        maxCliques = q;
+        horaPico = h.hora;
+      }
+    });
+
+    // Atualização dos 4 turnos
+    let turnoMadrugada = 0; // 0h - 5h
+    let turnoManha = 0;     // 6h - 11h
+    let turnoTarde = 0;     // 12h - 17h
+    let turnoNoite = 0;     // 18h - 23h
+
+    horas.forEach((h) => {
+      const q = Number(h.total || 0);
+      const hr = Number(h.hora);
+      if (hr >= 0 && hr < 6) turnoMadrugada += q;
+      else if (hr >= 6 && hr < 12) turnoManha += q;
+      else if (hr >= 12 && hr < 18) turnoTarde += q;
+      else turnoNoite += q;
+    });
+
+    const setTurno = (idQtd, idPct, qtd) => {
+      const elQtd = document.getElementById(idQtd);
+      const elPct = document.getElementById(idPct);
+      if (elQtd) elQtd.textContent = qtd.toLocaleString('pt-BR');
+      if (elPct) {
+        const pct = totalCliques > 0 ? Math.round((qtd / totalCliques) * 100) : 0;
+        elPct.textContent = `${pct}%`;
+      }
+    };
+
+    setTurno('turno-qtd-manha', 'turno-pct-manha', turnoManha);
+    setTurno('turno-qtd-tarde', 'turno-pct-tarde', turnoTarde);
+    setTurno('turno-qtd-noite', 'turno-pct-noite', turnoNoite);
+    setTurno('turno-qtd-madrugada', 'turno-pct-madrugada', turnoMadrugada);
+
+    // Se nenhum clique foi registrado no período
+    if (totalCliques === 0) {
+      if (container) container.classList.add('hidden');
+      if (cardRecomendacao) cardRecomendacao.classList.add('hidden');
+      if (estadoVazio) estadoVazio.classList.remove('hidden');
+      if (labelHover) labelHover.textContent = 'Sem cliques no período selecionado';
+      return;
+    }
+
+    if (container) container.classList.remove('hidden');
+    if (cardRecomendacao) cardRecomendacao.classList.remove('hidden');
+    if (estadoVazio) estadoVazio.classList.add('hidden');
+    if (labelHover) labelHover.textContent = 'Passe o mouse ou toque nas barras';
+
+    // Cálculo da janela ideal consecutiva de 2 horas para envio no WhatsApp
+    let melhorJanelaInicio = horaPico;
+    let maxCliquesJanela = 0;
+    for (let i = 0; i < 24; i++) {
+      const q1 = Number(horas.find((h) => h.hora === i)?.total || 0);
+      const q2 = Number(horas.find((h) => h.hora === (i + 1) % 24)?.total || 0);
+      const soma = q1 + q2;
+      if (soma > maxCliquesJanela) {
+        maxCliquesJanela = soma;
+        melhorJanelaInicio = i;
+      }
+    }
+
+    const hFimJanela = (melhorJanelaInicio + 2) % 24;
+    const pctJanela = Math.round((maxCliquesJanela / totalCliques) * 100);
+    const horaPicoFormatada = `${String(horaPico).padStart(2, '0')}:00`;
+    const horaPicoFimFormatada = `${String((horaPico + 1) % 24).padStart(2, '0')}:00`;
+    const janelaInicioFmt = `${String(melhorJanelaInicio).padStart(2, '0')}:00`;
+    const janelaFimFmt = `${String(hFimJanela).padStart(2, '0')}:00`;
+
+    if (textoRecomendacao) {
+      if (totalCliques < 5) {
+        textoRecomendacao.innerHTML = `Identificamos maior movimento às <strong>${horaPicoFormatada}</strong>, mas a amostra ainda é inicial (${totalCliques} cliques). Divulgue mais para refinar a precisão.`;
+      } else {
+        textoRecomendacao.innerHTML = `O pico isolado ocorre entre <strong>${horaPicoFormatada} e ${horaPicoFimFormatada}</strong>. Recomendamos agendar disparos entre <strong>${janelaInicioFmt} e ${janelaFimFmt}</strong>, onde você concentra <strong>${pctJanela}%</strong> dos acessos deste link.`;
+      }
+    }
+
+    // Renderização das 24 barras
+    if (container) {
+      container.innerHTML = '';
+      horas.forEach((item) => {
+        const qtd = Number(item.total || 0);
+        const hr = item.hora;
+        const hrFmt = `${String(hr).padStart(2, '0')}:00`;
+        const hrFim = `${String((hr + 1) % 24).padStart(2, '0')}:00`;
+        const pct = totalCliques > 0 ? Math.round((qtd / totalCliques) * 100) : 0;
+        const isPico = qtd > 0 && qtd === maxCliques;
+
+        const col = document.createElement('div');
+        col.className = 'flex-1 flex flex-col justify-end items-center h-full group/bar relative cursor-pointer';
+
+        const alturaPct = maxCliques > 0 ? Math.max(8, Math.round((qtd / maxCliques) * 100)) : 8;
+        const corBarra = isPico
+          ? 'bg-secondary hover:bg-secondary-dark ring-2 ring-secondary/40'
+          : qtd > 0
+            ? 'bg-primary hover:bg-primary-container'
+            : 'bg-surface-container-high/60 hover:bg-surface-container-high';
+
+        col.innerHTML = `
+          ${isPico ? '<span class="material-symbols-outlined text-[10px] sm:text-xs text-secondary-dark font-black mb-0.5 animate-bounce">star</span>' : ''}
+          <div class="w-full ${corBarra} rounded-t-sm transition-all duration-300" style="height: ${alturaPct}%;"></div>
+        `;
+
+        const mostrarDetalhe = () => {
+          if (labelHover) {
+            labelHover.innerHTML = `<span class="text-on-surface">${hrFmt} - ${hrFim}:</span> <span class="${isPico ? 'text-secondary-dark' : 'text-primary'} font-bold">${qtd.toLocaleString('pt-BR')} cliques</span> <span class="text-outline">(${pct}%)</span>${isPico ? ' · <span class="text-secondary-dark font-extrabold">🏆 Horário Campeão</span>' : ''}`;
+          }
+        };
+
+        col.addEventListener('mouseenter', mostrarDetalhe);
+        col.addEventListener('click', mostrarDetalhe);
+
+        container.appendChild(col);
+      });
+    }
+
+  } catch (err) {
+    console.error('Erro ao carregar horários do link:', err);
+    toast('Erro ao buscar dados de horários: ' + err.message, 'error');
+    if (labelHover) labelHover.textContent = 'Erro ao carregar dados';
+  }
+}
+
+// Listeners de Fechamento do Modal de Horários
+if (el.btnFecharModalHorarios) {
+  el.btnFecharModalHorarios.addEventListener('click', fecharModalHorarios);
+}
+if (el.btnConcluirModalHorarios) {
+  el.btnConcluirModalHorarios.addEventListener('click', fecharModalHorarios);
+}
+if (el.modalHorariosLink) {
+  el.modalHorariosLink.addEventListener('click', (e) => {
+    if (e.target === el.modalHorariosLink) fecharModalHorarios();
+  });
+}
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && el.modalHorariosLink && !el.modalHorariosLink.classList.contains('hidden')) {
+    fecharModalHorarios();
+  }
+});
+
+// Listener dos botões de filtro de período dentro do modal
+document.querySelectorAll('.btn-periodo-horarios').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    const dias = Number(btn.dataset.dias);
+    if (state.modalHorarios.linkId) {
+      carregarDadosHorarios(state.modalHorarios.linkId, dias);
+    }
+  });
+});
 
 // Iniciar Aplicação
 init();
