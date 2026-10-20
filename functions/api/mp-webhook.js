@@ -62,9 +62,9 @@ async function validarAssinaturaMercadoPago(request, secret, dataId) {
 }
 
 /**
- * Atualiza ou insere o status da assinatura no Supabase com garantia de persistência (Upsert)
+ * Atualiza ou insere o status da assinatura no Supabase com garantia de persistência e validade de ciclo
  */
-async function atualizarAssinaturaSupabase(env, lojaId, planoEscolhido, paymentId, novoStatus = 'ativo') {
+async function atualizarAssinaturaSupabase(env, lojaId, planoEscolhido, paymentId, novoStatus = 'ativo', opts = {}) {
   const supabaseUrl = env.SUPABASE_URL || DEFAULT_SUPABASE_URL;
   const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -75,10 +75,35 @@ async function atualizarAssinaturaSupabase(env, lojaId, planoEscolhido, paymentI
 
   // Normalização do plano: se for "fundador", salva como "pro" para respeitar a constraint do banco
   let planoNormalizado = planoEscolhido || 'pro';
-  if (planoNormalizado === 'fundador') {
+  if (planoNormalizado === 'fundador' || !['starter', 'pro', 'agencia'].includes(planoNormalizado)) {
     planoNormalizado = 'pro';
-  } else if (!['starter', 'pro', 'agencia'].includes(planoNormalizado)) {
-    planoNormalizado = 'pro';
+  }
+
+  const ciclo = opts.ciclo === 'yearly' ? 'yearly' : 'monthly';
+  const tipoCobranca = opts.tipoCobranca || 'avulso_pix';
+  const preapprovalId = opts.preapprovalId ? String(opts.preapprovalId) : null;
+  const proximaCobranca = opts.proximaCobranca || null;
+
+  let validoAte = opts.validoAte;
+  if (!validoAte && novoStatus === 'ativo') {
+    const diasValidade = ciclo === 'yearly' ? 365 : 30;
+    validoAte = new Date(Date.now() + (diasValidade + 2) * 86400000).toISOString();
+  }
+
+  const payloadAssinatura = {
+    status: novoStatus,
+    plano: planoNormalizado,
+    ciclo: ciclo,
+    tipo_cobranca: tipoCobranca,
+    atualizado_em: new Date().toISOString(),
+  };
+
+  if (paymentId) payloadAssinatura.mp_assinatura_id = String(paymentId);
+  if (preapprovalId) payloadAssinatura.mp_preapproval_id = preapprovalId;
+  if (validoAte) payloadAssinatura.valido_ate = validoAte;
+  if (proximaCobranca) payloadAssinatura.proxima_cobranca = proximaCobranca;
+  if (opts.cancelarAoFimDoPeriodo !== undefined) {
+    payloadAssinatura.cancelar_ao_fim_do_periodo = Boolean(opts.cancelarAoFimDoPeriodo);
   }
 
   try {
@@ -91,47 +116,67 @@ async function atualizarAssinaturaSupabase(env, lojaId, planoEscolhido, paymentI
         'Content-Type': 'application/json',
         'Prefer': 'return=representation',
       },
-      body: JSON.stringify({
-        status: novoStatus,
-        plano: planoNormalizado,
-        mp_assinatura_id: String(paymentId),
-        atualizado_em: new Date().toISOString(),
-      }),
+      body: JSON.stringify(payloadAssinatura),
     });
 
+    let registroAssinatura = null;
     if (patchRes.ok) {
       const data = await patchRes.json();
       if (Array.isArray(data) && data.length > 0) {
-        return { sucesso: true, operacao: 'patch', data: data[0] };
+        registroAssinatura = data[0];
       }
     }
 
     // 2. Se a linha ainda não existia, faz Upsert com merge-duplicates
-    const upsertRes = await fetch(`${supabaseUrl}/rest/v1/assinaturas`, {
-      method: 'POST',
-      headers: {
-        'apikey': serviceKey,
-        'Authorization': `Bearer ${serviceKey}`,
-        'Content-Type': 'application/json',
-        'Prefer': 'resolution=merge-duplicates,return=representation',
-      },
-      body: JSON.stringify({
-        loja_id: lojaId,
-        status: novoStatus,
-        plano: planoNormalizado,
-        mp_assinatura_id: String(paymentId),
-        atualizado_em: new Date().toISOString(),
-      }),
-    });
+    if (!registroAssinatura) {
+      const upsertRes = await fetch(`${supabaseUrl}/rest/v1/assinaturas`, {
+        method: 'POST',
+        headers: {
+          'apikey': serviceKey,
+          'Authorization': `Bearer ${serviceKey}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'resolution=merge-duplicates,return=representation',
+        },
+        body: JSON.stringify({
+          loja_id: lojaId,
+          ...payloadAssinatura,
+        }),
+      });
 
-    if (upsertRes.ok) {
-      const data = await upsertRes.json();
-      return { sucesso: true, operacao: 'upsert', data: data[0] || null };
+      if (upsertRes.ok) {
+        const data = await upsertRes.json();
+        registroAssinatura = data[0] || null;
+      }
     }
 
-    const erroTxt = await upsertRes.text();
-    console.error('Webhook MP: Erro ao fazer upsert no Supabase:', erroTxt);
-    return { sucesso: false, motivo: 'falha_supabase', detalhes: erroTxt };
+    // 3. Registra auditoria na tabela de pagamentos
+    if (paymentId && opts.valor !== undefined) {
+      try {
+        await fetch(`${supabaseUrl}/rest/v1/pagamentos`, {
+          method: 'POST',
+          headers: {
+            'apikey': serviceKey,
+            'Authorization': `Bearer ${serviceKey}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'resolution=merge-duplicates',
+          },
+          body: JSON.stringify({
+            loja_id: lojaId,
+            mp_payment_id: String(paymentId),
+            plano: planoNormalizado,
+            ciclo: ciclo,
+            valor: Number(opts.valor || 0),
+            status: novoStatus === 'ativo' ? 'approved' : novoStatus,
+            metodo: opts.metodo || 'pix',
+            detalhes: opts.detalhes || null,
+          }),
+        });
+      } catch (errAudit) {
+        console.warn('Webhook MP: Falha ao inserir auditoria de pagamentos:', errAudit);
+      }
+    }
+
+    return { sucesso: true, data: registroAssinatura };
   } catch (err) {
     console.error('Webhook MP: Exceção ao atualizar assinatura:', err);
     return { sucesso: false, motivo: 'excecao', erro: err.message };
@@ -205,7 +250,6 @@ export async function onRequestPost({ request, env }) {
     }
 
     // 2. Validação de URL de Teste do Mercado Pago
-    // Quando o usuário clica no botão "Testar" no portal de desenvolvedores do Mercado Pago
     if (!paymentId || paymentId === '123456' || topic === 'test.created') {
       console.log('Webhook MP: Teste de conectividade recebido com sucesso do painel do Mercado Pago.');
       return new Response(
@@ -227,7 +271,6 @@ export async function onRequestPost({ request, env }) {
       const checagemAssinatura = await validarAssinaturaMercadoPago(request, secret, paymentId);
       if (!checagemAssinatura.valido) {
         console.warn('Webhook MP: Assinatura inválida detectada:', checagemAssinatura.motivo);
-        // Em modo de produção estrita, rejeitaria 401; aqui logamos o alerta
       }
     }
 
@@ -248,7 +291,85 @@ export async function onRequestPost({ request, env }) {
       );
     }
 
-    // 5. Consulta dos detalhes reais do pagamento na API oficial do Mercado Pago
+    // 5. Tratamento de Assinaturas Recorrentes (Subscription Preapproval)
+    const isPreapprovalTopic = topic && (
+      topic.includes('subscription_preapproval') ||
+      topic.includes('preapproval') ||
+      topic === 'subscription_authorized'
+    );
+
+    if (isPreapprovalTopic) {
+      const preRes = await fetch(`https://api.mercadopago.com/preapproval/${paymentId}`, {
+        headers: {
+          'Authorization': `Bearer ${mpAccessToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (preRes.ok) {
+        const preData = await preRes.json();
+        let lojaId = null;
+        let plano = 'pro';
+        let ciclo = 'monthly';
+
+        if (preData.external_reference) {
+          try {
+            const parsed = JSON.parse(preData.external_reference);
+            lojaId = parsed.loja_id || parsed.id || null;
+            plano = parsed.plano || 'pro';
+            ciclo = parsed.ciclo || 'monthly';
+          } catch {
+            if (typeof preData.external_reference === 'string' && preData.external_reference.length >= 30) {
+              lojaId = preData.external_reference.trim();
+            }
+          }
+        }
+
+        if (lojaId) {
+          let resultado = null;
+          if (preData.status === 'authorized') {
+            resultado = await atualizarAssinaturaSupabase(env, lojaId, plano, paymentId, 'ativo', {
+              ciclo,
+              tipoCobranca: 'recorrente_cartao',
+              preapprovalId: paymentId,
+              validoAte: preData.next_payment_date || null,
+              proximaCobranca: preData.next_payment_date || null,
+              cancelarAoFimDoPeriodo: false,
+              valor: preData.auto_recurring?.transaction_amount || 0,
+              metodo: 'cartao',
+            });
+            console.log(`Webhook MP: Assinatura recorrente ${paymentId} autorizada com sucesso para loja ${lojaId}!`);
+          } else if (preData.status === 'cancelled') {
+            resultado = await atualizarAssinaturaSupabase(env, lojaId, plano, paymentId, 'ativo', {
+              cancelarAoFimDoPeriodo: true,
+            });
+            console.log(`Webhook MP: Assinatura recorrente ${paymentId} cancelada no gateway para loja ${lojaId}.`);
+          } else if (preData.status === 'paused') {
+            resultado = await atualizarAssinaturaSupabase(env, lojaId, plano, paymentId, 'atrasado', {
+              ciclo,
+              tipoCobranca: 'recorrente_cartao',
+            });
+          }
+
+          return new Response(
+            JSON.stringify({
+              status: 'success',
+              tipo: 'preapproval',
+              preapproval_id: paymentId,
+              preapproval_status: preData.status,
+              loja_id: lojaId,
+              atualizacao_banco: resultado,
+            }),
+            {
+              status: 200,
+              headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+            }
+          );
+        }
+      }
+    }
+
+    // 6. Consulta dos detalhes reais do pagamento (PIX ou fatura de cartão) na API oficial do Mercado Pago
     const mpRes = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
       headers: {
         'Authorization': `Bearer ${mpAccessToken}`,
@@ -278,15 +399,18 @@ export async function onRequestPost({ request, env }) {
 
     let lojaId = null;
     let plano = 'pro';
+    let ciclo = 'monthly';
+    let tipoCobranca = mpData.payment_method_id === 'pix' ? 'avulso_pix' : 'recorrente_cartao';
 
-    // 6. Decodificação flexível da referência externa
+    // 7. Decodificação flexível da referência externa
     if (extRef) {
       try {
         const parsed = JSON.parse(extRef);
         lojaId = parsed.loja_id || parsed.id || null;
         plano = parsed.plano || 'pro';
+        ciclo = parsed.ciclo || 'monthly';
+        if (parsed.tipo === 'recorrente') tipoCobranca = 'recorrente_cartao';
       } catch {
-        // Se external_reference for apenas a string do UUID da loja
         if (typeof extRef === 'string' && extRef.length >= 30) {
           lojaId = extRef.trim();
         }
@@ -295,13 +419,25 @@ export async function onRequestPost({ request, env }) {
 
     let resultadoBanco = null;
 
-    // 7. Atualização do status da loja no Supabase conforme o evento
+    // 8. Atualização do status da loja no Supabase conforme o evento
     if (lojaId) {
       if (mpStatus === 'approved') {
-        resultadoBanco = await atualizarAssinaturaSupabase(env, lojaId, plano, paymentId, 'ativo');
-        console.log(`Webhook MP: Loja ${lojaId} ATIVADA com sucesso no plano ${plano}! (Payment ${paymentId})`);
+        resultadoBanco = await atualizarAssinaturaSupabase(env, lojaId, plano, paymentId, 'ativo', {
+          ciclo,
+          tipoCobranca,
+          valor: mpData.transaction_amount || 0,
+          metodo: mpData.payment_method_id === 'pix' ? 'pix' : 'cartao',
+          detalhes: {
+            status_detail: mpData.status_detail,
+            payment_type_id: mpData.payment_type_id,
+          },
+        });
+        console.log(`Webhook MP: Loja ${lojaId} ATIVADA com sucesso no plano ${plano} (${ciclo})! (Payment ${paymentId})`);
       } else if (mpStatus === 'refunded' || mpStatus === 'charged_back') {
-        resultadoBanco = await atualizarAssinaturaSupabase(env, lojaId, plano, paymentId, 'cancelado');
+        resultadoBanco = await atualizarAssinaturaSupabase(env, lojaId, plano, paymentId, 'cancelado', {
+          ciclo,
+          tipoCobranca,
+        });
         console.log(`Webhook MP: Assinatura da loja ${lojaId} CANCELADA por estorno/chargeback. (Payment ${paymentId})`);
       } else if (mpStatus === 'pending' || mpStatus === 'in_process') {
         console.log(`Webhook MP: Pagamento ${paymentId} para loja ${lojaId} ainda pendente.`);
@@ -310,7 +446,7 @@ export async function onRequestPost({ request, env }) {
       console.warn(`Webhook MP: Pagamento ${paymentId} aprovado mas sem loja_id identificável em external_reference.`);
     }
 
-    // 8. Resposta de sucesso 200 com relatório completo
+    // 9. Resposta de sucesso 200 com relatório completo
     return new Response(
       JSON.stringify({
         status: 'success',
@@ -318,6 +454,7 @@ export async function onRequestPost({ request, env }) {
         payment_status: mpStatus,
         loja_id: lojaId,
         plano: plano,
+        ciclo: ciclo,
         atualizacao_banco: resultadoBanco,
       }),
       {
@@ -327,7 +464,6 @@ export async function onRequestPost({ request, env }) {
     );
   } catch (err) {
     console.error('Webhook MP: Erro inesperado no processamento:', err);
-    // Sempre retorna 200 para evitar que o Mercado Pago bombardeie o servidor com retentativas infinitas
     return new Response(
       JSON.stringify({
         status: 'error_handled',

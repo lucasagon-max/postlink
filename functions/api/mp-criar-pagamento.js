@@ -194,7 +194,63 @@ export async function onRequestPost({ request, env }) {
         }
       );
     } else {
-      // Criação de Preferência para Cartão de Crédito / Checkout Pro do Mercado Pago
+      // Criação de Assinatura Mensal/Anual Recorrente no Mercado Pago (Preapproval API)
+      const origin = new URL(request.url).origin;
+      const preapprovalPayload = {
+        payer_email: email || 'cliente@postlink.app',
+        back_url: `${origin}/painel/#/conta?pagamento=sucesso`,
+        reason: `PostLink - Assinatura ${planoConfig.nome} (${ciclo === 'yearly' ? 'Anual' : 'Mensal'})`,
+        external_reference: JSON.stringify({
+          loja_id,
+          plano,
+          ciclo,
+          tipo: 'recorrente',
+        }),
+        auto_recurring: {
+          frequency: 1,
+          frequency_type: ciclo === 'yearly' ? 'years' : 'months',
+          transaction_amount: Number(valor),
+          currency_id: 'BRL',
+        },
+        status: 'pending',
+      };
+
+      try {
+        const preapprovalResponse = await fetch('https://api.mercadopago.com/preapproval', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${mpAccessToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(preapprovalPayload),
+        });
+
+        const preapprovalData = await preapprovalResponse.json();
+
+        if (preapprovalResponse.ok && (preapprovalData.init_point || preapprovalData.id)) {
+          return new Response(
+            JSON.stringify({
+              sucesso: true,
+              simulado: false,
+              metodo: 'cartao',
+              tipo: 'recorrente',
+              preapproval_id: preapprovalData.id,
+              init_point: preapprovalData.init_point,
+              sandbox_init_point: preapprovalData.sandbox_init_point,
+            }),
+            {
+              status: 200,
+              headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+            }
+          );
+        }
+
+        console.warn('Preapproval retornou resposta não aprovada, aplicando fallback para preferência:', preapprovalData);
+      } catch (errPre) {
+        console.warn('Exceção ao chamar /preapproval:', errPre);
+      }
+
+      // Fallback: Criação de Preferência para Cartão de Crédito / Checkout Pro do Mercado Pago
       const preferenceResponse = await fetch('https://api.mercadopago.com/checkout/preferences', {
         method: 'POST',
         headers: {
@@ -205,7 +261,7 @@ export async function onRequestPost({ request, env }) {
           items: [
             {
               id: `plano_${plano}_${ciclo}`,
-              title: `PostLink - Plano ${planoConfig.nome} (${ciclo === 'yearly' ? 'Anual' : 'Mensal'})`,
+              title: `PostLink - Assinatura ${planoConfig.nome} (${ciclo === 'yearly' ? 'Anual' : 'Mensal'})`,
               quantity: 1,
               currency_id: 'BRL',
               unit_price: Number(valor),
@@ -220,12 +276,13 @@ export async function onRequestPost({ request, env }) {
             loja_id,
             plano,
             ciclo,
+            tipo: 'recorrente',
           }),
-          notification_url: `${new URL(request.url).origin}/api/mp-webhook`,
+          notification_url: `${origin}/api/mp-webhook`,
           back_urls: {
-            success: `${new URL(request.url).origin}/painel/#/conta?pagamento=sucesso`,
-            pending: `${new URL(request.url).origin}/painel/#/conta?pagamento=pendente`,
-            failure: `${new URL(request.url).origin}/painel/#/plano?pagamento=erro`,
+            success: `${origin}/painel/#/conta?pagamento=sucesso`,
+            pending: `${origin}/painel/#/conta?pagamento=pendente`,
+            failure: `${origin}/painel/#/plano?pagamento=erro`,
           },
           auto_return: 'approved',
         }),
@@ -236,7 +293,7 @@ export async function onRequestPost({ request, env }) {
       if (!preferenceResponse.ok) {
         return new Response(
           JSON.stringify({
-            erro: 'Falha ao criar preferência de cartão no Mercado Pago',
+            erro: 'Falha ao criar assinatura no Mercado Pago',
             detalhes: prefData.message || prefData,
             status_http: preferenceResponse.status,
           }),

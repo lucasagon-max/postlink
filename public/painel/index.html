@@ -1274,20 +1274,22 @@
         <!-- Formas de Pagamento -->
         <div class="space-y-2.5">
           <div class="text-xs font-bold text-on-surface">Escolha como prefere pagar:</div>
-          <div class="grid grid-cols-2 gap-3" id="grupo-formas-pagamento">
-            <label class="flex items-center gap-2.5 p-3 rounded-xl border-2 border-primary bg-primary-fixed/20 cursor-pointer transition-all option-pagamento" data-metodo="pix">
-              <input type="radio" name="forma_pagamento" value="pix" checked class="text-primary focus:ring-primary">
-              <div class="flex items-center gap-1.5">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="grupo-formas-pagamento">
+            <label class="flex flex-col gap-1.5 p-3 rounded-xl border-2 border-primary bg-primary-fixed/20 cursor-pointer transition-all option-pagamento" data-metodo="pix">
+              <div class="flex items-center gap-2">
+                <input type="radio" name="forma_pagamento" value="pix" checked class="text-primary focus:ring-primary">
                 <span class="material-symbols-outlined text-base text-secondary">bolt</span>
                 <span class="text-xs font-bold text-on-surface">PIX Instantâneo</span>
               </div>
+              <span class="text-[11px] text-on-surface-variant pl-6">Renovação mês a mês • Sem fidelidade</span>
             </label>
-            <label class="flex items-center gap-2.5 p-3 rounded-xl border border-outline-variant hover:border-primary/50 cursor-pointer transition-all option-pagamento" data-metodo="cartao">
-              <input type="radio" name="forma_pagamento" value="cartao" class="text-primary focus:ring-primary">
-              <div class="flex items-center gap-1.5">
+            <label class="flex flex-col gap-1.5 p-3 rounded-xl border border-outline-variant hover:border-primary/50 cursor-pointer transition-all option-pagamento" data-metodo="cartao">
+              <div class="flex items-center gap-2">
+                <input type="radio" name="forma_pagamento" value="cartao" class="text-primary focus:ring-primary">
                 <span class="material-symbols-outlined text-base text-outline">credit_card</span>
                 <span class="text-xs font-bold text-on-surface">Cartão de Crédito</span>
               </div>
+              <span class="text-[11px] text-on-surface-variant pl-6">Assinatura mensal automática • Cancele quando quiser</span>
             </label>
           </div>
         </div>
@@ -1380,9 +1382,50 @@
           <span class="text-outline shrink-0">Expectativa:</span>
           <span id="conta-expectativa" class="text-right text-on-surface-variant font-medium text-xs max-w-xs">Não informado</span>
         </div>
-        <div class="flex justify-between items-center py-2.5">
-          <span class="text-outline">Assinatura:</span>
-          <span id="conta-status" class="bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded font-bold text-xs">TRIAL</span>
+      </div>
+      <!-- DETALHES DA ASSINATURA & RECORRÊNCIA -->
+      <div class="pt-3 border-t border-outline-variant/60 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-on-surface flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-base text-primary">credit_card</span>
+            <span>Plano & Assinatura</span>
+          </span>
+          <span id="conta-status" class="bg-secondary-container text-on-secondary-container px-2.5 py-0.5 rounded-full font-bold text-xs">TRIAL</span>
+        </div>
+
+        <div class="bg-surface-container-low p-3.5 rounded-2xl border border-outline-variant/60 space-y-2 text-xs">
+          <div class="flex justify-between items-center">
+            <span class="text-outline">Plano Atual:</span>
+            <strong id="conta-plano-nome" class="text-on-surface font-extrabold">Carregando...</strong>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-outline">Modalidade:</span>
+            <span id="conta-modalidade" class="font-medium text-on-surface">--</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-outline" id="conta-label-vencimento">Válido até:</span>
+            <strong id="conta-vencimento" class="text-primary font-bold">--</strong>
+          </div>
+
+          <!-- Aviso de cancelamento de renovação -->
+          <div id="box-cancelamento-ativo" class="hidden p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-400 space-y-1">
+            <div class="flex items-center gap-1.5 font-bold text-[11px]">
+              <span class="material-symbols-outlined text-sm">info</span>
+              <span>Renovação automática cancelada</span>
+            </div>
+            <p class="text-[11px] leading-relaxed">
+              Não haverá novas cobranças automáticas no seu cartão. Seu acesso e links permanecem 100% ativos até <strong id="conta-data-fim-acesso"></strong>.
+            </p>
+          </div>
+
+          <!-- Ação para Cancelar Renovação Automática -->
+          <div id="box-btn-cancelar-recorrencia" class="hidden pt-2 border-t border-outline-variant/30 flex justify-between items-center">
+            <span class="text-[11px] text-outline">Quer desativar o débito mensal?</span>
+            <button id="btn-cancelar-assinatura-painel" type="button" class="text-[11px] font-bold text-error hover:underline flex items-center gap-1">
+              <span class="material-symbols-outlined text-xs">cancel</span>
+              <span>Cancelar renovação automática</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -1717,8 +1760,12 @@
         <span class="material-symbols-outlined text-2xl">check_circle</span>
       </div>
       <div>
-        <h2 id="modal-sucesso-titulo" class="text-xl font-bold text-on-surface">Link Criado com Sucesso!</h2>
-        <p class="text-xs text-on-surface-variant mt-1 leading-relaxed">
+        <h2 id="modal-sucesso-titulo" class="text-xl font-bold text-on-surface">Link Pronto!</h2>
+        <div id="modal-sucesso-badge-versao" class="hidden text-[11px] font-bold text-primary bg-primary-fixed/30 px-3 py-1 rounded-full items-center gap-1 mx-auto my-1.5 w-fit">
+          <span class="material-symbols-outlined text-sm">history</span>
+          <span id="modal-sucesso-badge-texto">Versão atualizada</span>
+        </div>
+        <p id="modal-sucesso-subtitulo" class="text-xs text-on-surface-variant mt-1 leading-relaxed">
           Seu cartão em alta definição já está pronto e otimizado para envio no WhatsApp.
         </p>
       </div>
@@ -1867,6 +1914,32 @@
         </div>
       </div>
 
+    </div>
+  </div>
+
+  <!-- MODAL: CONFIRMAR CANCELAMENTO DE RENOVAÇÃO AUTOMÁTICA -->
+  <div id="modal-confirmar-cancelamento" role="dialog" aria-modal="true" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-surface-container-lowest max-w-md w-full rounded-3xl border border-outline-variant shadow-2xl p-6 space-y-4 animate-scale-in">
+      <div class="w-12 h-12 rounded-2xl bg-error-container/40 text-error flex items-center justify-center mx-auto">
+        <span class="material-symbols-outlined text-2xl font-bold">cancel_schedule_send</span>
+      </div>
+      <div class="text-center space-y-1.5">
+        <h3 class="text-lg font-extrabold text-on-surface">Cancelar Renovação Automática?</h3>
+        <p class="text-xs text-on-surface-variant leading-relaxed">
+          Seu plano continuará <strong>100% ativo</strong> com links e métricas liberados até o término do período já pago (<span id="modal-cancelar-data-fim"></span>).
+        </p>
+        <p class="text-[11px] text-outline">
+          Nenhuma nova cobrança automática será realizada no seu cartão de crédito após essa data.
+        </p>
+      </div>
+      <div class="pt-2 flex flex-col gap-2">
+        <button id="btn-confirmar-cancelamento-recorrencia" type="button" class="w-full bg-error text-white font-bold text-xs py-3 rounded-xl shadow-xs hover:bg-error/90 active:scale-95 transition-all flex items-center justify-center gap-1.5">
+          <span>Confirmar Cancelamento</span>
+        </button>
+        <button id="btn-fechar-modal-cancelamento" type="button" class="w-full bg-surface-container hover:bg-surface-container-high text-on-surface-variant text-xs font-semibold py-2.5 rounded-xl transition-all">
+          Manter Minha Assinatura Ativa
+        </button>
+      </div>
     </div>
   </div>
 

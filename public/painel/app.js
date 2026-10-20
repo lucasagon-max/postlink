@@ -132,6 +132,10 @@ const el = {
 
   // Modal Sucesso
   modalSucesso: document.getElementById('modal-sucesso'),
+  modalSucessoTitulo: document.getElementById('modal-sucesso-titulo'),
+  modalSucessoBadgeVersao: document.getElementById('modal-sucesso-badge-versao'),
+  modalSucessoBadgeTexto: document.getElementById('modal-sucesso-badge-texto'),
+  modalSucessoSubtitulo: document.getElementById('modal-sucesso-subtitulo'),
   modalInputLink: document.getElementById('modal-input-link'),
   modalBtnCopiar: document.getElementById('modal-btn-copiar'),
   modalBtnWhatsapp: document.getElementById('modal-btn-whatsapp'),
@@ -196,6 +200,18 @@ const el = {
   contaRamo: document.getElementById('conta-ramo'),
   contaExpectativa: document.getElementById('conta-expectativa'),
   contaStatus: document.getElementById('conta-status'),
+  contaPlanoNome: document.getElementById('conta-plano-nome'),
+  contaModalidade: document.getElementById('conta-modalidade'),
+  contaLabelVencimento: document.getElementById('conta-label-vencimento'),
+  contaVencimento: document.getElementById('conta-vencimento'),
+  boxCancelamentoAtivo: document.getElementById('box-cancelamento-ativo'),
+  contaDataFimAcesso: document.getElementById('conta-data-fim-acesso'),
+  boxBtnCancelarRecorrencia: document.getElementById('box-btn-cancelar-recorrencia'),
+  btnCancelarAssinaturaPainel: document.getElementById('btn-cancelar-assinatura-painel'),
+  modalConfirmarCancelamento: document.getElementById('modal-confirmar-cancelamento'),
+  modalCancelarDataFim: document.getElementById('modal-cancelar-data-fim'),
+  btnConfirmarCancelamentoRecorrencia: document.getElementById('btn-confirmar-cancelamento-recorrencia'),
+  btnFecharModalCancelamento: document.getElementById('btn-fechar-modal-cancelamento'),
   btnToggleEditarPerfilPainel: document.getElementById('btn-toggle-editar-perfil-painel'),
   formEditarPerfilPainel: document.getElementById('form-editar-perfil-painel'),
   btnCancelarEditarPerfilPainel: document.getElementById('btn-cancelar-editar-perfil-painel'),
@@ -327,6 +343,20 @@ function obterPlanoAtual() {
 
   // Se tiver assinatura ativa paga
   if (state.assinatura.status === 'ativo') {
+    if (state.assinatura.valido_ate) {
+      const dataValidade = new Date(state.assinatura.valido_ate);
+      const limiteComCarencia = new Date(dataValidade.getTime() + 3 * 86400000);
+      if (limiteComCarencia < new Date()) {
+        return {
+          ...PLANOS_CONFIG.free,
+          id: 'free',
+          nome: 'Assinatura Vencida',
+          maxLinks: 0,
+          maxEdicoes: 0,
+          isExpirado: true
+        };
+      }
+    }
     const planoId = state.assinatura.plano || 'pro';
     return PLANOS_CONFIG[planoId] || PLANOS_CONFIG.pro;
   }
@@ -394,6 +424,37 @@ function limparSlug(v) {
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9-]/g, '-')
     .replace(/-+/g, '-');
+}
+
+// Montagem de URLs com Versionamento (?v=2, ?v=3...)
+function montarUrlLink(lojaSlug, linkSlug, versao = 1, extras = {}) {
+  const origin = window.location.origin || 'https://www.postlink.com.br';
+  const url = `${origin}/${lojaSlug}/${linkSlug}`;
+  const params = new URLSearchParams();
+
+  if (Number(versao) > 1) {
+    params.set('v', versao);
+  }
+
+  Object.entries(extras).forEach(([chave, valor]) => {
+    if (valor !== undefined && valor !== null && valor !== '') {
+      params.set(chave, valor);
+    }
+  });
+
+  const queryStr = params.toString();
+  return queryStr ? `${url}?${queryStr}` : url;
+}
+
+function adicionarParametroUrl(urlStr, chave, valor) {
+  try {
+    const parsed = new URL(urlStr, window.location.origin);
+    parsed.searchParams.set(chave, valor);
+    return parsed.toString();
+  } catch {
+    const separador = urlStr.includes('?') ? '&' : '?';
+    return `${urlStr}${separador}${encodeURIComponent(chave)}=${encodeURIComponent(valor)}`;
+  }
 }
 
 // Inicialização da Sessão
@@ -511,10 +572,29 @@ function atualizarBarraAssinatura() {
       }
     }
   } else if (state.assinatura.status === 'ativo') {
-    el.textoTrial.innerHTML = `Assinatura ${p.nome} ativa e regular`;
-    if (el.navStatusTexto) el.navStatusTexto.textContent = p.nome;
-    if (subtextoEl) {
-      subtextoEl.textContent = 'Sua assinatura está ativa e você tem acesso a todos os recursos contratados.';
+    const cancelado = Boolean(state.assinatura.cancelar_ao_fim_do_periodo);
+    const validoAte = state.assinatura.valido_ate ? new Date(state.assinatura.valido_ate) : null;
+    const diffDias = validoAte ? Math.max(0, Math.ceil((validoAte - new Date()) / (1000 * 60 * 60 * 24))) : 30;
+    const dataFimStr = validoAte ? validoAte.toLocaleDateString('pt-BR') : '';
+
+    if (cancelado) {
+      el.textoTrial.innerHTML = `Assinatura ${p.nome} ativa até <strong>${dataFimStr}</strong> (renovação cancelada)`;
+      if (el.navStatusTexto) el.navStatusTexto.textContent = `${p.nome} (${diffDias}d)`;
+      if (subtextoEl) {
+        subtextoEl.textContent = 'Sua renovação automática foi cancelada. Seu acesso aos recursos contratados continua liberado até o final do período pago.';
+      }
+    } else if (state.assinatura.tipo_cobranca === 'recorrente_cartao') {
+      el.textoTrial.innerHTML = `Assinatura ${p.nome} ativa • <strong>Renovação automática no cartão</strong> em ${dataFimStr}`;
+      if (el.navStatusTexto) el.navStatusTexto.textContent = p.nome;
+      if (subtextoEl) {
+        subtextoEl.textContent = 'Sua assinatura com débito mensal automático está ativa. Cancele quando quiser nas configurações da conta.';
+      }
+    } else {
+      el.textoTrial.innerHTML = `Assinatura ${p.nome} ativa • Válido por mais <strong>${diffDias} dias</strong> (PIX)`;
+      if (el.navStatusTexto) el.navStatusTexto.textContent = p.nome;
+      if (subtextoEl) {
+        subtextoEl.textContent = 'Sua assinatura está ativa e você tem acesso a todos os recursos contratados.';
+      }
     }
   } else {
     if (el.navStatusTexto) el.navStatusTexto.textContent = 'Grátis';
@@ -988,9 +1068,9 @@ function renderizarLinks() {
     const card = document.createElement('div');
     card.className = 'bg-surface-container-lowest border border-outline-variant/60 hover:border-primary/40 rounded-2xl p-3.5 shadow-xs transition-all flex flex-col justify-between group';
 
-    const fullUrl = `${window.location.origin}/${state.loja.slug}/${link.slug}`;
-    const { data: { publicUrl } } = sb.storage.from('banners').getPublicUrl(link.imagem_path);
     const versaoAtual = link.versao || 1;
+    const fullUrl = montarUrlLink(state.loja.slug, link.slug, versaoAtual);
+    const { data: { publicUrl } } = sb.storage.from('banners').getPublicUrl(link.imagem_path);
     const imgUrl = `${publicUrl}?v=${versaoAtual}`;
     const st = state.estatisticas[link.id] || { total: 0, recentes: 0 };
 
@@ -1046,8 +1126,8 @@ function renderizarLinks() {
         </div>
 
         <div class="flex items-center justify-between gap-1 mb-2.5">
-          <p class="text-[11px] font-mono text-primary truncate">
-            /${state.loja.slug}/${link.slug}
+          <p class="text-[11px] font-mono text-primary truncate" title="${fullUrl}">
+            /${state.loja.slug}/${link.slug}${versaoAtual > 1 ? `?v=${versaoAtual}` : ''}
           </p>
           ${versaoBadgeHtml}
         </div>
@@ -1070,7 +1150,7 @@ function renderizarLinks() {
           <button type="button" class="btn-copiar bg-surface-container hover:bg-surface-container-high text-primary font-bold text-xs py-1.5 px-2 rounded-lg flex items-center justify-center gap-1 transition-all" data-url="${fullUrl}">
             <span class="material-symbols-outlined text-sm">content_copy</span> Copiar
           </button>
-          <a href="https://wa.me/?text=${encodeURIComponent(fullUrl + '?src=wa')}" target="_blank" class="bg-secondary hover:bg-secondary-dark text-white font-bold text-xs py-1.5 px-2 rounded-lg flex items-center justify-center gap-1 transition-all">
+          <a href="https://wa.me/?text=${encodeURIComponent(adicionarParametroUrl(fullUrl, 'src', 'wa'))}" target="_blank" class="bg-secondary hover:bg-secondary-dark text-white font-bold text-xs py-1.5 px-2 rounded-lg flex items-center justify-center gap-1 transition-all">
             <span class="material-symbols-outlined text-sm">send</span> WhatsApp
           </a>
         </div>
@@ -1778,8 +1858,8 @@ if (el.formLink) {
         if (errUpdate) throw errUpdate;
 
         toast(`Link atualizado com sucesso! (Versão ${versao})`, 'success');
-        const linkPronto = `${window.location.origin}/${state.loja.slug}/${slugFinal}`;
-        exibirResultadoCriado(linkPronto);
+        const linkPronto = montarUrlLink(state.loja.slug, slugFinal, versao);
+        exibirResultadoCriado(linkPronto, versao);
         carregarGaleriaFotos(true);
       } else {
         // Bloqueio de criação respeitando o limite do plano contratado
@@ -1847,8 +1927,8 @@ if (el.formLink) {
           throw new Error('Não foi possível gerar um apelido livre para o link. Tente outro.');
         }
 
-        const linkPronto = `${window.location.origin}/${state.loja.slug}/${slugFinal}`;
-        exibirResultadoCriado(linkPronto);
+        const linkPronto = montarUrlLink(state.loja.slug, slugFinal, 1);
+        exibirResultadoCriado(linkPronto, 1);
         carregarGaleriaFotos(true);
       }
     } catch (err) {
@@ -1862,24 +1942,51 @@ if (el.formLink) {
   });
 }
 
-function exibirResultadoCriado(url) {
+function exibirResultadoCriado(url, versao = 1) {
+  const isAtualizacao = Number(versao) > 1;
+  const urlComRastreioWa = adicionarParametroUrl(url, 'src', 'wa');
+
   if (el.res) {
     el.res.classList.remove('hidden');
     if (el.ru) el.ru.textContent = url;
     if (el.btnShareInline) {
-      el.btnShareInline.href = `https://wa.me/?text=${encodeURIComponent(url)}`;
+      el.btnShareInline.href = `https://wa.me/?text=${encodeURIComponent(urlComRastreioWa)}`;
     }
   }
 
   if (el.modalSucesso && el.modalInputLink) {
     el.modalInputLink.value = url;
     if (el.modalBtnWhatsapp) {
-      el.modalBtnWhatsapp.href = `https://wa.me/?text=${encodeURIComponent(url)}`;
+      el.modalBtnWhatsapp.href = `https://wa.me/?text=${encodeURIComponent(urlComRastreioWa)}`;
     }
+
+    if (el.modalSucessoTitulo) {
+      el.modalSucessoTitulo.textContent = isAtualizacao ? 'Link Atualizado!' : 'Link Criado com Sucesso!';
+    }
+
+    if (el.modalSucessoBadgeVersao) {
+      if (isAtualizacao) {
+        el.modalSucessoBadgeVersao.classList.remove('hidden');
+        el.modalSucessoBadgeVersao.classList.add('inline-flex');
+        if (el.modalSucessoBadgeTexto) {
+          el.modalSucessoBadgeTexto.textContent = `Versão ${versao} (Prévia renovada)`;
+        }
+      } else {
+        el.modalSucessoBadgeVersao.classList.add('hidden');
+        el.modalSucessoBadgeVersao.classList.remove('inline-flex');
+      }
+    }
+
+    if (el.modalSucessoSubtitulo) {
+      el.modalSucessoSubtitulo.textContent = isAtualizacao
+        ? `O sufixo ?v=${versao} garante que o WhatsApp e redes sociais mostrem sua nova imagem e textos atualizados sem travar na prévia anterior!`
+        : 'Seu cartão em alta definição já está pronto e otimizado para envio no WhatsApp.';
+    }
+
     el.modalSucesso.classList.remove('hidden');
   }
 
-  toast('Link inteligente criado com sucesso!', 'success');
+  toast(isAtualizacao ? `Link atualizado para v${versao} com sucesso!` : 'Link inteligente criado com sucesso!', 'success');
 }
 
 // Listeners do Modal e Copy
@@ -2016,7 +2123,7 @@ function atualizarTextoBotaoCheckout() {
   if (metodoPagamento === 'pix') {
     el.btnAssinarTexto.textContent = `Pagar ${valorTexto} via PIX e Liberar Imediatamente`;
   } else {
-    el.btnAssinarTexto.textContent = `Pagar ${valorTexto} com Cartão de Crédito`;
+    el.btnAssinarTexto.textContent = `Assinar ${valorTexto} no Cartão (Recorrência Automática)`;
   }
 }
 
@@ -2073,7 +2180,7 @@ function iniciarPollingPix(paymentId, plano) {
 
   pollingPixInterval = setInterval(async () => {
     try {
-      const url = `/api/mp-verificar-pagamento?payment_id=${encodeURIComponent(paymentId)}&loja_id=${encodeURIComponent(state.loja?.id || '')}&plano=${encodeURIComponent(plano)}`;
+      const url = `/api/mp-verificar-pagamento?payment_id=${encodeURIComponent(paymentId)}&loja_id=${encodeURIComponent(state.loja?.id || '')}&plano=${encodeURIComponent(plano)}&ciclo=${encodeURIComponent(billingCycle)}&tipo=avulso_pix`;
       const res = await fetch(url);
       if (!res.ok) return;
       const data = await res.json();
@@ -2088,6 +2195,10 @@ function iniciarPollingPix(paymentId, plano) {
         if (state.assinatura) {
           state.assinatura.status = 'ativo';
           state.assinatura.plano = plano;
+          state.assinatura.ciclo = billingCycle;
+          state.assinatura.tipo_cobranca = 'avulso_pix';
+          state.assinatura.valido_ate = new Date(Date.now() + (billingCycle === 'yearly' ? 365 : 30) * 86400000).toISOString();
+          state.assinatura.cancelar_ao_fim_do_periodo = false;
         }
 
         // Transição visual no modal
@@ -2451,7 +2562,7 @@ if (el.pixBtnSimular) {
     if (!paymentIdAtual) return;
     toast('Simulando aprovação de pagamento no Mercado Pago...', 'info');
     try {
-      const url = `/api/mp-verificar-pagamento?simular_aprovacao=true&payment_id=${encodeURIComponent(paymentIdAtual)}&loja_id=${encodeURIComponent(state.loja?.id || '')}&plano=${encodeURIComponent(planoSelecionado)}`;
+      const url = `/api/mp-verificar-pagamento?simular_aprovacao=true&payment_id=${encodeURIComponent(paymentIdAtual)}&loja_id=${encodeURIComponent(state.loja?.id || '')}&plano=${encodeURIComponent(planoSelecionado)}&ciclo=${encodeURIComponent(billingCycle)}&tipo=avulso_pix`;
       const res = await fetch(url);
       const data = await res.json();
       if (data.aprovado) {
@@ -2460,6 +2571,10 @@ if (el.pixBtnSimular) {
         if (state.assinatura) {
           state.assinatura.status = 'ativo';
           state.assinatura.plano = planoSelecionado;
+          state.assinatura.ciclo = billingCycle;
+          state.assinatura.tipo_cobranca = 'avulso_pix';
+          state.assinatura.valido_ate = new Date(Date.now() + (billingCycle === 'yearly' ? 365 : 30) * 86400000).toISOString();
+          state.assinatura.cancelar_ao_fim_do_periodo = false;
         }
         if (el.pixConteudoContainer) el.pixConteudoContainer.classList.add('hidden');
         if (el.pixSucessoContainer) el.pixSucessoContainer.classList.remove('hidden');
@@ -2482,9 +2597,78 @@ function prepararTelaConta() {
   if (el.contaEmail && state.user) el.contaEmail.textContent = state.user.email;
   if (el.contaLojaNome && state.loja) el.contaLojaNome.textContent = state.loja.nome;
   if (el.contaLojaSlug && state.loja) el.contaLojaSlug.textContent = `/${state.loja.slug}`;
-  if (el.contaStatus && state.assinatura) {
+
+  if (state.assinatura) {
     const p = obterPlanoAtual();
-    el.contaStatus.textContent = `${p.nome} (${state.assinatura.status.toUpperCase()})`;
+    const statusUpper = (state.assinatura.status || 'trial').toUpperCase();
+    if (el.contaStatus) {
+      el.contaStatus.textContent = statusUpper;
+      if (state.assinatura.status === 'ativo') {
+        el.contaStatus.className = 'bg-secondary-container text-on-secondary-container px-2.5 py-0.5 rounded-full font-bold text-xs tracking-wide';
+      } else if (state.assinatura.status === 'trial') {
+        el.contaStatus.className = 'bg-primary-fixed text-primary px-2.5 py-0.5 rounded-full font-bold text-xs tracking-wide';
+      } else {
+        el.contaStatus.className = 'bg-error-container text-error px-2.5 py-0.5 rounded-full font-bold text-xs tracking-wide';
+      }
+    }
+
+    if (el.contaPlanoNome) {
+      el.contaPlanoNome.textContent = p.nome;
+    }
+
+    // Modalidade de Cobrança
+    if (el.contaModalidade) {
+      if (state.assinatura.status === 'trial') {
+        el.contaModalidade.textContent = 'Período de Teste Grátis (7 dias)';
+      } else if (state.assinatura.tipo_cobranca === 'recorrente_cartao') {
+        const cicloNome = state.assinatura.ciclo === 'yearly' ? 'Anual' : 'Mensal';
+        el.contaModalidade.textContent = `Assinatura ${cicloNome} Automática (Cartão de Crédito)`;
+      } else {
+        el.contaModalidade.textContent = 'Renovação Manual (PIX)';
+      }
+    }
+
+    // Vencimento / Próxima cobrança
+    const cancelado = Boolean(state.assinatura.cancelar_ao_fim_do_periodo);
+    const dataRef = state.assinatura.status === 'trial'
+      ? (state.assinatura.trial_ate ? new Date(state.assinatura.trial_ate) : null)
+      : (state.assinatura.valido_ate ? new Date(state.assinatura.valido_ate) : null);
+
+    const diffDias = dataRef ? Math.max(0, Math.ceil((dataRef - new Date()) / (1000 * 60 * 60 * 24))) : 0;
+    const dataStr = dataRef ? dataRef.toLocaleDateString('pt-BR') : 'Não definido';
+
+    if (el.contaLabelVencimento) {
+      if (state.assinatura.status === 'trial') {
+        el.contaLabelVencimento.textContent = 'Teste expira em:';
+      } else if (state.assinatura.tipo_cobranca === 'recorrente_cartao' && !cancelado) {
+        el.contaLabelVencimento.textContent = 'Próxima renovação:';
+      } else {
+        el.contaLabelVencimento.textContent = 'Válido até:';
+      }
+    }
+
+    if (el.contaVencimento) {
+      el.contaVencimento.textContent = `${dataStr} (${diffDias} dia${diffDias === 1 ? '' : 's'} restante${diffDias === 1 ? '' : 's'})`;
+    }
+
+    // Aviso de Cancelamento Ativo
+    if (el.boxCancelamentoAtivo) {
+      if (cancelado) {
+        el.boxCancelamentoAtivo.classList.remove('hidden');
+        if (el.contaDataFimAcesso) el.contaDataFimAcesso.textContent = dataStr;
+      } else {
+        el.boxCancelamentoAtivo.classList.add('hidden');
+      }
+    }
+
+    // Botão de Cancelar Renovação (apenas se for cartão recorrente e ainda não cancelado)
+    if (el.boxBtnCancelarRecorrencia) {
+      if (state.assinatura.status === 'ativo' && state.assinatura.tipo_cobranca === 'recorrente_cartao' && !cancelado) {
+        el.boxBtnCancelarRecorrencia.classList.remove('hidden');
+      } else {
+        el.boxBtnCancelarRecorrencia.classList.add('hidden');
+      }
+    }
   }
 
   if (el.contaResponsavel && state.loja) {
@@ -2507,6 +2691,65 @@ function prepararTelaConta() {
     }
     el.contaExpectativa.textContent = exp;
   }
+}
+
+// Handlers de Cancelamento de Assinatura Recorrente
+if (el.btnCancelarAssinaturaPainel) {
+  el.btnCancelarAssinaturaPainel.addEventListener('click', () => {
+    if (!el.modalConfirmarCancelamento) return;
+    const validoAte = state.assinatura?.valido_ate ? new Date(state.assinatura.valido_ate) : null;
+    if (el.modalCancelarDataFim) {
+      el.modalCancelarDataFim.textContent = validoAte ? validoAte.toLocaleDateString('pt-BR') : 'o final do ciclo';
+    }
+    el.modalConfirmarCancelamento.classList.remove('hidden');
+  });
+}
+
+if (el.btnFecharModalCancelamento) {
+  el.btnFecharModalCancelamento.addEventListener('click', () => {
+    if (el.modalConfirmarCancelamento) el.modalConfirmarCancelamento.classList.add('hidden');
+  });
+}
+
+if (el.btnConfirmarCancelamentoRecorrencia) {
+  el.btnConfirmarCancelamentoRecorrencia.addEventListener('click', async () => {
+    if (!state.loja) return;
+    const btn = el.btnConfirmarCancelamentoRecorrencia;
+    const textoOriginal = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span>Cancelando...</span>';
+
+    try {
+      const res = await fetch('/api/mp-cancelar-assinatura', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          loja_id: state.loja.id,
+          preapproval_id: state.assinatura?.mp_preapproval_id,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.sucesso) {
+        toast(data.erro || 'Erro ao cancelar renovação automática', 'error');
+        return;
+      }
+
+      if (state.assinatura) {
+        state.assinatura.cancelar_ao_fim_do_periodo = true;
+      }
+
+      if (el.modalConfirmarCancelamento) el.modalConfirmarCancelamento.classList.add('hidden');
+      toast('Renovação automática cancelada com sucesso. Seu plano continua liberado até o vencimento.', 'success');
+      prepararTelaConta();
+      atualizarBarraAssinatura();
+    } catch (err) {
+      toast('Falha de conexão ao cancelar: ' + err.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = textoOriginal;
+    }
+  });
 }
 
 // EDITAR PERFIL DO NEGÓCIO NO PAINEL

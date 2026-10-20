@@ -381,7 +381,11 @@ function renderizarTabelaLojistas() {
   el.tabelaLojistasBody.innerHTML = state.lojistas.map((lj) => {
     let badgeStatus = '';
     if (lj.status_assinatura === 'ativo') {
-      badgeStatus = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-secondary-container text-secondary-dark">● Pro Ativo</span>';
+      const planoNome = lj.plano === 'agencia' ? 'Agência' : (lj.plano === 'starter' ? 'Básico' : 'Pro');
+      const modo = lj.tipo_cobranca === 'recorrente_cartao'
+        ? (lj.cancelar_ao_fim_do_periodo ? '💳 Recorrência Cancelada' : '💳 Débito Auto')
+        : '⚡ PIX';
+      badgeStatus = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-secondary-container text-secondary-dark" title="${modo}">● ${planoNome} (${modo})</span>`;
     } else if (lj.status_assinatura === 'trial') {
       badgeStatus = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-700">⏱️ Teste (${lj.dias_trial_restantes}d rest.)</span>`;
     } else {
@@ -485,7 +489,9 @@ function renderizarTopLinks() {
   }
 
   el.tabelaTopLinksBody.innerHTML = state.topLinks.map((lk, idx) => {
-    const fullUrl = `${window.location.origin}/${lk.loja_slug}/${lk.slug}`;
+    const versaoNum = lk.versao && Number(lk.versao) > 1 ? Number(lk.versao) : null;
+    const sufixoV = versaoNum ? `?v=${versaoNum}` : '';
+    const fullUrl = `${window.location.origin}/${lk.loja_slug}/${lk.slug}${sufixoV}`;
     const medalha = idx === 0 ? '🥇 1º' : (idx === 1 ? '🥈 2º' : (idx === 2 ? '🥉 3º' : `${idx + 1}º`));
 
     return `
@@ -494,7 +500,7 @@ function renderizarTopLinks() {
         <td class="py-3 px-4">
           <div class="font-bold text-on-surface truncate max-w-xs">${lk.titulo || 'Sem título'}</div>
           <a href="${fullUrl}" target="_blank" class="text-[11px] font-mono text-primary hover:underline">
-            /${lk.loja_slug}/${lk.slug}
+            /${lk.loja_slug}/${lk.slug}${sufixoV}
           </a>
         </td>
         <td class="py-3 px-4 font-medium text-on-surface-variant">${lk.loja_nome}</td>

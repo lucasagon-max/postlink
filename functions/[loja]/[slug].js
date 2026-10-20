@@ -43,6 +43,7 @@ import * as mpConfig from '../api/mp-config.js';
 import * as mpCriarPagamento from '../api/mp-criar-pagamento.js';
 import * as mpProcessarCartao from '../api/mp-processar-cartao.js';
 import * as mpVerificarPagamento from '../api/mp-verificar-pagamento.js';
+import * as mpCancelarAssinatura from '../api/mp-cancelar-assinatura.js';
 import * as fetchMetadata from '../api/fetch-metadata.js';
 import * as configSite from '../api/configuracoes-site.js';
 
@@ -53,6 +54,7 @@ async function dispatchApi(context) {
   if (slug === 'mp-criar-pagamento') return mpCriarPagamento.onRequestPost(context);
   if (slug === 'mp-processar-cartao') return mpProcessarCartao.onRequestPost(context);
   if (slug === 'mp-verificar-pagamento') return mpVerificarPagamento.onRequest(context);
+  if (slug === 'mp-cancelar-assinatura') return mpCancelarAssinatura.onRequestPost(context);
   if (slug === 'fetch-metadata') return fetchMetadata.onRequest(context);
   if (slug === 'configuracoes-site') return configSite.onRequestGet(context);
 
@@ -138,8 +140,11 @@ export async function onRequestGet(context) {
   }
 
   const supabaseUrl = env.SUPABASE_URL || DEFAULT_SUPABASE_URL;
-  const origem = new URL(request.url).origin;
-  const url = `${origem}/${encodeURIComponent(loja)}/${encodeURIComponent(slug)}`;
+  const reqUrl = new URL(request.url);
+  const versaoQueryParam = reqUrl.searchParams.get('v');
+  const versaoEfetiva = versaoQueryParam || (link.versao && Number(link.versao) > 1 ? link.versao : null);
+  const sufixoVersao = versaoEfetiva ? `?v=${versaoEfetiva}` : '';
+  const url = `${reqUrl.origin}/${encodeURIComponent(loja)}/${encodeURIComponent(slug)}${sufixoVersao}`;
   const imagem = `${supabaseUrl}/storage/v1/object/public/banners/${link.imagem_path}?v=${link.versao || 1}`;
 
   // Se for robô (crawler do WhatsApp, Meta, Telegram, etc.): devolve apenas meta tags Open Graph
