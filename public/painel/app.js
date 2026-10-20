@@ -1168,6 +1168,10 @@ function renderizarLinks() {
           <span class="absolute top-2 right-2 text-[10px] font-bold px-2 py-0.5 rounded-full ${link.ativo ? 'bg-secondary-container text-on-secondary-container' : 'bg-error-container text-on-error-container'} shadow-xs">
             ${link.ativo ? '● Ativo' : '○ Pausado'}
           </span>
+          <!-- Selo Favicon no Canto Inferior Direito da Miniatura -->
+          <div class="absolute bottom-2 right-2 bg-white/95 backdrop-blur-xs p-1 rounded-md shadow-xs flex items-center justify-center pointer-events-none z-10" title="PostLink Oficial">
+            <img src="/favicon-32x32.png" alt="Favicon" class="w-3.5 h-3.5 rounded-xs object-contain">
+          </div>
         </div>
 
         <div class="flex items-center justify-between gap-1 mb-1">
@@ -1618,7 +1622,12 @@ function atualizarLivePreview() {
     }
   }
   if (el.waCardHost) {
-    el.waCardHost.textContent = hostAtual;
+    const spanHost = el.waCardHost.querySelector('span');
+    if (spanHost) {
+      spanHost.textContent = hostAtual;
+    } else {
+      el.waCardHost.innerHTML = `<img src="/favicon-32x32.png" alt="Favicon" class="w-3.5 h-3.5 rounded-xs inline-block shrink-0"><span>${escapeHtml(hostAtual)}</span>`;
+    }
   }
 
   // Preview Redes Sociais
@@ -1627,7 +1636,12 @@ function atualizarLivePreview() {
     el.pdSocial.textContent = desc || 'Clique para acessar e conferir todos os detalhes.';
   }
   if (el.socialCardHost) {
-    el.socialCardHost.textContent = hostAtual;
+    const spanSocial = el.socialCardHost.querySelector('span');
+    if (spanSocial) {
+      spanSocial.textContent = hostAtual;
+    } else {
+      el.socialCardHost.innerHTML = `<img src="/favicon-32x32.png" alt="Favicon" class="w-3.5 h-3.5 rounded-xs inline-block shrink-0"><span>${escapeHtml(hostAtual)}</span>`;
+    }
   }
 
   // Sincroniza imagem entre WhatsApp e Redes Sociais

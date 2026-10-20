@@ -1,16 +1,16 @@
 # scripts/processar_favicon.ps1 - Processador de Favicons e Ícones do PostLink
 Add-Type -AssemblyName System.Drawing
 
-$srcPath = Resolve-Path 'imagens\fivecon.png'
+$srcPath = Resolve-Path 'imagens\Favicon.jpg'
 if (-not (Test-Path $srcPath)) {
-    Write-Error "Arquivo imagens\fivecon.png não encontrado!"
+    Write-Error "Arquivo imagens\Favicon.jpg não encontrado!"
     exit 1
 }
 
 $origImg = [System.Drawing.Bitmap]::FromFile($srcPath)
 Write-Output ("Origem: {0}x{1}" -f $origImg.Width, $origImg.Height)
 
-# Criar canvas mestre quadrado 512x512 com fundo transparente
+# Criar canvas mestre quadrado 512x512 com fundo transparente e cantos elegantes
 $masterSize = 512
 $masterBmp = New-Object System.Drawing.Bitmap($masterSize, $masterSize, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
 $g = [System.Drawing.Graphics]::FromImage($masterBmp)
@@ -19,21 +19,19 @@ $g.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQuality
 $g.PixelOffsetMode = [System.Drawing.Drawing2D.PixelOffsetMode]::HighQuality
 $g.Clear([System.Drawing.Color]::Transparent)
 
-# Calcular dimensões proporcionais preservando aspecto para caber em 512x512 com padding elegante (40px)
-$targetPadding = 24
-$availW = $masterSize - ($targetPadding * 2)
-$availH = $masterSize - ($targetPadding * 2)
+# Criar cantos arredondados sutis estilo squircle para ícones modernos (raio 72px em 512x512)
+$path = New-Object System.Drawing.Drawing2D.GraphicsPath
+$cornerR = 72
+$cornerD = $cornerR * 2
+$path.AddArc(0, 0, $cornerD, $cornerD, 180, 90)
+$path.AddArc($masterSize - $cornerD, 0, $cornerD, $cornerD, 270, 90)
+$path.AddArc($masterSize - $cornerD, $masterSize - $cornerD, $cornerD, $cornerD, 0, 90)
+$path.AddArc(0, $masterSize - $cornerD, $cornerD, $cornerD, 90, 90)
+$path.CloseFigure()
+$g.SetClip($path)
 
-$ratioW = $availW / $origImg.Width
-$ratioH = $availH / $origImg.Height
-$scale = [Math]::Min($ratioW, $ratioH)
-
-$drawW = [int]($origImg.Width * $scale)
-$drawH = [int]($origImg.Height * $scale)
-$drawX = [int](($masterSize - $drawW) / 2)
-$drawY = [int](($masterSize - $drawH) / 2)
-
-$g.DrawImage($origImg, $drawX, $drawY, $drawW, $drawH)
+$g.DrawImage($origImg, 0, 0, $masterSize, $masterSize)
+$path.Dispose()
 $g.Dispose()
 $origImg.Dispose()
 
@@ -67,8 +65,7 @@ Salvar-Icone $masterBmp 180 @('public\apple-touch-icon.png', 'apple-touch-icon.p
 Salvar-Icone $masterBmp 192 @('public\icon-192x192.png', 'icon-192x192.png')
 Salvar-Icone $masterBmp 512 @('public\icon-512x512.png', 'icon-512x512.png', 'public\favicon.png', 'favicon.png')
 
-# Criar favicon.ico legítimo com cabeçalho ICO de 32x32 e 16x16
-# Para um favicon.ico compatível com todos os navegadores, salvamos o formato ICO padrão
+# Criar favicon.ico legítimo com cabeçalho ICO de 32x32
 $icoBmp = New-Object System.Drawing.Bitmap(32, 32, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
 $icog = [System.Drawing.Graphics]::FromImage($icoBmp)
 $icog.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
@@ -113,8 +110,10 @@ $icoBytes = $icoStream.ToArray()
 $writer.Dispose()
 $icoStream.Dispose()
 
-[System.IO.File]::WriteAllBytes((Resolve-Path 'public') + '\favicon.ico', $icoBytes)
-[System.IO.File]::WriteAllBytes((Resolve-Path '.') + '\favicon.ico', $icoBytes)
+$pubDir = (Resolve-Path 'public').Path
+$rootDir = (Resolve-Path '.').Path
+[System.IO.File]::WriteAllBytes((Join-Path $pubDir 'favicon.ico'), $icoBytes)
+[System.IO.File]::WriteAllBytes((Join-Path $rootDir 'favicon.ico'), $icoBytes)
 
 Write-Output ("Gerado: public\favicon.ico ({0} bytes)" -f $icoBytes.Length)
 Write-Output ("Gerado: favicon.ico ({0} bytes)" -f $icoBytes.Length)
