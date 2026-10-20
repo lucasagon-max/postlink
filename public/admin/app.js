@@ -52,7 +52,10 @@ const el = {
   // Métricas Faturamento
   valMrr: document.getElementById('val-mrr'),
   valProjecaoAnual: document.getElementById('val-projecao-anual'),
+  valReceitaReal: document.getElementById('val-receita-real'),
+  valReceitaMes: document.getElementById('val-receita-mes'),
   valAtivas: document.getElementById('val-ativas'),
+  valCortesias: document.getElementById('val-cortesias'),
   valTrial: document.getElementById('val-trial'),
   valConversao: document.getElementById('val-conversao'),
   valStatusExpiradas: document.getElementById('val-status-expiradas'),
@@ -98,8 +101,10 @@ const el = {
   modalLojistaRamo: document.getElementById('modal-lojista-ramo'),
   modalLojistaExpectativa: document.getElementById('modal-lojista-expectativa'),
   modalLojistaStatus: document.getElementById('modal-lojista-status'),
+  modalLojistaTipoConta: document.getElementById('modal-lojista-tipo-conta'),
   modalLojistaTrial: document.getElementById('modal-lojista-trial'),
   modalLojistaLinks: document.getElementById('modal-lojista-links'),
+  btnTextoAlternarCortesia: document.getElementById('btn-texto-alternar-cortesia'),
   modalLojistaBtnFechar: document.getElementById('modal-lojista-btn-fechar'),
 
   // Editor do Site Oficial - Cabeçalho e Auditoria
@@ -286,16 +291,19 @@ function renderizarMetricas() {
   if (!state.dashboard || !state.dashboard.metricas) return;
   const m = state.dashboard.metricas;
 
-  // Financeiro
-  if (el.valMrr) el.valMrr.textContent = formatarBRL(m.mrr_estimado);
-  if (el.valProjecaoAnual) el.valProjecaoAnual.textContent = `Projeção Anual: ${formatarBRL(m.projecao_anual)}`;
+  // Financeiro Real & Assinaturas
+  if (el.valMrr) el.valMrr.textContent = formatarBRL(m.mrr_estimado || 0);
+  if (el.valProjecaoAnual) el.valProjecaoAnual.textContent = `Projeção Anual: ${formatarBRL(m.projecao_anual || 0)}`;
+  if (el.valReceitaReal) el.valReceitaReal.textContent = formatarBRL(m.faturamento_real_coletado || 0);
+  if (el.valReceitaMes) el.valReceitaMes.textContent = `Neste mês: ${formatarBRL(m.faturamento_mes_atual || 0)}`;
   if (el.valAtivas) el.valAtivas.textContent = m.lojas_ativas || 0;
+  if (el.valCortesias) el.valCortesias.textContent = `${m.lojas_cortesia || 0} cortesia(s) / teste(s) ativos`;
   if (el.valTrial) el.valTrial.textContent = m.lojas_trial || 0;
 
   const total = m.total_lojas || 0;
   const ativas = m.lojas_ativas || 0;
   const pctConv = total > 0 ? ((ativas / total) * 100).toFixed(1) : '0,0';
-  if (el.valConversao) el.valConversao.textContent = `${pctConv}%`;
+  if (el.valConversao) el.valConversao.textContent = `Conversão: ${pctConv}%`;
   if (el.valStatusExpiradas) {
     el.valStatusExpiradas.textContent = `${m.lojas_expiradas || 0} expiradas · ${m.lojas_canceladas || 0} canceladas`;
   }
@@ -382,10 +390,14 @@ function renderizarTabelaLojistas() {
     let badgeStatus = '';
     if (lj.status_assinatura === 'ativo') {
       const planoNome = lj.plano === 'agencia' ? 'Agência' : (lj.plano === 'starter' ? 'Básico' : 'Pro');
-      const modo = lj.tipo_cobranca === 'recorrente_cartao'
-        ? (lj.cancelar_ao_fim_do_periodo ? '💳 Recorrência Cancelada' : '💳 Débito Auto')
-        : '⚡ PIX';
-      badgeStatus = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-secondary-container text-secondary-dark" title="${modo}">● ${planoNome} (${modo})</span>`;
+      if (lj.is_cortesia) {
+        badgeStatus = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800" title="Assinatura Cortesia / Teste (Isenta de Faturamento)">🎁 Cortesia (${planoNome})</span>`;
+      } else {
+        const modo = lj.tipo_cobranca === 'recorrente_cartao'
+          ? (lj.cancelar_ao_fim_do_periodo ? '💳 Recorrência Cancelada' : '💳 Débito Auto')
+          : '⚡ PIX';
+        badgeStatus = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-secondary-container text-secondary-dark" title="${modo}">● ${planoNome} (${modo})</span>`;
+      }
     } else if (lj.status_assinatura === 'trial') {
       badgeStatus = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-700">⏱️ Teste (${lj.dias_trial_restantes}d rest.)</span>`;
     } else {
@@ -522,10 +534,29 @@ function abrirModalAcao(lojista) {
   if (el.modalLojistaNome) el.modalLojistaNome.textContent = lojista.nome;
   if (el.modalLojistaSub) el.modalLojistaSub.textContent = `/${lojista.slug} · ${lojista.email}`;
   if (el.modalLojistaStatus) el.modalLojistaStatus.textContent = lojista.status_assinatura.toUpperCase();
+  if (el.modalLojistaTipoConta) {
+    if (lojista.is_cortesia) {
+      el.modalLojistaTipoConta.textContent = '🎁 Cortesia / Teste (Isenta de Cobrança)';
+      el.modalLojistaTipoConta.className = 'px-2.5 py-1 rounded-full text-[11px] font-bold bg-purple-100 text-purple-800';
+    } else if (lojista.status_assinatura === 'ativo') {
+      el.modalLojistaTipoConta.textContent = '💳 Assinatura Paga Regular';
+      el.modalLojistaTipoConta.className = 'px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800';
+    } else {
+      el.modalLojistaTipoConta.textContent = '⏱️ Teste Gratuito (Trial)';
+      el.modalLojistaTipoConta.className = 'px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800';
+    }
+  }
+  if (el.btnTextoAlternarCortesia) {
+    el.btnTextoAlternarCortesia.textContent = lojista.is_cortesia
+      ? 'Remover Cortesia'
+      : 'Marcar Cortesia';
+  }
   if (el.modalLojistaTrial) {
     el.modalLojistaTrial.textContent = lojista.status_assinatura === 'trial'
       ? `Restam ${lojista.dias_trial_restantes} dias (${formatarData(lojista.trial_ate)})`
-      : (lojista.status_assinatura === 'ativo' ? 'Assinatura Pro Regular' : 'Período Expirado');
+      : (lojista.status_assinatura === 'ativo'
+          ? (lojista.is_cortesia ? 'Cortesia Ativa (Isenta de Cobrança)' : 'Assinatura Pro Regular')
+          : 'Período Expirado');
   }
   if (el.modalLojistaLinks) el.modalLojistaLinks.textContent = `${lojista.total_links} links cadastrados (máx v${lojista.max_versao})`;
 
