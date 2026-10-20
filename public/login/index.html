@@ -145,6 +145,13 @@
           <span>Entrar no Painel</span>
           <span class="material-symbols-outlined text-base">login</span>
         </button>
+
+        <div class="flex items-center justify-center pt-1">
+          <button id="btn-reenviar-ativacao" type="button" class="text-[11px] text-outline hover:text-primary transition-colors flex items-center gap-1 py-1">
+            <span class="material-symbols-outlined text-xs">mark_email_unread</span>
+            <span>Não recebeu o e-mail de ativação? Reenviar</span>
+          </button>
+        </div>
       </form>
 
       <!-- FORMULÁRIO 2: CRIAR CONTA (CADASTRO) -->
@@ -231,8 +238,21 @@
           <p class="text-[11px] text-on-surface-variant">Digite seu e-mail para receber as instruções de redefinição de senha.</p>
           <input id="recuperar-email" type="email" placeholder="seu@email.com" class="w-full text-xs rounded-lg border-outline-variant bg-surface-container-lowest p-2 focus:ring-primary focus:border-primary">
           <div class="flex gap-2 pt-1">
-            <button id="btn-enviar-recuperacao" type="button" class="flex-1 bg-primary text-white text-xs font-bold py-2 rounded-lg">Enviar</button>
+            <button id="btn-enviar-recuperacao" type="button" class="flex-1 bg-primary text-white text-xs font-bold py-2 rounded-lg">Enviar Instruções</button>
             <button id="btn-cancelar-recuperacao" type="button" class="text-xs text-outline hover:text-on-surface px-2">Cancelar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- REENVIAR E-MAIL DE ATIVAÇÃO (MODAL INLINE) -->
+      <div id="box-reenviar-ativacao" class="hidden space-y-3 pt-2">
+        <div class="bg-surface-container-low p-3 rounded-xl border border-outline-variant/60 space-y-2">
+          <div class="text-xs font-bold text-on-surface">Reenviar E-mail de Ativação</div>
+          <p class="text-[11px] text-on-surface-variant">Não recebeu ou perdeu o link de ativação da sua conta? Digite seu e-mail abaixo:</p>
+          <input id="reenviar-email" type="email" placeholder="seu@email.com" class="w-full text-xs rounded-lg border-outline-variant bg-surface-container-lowest p-2 focus:ring-primary focus:border-primary">
+          <div class="flex gap-2 pt-1">
+            <button id="btn-confirmar-reenvio" type="button" class="flex-1 bg-secondary text-white text-xs font-bold py-2 rounded-lg shadow-sm">Reenviar Link</button>
+            <button id="btn-cancelar-reenvio" type="button" class="text-xs text-outline hover:text-on-surface px-2">Cancelar</button>
           </div>
         </div>
       </div>
@@ -279,6 +299,12 @@
     const btnEnviarRecuperacao = document.getElementById('btn-enviar-recuperacao');
     const btnCancelarRecuperacao = document.getElementById('btn-cancelar-recuperacao');
 
+    const btnReenviarAtivacao = document.getElementById('btn-reenviar-ativacao');
+    const boxReenviarAtivacao = document.getElementById('box-reenviar-ativacao');
+    const reenviarEmail = document.getElementById('reenviar-email');
+    const btnConfirmarReenvio = document.getElementById('btn-confirmar-reenvio');
+    const btnCancelarReenvio = document.getElementById('btn-cancelar-reenvio');
+
     function toast(mensagem, tipo = 'info') {
       const c = document.getElementById('toast-container');
       const el = document.createElement('div');
@@ -293,7 +319,7 @@
       if (!msg) return 'Ocorreu um erro. Tente novamente.';
       const m = msg.toLowerCase();
       if (m.includes('invalid login credentials') || m.includes('invalid credentials')) {
-        return 'E-mail ou senha incorretos.';
+        return 'E-mail ou senha incorretos. (Se você acabou de se cadastrar, verifique se confirmou seu e-mail ou se sua conta foi criada via Google).';
       }
       if (m.includes('user already registered') || m.includes('already exists')) {
         return 'Este e-mail já está cadastrado. Faça login.';
@@ -302,22 +328,26 @@
         return 'A senha deve conter no mínimo 6 caracteres.';
       }
       if (m.includes('email not confirmed')) {
-        return 'Por favor, confirme seu e-mail antes de entrar.';
+        return 'Por favor, confirme seu e-mail clicando no link enviado para sua caixa de entrada antes de entrar.';
       }
-      if (m.includes('rate limit')) {
-        return 'Muitas tentativas. Aguarde alguns instantes.';
+      if (m.includes('rate limit') || m.includes('over_email_send_rate_limit')) {
+        return 'Muitas tentativas ou limite de envios atingido. Aguarde alguns instantes ou entre com o Google.';
+      }
+      if (m.includes('email address') && m.includes('invalid')) {
+        return 'Por favor, digite um endereço de e-mail válido.';
       }
       return msg;
     }
 
     // Alternar Abas (Login vs Cadastro)
     function setModo(modo) {
+      if (boxReenviarAtivacao) boxReenviarAtivacao.classList.add('hidden');
+      if (boxRecuperar) boxRecuperar.classList.add('hidden');
       if (modo === 'login') {
         tabLogin.className = 'py-1.5 px-3 rounded-lg text-xs font-bold transition-all shadow-xs bg-surface-container-lowest text-primary';
         tabCadastro.className = 'py-1.5 px-3 rounded-lg text-xs font-medium transition-all text-on-surface-variant hover:text-on-surface';
         formLogin.classList.remove('hidden');
         formCadastro.classList.add('hidden');
-        boxRecuperar.classList.add('hidden');
         authTitulo.textContent = 'Acesse seu Painel';
         authSubtitulo.textContent = 'Digite seu e-mail e senha para entrar';
       } else {
@@ -325,7 +355,6 @@
         tabLogin.className = 'py-1.5 px-3 rounded-lg text-xs font-medium transition-all text-on-surface-variant hover:text-on-surface';
         formCadastro.classList.remove('hidden');
         formLogin.classList.add('hidden');
-        boxRecuperar.classList.add('hidden');
         authTitulo.textContent = 'Crie sua Conta Grátis';
         authSubtitulo.textContent = 'Comece agora com 7 dias de teste completo';
       }
@@ -587,11 +616,19 @@
 
         if (error) throw error;
 
+        // Se o Supabase retornou identities vazio, o usuário JÁ está cadastrado (inclusive se foi via Google)
+        if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+          toast('Este e-mail já está cadastrado. Faça login com sua senha ou com o Google.', 'warning');
+          loginEmail.value = email;
+          setModo('login');
+          return;
+        }
+
         if (data.session) {
           toast('Conta criada com sucesso! Redirecionando…', 'success');
           redirecionarAposAuth();
         } else {
-          toast('Conta criada com sucesso! Você já pode entrar.', 'success');
+          toast('Conta criada com sucesso! Enviamos um link de confirmação para seu e-mail. Confirme-o para liberar seu acesso.', 'info');
           loginEmail.value = email;
           setModo('login');
         }
@@ -634,6 +671,51 @@
         btnEnviarRecuperacao.disabled = false;
       }
     });
+
+    // 5. REENVIAR E-MAIL DE ATIVAÇÃO
+    if (btnReenviarAtivacao) {
+      btnReenviarAtivacao.addEventListener('click', () => {
+        boxReenviarAtivacao.classList.remove('hidden');
+        if (boxRecuperar) boxRecuperar.classList.add('hidden');
+        reenviarEmail.value = loginEmail.value.trim();
+        reenviarEmail.focus();
+      });
+    }
+
+    if (btnCancelarReenvio) {
+      btnCancelarReenvio.addEventListener('click', () => {
+        boxReenviarAtivacao.classList.add('hidden');
+      });
+    }
+
+    if (btnConfirmarReenvio) {
+      btnConfirmarReenvio.addEventListener('click', async () => {
+        const email = reenviarEmail.value.trim();
+        if (!email) {
+          toast('Digite seu e-mail para receber a ativação.', 'error');
+          return;
+        }
+        btnConfirmarReenvio.disabled = true;
+        btnConfirmarReenvio.innerHTML = '<div class="spinner w-3.5 h-3.5 border-white border-t-transparent"></div> Enviando…';
+        try {
+          const { error } = await sb.auth.resend({
+            type: 'signup',
+            email,
+            options: {
+              emailRedirectTo: window.location.origin + '/painel/',
+            },
+          });
+          if (error) throw error;
+          toast('E-mail de ativação reenviado! Verifique sua caixa de entrada e spam.', 'success');
+          boxReenviarAtivacao.classList.add('hidden');
+        } catch (err) {
+          toast(traduzirErro(err.message), 'error');
+        } finally {
+          btnConfirmarReenvio.disabled = false;
+          btnConfirmarReenvio.textContent = 'Reenviar Link';
+        }
+      });
+    }
 
     // Checar se já está logado
     async function checarSessao() {
