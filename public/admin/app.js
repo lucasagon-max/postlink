@@ -439,7 +439,7 @@ function renderizarTabelaLojistas() {
           ${formatarData(lj.criado_em)}
         </td>
         <td class="py-3 px-4 text-right">
-          <button type="button" class="btn-abrir-modal-acao bg-surface-container hover:bg-surface-container-high border border-outline-variant/60 text-primary font-bold text-[11px] px-2.5 py-1.5 rounded-lg transition-all" data-id="${lj.loja_id}">
+          <button type="button" class="btn-abrir-modal-acao bg-surface-container hover:bg-surface-container-high border border-outline-variant/60 text-primary font-bold text-[11px] px-2.5 py-1.5 rounded-lg transition-all" data-id="${lj.loja_id || lj.id}">
             Gerenciar
           </button>
         </td>
@@ -451,7 +451,7 @@ function renderizarTabelaLojistas() {
   document.querySelectorAll('.btn-abrir-modal-acao').forEach((btn) => {
     btn.addEventListener('click', () => {
       const lojaId = btn.dataset.id;
-      const lojista = state.lojistas.find((l) => l.loja_id === lojaId);
+      const lojista = state.lojistas.find((l) => (l.loja_id || l.id) === lojaId);
       if (lojista) abrirModalAcao(lojista);
     });
   });
@@ -588,7 +588,7 @@ document.querySelectorAll('.btn-acao-rapida').forEach((btn) => {
 
     const acao = btn.dataset.acao;
     const dias = parseInt(btn.dataset.dias || '7', 10);
-    const lojaId = state.lojistaSelecionado.loja_id;
+    const lojaId = state.lojistaSelecionado.loja_id || state.lojistaSelecionado.id;
 
     btn.disabled = true;
     const textoAntigo = btn.innerHTML;

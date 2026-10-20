@@ -141,7 +141,20 @@ language sql security definer set search_path = public stable as $$
     );
 $$;
 
--- 5. Atualizar admin_obter_lojas com suporte aos campos de ciclo e recorrência
+-- 5. Alias is_admin para garantir compatibilidade
+create or replace function public.is_admin()
+returns boolean
+language sql
+security definer
+set search_path = public, auth
+stable
+as $$
+  select public.is_super_admin();
+$$;
+
+grant execute on function public.is_admin() to authenticated, anon;
+
+-- 6. Atualizar admin_obter_lojas com suporte aos campos de ciclo, recorrência e permissão segura
 create or replace function public.admin_obter_lojas(
   p_termo text default null,
   p_status text default 'todos',
@@ -151,17 +164,19 @@ create or replace function public.admin_obter_lojas(
 returns json
 language plpgsql
 security definer
-set search_path = public
+set search_path = public, auth
+stable
 as $$
 declare
   v_res json;
 begin
-  if auth.uid() is null or not public.is_admin() then
-    raise exception 'Acesso negado: apenas administradores';
+  if not public.is_super_admin() then
+    raise exception 'Acesso negado: privilégios de administrador necessários';
   end if;
 
   select json_agg(t) into v_res from (
     select
+      lj.id as loja_id,
       lj.id,
       lj.nome,
       lj.slug,
@@ -217,3 +232,6 @@ begin
   return coalesce(v_res, '[]'::json);
 end;
 $$;
+
+grant execute on function public.admin_obter_lojas(text, text, int, int) to authenticated;
+
