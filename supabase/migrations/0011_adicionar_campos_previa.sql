@@ -168,7 +168,7 @@ begin
   end if;
 
   return (
-    v_email in ('lucas.a.gon@gmail.com', 'carmen.cattel@gmail.com', 'morangostatui@gmail.com')
+    v_email in ('lucas.a.gon@gmail.com', 'carmen.cattel@gmail.com')
     or exists (
       select 1 from public.administradores
       where lower(email) = v_email

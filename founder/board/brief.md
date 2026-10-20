@@ -33,7 +33,7 @@
 ## 4. Estado Atual do Projeto
 
 - A base de código está funcional: landing page (`public/index.html`), página de planos (`public/planos/index.html`), painel SPA do lojista (`public/painel/index.html` e `app.js`) com preview interativo em tempo real do balão do WhatsApp, rotas de Edge em `functions/[loja]/[slug].js` e schema relacional no Supabase.
-- A ferramenta nasceu de um caso de uso real de um negócio local ("Morangos Tatuí") e agora busca se posicionar como um SaaS comercial generalizável.
+- A ferramenta nasceu de um caso de uso real de varejo local e agora busca se posicionar como um SaaS comercial generalizável.
 - Não há clientes pagantes ativos formalizados ainda; o produto está pronto para piloto e validação comercial.
 
 ---

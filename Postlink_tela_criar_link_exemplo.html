@@ -2306,8 +2306,8 @@ details>summary::-webkit-details-marker{display:none}
 <details>
 <summary><i class="ti ti-adjustments-horizontal" aria-hidden="true" style="vertical-align:-3px;margin-right:6px"></i>Personalizar (opcional)</summary>
 <div style="padding-top:8px">
-<div class="fld"><label class="lb" for="tit">Título do cartão</label><input type="text" id="tit" placeholder="Morangos Tatuí" style="width:100%"></div>
-<div class="fld"><label class="lb" for="desc">Descrição</label><input type="text" id="desc" placeholder="Bolo de pote de morango, 2 por R$ 18" style="width:100%"></div>
+<div class="fld"><label class="lb" for="tit">Título do cartão</label><input type="text" id="tit" placeholder="Minha Loja" style="width:100%"></div>
+<div class="fld"><label class="lb" for="desc">Descrição</label><input type="text" id="desc" placeholder="Oferta exclusiva da semana" style="width:100%"></div>
 <div class="fld"><label class="lb" for="slug">Apelido do link</label><input type="text" id="slug" style="width:100%;font-family:var(--font-mono)"></div>
 <div class="fld"><label class="lb" for="val">Válido até</label><input type="date" id="val" style="width:100%"><div style="font-size:12px;color:var(--text-muted);margin-top:4px">Depois dessa data, o link mostra "oferta encerrada".</div></div>
 </div>
@@ -2323,7 +2323,7 @@ details>summary::-webkit-details-marker{display:none}
 <div id="ph" style="aspect-ratio:1.91/1;display:flex;align-items:center;justify-content:center;color:var(--text-muted)"><i class="ti ti-photo" style="font-size:28px" aria-hidden="true"></i></div>
 <img id="im" alt="" style="display:none;width:100%;aspect-ratio:1.91/1;object-fit:cover">
 <div style="padding:8px 10px">
-<div id="pt" style="font-size:14px;font-weight:500">Morangos Tatuí</div>
+<div id="pt" style="font-size:14px;font-weight:500">Minha Loja</div>
 <div id="pd" style="font-size:13px;color:var(--text-secondary);display:none"></div>
 <div style="font-size:12px;color:var(--text-muted);margin-top:2px">toqueaki.com.br</div>
 </div>
@@ -2342,13 +2342,13 @@ details>summary::-webkit-details-marker{display:none}
 </div>
 <script>
 var $=function(i){return document.getElementById(i)};
-var STORE='morangos-tatui';
+var STORE='minha-loja';
 var auto=Math.random().toString(36).slice(2,7);
 $('slug').value=auto;
 function clean(v){return v.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9-]/g,'-').replace(/-+/g,'-')}
 function fullUrl(){var s=clean($('slug').value).replace(/^-|-$/g,'')||auto;return 'toqueaki.com.br/'+STORE+'/'+s}
 function refresh(){
-  $('pt').textContent=$('tit').value.trim()||'Morangos Tatuí';
+  $('pt').textContent=$('tit').value.trim()||'Minha Loja';
   var d=$('desc').value.trim();
   $('pd').textContent=d;$('pd').style.display=d?'block':'none';
   $('pu').textContent='https://'+fullUrl();

@@ -14,8 +14,8 @@ from public.lojas lj
 left join auth.users u on u.id = lj.id
 where a.loja_id = lj.id
   and (
-    lower(coalesce(u.email, '')) in ('lucas.a.gon@gmail.com', 'carmen.cattel@gmail.com', 'morangostatui@gmail.com', 'morangostatui2@gmail.com')
-    or lj.slug in ('postlink', 'morangos-tatui', 'cattel-turismo', 'morangos-tatui-delivery', 'morangos-tatui2')
+    lower(coalesce(u.email, '')) in ('lucas.a.gon@gmail.com', 'carmen.cattel@gmail.com')
+    or lj.slug in ('postlink', 'cattel-turismo')
   );
 
 -- 3. Atualiza admin_obter_dashboard para faturamento real e métricas financeiras precisas

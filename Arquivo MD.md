@@ -2,7 +2,7 @@
 
 Versão 1 · 5 de outubro de 2026
 
-Este arquivo reúne o que foi definido na conversa em um guia técnico para construir o MVP. Ele parte do protótipo que você já tem (gerador de links da Morangos Tatuí) e o transforma em um produto multiusuário.
+Este arquivo reúne o que foi definido na conversa em um guia técnico para construir o MVP. Ele parte do protótipo que você já tem (gerador de links inteligente) e o transforma em um produto multiusuário.
 
 ## 0. Premissas (leia primeiro)
 
