@@ -1,6 +1,6 @@
 // functions/api/ia-gerar-copy.js - Cloudflare Pages Function
 // Assistente de Inteligência Artificial para Copywriting de PostLinks no WhatsApp
-// Suporta Google Gemini 1.5 Flash (Gratuito), Cloudflare Workers AI e Fallback Contextual Resiliente.
+// Suporta Google Gemini Flash (Gratuito), Cloudflare Workers AI e Motor Contextual Resiliente.
 
 const DEFAULT_SUPABASE_URL = 'https://xiicwkagcphvejzycntx.supabase.co';
 const DEFAULT_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpaWN3a2FnY3BodmVqenljbnR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyMjQwOTksImV4cCI6MjEwNjgwMDA5OX0.RyxiEa0aojXvBaJTdIdtk1Sst35-mFDKXb_CTnt7WiA';
@@ -43,46 +43,185 @@ function truncar(str = '', max = 80) {
   return s.slice(0, max - 1).trim() + '…';
 }
 
-// Gerador contextual inteligente de fallback para casos sem chave configurada ou falha temporária
+// Limpa pontuações órfãs e palavras cortadas no final da frase do usuário
+function limparTermoFinal(str = '') {
+  let s = (str || '').trim();
+  let anterior = '';
+  while (s !== anterior) {
+    anterior = s;
+    s = s.replace(/[,;:\-–—\.\s]+$/, '');
+    s = s.replace(/\s+(sem|com|de|da|do|e|para|por|em|a|o)$/i, '');
+  }
+  return s.trim();
+}
+
+// Configurações de estilo e variações específicas para cada tom de voz
+const DEFINICOES_TOM = {
+  amigavel: {
+    nome: 'Amigável & Acolhedor',
+    estilo: 'Linguagem calorosa, humana, simpática, próxima e atenciosa. Transmite carinho, cuidado artesanal e conversa gostosa de WhatsApp, sem afobação.',
+    variacoes: [
+      'Acolhedor & Conexão Afetuosa',
+      'Convite Simpático & Leveza',
+      'Atendimento Próximo & Dica Especial',
+    ],
+  },
+  urgencia: {
+    nome: 'Urgência & Escassez',
+    estilo: 'Gatilho de tempo curto, lote acabando, poucas unidades e ação imediata. Sem ser apelativo ou falso, focando em oportunidade que vai acabar.',
+    variacoes: [
+      'Últimas Unidades & Estoque Limitado',
+      'Oportunidade Relâmpago',
+      'Encerramento Iminente de Lote',
+    ],
+  },
+  desconto: {
+    nome: 'Desconto & Economia',
+    estilo: 'Foco no valor que o cliente economiza, condições especiais de primeira compra, cupons e custo-benefício que faz valer a pena.',
+    variacoes: [
+      'Economia Direta & Preço Especial',
+      'Cupom & Vantagem de Primeira Compra',
+      'Melhor Custo-Benefício do Momento',
+    ],
+  },
+  exclusivo: {
+    nome: 'Exclusivo & Premium',
+    estilo: 'Sofisticação, qualidade superior, atendimento diferenciado e sensação de produto especial selecionado para quem tem bom gosto.',
+    variacoes: [
+      'Edição Especial & Selecionada',
+      'Atendimento VIP Personalizado',
+      'Destaque & Alta Qualidade',
+    ],
+  },
+};
+
+// Gerador contextual inteligente de contingência (respeita 100% o tom escolhido e limpa termos órfãos)
 function gerarSugestoesFallback(contexto = '', url = '', tomDesejado = 'urgencia') {
-  const limpo = (contexto || url || 'Oferta Especial').trim();
-  const primeiroNome = limpo.split(/\s+/).slice(0, 5).join(' ');
+  const limpo = limparTermoFinal(contexto || url || 'Oferta Especial');
+  const palavras = limpo.split(/\s+/);
+  const primeiroNome = palavras.slice(0, 6).join(' ');
   const slugBase = limparSlug(primeiroNome) || 'oferta-especial';
 
+  if (tomDesejado === 'amigavel') {
+    return [
+      {
+        tom: 'Acolhedor & Conexão Afetuosa',
+        titulo: truncar(`🍓 ${primeiroNome} Feito com Amor e Dedicação`, 80),
+        descricao: truncar(`Sinta o sabor e o afeto em cada detalhe de ${primeiroNome}. Toque para bater um papo no WhatsApp!`, 200),
+        mensagem_whatsapp: `Olá! Fiquei muito interessado em ${primeiroNome}. Como posso fazer meu pedido?`,
+        slug: truncar(`${slugBase}-afeto`, 30),
+      },
+      {
+        tom: 'Convite Simpático & Leveza',
+        titulo: truncar(`✨ Que Tal Provar o Melhor de ${primeiroNome}?`, 80),
+        descricao: truncar(`Uma receita pensada pra deixar seu dia mais doce e leve. Conversa com a gente no WhatsApp!`, 200),
+        mensagem_whatsapp: `Oii! Vi o anúncio de ${primeiroNome} e achei incrível. Me ajuda a escolher?`,
+        slug: truncar(`${slugBase}-especial`, 30),
+      },
+      {
+        tom: 'Atendimento Próximo & Dica Especial',
+        titulo: truncar(`☕ ${primeiroNome} Perfeito para Você`, 80),
+        descricao: truncar(`Qualidade artesanal, carinho e atendimento rápido direto pelo WhatsApp. Garanta já o seu!`, 200),
+        mensagem_whatsapp: `Oie, tudo bem? Quero mais detalhes sobre ${primeiroNome}!`,
+        slug: truncar(`${slugBase}-artesanal`, 30),
+      },
+    ];
+  }
+
+  if (tomDesejado === 'desconto') {
+    return [
+      {
+        tom: 'Economia Direta & Preço Especial',
+        titulo: truncar(`🔥 Oferta Especial: ${primeiroNome}`, 80),
+        descricao: truncar(`Condições imperdíveis por tempo limitado para pedidos direto no WhatsApp. Confira e aproveite! 👇`, 200),
+        mensagem_whatsapp: `Olá! Vi a promoção de ${primeiroNome} e quero garantir com o melhor preço.`,
+        slug: truncar(`${slugBase}-oferta`, 30),
+      },
+      {
+        tom: 'Cupom & Vantagem de Primeira Compra',
+        titulo: truncar(`🏷️ Desconto Exclusivo em ${primeiroNome}`, 80),
+        descricao: truncar(`Aproveite nosso cupom especial para economizar no seu pedido de ${primeiroNome}. Peça agora!`, 200),
+        mensagem_whatsapp: `Olá! Vi a oferta de ${primeiroNome} e gostaria de aplicar meu cupom de desconto.`,
+        slug: truncar(`${slugBase}-cupom`, 30),
+      },
+      {
+        tom: 'Melhor Custo-Benefício do Momento',
+        titulo: truncar(`💰 O Melhor Preço em ${primeiroNome}`, 80),
+        descricao: truncar(`Qualidade superior pelo melhor valor da região com entrega rápida. Peça já pelo WhatsApp!`, 200),
+        mensagem_whatsapp: `Olá! Quero aproveitar a condição especial de ${primeiroNome}.`,
+        slug: truncar(`${slugBase}-economia`, 30),
+      },
+    ];
+  }
+
+  if (tomDesejado === 'exclusivo') {
+    return [
+      {
+        tom: 'Edição Especial & Selecionada',
+        titulo: truncar(`💎 Destaque Selecionado: ${primeiroNome}`, 80),
+        descricao: truncar(`Produção selecionada com padrão superior de qualidade e acabamento. Descubra agora!`, 200),
+        mensagem_whatsapp: `Olá! Vi o destaque de ${primeiroNome} e gostaria de conhecer as opções disponíveis.`,
+        slug: truncar(`${slugBase}-vip`, 30),
+      },
+      {
+        tom: 'Atendimento VIP Personalizado',
+        titulo: truncar(`👑 Atendimento Exclusivo para ${primeiroNome}`, 80),
+        descricao: truncar(`Tire todas as suas dúvidas com nosso time especialista no WhatsApp e receba suporte premium.`, 200),
+        mensagem_whatsapp: `Olá! Gostaria de um atendimento personalizado sobre ${primeiroNome}.`,
+        slug: truncar(`${slugBase}-premium`, 30),
+      },
+      {
+        tom: 'Destaque & Alta Qualidade',
+        titulo: truncar(`🌟 O Mais Pedido: ${primeiroNome}`, 80),
+        descricao: truncar(`A preferência de quem busca autenticidade e sabor inigualável. Peça direto no WhatsApp!`, 200),
+        mensagem_whatsapp: `Olá! Quero conhecer mais sobre a linha exclusiva de ${primeiroNome}.`,
+        slug: truncar(`${slugBase}-destaque`, 30),
+      },
+    ];
+  }
+
+  // Padrão: Urgência
   return [
     {
-      tom: 'Urgência & Escassez',
+      tom: 'Últimas Unidades & Estoque Limitado',
       titulo: truncar(`⚡ Últimas Unidades: ${primeiroNome}`, 80),
       descricao: truncar(`Poucas peças em estoque com envio rápido. Toque para garantir antes que encerre o lote! 👇`, 200),
-      mensagem_whatsapp: `Olá! Vi o anúncio de ${primeiroNome} no link e quero garantir meu pedido antes que esgote!`,
+      mensagem_whatsapp: `Olá! Vi o anúncio de ${primeiroNome} e quero garantir antes que esgote o lote!`,
       slug: truncar(`${slugBase}-urgente`, 30),
     },
     {
-      tom: 'Desconto & Preço Baixo',
-      titulo: truncar(`🔥 Oferta Imperdível: ${primeiroNome}`, 80),
-      descricao: truncar(`Condições especiais por tempo limitado para pedidos direto no WhatsApp. Confira e aproveite! 👇`, 200),
-      mensagem_whatsapp: `Olá! Vi a promoção especial de ${primeiroNome} e quero aproveitar o desconto {cupom}.`,
-      slug: truncar(`${slugBase}-desconto`, 30),
+      tom: 'Oportunidade Relâmpago',
+      titulo: truncar(`⏰ Oferta Relâmpago de ${primeiroNome}`, 80),
+      descricao: truncar(`Condições ativas somente enquanto durar o lote atual. Não fique de fora, peça agora!`, 200),
+      mensagem_whatsapp: `Olá! Quero aproveitar a oportunidade relâmpago de ${primeiroNome}.`,
+      slug: truncar(`${slugBase}-relampago`, 30),
     },
     {
-      tom: 'Exclusivo & Destaque',
-      titulo: truncar(`💎 Destaque da Semana: ${primeiroNome}`, 80),
-      descricao: truncar(`Qualidade garantida, atendimento ágil e pronta entrega. Peça o seu direto pelo WhatsApp!`, 200),
-      mensagem_whatsapp: `Olá! Gostei muito de ${primeiroNome} e gostaria de ver mais fotos e formas de pagamento.`,
-      slug: truncar(`${slugBase}-vip`, 30),
+      tom: 'Encerramento Iminente de Lote',
+      titulo: truncar(`🚨 Quase Esgotado: ${primeiroNome}`, 80),
+      descricao: truncar(`Lote promocional encerrando hoje. Toque no link e garanta o seu com prioridade no envio.`, 200),
+      mensagem_whatsapp: `Olá! Vi que o lote de ${primeiroNome} está acabando e quero fechar o meu pedido.`,
+      slug: truncar(`${slugBase}-final`, 30),
     },
   ];
 }
 
-// Chamada à API do Google Gemini (Plano 100% Gratuito - Google AI Studio)
+// Chamada à API do Google Gemini com cascata estável de modelos
 async function gerarComGemini(apiKey, promptSistema, promptUsuario) {
-  const modelos = ['gemini-3.8-flash', 'gemini-flash-latest', 'gemini-2.5-flash-lite'];
+  // Cascata prioritária com modelos de alta disponibilidade e baixa taxa de 503
+  const modelos = [
+    'gemini-3.5-flash',
+    'gemini-3.5-flash-lite',
+    'gemini-3.1-flash-lite',
+    'gemini-3.6-flash',
+    'gemini-3.8-flash',
+  ];
   let ultimoErro = null;
 
   for (const modelo of modelos) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${apiKey}`;
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 9000); // 9s timeout
+    const timeoutId = setTimeout(() => controller.abort(), 6000); // 6s timeout por modelo para agilidade
 
     try {
       const res = await fetch(url, {
@@ -102,7 +241,7 @@ async function gerarComGemini(apiKey, promptSistema, promptUsuario) {
             temperature: 0.7,
             topK: 40,
             topP: 0.95,
-            maxOutputTokens: 1024,
+            maxOutputTokens: 2048,
             responseMimeType: 'application/json',
           },
         }),
@@ -112,7 +251,7 @@ async function gerarComGemini(apiKey, promptSistema, promptUsuario) {
 
       if (!res.ok) {
         const erroTexto = await res.text().catch(() => '');
-        throw new Error(`Gemini (${modelo}) respondeu com status ${res.status}: ${erroTexto.slice(0, 150)}`);
+        throw new Error(`Gemini (${modelo}) status ${res.status}: ${erroTexto.slice(0, 100)}`);
       }
 
       const data = await res.json();
@@ -121,16 +260,25 @@ async function gerarComGemini(apiKey, promptSistema, promptUsuario) {
         throw new Error(`Nenhum texto retornado pelo modelo ${modelo}`);
       }
 
-      const parsed = JSON.parse(textoGerado);
-      return Array.isArray(parsed) ? parsed : (parsed.opcoes || parsed.sugestoes || [parsed]);
+      let textoLimpo = (textoGerado || '').trim();
+      if (textoLimpo.startsWith('```')) {
+        textoLimpo = textoLimpo.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+      }
+
+      const parsed = JSON.parse(textoLimpo);
+      const lista = Array.isArray(parsed) ? parsed : (parsed.opcoes || parsed.sugestoes || [parsed]);
+      if (Array.isArray(lista) && lista.length > 0) {
+        return { opcoes: lista, modelo };
+      }
+      throw new Error(`Estrutura JSON inválida recebida de ${modelo}`);
     } catch (err) {
       clearTimeout(timeoutId);
       ultimoErro = err;
-      console.warn(`Tentativa com ${modelo} falhou:`, err.message);
+      console.warn(`[PostLink IA] Modelo ${modelo} não respondeu: ${err.message}`);
     }
   }
 
-  throw ultimoErro || new Error('Todos os modelos Gemini falharam');
+  throw ultimoErro || new Error('Nenhum modelo da cascata Gemini pôde responder no momento');
 }
 
 // Chamada alternativa ao Cloudflare Workers AI (se binding env.AI estiver presente)
@@ -178,11 +326,11 @@ export async function onRequestPost({ request, env }) {
       loja_id,
       contexto = '',
       url_destino = '',
-      tipo_acao = 'sugestoes_completas', // 'sugestoes_completas' | 'melhorar_titulo' | 'melhorar_descricao' | 'melhorar_mensagem'
-      tom = 'urgencia',
+      tipo_acao = 'sugestoes_completas',
+      tom = 'amigavel',
     } = body;
 
-    const textoBase = (contexto || url_destino || '').trim();
+    const textoBase = limparTermoFinal(contexto || url_destino || '');
     if (!textoBase) {
       return new Response(JSON.stringify({ sucesso: false, erro: 'Informe o que você está divulgando ou o link de destino' }), {
         status: 400,
@@ -230,38 +378,63 @@ export async function onRequestPost({ request, env }) {
           }
         }
       } catch (errSupabase) {
-        console.warn('Falha silenciosa ao checar cota no Supabase:', errSupabase);
+        console.warn('[PostLink IA] Falha silenciosa ao checar cota no Supabase:', errSupabase);
       }
     }
 
-    // 2. Construção do Prompt Especializado em Copywriting de WhatsApp
-    const promptSistema = `Você é o redator de elite do PostLink, o gerador de links inteligentes em alta definição para WhatsApp e redes sociais mais eficiente do Brasil.
-Sua missão é criar copies de alta conversão para cartões de pré-visualização (Open Graph) no WhatsApp que maximizam cliques e vendas para lojistas e empreendedores brasileiros.
+    // 2. Construção do Prompt Especializado com o Tom de Voz Escolhido
+    const configTom = DEFINICOES_TOM[tom] || DEFINICOES_TOM.amigavel;
 
-REGRAS RÍGIDAS DE FORMATAÇÃO:
-1. TÍTULO: Deve ter NO MÁXIMO 80 caracteres. Direto, claro, com benefício ou gatilho irresistível (escassez, desconto, exclusividade).
-2. DESCRIÇÃO: Deve ter NO MÁXIMO 200 caracteres. Persuasiva, gerando curiosidade e convidando o visitante para tocar/abrir. Use 1 ou 2 emojis no máximo de maneira elegante.
-3. MENSAGEM WHATSAPP: A mensagem pronta e natural que o cliente envia ao tocar no link (pode usar tags opcionais como {cupom} ou {origem}).
-4. SLUG: Entre 4 e 25 caracteres, apenas letras minúsculas sem acento, números e hífens.
-5. RETORNE EXCLUSIVAMENTE um objeto JSON no formato:
+    const promptSistema = `Você é o redator de elite do PostLink, o gerador de links inteligentes em alta definição para WhatsApp e redes sociais mais eficiente do Brasil.
+Sua missão é criar 3 opções irresistíveis de copywriting para cartões de pré-visualização (Open Graph) no WhatsApp que maximizam cliques e vendas para lojistas e empreendedores brasileiros.
+
+O LOJISTA ESCOLHEU O TOM DE VOZ: "${configTom.nome}".
+DIRETRIZ DE ESTILO: ${configTom.estilo}
+
+REGRAS RÍGIDAS DE FORMATAÇÃO E COPYWRITING:
+1. TÍTULO DO CARTÃO (Máximo 80 caracteres):
+   - NUNCA copie a frase crua fornecida pelo lojista.
+   - NUNCA deixe frases truncadas ou pontuações soltas no final (como vírgulas ou palavras incompletas).
+   - Transforme o produto em um título comercial altamente atrativo, natural e polido, perfeito para visualização no WhatsApp.
+   - Use no máximo 1 emoji no início se for relevante.
+
+2. DESCRIÇÃO DO CARTÃO (Máximo 200 caracteres):
+   - Persuasiva, fluida e com gatilhos de engajamento no tom "${configTom.nome}".
+   - Instigue o leitor a clicar para continuar a conversa no WhatsApp.
+   - Máximo de 1 a 2 emojis de forma equilibrada.
+
+3. MENSAGEM WHATSAPP INICIAL (Máximo 140 caracteres):
+   - A mensagem pronta que o cliente enviará ao abrir a conversa no WhatsApp da loja.
+   - Deve soar natural, espontânea e já iniciar o atendimento com simpatia.
+   - Pode conter a tag opcional {cupom} se for relevante.
+
+4. SLUG AMIGÁVEL (Entre 4 e 25 caracteres):
+   - Apenas letras minúsculas, números e hífens (ex: geleia-morango-artesanal).
+
+5. RETORNE 3 VARIAÇÕES DISTINTAS DENTRO DO TOM "${configTom.nome}":
+   - Opção 1: "${configTom.variacoes[0]}"
+   - Opção 2: "${configTom.variacoes[1]}"
+   - Opção 3: "${configTom.variacoes[2]}"
+
+Retorne EXCLUSIVAMENTE um objeto JSON no formato:
 {
   "opcoes": [
     {
-      "tom": "Urgência & Escassez",
+      "tom": "${configTom.variacoes[0]}",
       "titulo": "...",
       "descricao": "...",
       "mensagem_whatsapp": "...",
       "slug": "..."
     },
     {
-      "tom": "Desconto & Oferta",
+      "tom": "${configTom.variacoes[1]}",
       "titulo": "...",
       "descricao": "...",
       "mensagem_whatsapp": "...",
       "slug": "..."
     },
     {
-      "tom": "Exclusivo & Destaque",
+      "tom": "${configTom.variacoes[2]}",
       "titulo": "...",
       "descricao": "...",
       "mensagem_whatsapp": "...",
@@ -271,27 +444,27 @@ REGRAS RÍGIDAS DE FORMATAÇÃO:
 }`;
 
     const promptUsuario = `Produto / Oferta divulgada: "${textoBase}"
-Tom prioritário solicitado pelo lojista: "${tom}"
-Tipo de ação: "${tipo_acao}"`;
+Tom solicitado pelo lojista: "${configTom.nome}"
+Ação solicitada: "${tipo_acao}"`;
 
     let sugestoes = null;
     let provedorUtilizado = 'fallback';
 
-    // 3. Tentativa 1: Google Gemini 1.5 Flash (Gratuito e de Altíssima Fluência em PT-BR)
+    // 3. Tentativa 1: Google Gemini (com chave do Cloudflare Pages env)
     const geminiKey = env.GEMINI_API_KEY;
     if (geminiKey) {
       try {
-        const rawGemini = await gerarComGemini(geminiKey, promptSistema, promptUsuario);
-        if (Array.isArray(rawGemini) && rawGemini.length > 0) {
-          sugestoes = rawGemini;
-          provedorUtilizado = 'gemini-1.5-flash';
+        const resultadoGemini = await gerarComGemini(geminiKey, promptSistema, promptUsuario);
+        if (resultadoGemini && Array.isArray(resultadoGemini.opcoes) && resultadoGemini.opcoes.length > 0) {
+          sugestoes = resultadoGemini.opcoes;
+          provedorUtilizado = resultadoGemini.modelo;
         }
       } catch (errGemini) {
-        console.warn('Gemini falhou, tentando fallback:', errGemini.message);
+        console.warn('[PostLink IA] Falha em todos os modelos Gemini:', errGemini.message);
       }
     }
 
-    // 4. Tentativa 2: Cloudflare Workers AI (se configurado na Cloudflare)
+    // 4. Tentativa 2: Cloudflare Workers AI (se presente)
     if (!sugestoes && env.AI) {
       try {
         const rawWorkersAI = await gerarComWorkersAI(env.AI, promptSistema, promptUsuario);
@@ -300,20 +473,20 @@ Tipo de ação: "${tipo_acao}"`;
           provedorUtilizado = 'cloudflare-workers-ai';
         }
       } catch (errWorkers) {
-        console.warn('Workers AI falhou:', errWorkers.message);
+        console.warn('[PostLink IA] Workers AI falhou:', errWorkers.message);
       }
     }
 
-    // 5. Tentativa 3: Motor Contextual Resiliente (Garante entrega imediata mesmo sem API configurada)
+    // 5. Tentativa 3: Motor Contextual Resiliente (Especializado no tom escolhido)
     if (!sugestoes || sugestoes.length === 0) {
       sugestoes = gerarSugestoesFallback(contexto, url_destino, tom);
       provedorUtilizado = 'motor-contextual-postlink';
     }
 
-    // Sanitiza e valida comprimentos de caracteres finais para garantir que nenhum exceda a régua
+    // Sanitiza e valida comprimentos de caracteres finais para garantir integridade
     const sugestoesSanitizadas = sugestoes.slice(0, 3).map((item, idx) => ({
       id: idx + 1,
-      tom: item.tom || (idx === 0 ? 'Urgência & Escassez' : idx === 1 ? 'Desconto & Oferta' : 'Exclusivo & Destaque'),
+      tom: item.tom || configTom.variacoes[idx] || `Opção ${idx + 1}`,
       titulo: truncar(item.titulo || item.title || textoBase, 80),
       descricao: truncar(item.descricao || item.description || 'Toque para conferir a oferta completa no WhatsApp!', 200),
       mensagem_whatsapp: (item.mensagem_whatsapp || item.whatsapp_message || `Olá! Quero mais informações sobre ${textoBase}.`).slice(0, 150),

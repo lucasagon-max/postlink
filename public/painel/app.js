@@ -4477,7 +4477,7 @@ async function executarGeracaoIa(contextoForcado = null, acao = 'sugestoes_compl
     atualizarBadgeCotaIa(data.restantes_hoje ?? 39, data.limite_diario ?? 40);
 
     state.ia.sugestoes = data.sugestoes || [];
-    renderizarSugestoesIa(state.ia.sugestoes);
+    renderizarSugestoesIa(state.ia.sugestoes, data.provedor || '');
 
     toast('Sugestões geradas com sucesso! ✨', 'success');
   } catch (err) {
@@ -4493,7 +4493,7 @@ async function executarGeracaoIa(contextoForcado = null, acao = 'sugestoes_compl
   }
 }
 
-function renderizarSugestoesIa(sugestoes = []) {
+function renderizarSugestoesIa(sugestoes = [], provedor = '') {
   const cardsLista = el.modalIaCardsLista || document.getElementById('modal-ia-cards-lista');
   const resultados = el.modalIaResultados || document.getElementById('modal-ia-resultados');
   if (!cardsLista) return;
@@ -4504,6 +4504,16 @@ function renderizarSugestoesIa(sugestoes = []) {
     if (resultados) resultados.classList.remove('hidden');
     return;
   }
+
+  // Indicador de modelo/motor utilizado
+  const indicadorEngine = document.createElement('div');
+  indicadorEngine.className = 'flex items-center justify-between text-[11px] text-outline font-medium pb-1';
+  const tagEngine = provedor.includes('gemini') ? '✨ Google Gemini IA' : '✨ Motor Inteligente PostLink';
+  indicadorEngine.innerHTML = `
+    <span>${tagEngine}</span>
+    <span>Clique em "Usar esta opção" para aplicar</span>
+  `;
+  cardsLista.appendChild(indicadorEngine);
 
   sugestoes.forEach((item, index) => {
     const card = document.createElement('div');
