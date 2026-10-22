@@ -911,6 +911,49 @@
               </div>
             </details>
 
+            <!-- 5. MENSAGEM DE DIVULGAÇÃO & COMPARTILHAMENTO -->
+            <div class="space-y-2 pt-3 border-t border-outline-variant/60">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-1.5">
+                  <span class="material-symbols-outlined text-base text-secondary">chat</span>
+                  <label class="block text-xs font-bold text-on-surface" for="input-mensagem-compartilhamento">
+                    Mensagem de Divulgação (WhatsApp & Redes)
+                  </label>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button type="button" id="btn-ia-inline-compartilhamento" data-action="abrir-ia-compartilhamento" class="inline-flex items-center gap-1 text-[11px] font-bold text-primary hover:text-secondary-dark transition-colors" title="Gerar mensagem persuasiva com Inteligência Artificial">
+                    <span class="material-symbols-outlined text-xs">auto_awesome</span>
+                    <span>Gerar com IA</span>
+                  </button>
+                  <span id="contador-mensagem-compartilhamento" class="text-xs font-mono font-semibold text-outline">0 / 1000</span>
+                </div>
+              </div>
+
+              <p class="text-[11px] text-outline leading-tight">
+                Texto de anúncio que acompanha o link ao enviar no WhatsApp. Use tags para preenchimento dinâmico:
+              </p>
+
+              <!-- Tags Rápidas & Emojis -->
+              <div class="flex flex-wrap items-center gap-1.5 text-[11px]">
+                <span class="text-outline text-[10px] font-semibold uppercase">Inserir:</span>
+                <button type="button" class="btn-tag-compartilhamento bg-surface-container hover:bg-surface-container-high text-primary font-mono font-bold px-2 py-0.5 rounded border border-outline-variant/60 active:scale-95 transition-all" data-tag="{link}" title="Insere a tag {link} onde a URL encurtada deve aparecer">+ {link}</button>
+                <button type="button" class="btn-tag-compartilhamento bg-surface-container hover:bg-surface-container-high text-primary font-mono font-bold px-2 py-0.5 rounded border border-outline-variant/60 active:scale-95 transition-all" data-tag="{loja}" title="Insere o nome da sua loja">+ {loja}</button>
+                <span class="text-outline-variant mx-0.5">|</span>
+                <button type="button" class="btn-emoji-compartilhamento text-sm hover:scale-125 transition-transform" data-emoji="👉" title="Apontar">👉</button>
+                <button type="button" class="btn-emoji-compartilhamento text-sm hover:scale-125 transition-transform" data-emoji="✨" title="Brilho">✨</button>
+                <button type="button" class="btn-emoji-compartilhamento text-sm hover:scale-125 transition-transform" data-emoji="🔥" title="Fogo / Oferta">🔥</button>
+                <button type="button" class="btn-emoji-compartilhamento text-sm hover:scale-125 transition-transform" data-emoji="⚡" title="Raio / Urgente">⚡</button>
+                <button type="button" class="btn-emoji-compartilhamento text-sm hover:scale-125 transition-transform" data-emoji="🛍️" title="Compras">🛍️</button>
+                <button type="button" class="btn-emoji-compartilhamento text-sm hover:scale-125 transition-transform" data-emoji="🏷️" title="Etiqueta / Desconto">🏷️</button>
+                <button type="button" class="btn-emoji-compartilhamento text-sm hover:scale-125 transition-transform" data-emoji="❤️" title="Coração">❤️</button>
+              </div>
+
+              <textarea id="input-mensagem-compartilhamento" rows="4" maxlength="1000" placeholder="Oi, tudo bem? Olha só essa novidade que preparamos com carinho! &#10;&#10;👉 Confira os detalhes completos aqui: {link} &#10;&#10;Qualquer dúvida é só nos chamar no WhatsApp!" class="w-full text-xs rounded-xl border-outline-variant bg-surface-container-lowest py-2.5 px-3 focus:ring-primary focus:border-primary resize-y leading-relaxed"></textarea>
+              <p class="text-[11px] text-outline">
+                Dica: Se a tag <code class="font-mono bg-surface-container px-1 py-0.5 rounded text-primary">{link}</code> não for inserida, o link será anexado automaticamente ao final do texto.
+              </p>
+            </div>
+
             <button type="submit" id="btn-submeter-link" class="w-full bg-secondary text-white font-bold text-xs py-3 rounded-xl shadow-md hover:bg-secondary-dark active:scale-95 transition-all">
               Criar Link Inteligente
             </button>
@@ -940,8 +983,11 @@
               <div class="text-xs text-center text-[#667781] mb-2 font-medium">Hoje 14:30</div>
 
               <!-- Balão de Mensagem Nativo -->
-              <div class="bg-[#E7FFDB] wa-bubble-shadow rounded-xl p-2 max-w-[320px] ml-auto border border-[#C8E6C9]">
+              <div class="bg-[#E7FFDB] wa-bubble-shadow rounded-xl p-2 max-w-[320px] ml-auto border border-[#C8E6C9] space-y-2">
                 
+                <!-- Texto da Mensagem de Divulgação (Live Preview) -->
+                <div id="wa-preview-msg-texto" class="hidden text-xs text-[#111B21] leading-relaxed whitespace-pre-line px-1 pt-0.5 break-words"></div>
+
                 <!-- Cartão Open Graph HD -->
                 <div class="rounded-lg overflow-hidden border border-black/10 bg-white">
                   <!-- Container da Imagem com Aspect Ratio 1.91:1 -->
@@ -1806,13 +1852,13 @@
   </div>
 
   <!-- MODAL DE SUCESSO -->
-  <div id="modal-sucesso" role="dialog" aria-modal="true" aria-labelledby="modal-sucesso-titulo" class="hidden fixed inset-0 bg-black/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-    <div class="bg-surface-container-lowest max-w-sm w-full rounded-2xl p-6 text-center border border-outline-variant shadow-xl space-y-4">
-      <div class="w-12 h-12 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center mx-auto">
-        <span class="material-symbols-outlined text-2xl">check_circle</span>
+  <div id="modal-sucesso" role="dialog" aria-modal="true" aria-labelledby="modal-sucesso-titulo" class="hidden fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-surface-container-lowest max-w-md w-full rounded-3xl p-5 sm:p-6 border border-outline-variant shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto">
+      <div class="w-12 h-12 rounded-2xl bg-secondary-container text-on-secondary-container flex items-center justify-center mx-auto shadow-xs">
+        <span class="material-symbols-outlined text-2xl text-secondary-dark">check_circle</span>
       </div>
-      <div>
-        <h2 id="modal-sucesso-titulo" class="text-xl font-bold text-on-surface">Link Pronto!</h2>
+      <div class="text-center">
+        <h2 id="modal-sucesso-titulo" class="text-xl font-extrabold text-on-surface">Link Pronto!</h2>
         <div id="modal-sucesso-badge-versao" class="hidden text-[11px] font-bold text-primary bg-primary-fixed/30 px-3 py-1 rounded-full items-center gap-1 mx-auto my-1.5 w-fit">
           <span class="material-symbols-outlined text-sm">history</span>
           <span id="modal-sucesso-badge-texto">Versão atualizada</span>
@@ -1822,21 +1868,47 @@
         </p>
       </div>
 
-      <div class="flex gap-2">
-        <input id="modal-input-link" type="text" readonly class="w-full text-xs font-mono bg-surface-container-low border border-outline-variant rounded-lg px-2.5 py-2 truncate select-all">
-        <button id="modal-btn-copiar" type="button" class="bg-surface-container text-primary hover:bg-surface-container-high border border-outline-variant text-xs font-bold px-3 py-2 rounded-lg shrink-0 flex items-center gap-1">
-          <span class="material-symbols-outlined text-sm">content_copy</span> Copiar
-        </button>
+      <!-- Preview da Mensagem Pronta de Envio -->
+      <div id="modal-sucesso-box-mensagem" class="hidden space-y-1.5 text-left bg-surface-container-low p-3.5 rounded-2xl border border-outline-variant/60">
+        <div class="flex items-center justify-between text-[11px] font-bold text-on-surface-variant">
+          <span class="flex items-center gap-1 text-secondary-dark">
+            <span class="material-symbols-outlined text-sm">chat</span>
+            <span>Mensagem com Link para Envio:</span>
+          </span>
+          <span id="modal-sucesso-contador-chars" class="font-mono text-outline text-[10px]"></span>
+        </div>
+        <div id="modal-sucesso-texto-preview" class="text-xs text-on-surface whitespace-pre-line leading-relaxed max-h-40 overflow-y-auto bg-surface-container-lowest p-2.5 rounded-xl border border-outline-variant/40 font-normal select-all"></div>
       </div>
 
-      <div class="space-y-2">
-        <a id="modal-btn-whatsapp" href="#" target="_blank" class="w-full bg-secondary text-white text-xs font-bold py-2.5 rounded-xl shadow-sm hover:bg-secondary-dark flex items-center justify-center gap-1.5 transition-all">
-          <span class="material-symbols-outlined text-base">send</span> Compartilhar no WhatsApp
-        </a>
-        <button id="modal-btn-fechar" type="button" class="w-full text-xs font-medium text-outline hover:text-on-surface py-1">
-          Fechar
-        </button>
+      <!-- Botão Primário: WhatsApp com texto completo -->
+      <a id="modal-btn-whatsapp" href="#" target="_blank" class="w-full bg-secondary hover:bg-secondary-dark text-white text-xs font-bold py-3 rounded-xl shadow-md flex items-center justify-center gap-2 active:scale-98 transition-all">
+        <span class="material-symbols-outlined text-base">send</span>
+        <span id="modal-btn-whatsapp-texto">Enviar no WhatsApp</span>
+      </a>
+
+      <!-- Botão Secundário: Copiar Texto Completo com Link -->
+      <button id="modal-btn-copiar-completo" type="button" class="w-full bg-primary hover:bg-primary-container text-white text-xs font-bold py-2.5 px-3 rounded-xl shadow-xs flex items-center justify-center gap-1.5 active:scale-98 transition-all">
+        <span class="material-symbols-outlined text-sm">content_copy</span>
+        <span id="modal-btn-copiar-completo-texto">Copiar Texto Completo com Link</span>
+      </button>
+
+      <!-- Campo compacto com o link isolado -->
+      <div class="space-y-1 pt-1 border-t border-outline-variant/50">
+        <label class="block text-[11px] font-bold text-outline text-left" for="modal-input-link">
+          Ou se preferir, copie apenas a URL encurtada:
+        </label>
+        <div class="flex gap-2">
+          <input id="modal-input-link" type="text" readonly class="w-full text-xs font-mono bg-surface-container-low border border-outline-variant rounded-xl px-2.5 py-2 truncate select-all">
+          <button id="modal-btn-copiar" type="button" class="bg-surface-container hover:bg-surface-container-high text-primary border border-outline-variant text-xs font-bold px-3 py-2 rounded-xl shrink-0 flex items-center gap-1 transition-all active:scale-95" title="Copiar apenas o link">
+            <span class="material-symbols-outlined text-sm">link</span>
+            <span id="modal-btn-copiar-texto">Copiar</span>
+          </button>
+        </div>
       </div>
+
+      <button id="modal-btn-fechar" type="button" class="w-full text-xs font-semibold text-outline hover:text-on-surface py-1">
+        Fechar
+      </button>
     </div>
   </div>
 
@@ -2296,7 +2368,7 @@
   <div id="toast-container"></div>
 
   <!-- Script principal do Painel SPA (com timestamp anti-cache) -->
-  <script type="module" src="/painel/app.js?v=20261022_ia_v4"></script>
+  <script type="module" src="/painel/app.js?v=20261022_ia_v5"></script>
 
 </body>
 </html>

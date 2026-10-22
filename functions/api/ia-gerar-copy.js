@@ -109,6 +109,7 @@ function gerarSugestoesFallback(contexto = '', url = '', tomDesejado = 'urgencia
         titulo: truncar(`🍓 ${primeiroNome} Feito com Amor e Dedicação`, 80),
         descricao: truncar(`Sinta o sabor e o afeto em cada detalhe de ${primeiroNome}. Toque para bater um papo no WhatsApp!`, 200),
         mensagem_whatsapp: `Olá! Fiquei muito interessado em ${primeiroNome}. Como posso fazer meu pedido?`,
+        mensagem_compartilhamento: `🍓 *Novidade Especial Feita com Amor!* ✨\n\nOi, tudo bem? Acabamos de preparar uma seleção maravilhosa de *${primeiroNome}*, feita artesanalmente com todo o carinho e cuidado.\n\nFicou com vontade ou quer saber mais detalhes? É só tocar no link abaixo e conversar com a gente direto no WhatsApp:\n👉 {link}\n\nEstamos te esperando com muito carinho! ❤️`,
         slug: truncar(`${slugBase}-afeto`, 30),
       },
       {
@@ -116,6 +117,7 @@ function gerarSugestoesFallback(contexto = '', url = '', tomDesejado = 'urgencia
         titulo: truncar(`✨ Que Tal Provar o Melhor de ${primeiroNome}?`, 80),
         descricao: truncar(`Uma receita pensada pra deixar seu dia mais doce e leve. Conversa com a gente no WhatsApp!`, 200),
         mensagem_whatsapp: `Oii! Vi o anúncio de ${primeiroNome} e achei incrível. Me ajuda a escolher?`,
+        mensagem_compartilhamento: `✨ *Momento Doce & Especial para Você!* ☕\n\nOlá! Passando para te contar que nosso(a) *${primeiroNome}* está imperdível hoje! Uma escolha pensada para alegrar o seu dia com toda a leveza.\n\nVeja as opções e garanta o seu aqui:\n👉 {link}\n\nQualquer dúvida, é só nos chamar no WhatsApp! 😊`,
         slug: truncar(`${slugBase}-especial`, 30),
       },
       {
@@ -123,6 +125,7 @@ function gerarSugestoesFallback(contexto = '', url = '', tomDesejado = 'urgencia
         titulo: truncar(`☕ ${primeiroNome} Perfeito para Você`, 80),
         descricao: truncar(`Qualidade artesanal, carinho e atendimento rápido direto pelo WhatsApp. Garanta já o seu!`, 200),
         mensagem_whatsapp: `Oie, tudo bem? Quero mais detalhes sobre ${primeiroNome}!`,
+        mensagem_compartilhamento: `❤️ *Dica Especial do Dia!* 🌟\n\nOie! Se você ama novidades selecionadas, vai adorar o nosso(a) *${primeiroNome}*. Cuidado artesanal em cada pedaço e atendimento com todo amor!\n\nToque no link para conferir agora:\n👉 {link}\n\nPeça direto pelo WhatsApp!`,
         slug: truncar(`${slugBase}-artesanal`, 30),
       },
     ];
@@ -135,6 +138,7 @@ function gerarSugestoesFallback(contexto = '', url = '', tomDesejado = 'urgencia
         titulo: truncar(`🔥 Oferta Especial: ${primeiroNome}`, 80),
         descricao: truncar(`Condições imperdíveis por tempo limitado para pedidos direto no WhatsApp. Confira e aproveite! 👇`, 200),
         mensagem_whatsapp: `Olá! Vi a promoção de ${primeiroNome} e quero garantir com o melhor preço.`,
+        mensagem_compartilhamento: `🔥 *OFERTA ESPECIAL POR TEMPO LIMITADO!* 🏷️\n\nOi! Conseguimos uma condição imperdível para *${primeiroNome}*! Preço especial reduzido para pedidos confirmados hoje direto pelo WhatsApp.\n\nAproveite antes que o lote promocional encerre:\n👉 {link}\n\nToque no link e garanta o seu desconto agora mesmo!`,
         slug: truncar(`${slugBase}-oferta`, 30),
       },
       {
@@ -142,6 +146,7 @@ function gerarSugestoesFallback(contexto = '', url = '', tomDesejado = 'urgencia
         titulo: truncar(`🏷️ Desconto Exclusivo em ${primeiroNome}`, 80),
         descricao: truncar(`Aproveite nosso cupom especial para economizar no seu pedido de ${primeiroNome}. Peça agora!`, 200),
         mensagem_whatsapp: `Olá! Vi a oferta de ${primeiroNome} e gostaria de aplicar meu cupom de desconto.`,
+        mensagem_compartilhamento: `💰 *Vantagem Exclusiva Liberada!* ✨\n\nOlá! Preparamos uma condição com desconto imperdível na sua compra de *${primeiroNome}*. Economia real com atendimento rápido e entrega facilitada!\n\nGaranta sua condição especial agora:\n👉 {link}\n\nCorre para aproveitar enquanto ainda temos vagas no lote!`,
         slug: truncar(`${slugBase}-cupom`, 30),
       },
       {
@@ -149,6 +154,7 @@ function gerarSugestoesFallback(contexto = '', url = '', tomDesejado = 'urgencia
         titulo: truncar(`💰 O Melhor Preço em ${primeiroNome}`, 80),
         descricao: truncar(`Qualidade superior pelo melhor valor da região com entrega rápida. Peça já pelo WhatsApp!`, 200),
         mensagem_whatsapp: `Olá! Quero aproveitar a condição especial de ${primeiroNome}.`,
+        mensagem_compartilhamento: `⚡ *O Melhor Custo-Benefício da Semana!* 🎯\n\nOi, tudo bem? Você não vai querer perder essa promoção especial de *${primeiroNome}*. Qualidade diferenciada pelo melhor valor!\n\nClique no link e faça seu pedido direto pelo WhatsApp:\n👉 {link}`,
         slug: truncar(`${slugBase}-economia`, 30),
       },
     ];
@@ -161,6 +167,7 @@ function gerarSugestoesFallback(contexto = '', url = '', tomDesejado = 'urgencia
         titulo: truncar(`💎 Destaque Selecionado: ${primeiroNome}`, 80),
         descricao: truncar(`Produção selecionada com padrão superior de qualidade e acabamento. Descubra agora!`, 200),
         mensagem_whatsapp: `Olá! Vi o destaque de ${primeiroNome} e gostaria de conhecer as opções disponíveis.`,
+        mensagem_compartilhamento: `💎 *Edição Selecionada & Especial!* ✨\n\nOlá! Apresentamos com orgulho o(a) *${primeiroNome}*. Uma linha pensada para quem valoriza qualidade superior, sofisticação e padrão impecável em cada detalhe.\n\nConheça e faça sua reserva exclusiva aqui:\n👉 {link}\n\nAtendimento prioritário e personalizado no WhatsApp.`,
         slug: truncar(`${slugBase}-vip`, 30),
       },
       {
@@ -168,6 +175,7 @@ function gerarSugestoesFallback(contexto = '', url = '', tomDesejado = 'urgencia
         titulo: truncar(`👑 Atendimento Exclusivo para ${primeiroNome}`, 80),
         descricao: truncar(`Tire todas as suas dúvidas com nosso time especialista no WhatsApp e receba suporte premium.`, 200),
         mensagem_whatsapp: `Olá! Gostaria de um atendimento personalizado sobre ${primeiroNome}.`,
+        mensagem_compartilhamento: `👑 *Experiência VIP & Destaque Especial!* 🌟\n\nOlá! Convidamos você a conhecer o diferencial de *${primeiroNome}*. Produção diferenciada com padrão artesanal incomparável.\n\nToque no link abaixo para conhecer em detalhes:\n👉 {link}\n\nAtendimento consultivo direto pelo WhatsApp.`,
         slug: truncar(`${slugBase}-premium`, 30),
       },
       {
@@ -175,6 +183,7 @@ function gerarSugestoesFallback(contexto = '', url = '', tomDesejado = 'urgencia
         titulo: truncar(`🌟 O Mais Pedido: ${primeiroNome}`, 80),
         descricao: truncar(`A preferência de quem busca autenticidade e sabor inigualável. Peça direto no WhatsApp!`, 200),
         mensagem_whatsapp: `Olá! Quero conhecer mais sobre a linha exclusiva de ${primeiroNome}.`,
+        mensagem_compartilhamento: `🌟 *A Linha Mais Pedida da Nossa Loja!* 💎\n\nOlá! Descubra por que *${primeiroNome}* é a escolha favorita dos nossos clientes mais exigentes.\n\nReserve o seu pelo link oficial:\n👉 {link}\n\nEsperamos seu contato!`,
         slug: truncar(`${slugBase}-destaque`, 30),
       },
     ];
@@ -187,6 +196,7 @@ function gerarSugestoesFallback(contexto = '', url = '', tomDesejado = 'urgencia
       titulo: truncar(`⚡ Últimas Unidades: ${primeiroNome}`, 80),
       descricao: truncar(`Poucas peças em estoque com envio rápido. Toque para garantir antes que encerre o lote! 👇`, 200),
       mensagem_whatsapp: `Olá! Vi o anúncio de ${primeiroNome} e quero garantir antes que esgote o lote!`,
+      mensagem_compartilhamento: `⚡ *ÚLTIMAS UNIDADES EM ESTOQUE!* 🚨\n\nOi! O nosso lote de *${primeiroNome}* está se esgotando rapidamente e restam pouquíssimas unidades com envio prioritário hoje!\n\nNão fique sem. Toque no link abaixo e garanta o seu antes que encerre o estoque:\n👉 {link}\n\nAtendimento imediato pelo WhatsApp!`,
       slug: truncar(`${slugBase}-urgente`, 30),
     },
     {
@@ -194,6 +204,7 @@ function gerarSugestoesFallback(contexto = '', url = '', tomDesejado = 'urgencia
       titulo: truncar(`⏰ Oferta Relâmpago de ${primeiroNome}`, 80),
       descricao: truncar(`Condições ativas somente enquanto durar o lote atual. Não fique de fora, peça agora!`, 200),
       mensagem_whatsapp: `Olá! Quero aproveitar a oportunidade relâmpago de ${primeiroNome}.`,
+      mensagem_compartilhamento: `⏰ *Oportunidade Relâmpago Ativa!* 🔥\n\nOlá! Condições especiais para *${primeiroNome}* válidas somente enquanto durarem as unidades disponíveis deste lote.\n\nClique no link agora para não perder:\n👉 {link}\n\nGaranta o seu direto pelo WhatsApp!`,
       slug: truncar(`${slugBase}-relampago`, 30),
     },
     {
@@ -201,6 +212,7 @@ function gerarSugestoesFallback(contexto = '', url = '', tomDesejado = 'urgencia
       titulo: truncar(`🚨 Quase Esgotado: ${primeiroNome}`, 80),
       descricao: truncar(`Lote promocional encerrando hoje. Toque no link e garanta o seu com prioridade no envio.`, 200),
       mensagem_whatsapp: `Olá! Vi que o lote de ${primeiroNome} está acabando e quero fechar o meu pedido.`,
+      mensagem_compartilhamento: `🚨 *Lote Quase Esgotado!* ⚠️\n\nOi! Atenção: restam poucos pedidos para encerrarmos o lote especial de *${primeiroNome}*.\n\nGaranta sua unidade com envio prioritário pelo link:\n👉 {link}\n\nChame no WhatsApp agora antes que acabe!`,
       slug: truncar(`${slugBase}-final`, 30),
     },
   ];
@@ -408,10 +420,16 @@ REGRAS RÍGIDAS DE FORMATAÇÃO E COPYWRITING:
    - Deve soar natural, espontânea e já iniciar o atendimento com simpatia.
    - Pode conter a tag opcional {cupom} se for relevante.
 
-4. SLUG AMIGÁVEL (Entre 4 e 25 caracteres):
+4. MENSAGEM DE COMPARTILHAMENTO / DIVULGAÇÃO (Máximo 1.000 caracteres, recomendado entre 180 e 450 caracteres):
+   - É o texto de anúncio persuasivo e completo que o lojista vai disparar ou colar no WhatsApp, grupos, status ou redes sociais convidando as pessoas a acessarem o link.
+   - Estruture com parágrafos bem espaçados, emojis elegantes e chamada para ação (CTA) envolvente.
+   - OBRIGATÓRIO incluir a tag {link} onde a URL do PostLink deve ser inserida (ex: "👉 Confira aqui: {link}").
+   - Escreva no tom "${configTom.nome}".
+
+5. SLUG AMIGÁVEL (Entre 4 e 25 caracteres):
    - Apenas letras minúsculas, números e hífens (ex: geleia-morango-artesanal).
 
-5. RETORNE 3 VARIAÇÕES DISTINTAS DENTRO DO TOM "${configTom.nome}":
+6. RETORNE 3 VARIAÇÕES DISTINTAS DENTRO DO TOM "${configTom.nome}":
    - Opção 1: "${configTom.variacoes[0]}"
    - Opção 2: "${configTom.variacoes[1]}"
    - Opção 3: "${configTom.variacoes[2]}"
@@ -424,6 +442,7 @@ Retorne EXCLUSIVAMENTE um objeto JSON no formato:
       "titulo": "...",
       "descricao": "...",
       "mensagem_whatsapp": "...",
+      "mensagem_compartilhamento": "...",
       "slug": "..."
     },
     {
@@ -431,6 +450,7 @@ Retorne EXCLUSIVAMENTE um objeto JSON no formato:
       "titulo": "...",
       "descricao": "...",
       "mensagem_whatsapp": "...",
+      "mensagem_compartilhamento": "...",
       "slug": "..."
     },
     {
@@ -438,6 +458,7 @@ Retorne EXCLUSIVAMENTE um objeto JSON no formato:
       "titulo": "...",
       "descricao": "...",
       "mensagem_whatsapp": "...",
+      "mensagem_compartilhamento": "...",
       "slug": "..."
     }
   ]
@@ -484,14 +505,25 @@ Ação solicitada: "${tipo_acao}"`;
     }
 
     // Sanitiza e valida comprimentos de caracteres finais para garantir integridade
-    const sugestoesSanitizadas = sugestoes.slice(0, 3).map((item, idx) => ({
-      id: idx + 1,
-      tom: item.tom || configTom.variacoes[idx] || `Opção ${idx + 1}`,
-      titulo: truncar(item.titulo || item.title || textoBase, 80),
-      descricao: truncar(item.descricao || item.description || 'Toque para conferir a oferta completa no WhatsApp!', 200),
-      mensagem_whatsapp: (item.mensagem_whatsapp || item.whatsapp_message || `Olá! Quero mais informações sobre ${textoBase}.`).slice(0, 150),
-      slug: limparSlug(item.slug || `oferta-${idx + 1}`),
-    }));
+    const sugestoesSanitizadas = sugestoes.slice(0, 3).map((item, idx) => {
+      let msgComp = (item.mensagem_compartilhamento || item.mensagem_divulgacao || '').trim();
+      if (!msgComp) {
+        msgComp = `${item.titulo || textoBase}\n\n${item.descricao || 'Toque no link abaixo para conferir os detalhes completos e pedir direto no WhatsApp:'}\n👉 {link}`;
+      }
+      if (msgComp.length > 1000) {
+        msgComp = msgComp.slice(0, 999).trim();
+      }
+
+      return {
+        id: idx + 1,
+        tom: item.tom || configTom.variacoes[idx] || `Opção ${idx + 1}`,
+        titulo: truncar(item.titulo || item.title || textoBase, 80),
+        descricao: truncar(item.descricao || item.description || 'Toque para conferir a oferta completa no WhatsApp!', 200),
+        mensagem_whatsapp: (item.mensagem_whatsapp || item.whatsapp_message || `Olá! Quero mais informações sobre ${textoBase}.`).slice(0, 150),
+        mensagem_compartilhamento: msgComp,
+        slug: limparSlug(item.slug || `oferta-${idx + 1}`),
+      };
+    });
 
     return new Response(JSON.stringify({
       sucesso: true,

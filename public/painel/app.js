@@ -119,6 +119,9 @@ const el = {
   contadorDescricao: document.getElementById('contador-descricao'),
   inputSlug: document.getElementById('input-slug'),
   inputValidoAte: document.getElementById('input-valido-ate'),
+  inputMensagemCompartilhamento: document.getElementById('input-mensagem-compartilhamento'),
+  contadorMensagemCompartilhamento: document.getElementById('contador-mensagem-compartilhamento'),
+  btnIaInlineCompartilhamento: document.getElementById('btn-ia-inline-compartilhamento'),
   btnSubmeterLink: document.getElementById('btn-submeter-link'),
 
   // Assistente de Copy com IA
@@ -143,6 +146,7 @@ const el = {
   previewTabSocial: document.getElementById('preview-tab-social'),
   previewFrameWa: document.getElementById('preview-frame-wa'),
   previewFrameSocial: document.getElementById('preview-frame-social'),
+  waPreviewMsgTexto: document.getElementById('wa-preview-msg-texto'),
   ph: document.getElementById('ph'),
   im: document.getElementById('im'),
   pt: document.getElementById('pt'),
@@ -166,9 +170,16 @@ const el = {
   modalSucessoBadgeVersao: document.getElementById('modal-sucesso-badge-versao'),
   modalSucessoBadgeTexto: document.getElementById('modal-sucesso-badge-texto'),
   modalSucessoSubtitulo: document.getElementById('modal-sucesso-subtitulo'),
+  modalSucessoBoxMensagem: document.getElementById('modal-sucesso-box-mensagem'),
+  modalSucessoTextoPreview: document.getElementById('modal-sucesso-texto-preview'),
+  modalSucessoContadorChars: document.getElementById('modal-sucesso-contador-chars'),
+  modalBtnWhatsapp: document.getElementById('modal-btn-whatsapp'),
+  modalBtnWhatsappTexto: document.getElementById('modal-btn-whatsapp-texto'),
+  modalBtnCopiarCompleto: document.getElementById('modal-btn-copiar-completo'),
+  modalBtnCopiarCompletoTexto: document.getElementById('modal-btn-copiar-completo-texto'),
   modalInputLink: document.getElementById('modal-input-link'),
   modalBtnCopiar: document.getElementById('modal-btn-copiar'),
-  modalBtnWhatsapp: document.getElementById('modal-btn-whatsapp'),
+  modalBtnCopiarTexto: document.getElementById('modal-btn-copiar-texto'),
   modalBtnFechar: document.getElementById('modal-btn-fechar'),
 
   // Versões e Controle de Edições
@@ -1236,13 +1247,17 @@ function renderizarLinks() {
 
       <div class="space-y-1.5 pt-1 border-t border-surface-container-high/60">
         <div class="grid grid-cols-2 gap-1.5">
-          <button type="button" class="btn-copiar bg-surface-container hover:bg-surface-container-high text-primary font-bold text-xs py-1.5 px-2 rounded-lg flex items-center justify-center gap-1 transition-all" data-url="${fullUrl}">
-            <span class="material-symbols-outlined text-sm">content_copy</span> Copiar
+          <button type="button" class="btn-copiar bg-surface-container hover:bg-surface-container-high text-primary font-bold text-xs py-1.5 px-2 rounded-lg flex items-center justify-center gap-1 transition-all" data-url="${fullUrl}" title="Copiar URL encurtada">
+            <span class="material-symbols-outlined text-sm">content_copy</span> Copiar Link
           </button>
-          <a href="https://wa.me/?text=${encodeURIComponent(adicionarParametroUrl(fullUrl, 'src', 'wa'))}" target="_blank" class="bg-secondary hover:bg-secondary-dark text-white font-bold text-xs py-1.5 px-2 rounded-lg flex items-center justify-center gap-1 transition-all">
+          <a href="https://wa.me/?text=${encodeURIComponent(montarTextoCompartilhamento(link.mensagem_compartilhamento, fullUrl, state.loja?.nome))}" target="_blank" class="bg-secondary hover:bg-secondary-dark text-white font-bold text-xs py-1.5 px-2 rounded-lg flex items-center justify-center gap-1 transition-all" title="Compartilhar no WhatsApp com mensagem de divulgação">
             <span class="material-symbols-outlined text-sm">send</span> WhatsApp
           </a>
         </div>
+        ${link.mensagem_compartilhamento ? `
+        <button type="button" class="btn-copiar-msg-completa w-full bg-primary/10 hover:bg-primary/20 text-primary font-semibold text-[11px] py-1 px-2 rounded-lg flex items-center justify-center gap-1 transition-all" data-msg="${escapeHtml(montarTextoCompartilhamento(link.mensagem_compartilhamento, fullUrl, state.loja?.nome))}" title="Copiar texto de anúncio completo com link">
+          <span class="material-symbols-outlined text-xs">chat</span> Copiar Mensagem Completa
+        </button>` : ''}
         <div class="grid grid-cols-2 gap-1.5">
           <a href="#/editar/${link.id}" class="bg-surface-container-lowest border border-outline-variant hover:bg-surface-container-low text-on-surface-variant font-medium text-xs py-1.5 px-2 rounded-lg flex items-center justify-center gap-1 transition-all">
             <span class="material-symbols-outlined text-sm">edit</span> Editar
@@ -1265,9 +1280,24 @@ function renderizarLinks() {
       navigator.clipboard.writeText(url);
       btn.innerHTML = '<span class="material-symbols-outlined text-sm">check</span> Copiado!';
       setTimeout(() => {
-        btn.innerHTML = '<span class="material-symbols-outlined text-sm">content_copy</span> Copiar';
+        btn.innerHTML = '<span class="material-symbols-outlined text-sm">content_copy</span> Copiar Link';
       }, 1800);
       toast('Link copiado para a área de transferência!', 'success');
+    });
+  });
+
+  document.querySelectorAll('.btn-copiar-msg-completa').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const msg = btn.dataset.msg;
+      if (msg) {
+        navigator.clipboard.writeText(msg);
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = '<span class="material-symbols-outlined text-xs">check</span> Mensagem Copiada! ✅';
+        setTimeout(() => {
+          btn.innerHTML = originalHtml;
+        }, 1800);
+        toast('Mensagem completa com link copiada para o WhatsApp!', 'success');
+      }
     });
   });
 
@@ -1411,6 +1441,11 @@ function prepararFormularioNovo() {
   if (el.detalhesPersonalizar) {
     el.detalhesPersonalizar.open = false;
   }
+
+  if (el.inputMensagemCompartilhamento) {
+    el.inputMensagemCompartilhamento.value = '';
+  }
+  atualizarContadorMensagemCompartilhamento();
 
   atualizarContadorDescricao();
   atualizarContagemGaleria();
@@ -1561,6 +1596,10 @@ async function prepararFormularioEdicao(id) {
   if (el.inputTitulo) el.inputTitulo.value = link.titulo || '';
   if (el.inputDescricao) el.inputDescricao.value = link.descricao || '';
   atualizarContadorDescricao();
+  if (el.inputMensagemCompartilhamento) {
+    el.inputMensagemCompartilhamento.value = link.mensagem_compartilhamento || '';
+  }
+  atualizarContadorMensagemCompartilhamento();
   if (el.inputSlug) el.inputSlug.value = link.slug;
   if (el.inputValidoAte) {
     el.inputValidoAte.value = link.valido_ate ? new Date(link.valido_ate).toISOString().slice(0, 16) : '';
@@ -1630,6 +1669,46 @@ async function tratarArquivoSelecionado(file) {
   });
 }
 
+// Monta o texto de divulgação persuasivo substituindo tags {link} e {loja}
+function montarTextoCompartilhamento(mensagemCustom = '', urlLink = '', nomeLoja = '') {
+  const urlComRastreioWa = urlLink ? adicionarParametroUrl(urlLink, 'src', 'wa') : '';
+  const lojaNome = nomeLoja || (state.loja ? state.loja.nome : '');
+
+  if (!mensagemCustom || !mensagemCustom.trim()) {
+    return urlComRastreioWa;
+  }
+
+  let texto = mensagemCustom.trim();
+
+  // Substitui tags dinâmicas se existirem
+  if (urlComRastreioWa) {
+    texto = texto.replace(/\{link\}/gi, urlComRastreioWa);
+  }
+  texto = texto.replace(/\{loja\}/gi, lojaNome);
+
+  // Se o usuário não colocou a tag {link}, anexa automaticamente ao final
+  if (urlComRastreioWa && !/\{link\}/i.test(mensagemCustom)) {
+    texto = `${texto}\n\n👉 Acesse aqui: ${urlComRastreioWa}`;
+  }
+
+  return texto;
+}
+
+// Atualiza contador de caracteres da mensagem de divulgação (máx. 1.000)
+function atualizarContadorMensagemCompartilhamento() {
+  if (!el.contadorMensagemCompartilhamento) return;
+  const len = el.inputMensagemCompartilhamento ? el.inputMensagemCompartilhamento.value.length : 0;
+  el.contadorMensagemCompartilhamento.textContent = `${len} / 1000`;
+
+  if (len >= 1000) {
+    el.contadorMensagemCompartilhamento.className = 'text-xs font-mono font-bold text-error';
+  } else if (len >= 900) {
+    el.contadorMensagemCompartilhamento.className = 'text-xs font-mono font-semibold text-amber-500';
+  } else {
+    el.contadorMensagemCompartilhamento.className = 'text-xs font-mono font-semibold text-outline';
+  }
+}
+
 // Live Preview
 function fullUrlExibicao() {
   const lojaSlug = state.loja ? state.loja.slug : 'loja';
@@ -1643,6 +1722,22 @@ function atualizarLivePreview() {
   const titulo = (el.inputTitulo && el.inputTitulo.value.trim()) || lojaNome;
   const desc = el.inputDescricao ? el.inputDescricao.value.trim() : '';
   const hostAtual = window.location.host || 'postlink.com.br';
+
+  // Preview da Mensagem de Divulgação no Balão do WhatsApp
+  const waPreviewMsg = el.waPreviewMsgTexto || document.getElementById('wa-preview-msg-texto');
+  const msgComp = el.inputMensagemCompartilhamento ? el.inputMensagemCompartilhamento.value.trim() : '';
+  if (waPreviewMsg) {
+    if (msgComp) {
+      const slugAtual = (el.inputSlug && el.inputSlug.value.trim()) || 'minha-oferta';
+      const linkExemplo = `https://${hostAtual}/${state.loja ? state.loja.slug : 'loja'}/${slugAtual}`;
+      const textoFormatado = montarTextoCompartilhamento(msgComp, linkExemplo, lojaNome);
+      waPreviewMsg.textContent = textoFormatado;
+      waPreviewMsg.classList.remove('hidden');
+    } else {
+      waPreviewMsg.textContent = '';
+      waPreviewMsg.classList.add('hidden');
+    }
+  }
 
   // Preview WhatsApp
   if (el.pt) el.pt.textContent = titulo;
@@ -1849,6 +1944,12 @@ if (el.inputSlug) {
     atualizarLivePreview();
   });
 }
+if (el.inputMensagemCompartilhamento) {
+  el.inputMensagemCompartilhamento.addEventListener('input', () => {
+    atualizarContadorMensagemCompartilhamento();
+    atualizarLivePreview();
+  });
+}
 
 if (el.waPhone) {
   aplicarMascaraTelefoneInput(el.waPhone);
@@ -1921,6 +2022,7 @@ if (el.formLink) {
       const descricao = (el.inputDescricao && el.inputDescricao.value.trim()) || null;
       const slugDesejado = (el.inputSlug && limparSlug(el.inputSlug.value.trim())) || null;
       const validoAte = (el.inputValidoAte && el.inputValidoAte.value) ? new Date(el.inputValidoAte.value).toISOString() : null;
+      const mensagemCompartilhamento = (el.inputMensagemCompartilhamento && el.inputMensagemCompartilhamento.value.trim()) || null;
 
       if (state.linkEditando) {
         const versaoAtual = state.linkEditando.versao || 1;
@@ -1934,7 +2036,7 @@ if (el.formLink) {
           return;
         }
 
-        // A cada alteração (imagem, destino, telefone, textos ou slug), a versão é SEMPRE incrementada
+        // A cada alteração (imagem, destino, telefone, textos, mensagem de divulgação ou slug), a versão é SEMPRE incrementada
         const versao = versaoAtual + 1;
         let caminhoImagem = state.linkEditando.imagem_path;
 
@@ -1960,6 +2062,7 @@ if (el.formLink) {
             imagem_path: caminhoImagem,
             versao,
             slug: slugFinal,
+            mensagem_compartilhamento: mensagemCompartilhamento,
           })
           .eq('id', state.linkEditando.id);
 
@@ -1967,7 +2070,7 @@ if (el.formLink) {
 
         toast(`Link atualizado com sucesso! (Versão ${versao})`, 'success');
         const linkPronto = montarUrlLink(state.loja.slug, slugFinal, versao);
-        exibirResultadoCriado(linkPronto, versao);
+        exibirResultadoCriado(linkPronto, versao, mensagemCompartilhamento);
         carregarGaleriaFotos(true);
       } else {
         // Bloqueio de criação respeitando o limite do plano contratado
@@ -2010,6 +2113,7 @@ if (el.formLink) {
             descricao,
             valido_ate: validoAte,
             ativo: true,
+            mensagem_compartilhamento: mensagemCompartilhamento,
           });
 
           if (!errInsert) {
@@ -2036,7 +2140,7 @@ if (el.formLink) {
         }
 
         const linkPronto = montarUrlLink(state.loja.slug, slugFinal, 1);
-        exibirResultadoCriado(linkPronto, 1);
+        exibirResultadoCriado(linkPronto, 1, mensagemCompartilhamento);
         carregarGaleriaFotos(true);
       }
     } catch (err) {
@@ -2050,22 +2154,48 @@ if (el.formLink) {
   });
 }
 
-function exibirResultadoCriado(url, versao = 1) {
+function exibirResultadoCriado(url, versao = 1, mensagemCompartilhamentoParam = null) {
   const isAtualizacao = Number(versao) > 1;
   const urlComRastreioWa = adicionarParametroUrl(url, 'src', 'wa');
+  const msgSalva = mensagemCompartilhamentoParam !== null
+    ? mensagemCompartilhamentoParam
+    : (el.inputMensagemCompartilhamento ? el.inputMensagemCompartilhamento.value.trim() : '');
+  
+  const textoCompartilhamentoCompleto = montarTextoCompartilhamento(msgSalva, url, state.loja ? state.loja.nome : '');
 
   if (el.res) {
     el.res.classList.remove('hidden');
     if (el.ru) el.ru.textContent = url;
     if (el.btnShareInline) {
-      el.btnShareInline.href = `https://wa.me/?text=${encodeURIComponent(urlComRastreioWa)}`;
+      el.btnShareInline.href = `https://wa.me/?text=${encodeURIComponent(textoCompartilhamentoCompleto)}`;
     }
   }
 
   if (el.modalSucesso && el.modalInputLink) {
     el.modalInputLink.value = url;
+
+    // Atualiza botão principal de WhatsApp com o texto de divulgação completo montado
     if (el.modalBtnWhatsapp) {
-      el.modalBtnWhatsapp.href = `https://wa.me/?text=${encodeURIComponent(urlComRastreioWa)}`;
+      el.modalBtnWhatsapp.href = `https://wa.me/?text=${encodeURIComponent(textoCompartilhamentoCompleto)}`;
+    }
+
+    // Exibe ou oculta a caixa de preview da mensagem de envio
+    const boxMsg = el.modalSucessoBoxMensagem || document.getElementById('modal-sucesso-box-mensagem');
+    const txtPreview = el.modalSucessoTextoPreview || document.getElementById('modal-sucesso-texto-preview');
+    const cntChars = el.modalSucessoContadorChars || document.getElementById('modal-sucesso-contador-chars');
+    const btnCopiarCompleto = el.modalBtnCopiarCompleto || document.getElementById('modal-btn-copiar-completo');
+
+    if (msgSalva && msgSalva.trim()) {
+      if (boxMsg) boxMsg.classList.remove('hidden');
+      if (txtPreview) txtPreview.textContent = textoCompartilhamentoCompleto;
+      if (cntChars) cntChars.textContent = `${textoCompartilhamentoCompleto.length} caracteres`;
+      if (btnCopiarCompleto) {
+        btnCopiarCompleto.classList.remove('hidden');
+        btnCopiarCompleto.dataset.texto = textoCompartilhamentoCompleto;
+      }
+    } else {
+      if (boxMsg) boxMsg.classList.add('hidden');
+      if (btnCopiarCompleto) btnCopiarCompleto.classList.add('hidden');
     }
 
     if (el.modalSucessoTitulo) {
@@ -2088,7 +2218,7 @@ function exibirResultadoCriado(url, versao = 1) {
     if (el.modalSucessoSubtitulo) {
       el.modalSucessoSubtitulo.textContent = isAtualizacao
         ? `O sufixo ?v=${versao} garante que o WhatsApp e redes sociais mostrem sua nova imagem e textos atualizados sem travar na prévia anterior!`
-        : 'Seu cartão em alta definição já está pronto e otimizado para envio no WhatsApp.';
+        : 'Seu cartão em alta definição e mensagem de divulgação estão prontos para envio no WhatsApp.';
     }
 
     el.modalSucesso.classList.remove('hidden');
@@ -2111,7 +2241,29 @@ if (el.modalBtnCopiar) {
   el.modalBtnCopiar.addEventListener('click', () => {
     if (el.modalInputLink) {
       navigator.clipboard.writeText(el.modalInputLink.value);
+      const spanTexto = el.modalBtnCopiarTexto || document.getElementById('modal-btn-copiar-texto');
+      if (spanTexto) {
+        const textoOriginal = spanTexto.textContent;
+        spanTexto.textContent = 'Copiado! ✅';
+        setTimeout(() => { spanTexto.textContent = textoOriginal; }, 2000);
+      }
       toast('Link copiado!', 'success');
+    }
+  });
+}
+
+if (el.modalBtnCopiarCompleto) {
+  el.modalBtnCopiarCompleto.addEventListener('click', () => {
+    const texto = el.modalBtnCopiarCompleto.dataset.texto || (el.modalSucessoTextoPreview ? el.modalSucessoTextoPreview.textContent : '');
+    if (texto) {
+      navigator.clipboard.writeText(texto);
+      const spanTexto = el.modalBtnCopiarCompletoTexto || document.getElementById('modal-btn-copiar-completo-texto');
+      if (spanTexto) {
+        const textoOriginal = spanTexto.textContent;
+        spanTexto.textContent = 'Mensagem com Link Copiada! ✅';
+        setTimeout(() => { spanTexto.textContent = textoOriginal; }, 2000);
+      }
+      toast('Mensagem completa com link copiada para a área de transferência!', 'success');
     }
   });
 }
@@ -4552,11 +4704,22 @@ function renderizarSugestoesIa(sugestoes = [], provedor = '') {
       </div>
 
       <div class="space-y-1">
-        <span class="text-[11px] text-outline font-semibold block">Mensagem Inicial Pronta:</span>
+        <span class="text-[11px] text-outline font-semibold block">Mensagem Inicial Pronta (wa.me):</span>
         <p class="text-xs text-secondary-dark font-medium italic bg-[#E7FFDB] p-2 rounded-lg border border-[#C8E6C9] leading-snug">
           💬 "${item.mensagem_whatsapp || ''}"
         </p>
       </div>
+
+      ${item.mensagem_compartilhamento ? `
+      <div class="space-y-1">
+        <div class="flex items-center justify-between text-[11px] text-outline font-semibold">
+          <span>Mensagem de Divulgação para Envio:</span>
+          <span>${item.mensagem_compartilhamento.length}/1000</span>
+        </div>
+        <div class="text-xs text-on-surface leading-relaxed bg-surface-container-lowest p-2.5 rounded-lg border border-outline-variant/40 whitespace-pre-line select-all max-h-36 overflow-y-auto">
+          ${escapeHtml(item.mensagem_compartilhamento)}
+        </div>
+      </div>` : ''}
     `;
 
     const btnAplicar = card.querySelector('.btn-aplicar-ia');
@@ -4579,6 +4742,7 @@ function aplicarSugestaoIa(sugestao) {
   const inpDesc = el.inputDescricao || document.getElementById('input-descricao');
   const presetMsg = el.presetMessage || document.getElementById('preset-message');
   const inpSlug = el.inputSlug || document.getElementById('input-slug');
+  const inpComp = el.inputMensagemCompartilhamento || document.getElementById('input-mensagem-compartilhamento');
   const detPers = el.detalhesPersonalizar || document.getElementById('detalhes-personalizar');
 
   // 1. Título
@@ -4597,7 +4761,13 @@ function aplicarSugestaoIa(sugestao) {
     presetMsg.value = sugestao.mensagem_whatsapp;
   }
 
-  // 4. Slug amigável (se o campo estiver vazio ou padrão)
+  // 4. Mensagem de Compartilhamento / Divulgação
+  if (inpComp && sugestao.mensagem_compartilhamento) {
+    inpComp.value = sugestao.mensagem_compartilhamento;
+    atualizarContadorMensagemCompartilhamento();
+  }
+
+  // 5. Slug amigável (se o campo estiver vazio ou padrão)
   if (inpSlug && sugestao.slug && (!inpSlug.value || inpSlug.value.length < 4)) {
     inpSlug.value = sugestao.slug;
   }
@@ -4623,6 +4793,41 @@ window.executarGeracaoIa = executarGeracaoIa;
 window.aplicarSugestaoIa = aplicarSugestaoIa;
 window.selecionarTomIa = selecionarTomIa;
 
+// Chips de Tags dinâmicas e Emojis na mensagem de divulgação
+document.querySelectorAll('.btn-tag-compartilhamento').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    const tag = btn.dataset.tag;
+    const inp = el.inputMensagemCompartilhamento || document.getElementById('input-mensagem-compartilhamento');
+    if (inp && tag) {
+      const start = inp.selectionStart ?? inp.value.length;
+      const end = inp.selectionEnd ?? inp.value.length;
+      const val = inp.value;
+      inp.value = val.slice(0, start) + tag + val.slice(end);
+      inp.selectionStart = inp.selectionEnd = start + tag.length;
+      inp.focus();
+      atualizarContadorMensagemCompartilhamento();
+      atualizarLivePreview();
+    }
+  });
+});
+
+document.querySelectorAll('.btn-emoji-compartilhamento').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    const emoji = btn.dataset.emoji;
+    const inp = el.inputMensagemCompartilhamento || document.getElementById('input-mensagem-compartilhamento');
+    if (inp && emoji) {
+      const start = inp.selectionStart ?? inp.value.length;
+      const end = inp.selectionEnd ?? inp.value.length;
+      const val = inp.value;
+      inp.value = val.slice(0, start) + emoji + val.slice(end);
+      inp.selectionStart = inp.selectionEnd = start + emoji.length;
+      inp.focus();
+      atualizarContadorMensagemCompartilhamento();
+      atualizarLivePreview();
+    }
+  });
+});
+
 // Listeners diretos do Assistente de IA
 if (el.btnAbrirAssistenteIa) {
   el.btnAbrirAssistenteIa.addEventListener('click', () => abrirModalAssistenteIa());
@@ -4643,6 +4848,12 @@ if (el.btnIaInlineMensagem) {
   el.btnIaInlineMensagem.addEventListener('click', () => {
     const v = el.presetMessage?.value || document.getElementById('preset-message')?.value || el.inputTitulo?.value || '';
     abrirModalAssistenteIa(v, 'mensagem');
+  });
+}
+if (el.btnIaInlineCompartilhamento) {
+  el.btnIaInlineCompartilhamento.addEventListener('click', () => {
+    const v = el.inputMensagemCompartilhamento?.value || document.getElementById('input-mensagem-compartilhamento')?.value || el.inputTitulo?.value || '';
+    abrirModalAssistenteIa(v, 'compartilhamento');
   });
 }
 if (el.modalIaBtnFechar) {
@@ -4676,6 +4887,15 @@ document.addEventListener('click', (e) => {
     e.preventDefault();
     const msgVal = el.presetMessage?.value || document.getElementById('preset-message')?.value || '';
     abrirModalAssistenteIa(msgVal, 'mensagem');
+    return;
+  }
+
+  // Botão inline Mensagem de Compartilhamento / Divulgação
+  const btnInlineComp = e.target.closest('#btn-ia-inline-compartilhamento, [data-action="abrir-ia-compartilhamento"]');
+  if (btnInlineComp) {
+    e.preventDefault();
+    const compVal = el.inputMensagemCompartilhamento?.value || document.getElementById('input-mensagem-compartilhamento')?.value || el.inputTitulo?.value || '';
+    abrirModalAssistenteIa(compVal, 'compartilhamento');
     return;
   }
 
