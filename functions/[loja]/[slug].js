@@ -46,6 +46,7 @@ import * as mpVerificarPagamento from '../api/mp-verificar-pagamento.js';
 import * as mpCancelarAssinatura from '../api/mp-cancelar-assinatura.js';
 import * as fetchMetadata from '../api/fetch-metadata.js';
 import * as configSite from '../api/configuracoes-site.js';
+import * as iaGerarCopy from '../api/ia-gerar-copy.js';
 
 async function dispatchApi(context) {
   const slug = context.params?.slug;
@@ -57,6 +58,7 @@ async function dispatchApi(context) {
   if (slug === 'mp-cancelar-assinatura') return mpCancelarAssinatura.onRequestPost(context);
   if (slug === 'fetch-metadata') return fetchMetadata.onRequest(context);
   if (slug === 'configuracoes-site') return configSite.onRequestGet(context);
+  if (slug === 'ia-gerar-copy') return iaGerarCopy.onRequest(context);
 
   return new Response(JSON.stringify({ erro: 'Endpoint não encontrado em /api/' }), {
     status: 404,

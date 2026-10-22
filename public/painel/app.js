@@ -29,6 +29,15 @@ const state = {
   // Horários de Pico e Métricas por Hora
   picosHorarios: {},
   modalHorarios: { linkId: null, linkTitulo: '', linkSlug: '', dias: 30 },
+
+  // Assistente de Inteligência Artificial
+  ia: {
+    cotaRestante: 40,
+    limiteDiario: 40,
+    tomSelecionado: 'urgencia',
+    gerando: false,
+    sugestoes: [],
+  },
 };
 
 // Elementos da Interface
@@ -111,6 +120,23 @@ const el = {
   inputSlug: document.getElementById('input-slug'),
   inputValidoAte: document.getElementById('input-valido-ate'),
   btnSubmeterLink: document.getElementById('btn-submeter-link'),
+
+  // Assistente de Copy com IA
+  bannerIaAssistente: document.getElementById('banner-ia-assistente'),
+  badgeIaCotas: document.getElementById('badge-ia-cotas'),
+  btnAbrirAssistenteIa: document.getElementById('btn-abrir-assistente-ia'),
+  btnIaInlineTitulo: document.getElementById('btn-ia-inline-titulo'),
+  btnIaInlineDescricao: document.getElementById('btn-ia-inline-descricao'),
+  btnIaInlineMensagem: document.getElementById('btn-ia-inline-mensagem'),
+  modalAssistenteIa: document.getElementById('modal-assistente-ia'),
+  modalIaBtnFechar: document.getElementById('modal-ia-btn-fechar'),
+  modalIaBtnCancelar: document.getElementById('modal-ia-btn-cancelar'),
+  modalIaBadgeCota: document.getElementById('modal-ia-badge-cota'),
+  modalIaInputContexto: document.getElementById('modal-ia-input-contexto'),
+  modalIaBtnGerar: document.getElementById('modal-ia-btn-gerar'),
+  modalIaLoading: document.getElementById('modal-ia-loading'),
+  modalIaResultados: document.getElementById('modal-ia-resultados'),
+  modalIaCardsLista: document.getElementById('modal-ia-cards-lista'),
 
   // Live Preview WhatsApp & Redes Sociais
   previewTabWa: document.getElementById('preview-tab-wa'),
@@ -304,6 +330,7 @@ export const PLANOS_CONFIG = {
     maxLinks: 1,
     maxEdicoes: 5,
     maxLojas: 1,
+    maxIaDiario: 10,
   },
   starter: {
     id: 'starter',
@@ -314,6 +341,7 @@ export const PLANOS_CONFIG = {
     maxLinks: 5,
     maxEdicoes: Infinity,
     maxLojas: 1,
+    maxIaDiario: 20,
   },
   pro: {
     id: 'pro',
@@ -324,6 +352,7 @@ export const PLANOS_CONFIG = {
     maxLinks: Infinity,
     maxEdicoes: Infinity,
     maxLojas: 1,
+    maxIaDiario: 40,
   },
   agencia: {
     id: 'agencia',
@@ -334,6 +363,7 @@ export const PLANOS_CONFIG = {
     maxLinks: Infinity,
     maxEdicoes: Infinity,
     maxLojas: 5,
+    maxIaDiario: 100,
   }
 };
 
@@ -542,6 +572,9 @@ async function carregarDadosLojaEAssinatura() {
     state.assinatura = assinaturas[0];
     atualizarBarraAssinatura();
   }
+
+  // Carrega status de cota diária do assistente de IA
+  carregarStatusIa();
 
   // Verifica se o usuário veio de um fluxo de compra direta de plano
   try {
@@ -4276,6 +4309,310 @@ document.querySelectorAll('.btn-periodo-horarios').forEach((btn) => {
     if (state.modalHorarios.linkId) {
       carregarDadosHorarios(state.modalHorarios.linkId, dias);
     }
+  });
+});
+
+/* ==========================================================================
+   MÓDULO: ASSISTENTE DE COPYWRITING COM INTELIGÊNCIA ARTIFICIAL
+   ========================================================================== */
+
+function atualizarBadgeCotaIa(restantes = 40, limite = 40) {
+  state.ia.cotaRestante = restantes;
+  state.ia.limiteDiario = limite;
+
+  const texto = `${restantes} restantes hoje`;
+  if (el.badgeIaCotas) el.badgeIaCotas.textContent = texto;
+  if (el.modalIaBadgeCota) el.modalIaBadgeCota.textContent = texto;
+
+  if (restantes <= 0) {
+    if (el.badgeIaCotas) {
+      el.badgeIaCotas.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-error-container text-error border border-error/30';
+      el.badgeIaCotas.textContent = 'Cota esgotada hoje';
+    }
+    if (el.modalIaBadgeCota) {
+      el.modalIaBadgeCota.className = 'text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-error-container text-error border border-error/30';
+      el.modalIaBadgeCota.textContent = 'Cota esgotada hoje';
+    }
+  } else {
+    if (el.badgeIaCotas) {
+      el.badgeIaCotas.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/15 text-primary';
+    }
+    if (el.modalIaBadgeCota) {
+      el.modalIaBadgeCota.className = 'text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container border border-secondary/30';
+    }
+  }
+}
+
+async function carregarStatusIa() {
+  if (!state.loja?.id) return;
+  try {
+    const res = await fetch(`/api/ia-gerar-copy?loja_id=${encodeURIComponent(state.loja.id)}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.sucesso) {
+        atualizarBadgeCotaIa(data.restantes_hoje ?? 40, data.limite_diario ?? 40);
+      }
+    }
+  } catch (err) {
+    console.warn('Não foi possível carregar status da IA:', err);
+  }
+}
+
+function abrirModalAssistenteIa(contextoInicial = '', focarCampo = null) {
+  let ctx = (contextoInicial || '').trim();
+
+  // Inferência inteligente se o lojista não passou texto prévio
+  if (!ctx) {
+    if (el.inputTitulo && el.inputTitulo.value.trim() && el.inputTitulo.value.trim() !== (state.loja?.nome || '')) {
+      ctx = el.inputTitulo.value.trim();
+    } else if (el.inputDescricao && el.inputDescricao.value.trim()) {
+      ctx = el.inputDescricao.value.trim();
+    } else if (el.inputDestino && el.inputDestino.value.trim()) {
+      ctx = el.inputDestino.value.trim();
+    } else if (state.loja?.nome) {
+      ctx = `Oferta especial da ${state.loja.nome}`;
+    }
+  }
+
+  if (el.modalIaInputContexto) {
+    el.modalIaInputContexto.value = ctx;
+  }
+
+  // Oculta loading prévio
+  if (el.modalIaLoading) el.modalIaLoading.classList.add('hidden');
+
+  if (el.modalAssistenteIa) {
+    el.modalAssistenteIa.classList.remove('hidden');
+    el.modalAssistenteIa.style.display = 'flex';
+  }
+
+  if (el.modalIaInputContexto) {
+    setTimeout(() => {
+      el.modalIaInputContexto.focus();
+      el.modalIaInputContexto.select();
+    }, 100);
+  }
+}
+
+function fecharModalAssistenteIa() {
+  if (el.modalAssistenteIa) {
+    el.modalAssistenteIa.classList.add('hidden');
+    el.modalAssistenteIa.style.display = 'none';
+  }
+}
+
+function selecionarTomIa(tom) {
+  state.ia.tomSelecionado = tom;
+  document.querySelectorAll('.btn-ia-tom').forEach((btn) => {
+    if (btn.dataset.tom === tom) {
+      btn.className = 'btn-ia-tom p-2.5 rounded-xl border border-primary bg-primary/10 text-primary text-xs font-bold flex flex-col items-center gap-1 text-center transition-all shadow-2xs';
+    } else {
+      btn.className = 'btn-ia-tom p-2.5 rounded-xl border border-outline-variant bg-surface-container-low hover:border-primary text-on-surface text-xs font-semibold flex flex-col items-center gap-1 text-center transition-all';
+    }
+  });
+}
+
+async function executarGeracaoIa(contextoForcado = null, acao = 'sugestoes_completas') {
+  if (state.ia.gerando) return;
+
+  const contexto = (contextoForcado !== null ? contextoForcado : (el.modalIaInputContexto?.value || '')).trim();
+  if (!contexto) {
+    toast('Por favor, descreva o produto ou informe o link da oferta.', 'warning');
+    if (el.modalIaInputContexto) el.modalIaInputContexto.focus();
+    return;
+  }
+
+  state.ia.gerando = true;
+  if (el.modalIaBtnGerar) {
+    el.modalIaBtnGerar.disabled = true;
+    el.modalIaBtnGerar.classList.add('opacity-70');
+  }
+  if (el.modalIaLoading) el.modalIaLoading.classList.remove('hidden');
+  if (el.modalIaResultados) el.modalIaResultados.classList.add('hidden');
+
+  try {
+    const res = await fetch('/api/ia-gerar-copy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        loja_id: state.loja?.id,
+        contexto,
+        url_destino: el.inputDestino?.value.trim() || '',
+        tom: state.ia.tomSelecionado || 'urgencia',
+        tipo_acao: acao,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok || !data.sucesso) {
+      if (res.status === 429 || data.limite_atingido) {
+        atualizarBadgeCotaIa(0, data.limite_diario || 40);
+        throw new Error(data.erro || 'Você atingiu o limite diário de uso de IA para o seu plano. Faça upgrade para ter mais créditos ou aguarde a renovação amanhã!');
+      }
+      throw new Error(data.erro || 'Falha ao gerar textos com IA');
+    }
+
+    // Atualiza contadores de cota
+    atualizarBadgeCotaIa(data.restantes_hoje ?? 39, data.limite_diario ?? 40);
+
+    state.ia.sugestoes = data.sugestoes || [];
+    renderizarSugestoesIa(state.ia.sugestoes);
+
+    toast('Sugestões geradas com sucesso! ✨', 'success');
+  } catch (err) {
+    console.error('Erro na IA:', err);
+    toast(err.message, 'error');
+  } finally {
+    state.ia.gerando = false;
+    if (el.modalIaBtnGerar) {
+      el.modalIaBtnGerar.disabled = false;
+      el.modalIaBtnGerar.classList.remove('opacity-70');
+    }
+    if (el.modalIaLoading) el.modalIaLoading.classList.add('hidden');
+  }
+}
+
+function renderizarSugestoesIa(sugestoes = []) {
+  if (!el.modalIaCardsLista) return;
+  el.modalIaCardsLista.innerHTML = '';
+
+  if (sugestoes.length === 0) {
+    el.modalIaCardsLista.innerHTML = '<p class="text-xs text-outline text-center py-4">Nenhuma sugestão retornada.</p>';
+    if (el.modalIaResultados) el.modalIaResultados.classList.remove('hidden');
+    return;
+  }
+
+  sugestoes.forEach((item, index) => {
+    const card = document.createElement('div');
+    card.className = 'p-3.5 sm:p-4 rounded-2xl bg-surface-container-low border border-outline-variant/70 hover:border-primary/50 transition-all space-y-3 shadow-2xs group';
+    
+    card.innerHTML = `
+      <div class="flex items-center justify-between">
+        <span class="inline-flex items-center gap-1 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-primary/10 text-primary">
+          <span>✨</span>
+          <span>${item.tom || `Opção ${index + 1}`}</span>
+        </span>
+        <button type="button" class="btn-aplicar-ia bg-secondary hover:bg-secondary-dark text-white font-extrabold text-xs px-3 py-1.5 rounded-xl shadow-xs active:scale-95 transition-all flex items-center gap-1" data-index="${index}">
+          <span class="material-symbols-outlined text-sm">check</span>
+          <span>Usar esta opção</span>
+        </button>
+      </div>
+
+      <div class="space-y-1">
+        <div class="flex items-center justify-between text-[11px] text-outline font-semibold">
+          <span>Título:</span>
+          <span>${(item.titulo || '').length}/80</span>
+        </div>
+        <p class="text-xs font-bold text-on-surface leading-snug bg-surface-container-lowest p-2 rounded-lg border border-outline-variant/40">
+          ${item.titulo || ''}
+        </p>
+      </div>
+
+      <div class="space-y-1">
+        <div class="flex items-center justify-between text-[11px] text-outline font-semibold">
+          <span>Descrição do WhatsApp:</span>
+          <span>${(item.descricao || '').length}/200</span>
+        </div>
+        <p class="text-xs text-on-surface-variant leading-relaxed bg-surface-container-lowest p-2 rounded-lg border border-outline-variant/40">
+          ${item.descricao || ''}
+        </p>
+      </div>
+
+      <div class="space-y-1">
+        <span class="text-[11px] text-outline font-semibold block">Mensagem Inicial Pronta:</span>
+        <p class="text-xs text-secondary-dark font-medium italic bg-[#E7FFDB] p-2 rounded-lg border border-[#C8E6C9] leading-snug">
+          💬 "${item.mensagem_whatsapp || ''}"
+        </p>
+      </div>
+    `;
+
+    const btnAplicar = card.querySelector('.btn-aplicar-ia');
+    if (btnAplicar) {
+      btnAplicar.addEventListener('click', () => {
+        aplicarSugestaoIa(item);
+      });
+    }
+
+    el.modalIaCardsLista.appendChild(card);
+  });
+
+  if (el.modalIaResultados) el.modalIaResultados.classList.remove('hidden');
+}
+
+function aplicarSugestaoIa(sugestao) {
+  if (!sugestao) return;
+
+  // 1. Título
+  if (el.inputTitulo && sugestao.titulo) {
+    el.inputTitulo.value = sugestao.titulo;
+  }
+
+  // 2. Descrição
+  if (el.inputDescricao && sugestao.descricao) {
+    el.inputDescricao.value = sugestao.descricao;
+    atualizarContadorDescricao();
+  }
+
+  // 3. Mensagem WhatsApp
+  if (el.presetMessage && sugestao.mensagem_whatsapp) {
+    el.presetMessage.value = sugestao.mensagem_whatsapp;
+  }
+
+  // 4. Slug amigável (se o campo estiver vazio ou padrão)
+  if (el.inputSlug && sugestao.slug && (!el.inputSlug.value || el.inputSlug.value.length < 4)) {
+    el.inputSlug.value = sugestao.slug;
+  }
+
+  // Abre o accordion de personalização do cartão para o lojista ver os dados aplicados
+  if (el.detalhesPersonalizar) {
+    el.detalhesPersonalizar.open = true;
+  }
+
+  // Atualiza Live Preview em tempo real
+  atualizarLivePreview();
+
+  // Fecha o modal
+  fecharModalAssistenteIa();
+
+  toast('✨ Textos de alta conversão aplicados com sucesso!', 'success');
+}
+
+// Listeners do Assistente de IA
+if (el.btnAbrirAssistenteIa) {
+  el.btnAbrirAssistenteIa.addEventListener('click', () => abrirModalAssistenteIa());
+}
+if (el.btnIaInlineTitulo) {
+  el.btnIaInlineTitulo.addEventListener('click', () => abrirModalAssistenteIa(el.inputTitulo?.value || '', 'titulo'));
+}
+if (el.btnIaInlineDescricao) {
+  el.btnIaInlineDescricao.addEventListener('click', () => abrirModalAssistenteIa(el.inputDescricao?.value || el.inputTitulo?.value || '', 'descricao'));
+}
+if (el.btnIaInlineMensagem) {
+  el.btnIaInlineMensagem.addEventListener('click', () => abrirModalAssistenteIa(el.presetMessage?.value || el.inputTitulo?.value || '', 'mensagem'));
+}
+if (el.modalIaBtnFechar) {
+  el.modalIaBtnFechar.addEventListener('click', fecharModalAssistenteIa);
+}
+if (el.modalIaBtnCancelar) {
+  el.modalIaBtnCancelar.addEventListener('click', fecharModalAssistenteIa);
+}
+if (el.modalIaBtnGerar) {
+  el.modalIaBtnGerar.addEventListener('click', () => executarGeracaoIa());
+}
+if (el.modalAssistenteIa) {
+  el.modalAssistenteIa.addEventListener('click', (e) => {
+    if (e.target === el.modalAssistenteIa) fecharModalAssistenteIa();
+  });
+}
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && el.modalAssistenteIa && !el.modalAssistenteIa.classList.contains('hidden')) {
+    fecharModalAssistenteIa();
+  }
+});
+document.querySelectorAll('.btn-ia-tom').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    selecionarTomIa(btn.dataset.tom);
   });
 });
 

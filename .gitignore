@@ -10,6 +10,7 @@ Thumbs.db
 # Variáveis locais
 .env
 .env.local
+.dev.vars
 
 # Cloudflare Pages / Wrangler
 .wrangler/
