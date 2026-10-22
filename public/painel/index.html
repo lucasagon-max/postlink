@@ -679,7 +679,7 @@
                     </p>
                   </div>
                 </div>
-                <button type="button" id="btn-abrir-assistente-ia" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-primary hover:bg-primary-container text-white text-xs font-bold shadow-xs active:scale-95 transition-all shrink-0">
+                <button type="button" id="btn-abrir-assistente-ia" data-action="abrir-ia" onclick="window.abrirModalAssistenteIa && window.abrirModalAssistenteIa()" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-primary hover:bg-primary-container text-white text-xs font-bold shadow-xs active:scale-95 transition-all shrink-0">
                   <span class="material-symbols-outlined text-sm">auto_awesome</span>
                   <span>Gerar com IA</span>
                 </button>
@@ -795,7 +795,7 @@
                       Mensagem Pronta Inicial
                     </label>
                     <div class="flex items-center gap-2">
-                      <button type="button" id="btn-ia-inline-mensagem" class="inline-flex items-center gap-1 text-[11px] font-bold text-primary hover:text-secondary-dark transition-colors" title="Sugerir mensagem com Inteligência Artificial">
+                      <button type="button" id="btn-ia-inline-mensagem" data-action="abrir-ia-mensagem" onclick="window.abrirModalAssistenteIa && window.abrirModalAssistenteIa(document.getElementById('preset-message')?.value || '', 'mensagem')" class="inline-flex items-center gap-1 text-[11px] font-bold text-primary hover:text-secondary-dark transition-colors" title="Sugerir mensagem com Inteligência Artificial">
                         <span class="material-symbols-outlined text-xs">auto_awesome</span>
                         <span>Sugerir com IA</span>
                       </button>
@@ -878,7 +878,7 @@
                   <div class="flex items-center justify-between mb-1">
                     <label class="block text-xs font-bold text-on-surface-variant" for="input-titulo">Título do Cartão</label>
                     <div class="flex items-center gap-2">
-                      <button type="button" id="btn-ia-inline-titulo" class="inline-flex items-center gap-1 text-[11px] font-bold text-primary hover:text-secondary-dark transition-colors" title="Melhorar título com Inteligência Artificial">
+                      <button type="button" id="btn-ia-inline-titulo" data-action="abrir-ia-titulo" onclick="window.abrirModalAssistenteIa && window.abrirModalAssistenteIa(document.getElementById('input-titulo')?.value || '', 'titulo')" class="inline-flex items-center gap-1 text-[11px] font-bold text-primary hover:text-secondary-dark transition-colors" title="Melhorar título com Inteligência Artificial">
                         <span class="material-symbols-outlined text-xs">auto_awesome</span>
                         <span>Melhorar com IA</span>
                       </button>
@@ -892,7 +892,7 @@
                   <div class="flex items-center justify-between mb-1">
                     <label class="block text-xs font-bold text-on-surface-variant" for="input-descricao">Descrição curta</label>
                     <div class="flex items-center gap-2">
-                      <button type="button" id="btn-ia-inline-descricao" class="inline-flex items-center gap-1 text-[11px] font-bold text-primary hover:text-secondary-dark transition-colors" title="Melhorar descrição com Inteligência Artificial">
+                      <button type="button" id="btn-ia-inline-descricao" data-action="abrir-ia-descricao" onclick="window.abrirModalAssistenteIa && window.abrirModalAssistenteIa(document.getElementById('input-descricao')?.value || '', 'descricao')" class="inline-flex items-center gap-1 text-[11px] font-bold text-primary hover:text-secondary-dark transition-colors" title="Melhorar descrição com Inteligência Artificial">
                         <span class="material-symbols-outlined text-xs">auto_awesome</span>
                         <span>Melhorar com IA</span>
                       </button>
@@ -2174,7 +2174,7 @@
             <p class="text-xs text-on-surface-variant font-medium">Textos magnéticos e persuasivos para prévias do WhatsApp</p>
           </div>
         </div>
-        <button type="button" id="modal-ia-btn-fechar" class="w-8 h-8 rounded-full hover:bg-surface-container flex items-center justify-center text-outline hover:text-on-surface transition-colors" title="Fechar">
+        <button type="button" id="modal-ia-btn-fechar" onclick="window.fecharModalAssistenteIa && window.fecharModalAssistenteIa()" class="w-8 h-8 rounded-full hover:bg-surface-container flex items-center justify-center text-outline hover:text-on-surface transition-colors" title="Fechar">
           <span class="material-symbols-outlined text-xl">close</span>
         </button>
       </div>
@@ -2222,7 +2222,7 @@
         </div>
 
         <!-- Botão Gerar -->
-        <button type="button" id="modal-ia-btn-gerar" class="w-full bg-gradient-to-r from-primary to-secondary hover:from-primary-container hover:to-secondary-dark text-white font-extrabold text-xs py-3 rounded-xl shadow-md flex items-center justify-center gap-2 active:scale-98 transition-all">
+        <button type="button" id="modal-ia-btn-gerar" onclick="window.executarGeracaoIa && window.executarGeracaoIa()" class="w-full bg-gradient-to-r from-primary to-secondary hover:from-primary-container hover:to-secondary-dark text-white font-extrabold text-xs py-3 rounded-xl shadow-md flex items-center justify-center gap-2 active:scale-98 transition-all">
           <span class="material-symbols-outlined text-base">auto_awesome</span>
           <span>Gerar 3 Sugestões com IA</span>
         </button>
@@ -2256,7 +2256,7 @@
           <span class="material-symbols-outlined text-xs text-secondary">verified</span>
           <span>Otimizado para WhatsApp no Brasil</span>
         </span>
-        <button type="button" id="modal-ia-btn-cancelar" class="font-semibold hover:text-on-surface px-2 py-1">
+        <button type="button" id="modal-ia-btn-cancelar" onclick="window.fecharModalAssistenteIa && window.fecharModalAssistenteIa()" class="font-semibold hover:text-on-surface px-2 py-1">
           Fechar
         </button>
       </div>
@@ -2296,7 +2296,7 @@
   <div id="toast-container"></div>
 
   <!-- Script principal do Painel SPA (com timestamp anti-cache) -->
-  <script type="module" src="/painel/app.js?v=20261020_horarios_v1"></script>
+  <script type="module" src="/painel/app.js?v=20261022_ia_v3"></script>
 
 </body>
 </html>

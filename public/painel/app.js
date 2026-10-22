@@ -4354,50 +4354,64 @@ async function carregarStatusIa() {
       }
     }
   } catch (err) {
-    console.warn('Não foi possível carregar status da IA:', err);
+    console.warn('[PostLink IA] Não foi possível carregar status da IA:', err);
   }
 }
 
 function abrirModalAssistenteIa(contextoInicial = '', focarCampo = null) {
+  console.log('[PostLink IA] Abrindo modal do assistente...', { contextoInicial, focarCampo });
+
+  const modal = el.modalAssistenteIa || document.getElementById('modal-assistente-ia');
+  const inputCtx = el.modalIaInputContexto || document.getElementById('modal-ia-input-contexto');
+  const loading = el.modalIaLoading || document.getElementById('modal-ia-loading');
+
   let ctx = (contextoInicial || '').trim();
 
   // Inferência inteligente se o lojista não passou texto prévio
   if (!ctx) {
-    if (el.inputTitulo && el.inputTitulo.value.trim() && el.inputTitulo.value.trim() !== (state.loja?.nome || '')) {
-      ctx = el.inputTitulo.value.trim();
-    } else if (el.inputDescricao && el.inputDescricao.value.trim()) {
-      ctx = el.inputDescricao.value.trim();
-    } else if (el.inputDestino && el.inputDestino.value.trim()) {
-      ctx = el.inputDestino.value.trim();
+    const inpTit = el.inputTitulo || document.getElementById('input-titulo');
+    const inpDesc = el.inputDescricao || document.getElementById('input-descricao');
+    const inpDest = el.inputDestino || document.getElementById('input-destino');
+    if (inpTit && inpTit.value.trim() && inpTit.value.trim() !== (state.loja?.nome || '')) {
+      ctx = inpTit.value.trim();
+    } else if (inpDesc && inpDesc.value.trim()) {
+      ctx = inpDesc.value.trim();
+    } else if (inpDest && inpDest.value.trim()) {
+      ctx = inpDest.value.trim();
     } else if (state.loja?.nome) {
       ctx = `Oferta especial da ${state.loja.nome}`;
     }
   }
 
-  if (el.modalIaInputContexto) {
-    el.modalIaInputContexto.value = ctx;
+  if (inputCtx) {
+    inputCtx.value = ctx;
   }
 
   // Oculta loading prévio
-  if (el.modalIaLoading) el.modalIaLoading.classList.add('hidden');
+  if (loading) loading.classList.add('hidden');
 
-  if (el.modalAssistenteIa) {
-    el.modalAssistenteIa.classList.remove('hidden');
-    el.modalAssistenteIa.style.display = 'flex';
+  if (modal) {
+    modal.classList.remove('hidden');
+    modal.style.display = 'flex';
+    document.body.classList.add('overflow-hidden');
+  } else {
+    console.error('[PostLink IA] Elemento #modal-assistente-ia não encontrado no DOM!');
   }
 
-  if (el.modalIaInputContexto) {
+  if (inputCtx) {
     setTimeout(() => {
-      el.modalIaInputContexto.focus();
-      el.modalIaInputContexto.select();
+      inputCtx.focus();
+      inputCtx.select();
     }, 100);
   }
 }
 
 function fecharModalAssistenteIa() {
-  if (el.modalAssistenteIa) {
-    el.modalAssistenteIa.classList.add('hidden');
-    el.modalAssistenteIa.style.display = 'none';
+  const modal = el.modalAssistenteIa || document.getElementById('modal-assistente-ia');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.style.display = 'none';
+    document.body.classList.remove('overflow-hidden');
   }
 }
 
@@ -4415,20 +4429,26 @@ function selecionarTomIa(tom) {
 async function executarGeracaoIa(contextoForcado = null, acao = 'sugestoes_completas') {
   if (state.ia.gerando) return;
 
-  const contexto = (contextoForcado !== null ? contextoForcado : (el.modalIaInputContexto?.value || '')).trim();
+  const inputCtx = el.modalIaInputContexto || document.getElementById('modal-ia-input-contexto');
+  const btnGerar = el.modalIaBtnGerar || document.getElementById('modal-ia-btn-gerar');
+  const loading = el.modalIaLoading || document.getElementById('modal-ia-loading');
+  const resultados = el.modalIaResultados || document.getElementById('modal-ia-resultados');
+  const inputDest = el.inputDestino || document.getElementById('input-destino');
+
+  const contexto = (contextoForcado !== null ? contextoForcado : (inputCtx?.value || '')).trim();
   if (!contexto) {
     toast('Por favor, descreva o produto ou informe o link da oferta.', 'warning');
-    if (el.modalIaInputContexto) el.modalIaInputContexto.focus();
+    if (inputCtx) inputCtx.focus();
     return;
   }
 
   state.ia.gerando = true;
-  if (el.modalIaBtnGerar) {
-    el.modalIaBtnGerar.disabled = true;
-    el.modalIaBtnGerar.classList.add('opacity-70');
+  if (btnGerar) {
+    btnGerar.disabled = true;
+    btnGerar.classList.add('opacity-70');
   }
-  if (el.modalIaLoading) el.modalIaLoading.classList.remove('hidden');
-  if (el.modalIaResultados) el.modalIaResultados.classList.add('hidden');
+  if (loading) loading.classList.remove('hidden');
+  if (resultados) resultados.classList.add('hidden');
 
   try {
     const res = await fetch('/api/ia-gerar-copy', {
@@ -4437,7 +4457,7 @@ async function executarGeracaoIa(contextoForcado = null, acao = 'sugestoes_compl
       body: JSON.stringify({
         loja_id: state.loja?.id,
         contexto,
-        url_destino: el.inputDestino?.value.trim() || '',
+        url_destino: inputDest?.value.trim() || '',
         tom: state.ia.tomSelecionado || 'urgencia',
         tipo_acao: acao,
       }),
@@ -4461,25 +4481,27 @@ async function executarGeracaoIa(contextoForcado = null, acao = 'sugestoes_compl
 
     toast('Sugestões geradas com sucesso! ✨', 'success');
   } catch (err) {
-    console.error('Erro na IA:', err);
+    console.error('[PostLink IA] Erro na IA:', err);
     toast(err.message, 'error');
   } finally {
     state.ia.gerando = false;
-    if (el.modalIaBtnGerar) {
-      el.modalIaBtnGerar.disabled = false;
-      el.modalIaBtnGerar.classList.remove('opacity-70');
+    if (btnGerar) {
+      btnGerar.disabled = false;
+      btnGerar.classList.remove('opacity-70');
     }
-    if (el.modalIaLoading) el.modalIaLoading.classList.add('hidden');
+    if (loading) loading.classList.add('hidden');
   }
 }
 
 function renderizarSugestoesIa(sugestoes = []) {
-  if (!el.modalIaCardsLista) return;
-  el.modalIaCardsLista.innerHTML = '';
+  const cardsLista = el.modalIaCardsLista || document.getElementById('modal-ia-cards-lista');
+  const resultados = el.modalIaResultados || document.getElementById('modal-ia-resultados');
+  if (!cardsLista) return;
+  cardsLista.innerHTML = '';
 
   if (sugestoes.length === 0) {
-    el.modalIaCardsLista.innerHTML = '<p class="text-xs text-outline text-center py-4">Nenhuma sugestão retornada.</p>';
-    if (el.modalIaResultados) el.modalIaResultados.classList.remove('hidden');
+    cardsLista.innerHTML = '<p class="text-xs text-outline text-center py-4">Nenhuma sugestão retornada.</p>';
+    if (resultados) resultados.classList.remove('hidden');
     return;
   }
 
@@ -4534,39 +4556,45 @@ function renderizarSugestoesIa(sugestoes = []) {
       });
     }
 
-    el.modalIaCardsLista.appendChild(card);
+    cardsLista.appendChild(card);
   });
 
-  if (el.modalIaResultados) el.modalIaResultados.classList.remove('hidden');
+  if (resultados) resultados.classList.remove('hidden');
 }
 
 function aplicarSugestaoIa(sugestao) {
   if (!sugestao) return;
 
+  const inpTit = el.inputTitulo || document.getElementById('input-titulo');
+  const inpDesc = el.inputDescricao || document.getElementById('input-descricao');
+  const presetMsg = el.presetMessage || document.getElementById('preset-message');
+  const inpSlug = el.inputSlug || document.getElementById('input-slug');
+  const detPers = el.detalhesPersonalizar || document.getElementById('detalhes-personalizar');
+
   // 1. Título
-  if (el.inputTitulo && sugestao.titulo) {
-    el.inputTitulo.value = sugestao.titulo;
+  if (inpTit && sugestao.titulo) {
+    inpTit.value = sugestao.titulo;
   }
 
   // 2. Descrição
-  if (el.inputDescricao && sugestao.descricao) {
-    el.inputDescricao.value = sugestao.descricao;
+  if (inpDesc && sugestao.descricao) {
+    inpDesc.value = sugestao.descricao;
     atualizarContadorDescricao();
   }
 
   // 3. Mensagem WhatsApp
-  if (el.presetMessage && sugestao.mensagem_whatsapp) {
-    el.presetMessage.value = sugestao.mensagem_whatsapp;
+  if (presetMsg && sugestao.mensagem_whatsapp) {
+    presetMsg.value = sugestao.mensagem_whatsapp;
   }
 
   // 4. Slug amigável (se o campo estiver vazio ou padrão)
-  if (el.inputSlug && sugestao.slug && (!el.inputSlug.value || el.inputSlug.value.length < 4)) {
-    el.inputSlug.value = sugestao.slug;
+  if (inpSlug && sugestao.slug && (!inpSlug.value || inpSlug.value.length < 4)) {
+    inpSlug.value = sugestao.slug;
   }
 
   // Abre o accordion de personalização do cartão para o lojista ver os dados aplicados
-  if (el.detalhesPersonalizar) {
-    el.detalhesPersonalizar.open = true;
+  if (detPers) {
+    detPers.open = true;
   }
 
   // Atualiza Live Preview em tempo real
@@ -4578,18 +4606,34 @@ function aplicarSugestaoIa(sugestao) {
   toast('✨ Textos de alta conversão aplicados com sucesso!', 'success');
 }
 
-// Listeners do Assistente de IA
+// Exposição explícita no objeto window para acessibilidade global e chamadas inline
+window.abrirModalAssistenteIa = abrirModalAssistenteIa;
+window.fecharModalAssistenteIa = fecharModalAssistenteIa;
+window.executarGeracaoIa = executarGeracaoIa;
+window.aplicarSugestaoIa = aplicarSugestaoIa;
+window.selecionarTomIa = selecionarTomIa;
+
+// Listeners diretos do Assistente de IA
 if (el.btnAbrirAssistenteIa) {
   el.btnAbrirAssistenteIa.addEventListener('click', () => abrirModalAssistenteIa());
 }
 if (el.btnIaInlineTitulo) {
-  el.btnIaInlineTitulo.addEventListener('click', () => abrirModalAssistenteIa(el.inputTitulo?.value || '', 'titulo'));
+  el.btnIaInlineTitulo.addEventListener('click', () => {
+    const v = el.inputTitulo?.value || document.getElementById('input-titulo')?.value || '';
+    abrirModalAssistenteIa(v, 'titulo');
+  });
 }
 if (el.btnIaInlineDescricao) {
-  el.btnIaInlineDescricao.addEventListener('click', () => abrirModalAssistenteIa(el.inputDescricao?.value || el.inputTitulo?.value || '', 'descricao'));
+  el.btnIaInlineDescricao.addEventListener('click', () => {
+    const v = el.inputDescricao?.value || document.getElementById('input-descricao')?.value || el.inputTitulo?.value || '';
+    abrirModalAssistenteIa(v, 'descricao');
+  });
 }
 if (el.btnIaInlineMensagem) {
-  el.btnIaInlineMensagem.addEventListener('click', () => abrirModalAssistenteIa(el.presetMessage?.value || el.inputTitulo?.value || '', 'mensagem'));
+  el.btnIaInlineMensagem.addEventListener('click', () => {
+    const v = el.presetMessage?.value || document.getElementById('preset-message')?.value || el.inputTitulo?.value || '';
+    abrirModalAssistenteIa(v, 'mensagem');
+  });
 }
 if (el.modalIaBtnFechar) {
   el.modalIaBtnFechar.addEventListener('click', fecharModalAssistenteIa);
@@ -4605,16 +4649,62 @@ if (el.modalAssistenteIa) {
     if (e.target === el.modalAssistenteIa) fecharModalAssistenteIa();
   });
 }
+
+// Event Delegation global no document como camada de resiliência total
+document.addEventListener('click', (e) => {
+  // Botão Principal "Gerar com IA" no banner
+  const btnAbrirIa = e.target.closest('#btn-abrir-assistente-ia, [data-action="abrir-ia"]');
+  if (btnAbrirIa) {
+    e.preventDefault();
+    abrirModalAssistenteIa();
+    return;
+  }
+
+  // Botão inline Mensagem
+  const btnInlineMsg = e.target.closest('#btn-ia-inline-mensagem, [data-action="abrir-ia-mensagem"]');
+  if (btnInlineMsg) {
+    e.preventDefault();
+    const msgVal = el.presetMessage?.value || document.getElementById('preset-message')?.value || '';
+    abrirModalAssistenteIa(msgVal, 'mensagem');
+    return;
+  }
+
+  // Botão inline Título
+  const btnInlineTit = e.target.closest('#btn-ia-inline-titulo, [data-action="abrir-ia-titulo"]');
+  if (btnInlineTit) {
+    e.preventDefault();
+    const titVal = el.inputTitulo?.value || document.getElementById('input-titulo')?.value || '';
+    abrirModalAssistenteIa(titVal, 'titulo');
+    return;
+  }
+
+  // Botão inline Descrição
+  const btnInlineDesc = e.target.closest('#btn-ia-inline-descricao, [data-action="abrir-ia-descricao"]');
+  if (btnInlineDesc) {
+    e.preventDefault();
+    const descVal = el.inputDescricao?.value || document.getElementById('input-descricao')?.value || '';
+    abrirModalAssistenteIa(descVal, 'descricao');
+    return;
+  }
+
+  // Botões de Tom de Voz
+  const btnTom = e.target.closest('.btn-ia-tom');
+  if (btnTom && btnTom.dataset.tom) {
+    e.preventDefault();
+    selecionarTomIa(btnTom.dataset.tom);
+    return;
+  }
+});
+
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && el.modalAssistenteIa && !el.modalAssistenteIa.classList.contains('hidden')) {
+  const modal = el.modalAssistenteIa || document.getElementById('modal-assistente-ia');
+  if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
     fecharModalAssistenteIa();
   }
 });
-document.querySelectorAll('.btn-ia-tom').forEach((btn) => {
-  btn.addEventListener('click', () => {
-    selecionarTomIa(btn.dataset.tom);
-  });
-});
+
+console.log('[PostLink IA] Módulo do Assistente de IA carregado e inicializado.');
 
 // Iniciar Aplicação
 init();
+
