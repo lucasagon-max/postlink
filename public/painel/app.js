@@ -184,6 +184,7 @@ const el = {
   phVitrine: document.getElementById('ph-vitrine'),
   ptVitrine: document.getElementById('pt-vitrine'),
   pdVitrine: document.getElementById('pd-vitrine'),
+  vitrineAvatarImg: document.getElementById('vitrine-avatar-img'),
   vitrineAvatarLoja: document.getElementById('vitrine-avatar-loja'),
   vitrineNomeLoja: document.getElementById('vitrine-nome-loja'),
   vitrineBadgeDesconto: document.getElementById('vitrine-badge-desconto'),
@@ -272,6 +273,10 @@ const el = {
   contaEmail: document.getElementById('conta-email'),
   contaResponsavel: document.getElementById('conta-responsavel'),
   contaWhatsapp: document.getElementById('conta-whatsapp'),
+  inputContaLogo: document.getElementById('input-conta-logo'),
+  btnRemoverContaLogo: document.getElementById('btn-remover-conta-logo'),
+  contaLogoImg: document.getElementById('conta-logo-img'),
+  contaLogoPlaceholder: document.getElementById('conta-logo-placeholder'),
   contaLojaNome: document.getElementById('conta-loja-nome'),
   contaLojaSlug: document.getElementById('conta-loja-slug'),
   contaLocalizacao: document.getElementById('conta-localizacao'),
@@ -1248,6 +1253,28 @@ function renderizarLinks() {
       : `<span class="inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded ${edicoesFeitas >= 5 ? 'bg-error-container text-on-error-container' : 'bg-surface-container-high text-on-surface-variant'}">v${versaoAtual} · ${edicoesFeitas >= 5 ? '5/5 edições (limite)' : `${edicoesRestantes} edições rest.`}</span>`;
 
     const totClicks = Number(st.total || 0);
+    const acessosVitrine = Number(st.acessos_vitrine ?? st.total ?? 0);
+    const cliquesDestino = Number(st.cliques_destino ?? 0);
+    const taxaConv = acessosVitrine > 0 ? Math.round((cliquesDestino / acessosVitrine) * 100) : 0;
+
+    let funilVitrineHtml = '';
+    if (link.tipo_link === 'vitrine') {
+      funilVitrineHtml = `
+        <div class="grid grid-cols-2 gap-1.5 pt-1.5 mt-1.5 text-[11px] border-t border-outline-variant/30">
+          <div class="flex items-center gap-1 truncate" title="Pessoas que entraram e visualizaram a Página de Oferta">
+            <span class="material-symbols-outlined text-xs text-primary">storefront</span>
+            <span class="text-outline">Vitrine:</span>
+            <strong class="text-on-surface font-mono">${acessosVitrine}</strong>
+          </div>
+          <div class="flex items-center gap-1 justify-end truncate" title="Pessoas que clicaram no botão para ir ao destino final (WhatsApp)">
+            <span class="material-symbols-outlined text-xs text-secondary-dark">ads_click</span>
+            <span class="text-outline">Destino:</span>
+            <strong class="text-secondary-dark font-mono">${cliquesDestino} <span class="text-[10px] text-outline font-normal">(${taxaConv}%)</span></strong>
+          </div>
+        </div>
+      `;
+    }
+
     let detalheStatsHtml = '';
     if (totClicks > 0) {
       const somaD = (Number(st.mobile || 0) + Number(st.desktop || 0)) || 1;
@@ -1335,6 +1362,7 @@ function renderizarLinks() {
               <span>${totClicks} total</span>
             </div>
           </div>
+          ${funilVitrineHtml}
           ${detalheStatsHtml}
           ${picoHorarioHtml}
         </div>
@@ -1797,7 +1825,7 @@ async function tratarArquivoSelecionado(file) {
   abrirEditorRecorte({
     arquivoOuUrl: file,
     modo: 'formulario',
-    aspectInicial: 1.912,
+    aspectInicial: state.tipoLink === 'vitrine' ? NaN : 1.912,
   });
 }
 
@@ -1923,7 +1951,20 @@ function atualizarLivePreview() {
   if (el.ptVitrine) el.ptVitrine.textContent = titulo;
   if (el.pdVitrine) el.pdVitrine.textContent = desc || 'Descrição da oferta.';
   if (el.vitrineNomeLoja) el.vitrineNomeLoja.textContent = lojaNome;
-  if (el.vitrineAvatarLoja) el.vitrineAvatarLoja.textContent = (lojaNome || 'L').charAt(0).toUpperCase();
+  if (state.loja?.logo_url && el.vitrineAvatarImg) {
+    el.vitrineAvatarImg.src = state.loja.logo_url;
+    el.vitrineAvatarImg.classList.remove('hidden');
+    if (el.vitrineAvatarLoja) el.vitrineAvatarLoja.classList.add('hidden');
+  } else {
+    if (el.vitrineAvatarImg) {
+      el.vitrineAvatarImg.classList.add('hidden');
+      el.vitrineAvatarImg.src = '';
+    }
+    if (el.vitrineAvatarLoja) {
+      el.vitrineAvatarLoja.classList.remove('hidden');
+      el.vitrineAvatarLoja.textContent = (lojaNome || 'L').charAt(0).toUpperCase();
+    }
+  }
 
   const precoDe = el.inputPrecoDe ? Number(el.inputPrecoDe.value) : 0;
   const precoPor = el.inputPrecoPor ? Number(el.inputPrecoPor.value) : 0;
@@ -3351,6 +3392,26 @@ function prepararTelaConta() {
     }
     el.contaExpectativa.textContent = exp;
   }
+
+  // Logotipo da Loja
+  if (state.loja?.logo_url) {
+    if (el.contaLogoImg) {
+      el.contaLogoImg.src = state.loja.logo_url;
+      el.contaLogoImg.classList.remove('hidden');
+    }
+    if (el.contaLogoPlaceholder) el.contaLogoPlaceholder.classList.add('hidden');
+    if (el.btnRemoverContaLogo) el.btnRemoverContaLogo.classList.remove('hidden');
+  } else {
+    if (el.contaLogoImg) {
+      el.contaLogoImg.src = '';
+      el.contaLogoImg.classList.add('hidden');
+    }
+    if (el.contaLogoPlaceholder) {
+      el.contaLogoPlaceholder.textContent = (state.loja?.nome || 'L').charAt(0).toUpperCase();
+      el.contaLogoPlaceholder.classList.remove('hidden');
+    }
+    if (el.btnRemoverContaLogo) el.btnRemoverContaLogo.classList.add('hidden');
+  }
 }
 
 // Handlers de Cancelamento de Assinatura Recorrente
@@ -3408,6 +3469,104 @@ if (el.btnConfirmarCancelamentoRecorrencia) {
     } finally {
       btn.disabled = false;
       btn.innerHTML = textoOriginal;
+    }
+  });
+}
+
+// Upload e Gerenciamento de Logotipo da Loja no Perfil
+if (el.inputContaLogo) {
+  el.inputContaLogo.addEventListener('change', async (e) => {
+    const file = e.target.files?.[0];
+    if (!file || !state.loja) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast('Selecione uma imagem válida (PNG, JPG ou WebP).', 'error');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast('A imagem do logotipo deve ter no máximo 5MB.', 'error');
+      return;
+    }
+
+    toast('Otimizando e enviando logotipo...', 'info');
+
+    try {
+      const img = new Image();
+      const objectUrl = URL.createObjectURL(file);
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = () => reject(new Error('Erro ao carregar imagem'));
+        img.src = objectUrl;
+      });
+      URL.revokeObjectURL(objectUrl);
+
+      const maxDim = 400;
+      let w = img.width;
+      let h = img.height;
+      if (w > maxDim || h > maxDim) {
+        if (w > h) {
+          h = Math.round((h * maxDim) / w);
+          w = maxDim;
+        } else {
+          w = Math.round((w * maxDim) / h);
+          h = maxDim;
+        }
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+
+      const formato = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
+      const blob = await new Promise((res) => canvas.toBlob(res, formato, 0.92));
+      if (!blob) throw new Error('Falha ao processar logotipo');
+
+      const extensao = formato === 'image/png' ? 'png' : 'jpg';
+      const caminhoLogo = `${state.user.id}/logo_${Date.now()}.${extensao}`;
+
+      const { url } = await uploadImagemOtimizada(blob, caminhoLogo);
+
+      const { error } = await sb
+        .from('lojas')
+        .update({ logo_url: url })
+        .eq('id', state.user.id);
+
+      if (error) throw error;
+
+      state.loja.logo_url = url;
+      prepararTelaConta();
+      atualizarLivePreview();
+      toast('Logotipo atualizado com sucesso!', 'success');
+    } catch (err) {
+      toast('Erro ao enviar logotipo: ' + (err.message || 'Tente novamente'), 'error');
+    } finally {
+      el.inputContaLogo.value = '';
+    }
+  });
+}
+
+if (el.btnRemoverContaLogo) {
+  el.btnRemoverContaLogo.addEventListener('click', async () => {
+    if (!state.loja) return;
+    if (!confirm('Deseja realmente remover o logotipo da sua loja?')) return;
+
+    try {
+      const { error } = await sb
+        .from('lojas')
+        .update({ logo_url: null })
+        .eq('id', state.user.id);
+
+      if (error) throw error;
+
+      state.loja.logo_url = null;
+      prepararTelaConta();
+      atualizarLivePreview();
+      toast('Logotipo removido com sucesso.', 'info');
+    } catch (err) {
+      toast('Erro ao remover logotipo: ' + err.message, 'error');
     }
   });
 }
@@ -4555,17 +4714,6 @@ if (el.editorAspectChips) {
     const aspect = aspectStr === 'NaN' ? NaN : parseFloat(aspectStr);
     editorContexto.aspectRatioAtual = aspect;
     instanciaCropper.setAspectRatio(aspect);
-
-    // Sugestão de moldura inteligente para fotos verticais ou quadradas
-    if (aspectStr === '1' || aspectStr === '0.75' || aspectStr === '0.5625') {
-      if (el.editorCheckMoldura && !el.editorCheckMoldura.checked) {
-        el.editorCheckMoldura.checked = true;
-      }
-    } else if (aspectStr === '1.912') {
-      if (el.editorCheckMoldura) {
-        el.editorCheckMoldura.checked = false;
-      }
-    }
   });
 }
 
@@ -4632,6 +4780,7 @@ if (el.modalEditorBtnConfirmar) {
 // Botão de Recorte da Foto Selecionada no Formulário
 if (el.btnRecortarFotoSelecionada) {
   el.btnRecortarFotoSelecionada.addEventListener('click', () => {
+    const aspectPadrao = state.tipoLink === 'vitrine' ? NaN : 1.912;
     if (state.fotoSelecionadaGaleria) {
       const foto = state.fotosGaleria.find((f) => f.caminho === state.fotoSelecionadaGaleria);
       const url = foto ? foto.urlPublica : (el.thumbFotoSelecionada ? el.thumbFotoSelecionada.src : null);
@@ -4639,20 +4788,20 @@ if (el.btnRecortarFotoSelecionada) {
         abrirEditorRecorte({
           arquivoOuUrl: url,
           modo: 'formulario',
-          aspectInicial: 1.912,
+          aspectInicial: aspectPadrao,
         });
       }
     } else if (state.arquivoBlob) {
       abrirEditorRecorte({
         arquivoOuUrl: state.arquivoBlob,
         modo: 'formulario',
-        aspectInicial: 1.912,
+        aspectInicial: aspectPadrao,
       });
     } else if (el.im && el.im.src && !el.im.classList.contains('hidden')) {
       abrirEditorRecorte({
         arquivoOuUrl: el.im.src,
         modo: 'formulario',
-        aspectInicial: 1.912,
+        aspectInicial: aspectPadrao,
       });
     } else {
       toast('Selecione ou envie uma imagem primeiro para recortar.', 'info');

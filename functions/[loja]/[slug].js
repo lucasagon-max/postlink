@@ -49,6 +49,30 @@ import * as configSite from '../api/configuracoes-site.js';
 import * as iaGerarCopy from '../api/ia-gerar-copy.js';
 import * as uploadImagem from '../api/upload-imagem.js';
 
+async function registrarCliqueDestinoApi(context) {
+  const { request, env } = context;
+  const urlObj = new URL(request.url);
+  const linkId = urlObj.searchParams.get('link');
+  if (linkId) {
+    const { origem, dispositivo } = detectarOrigemEDispositivo(request);
+    try {
+      await rpc(env, 'registrar_clique', {
+        p_link: linkId,
+        p_origem: origem,
+        p_dispositivo: dispositivo,
+        p_etapa: 'destino',
+      });
+    } catch (_) {}
+  }
+  return new Response(JSON.stringify({ ok: true }), {
+    headers: {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    },
+  });
+}
+
 async function dispatchApi(context) {
   const slug = context.params?.slug;
   if (slug === 'mp-webhook') return mpWebhook.onRequest(context);
@@ -61,6 +85,7 @@ async function dispatchApi(context) {
   if (slug === 'configuracoes-site') return configSite.onRequestGet(context);
   if (slug === 'ia-gerar-copy') return iaGerarCopy.onRequest(context);
   if (slug === 'upload-imagem') return uploadImagem.onRequest(context);
+  if (slug === 'clique-destino') return registrarCliqueDestinoApi(context);
 
   return new Response(JSON.stringify({ erro: 'Endpoint não encontrado em /api/' }), {
     status: 404,
@@ -186,6 +211,30 @@ export async function onRequestGet(context) {
     beneficios = [];
   }
 
+  // Resolução do logotipo da loja
+  let lojaLogo = null;
+  if (link.loja_logo) {
+    if (link.loja_logo.startsWith('http://') || link.loja_logo.startsWith('https://')) {
+      lojaLogo = link.loja_logo;
+    } else if (link.loja_logo.startsWith('/imagens/')) {
+      lojaLogo = `${reqUrl.origin}${link.loja_logo}`;
+    } else if (link.loja_logo.startsWith('lojistas/')) {
+      lojaLogo = `${reqUrl.origin}/imagens/${link.loja_logo}`;
+    } else {
+      lojaLogo = `${supabaseUrl}/storage/v1/object/public/banners/${link.loja_logo}`;
+    }
+  }
+
+  // Se o visitante clicou diretamente para ir ao destino final (?go=1)
+  if (reqUrl.searchParams.get('go') === '1') {
+    if (typeof waitUntil === 'function') {
+      waitUntil(registrarClique(env, link.link_id, request, 'destino'));
+    } else {
+      registrarClique(env, link.link_id, request, 'destino').catch(() => {});
+    }
+    return Response.redirect(link.destino, 302);
+  }
+
   // Se for robô (crawler do WhatsApp, Meta, Telegram, etc.): devolve apenas meta tags Open Graph
   if (ROBOS.test(ua)) {
     return html(paginaOG({ link, url, imagem }), 200, {
@@ -193,11 +242,11 @@ export async function onRequestGet(context) {
     });
   }
 
-  // Se for pessoa real: registra clique assincronamente
+  // Se for pessoa real: registra clique de acesso à tela
   if (typeof waitUntil === 'function') {
-    waitUntil(registrarClique(env, link.link_id, request));
+    waitUntil(registrarClique(env, link.link_id, request, 'acesso'));
   } else {
-    registrarClique(env, link.link_id, request).catch(() => {});
+    registrarClique(env, link.link_id, request, 'acesso').catch(() => {});
   }
 
   // Modo 1: Página de Oferta / Mini-Vitrine (apresenta detalhes, fotos e preço antes da ação)
@@ -209,13 +258,20 @@ export async function onRequestGet(context) {
       fotosGaleria,
       beneficios,
       lojaNome: link.loja_nome || 'Loja Oficial',
+      lojaLogo,
       destino: link.destino,
     }), 200, {
       'cache-control': 'no-store',
     });
   }
 
-  // Modo 2: Redirecionamento Rápido (transição com ação de contingência)
+  // Modo 2: Redirecionamento Rápido (transição com ação de contingência e auto-redirecionamento)
+  if (typeof waitUntil === 'function') {
+    waitUntil(registrarClique(env, link.link_id, request, 'destino'));
+  } else {
+    registrarClique(env, link.link_id, request, 'destino').catch(() => {});
+  }
+
   return html(paginaTransicao({
     destino: link.destino,
     lojaNome: link.loja_nome || 'Loja',
@@ -318,13 +374,14 @@ function detectarOrigemEDispositivo(request) {
   return { origem, dispositivo };
 }
 
-async function registrarClique(env, linkId, request) {
+async function registrarClique(env, linkId, request, etapa = 'acesso') {
   try {
     const { origem, dispositivo } = detectarOrigemEDispositivo(request);
     await rpc(env, 'registrar_clique', {
       p_link: linkId,
       p_origem: origem,
       p_dispositivo: dispositivo,
+      p_etapa: etapa,
     });
   } catch (err) {
     // Falha silenciosa de clique para nunca travar a navegação do usuário
@@ -569,7 +626,12 @@ function paginaTransicao({ destino, lojaNome, titulo, imagem }) {
   </main>
 
   <footer>
-    <span>🔒 Ambiente Seguro · PostLink</span>
+    <a href="https://postlink.com.br?utm_source=transicao&utm_medium=footer" target="_blank" rel="noopener" style="text-decoration:none; display:inline-block;">
+      <div style="display:inline-flex; align-items:center; gap:6px; background:#ffffff; border:1px solid #e2e8f0; padding:6px 12px; border-radius:999px; font-size:11px; color:#475569; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+        <img src="/favicon-32x32.png" alt="PostLink" style="width:14px; height:14px; border-radius:3px;">
+        <span>Conexão Segura por <strong style="color:#003e80; font-weight:700;">PostLink</strong></span>
+      </div>
+    </a>
   </footer>
 
   <script>
@@ -592,9 +654,10 @@ function formatarMoeda(val) {
   return n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
-function paginaVitrine({ link, url, imagem, fotosGaleria = [], beneficios = [], lojaNome, destino }) {
+function paginaVitrine({ link, url, imagem, fotosGaleria = [], beneficios = [], lojaNome, lojaLogo = null, destino }) {
   const d = esc(destino);
   const nome = esc(lojaNome);
+  const lojaLogoEsc = lojaLogo ? esc(lojaLogo) : '';
   const tit = esc(link.titulo || 'Oferta Especial');
   const desc = esc(link.descricao || '');
   const cta = esc(link.cta_label || 'Pedir pelo WhatsApp');
@@ -704,16 +767,25 @@ function paginaVitrine({ link, url, imagem, fotosGaleria = [], beneficios = [], 
     .store-badge {
       display: inline-flex;
       align-items: center;
-      gap: 7px;
+      gap: 8px;
       background: #ffffff;
       border: 1px solid #e2e8f0;
-      padding: 6px 12px;
+      padding: 5px 12px;
       border-radius: 999px;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
     }
+    .store-logo-img {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      object-fit: contain;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      display: inline-block;
+    }
     .store-avatar {
-      width: 20px;
-      height: 20px;
+      width: 22px;
+      height: 22px;
       border-radius: 50%;
       background: #003e80;
       color: #ffffff;
@@ -736,10 +808,29 @@ function paginaVitrine({ link, url, imagem, fotosGaleria = [], beneficios = [], 
       display: inline-block;
     }
     .brand-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      text-decoration: none;
       font-size: 11px;
       font-weight: 700;
       color: #003e80;
       letter-spacing: -0.3px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      transition: all 0.15s ease;
+    }
+    .brand-tag:hover {
+      border-color: #003e80;
+      transform: translateY(-1px);
+    }
+    .brand-icon {
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
     }
     .card {
       background: #ffffff;
@@ -754,18 +845,23 @@ function paginaVitrine({ link, url, imagem, fotosGaleria = [], beneficios = [], 
     .hero-image-wrapper {
       position: relative;
       width: 100%;
-      aspect-ratio: 1.91 / 1;
+      max-height: 480px;
       border-radius: 14px;
       overflow: hidden;
-      background: #f1f5f9;
+      background: #f8fafc;
       border: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .hero-image {
       width: 100%;
-      height: 100%;
-      object-fit: cover;
+      height: auto;
+      max-height: 480px;
+      object-fit: contain;
       display: block;
       transition: opacity 0.2s ease;
+      border-radius: 14px;
     }
     .badge-discount {
       position: absolute;
@@ -778,6 +874,7 @@ function paginaVitrine({ link, url, imagem, fotosGaleria = [], beneficios = [], 
       padding: 3px 8px;
       border-radius: 6px;
       box-shadow: 0 2px 6px rgba(186, 26, 26, 0.35);
+      z-index: 2;
     }
     .thumbnails-track {
       display: flex;
@@ -788,7 +885,7 @@ function paginaVitrine({ link, url, imagem, fotosGaleria = [], beneficios = [], 
     }
     .thumb-btn {
       width: 54px;
-      height: 40px;
+      height: 48px;
       border-radius: 8px;
       overflow: hidden;
       border: 2px solid #e2e8f0;
@@ -797,6 +894,9 @@ function paginaVitrine({ link, url, imagem, fotosGaleria = [], beneficios = [], 
       cursor: pointer;
       flex-shrink: 0;
       transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .thumb-btn.active {
       border-color: #003e80;
@@ -931,12 +1031,48 @@ function paginaVitrine({ link, url, imagem, fotosGaleria = [], beneficios = [], 
     footer {
       text-align: center;
       padding: 16px 0 8px;
-      font-size: 11.5px;
-      color: #737782;
-      display: flex;
+    }
+    .footer-platform-link {
+      text-decoration: none;
+      display: inline-block;
+    }
+    .footer-platform-pill {
+      display: inline-flex;
       align-items: center;
-      justify-content: center;
-      gap: 4px;
+      gap: 6px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 11px;
+      color: #475569;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      transition: all 0.2s ease;
+    }
+    .footer-platform-pill:hover {
+      border-color: #003e80;
+      color: #003e80;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(0, 62, 128, 0.08);
+    }
+    .footer-platform-icon {
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+    }
+    .footer-platform-pill strong {
+      color: #003e80;
+      font-weight: 700;
+    }
+    .footer-arrow {
+      width: 14px;
+      height: 14px;
+      color: #94a3b8;
+      transition: transform 0.2s ease;
+    }
+    .footer-platform-pill:hover .footer-arrow {
+      color: #003e80;
+      transform: translateX(1px);
     }
   </style>
 </head>
@@ -944,13 +1080,18 @@ function paginaVitrine({ link, url, imagem, fotosGaleria = [], beneficios = [], 
   <div class="wrapper">
     <header>
       <div class="store-badge">
-        <div class="store-avatar">${nome.charAt(0).toUpperCase()}</div>
+        ${lojaLogoEsc ? `
+          <img src="${lojaLogoEsc}" alt="${nome}" class="store-logo-img">
+        ` : `
+          <div class="store-avatar">${nome.charAt(0).toUpperCase()}</div>
+        `}
         <span class="store-name">${nome}</span>
         <span class="verified-dot" title="Loja Ativa"></span>
       </div>
-      <div class="brand-tag">
+      <a href="https://postlink.com.br?utm_source=vitrine&utm_medium=header" target="_blank" rel="noopener" class="brand-tag" title="Criado com PostLink">
+        <img src="/favicon-32x32.png" alt="PostLink" class="brand-icon">
         <span>PostLink</span>
-      </div>
+      </a>
     </header>
 
     <main class="card">
@@ -960,7 +1101,7 @@ function paginaVitrine({ link, url, imagem, fotosGaleria = [], beneficios = [], 
       ${precoHtml}
       ${beneficiosHtml}
 
-      <a href="${d}" class="btn-cta" rel="noopener">
+      <a href="${d}" class="btn-cta" id="btn-cta-destino" rel="noopener" onclick="irParaDestino(event, '${d}', '${link.link_id}')">
         <svg class="cta-icon" viewBox="0 0 24 24"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm0 17.65c-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.1 8.1 0 0 1-1.24-4.28c0-4.5 3.66-8.16 8.17-8.16 2.18 0 4.23.85 5.77 2.39a8.1 8.1 0 0 1 2.39 5.77c.01 4.5-3.65 8.14-8.1 8.14zm4.47-6.1c-.25-.12-1.46-.72-1.68-.8-.23-.08-.39-.12-.56.12-.17.25-.64.8-.79.97-.14.17-.29.19-.53.07-.25-.12-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.14.17-.25.25-.41.08-.17.04-.31-.02-.43s-.56-1.34-.76-1.84c-.2-.48-.4-.42-.56-.43h-.47c-.17 0-.43.06-.66.31-.23.25-.87.85-.87 2.07 0 1.22.89 2.4 1.01 2.56.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.53.6.19 1.14.16 1.57.1.48-.07 1.46-.6 1.67-1.18.21-.58.21-1.07.15-1.18-.06-.11-.23-.17-.48-.29z"/></svg>
         <span>${cta}</span>
       </a>
@@ -968,7 +1109,15 @@ function paginaVitrine({ link, url, imagem, fotosGaleria = [], beneficios = [], 
   </div>
 
   <footer>
-    <span>🔒 Ambiente Seguro · PostLink</span>
+    <a href="https://postlink.com.br?utm_source=vitrine&utm_medium=footer" target="_blank" rel="noopener" class="footer-platform-link" title="Crie páginas de ofertas e links inteligentes como esta">
+      <div class="footer-platform-pill">
+        <img src="/favicon-32x32.png" alt="PostLink" class="footer-platform-icon">
+        <span>Criado com <strong>PostLink</strong> · Crie o seu</span>
+        <svg class="footer-arrow" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
+        </svg>
+      </div>
+    </a>
   </footer>
 
   <script>
@@ -978,6 +1127,17 @@ function paginaVitrine({ link, url, imagem, fotosGaleria = [], beneficios = [], 
       var buttons = document.querySelectorAll('.thumb-btn');
       buttons.forEach(function(b) { b.classList.remove('active'); });
       if (btn) btn.classList.add('active');
+    }
+
+    function irParaDestino(e, urlDestino, linkId) {
+      try {
+        var beaconUrl = '/api/clique-destino?link=' + encodeURIComponent(linkId);
+        if (navigator.sendBeacon) {
+          navigator.sendBeacon(beaconUrl);
+        } else {
+          fetch(beaconUrl, { keepalive: true, method: 'POST' }).catch(function(){});
+        }
+      } catch (_) {}
     }
   </script>
 </body>
