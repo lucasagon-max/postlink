@@ -524,21 +524,38 @@ function limparSlug(v) {
     .replace(/-+/g, '-');
 }
 
-// Resolução Inteligente de URL de Imagem (suporta CDN R2, URLs completas e legado)
+// Resolução Inteligente de URL de Imagem (suporta CDN, URLs completas e legado)
 function resolverUrlImagem(caminho, versao = 1) {
   if (!caminho) return '';
   if (caminho.startsWith('http://') || caminho.startsWith('https://')) {
     return `${caminho}${caminho.includes('?') ? '&' : '?'}v=${versao}`;
   }
-  if (caminho.startsWith('/imagens/')) {
-    return `${caminho}?v=${versao}`;
+  const limpo = caminho.replace(/^\/+/, '');
+  if (limpo.startsWith('imagens/')) {
+    return `/${limpo}${limpo.includes('?') ? '&' : '?'}v=${versao}`;
   }
-  if (caminho.startsWith('lojistas/')) {
-    return `/imagens/${caminho}?v=${versao}`;
+  if (limpo.startsWith('lojistas/')) {
+    return `/imagens/${limpo}?v=${versao}`;
   }
-  const { data: { publicUrl } } = sb.storage.from('banners').getPublicUrl(caminho);
+  const { data: { publicUrl } } = sb.storage.from('banners').getPublicUrl(limpo);
   return `${publicUrl}?v=${versao}`;
 }
+
+// Fallback automático para imagens da galeria caso um provedor de mídia falhe
+window.tratarErroImagemGaleria = function (imgEl, caminho) {
+  if (!imgEl || imgEl.dataset.tentativaFallback) return;
+  imgEl.dataset.tentativaFallback = 'true';
+  const limpo = (caminho || '').replace(/^\/+/, '');
+  if (imgEl.src && imgEl.src.includes('supabase.co')) {
+    const semImagens = limpo.replace(/^imagens\//, '');
+    imgEl.src = `/imagens/${semImagens}`;
+  } else {
+    try {
+      const { data: { publicUrl } } = sb.storage.from('banners').getPublicUrl(limpo.replace(/^imagens\//, ''));
+      if (publicUrl) imgEl.src = publicUrl;
+    } catch (_) {}
+  }
+};
 
 // Upload Seguro de Imagens Otimizadas com Alta Performance e Fallback
 async function uploadImagemOtimizada(blob, caminhoDesejado = '') {
@@ -2198,9 +2215,9 @@ function renderizarFotosExtrasVitrine() {
   el.containerFotosExtrasVitrine.innerHTML = fotos.map((fotoPath, idx) => {
     const url = resolverUrlImagem(fotoPath);
     return `
-      <div class="relative w-16 h-16 rounded-xl border border-outline-variant/70 overflow-hidden group shadow-xs bg-surface-container shrink-0">
-        <img src="${url}" alt="Foto adicional ${idx + 1}" class="w-full h-full object-cover">
-        <button type="button" class="btn-remover-foto-extra absolute top-1 right-1 w-4 h-4 rounded-full bg-black/75 hover:bg-error text-white text-[10px] flex items-center justify-center transition-all shadow-xs" data-index="${idx}" title="Remover foto">
+      <div class="relative w-16 h-16 rounded-xl border border-outline-variant/70 overflow-hidden group shadow-xs bg-surface-container-high flex items-center justify-center shrink-0">
+        <img src="${url}" alt="Foto adicional ${idx + 1}" class="max-w-full max-h-full object-contain p-1" onerror="tratarErroImagemGaleria(this, '${escapeHtml(fotoPath)}')">
+        <button type="button" class="btn-remover-foto-extra absolute top-1 right-1 w-4 h-4 rounded-full bg-black/75 hover:bg-error text-white text-[10px] flex items-center justify-center transition-all shadow-xs z-10" data-index="${idx}" title="Remover foto">
           ✕
         </button>
       </div>
@@ -3785,7 +3802,7 @@ async function carregarGaleriaFotos(forcar = false) {
     } catch (_) {}
   }
 
-  // Mapeia links ativos/pausados que utilizam cada imagem
+  // Mapeia links ativos/pausados que utilizam cada imagem (principal ou adicional)
   const mapLinksPorImagem = {};
   (state.links || []).forEach((link) => {
     if (link.imagem_path) {
@@ -3794,16 +3811,32 @@ async function carregarGaleriaFotos(forcar = false) {
       }
       mapLinksPorImagem[link.imagem_path].push(link);
     }
+
+    let fotosExtras = [];
+    try {
+      fotosExtras = Array.isArray(link.fotos_galeria) ? link.fotos_galeria : JSON.parse(link.fotos_galeria || '[]');
+    } catch (_) {}
+
+    fotosExtras.forEach((caminhoExtra) => {
+      if (!caminhoExtra) return;
+      if (!mapLinksPorImagem[caminhoExtra]) {
+        mapLinksPorImagem[caminhoExtra] = [];
+      }
+      if (!mapLinksPorImagem[caminhoExtra].some((l) => l.id === link.id)) {
+        mapLinksPorImagem[caminhoExtra].push(link);
+      }
+    });
   });
 
   const fotosMap = new Map();
 
-  // 1. Carrega fotos salvas no cache local do usuário
+  // 1. Carrega fotos salvas no cache local do usuário revalidando URLs
   const fotosLocais = obterFotosCacheLocal(state.user.id);
   fotosLocais.forEach((f) => {
     if (f.caminho) {
       fotosMap.set(f.caminho, {
         ...f,
+        urlPublica: resolverUrlImagem(f.caminho),
         linksUsando: mapLinksPorImagem[f.caminho] || [],
       });
     }
@@ -3819,11 +3852,10 @@ async function carregarGaleriaFotos(forcar = false) {
       files.forEach((file) => {
         if (!file.name || file.name.startsWith('.')) return;
         const caminho = `${state.user.id}/${file.name}`;
-        const { data: { publicUrl } } = sb.storage.from('banners').getPublicUrl(caminho);
         fotosMap.set(caminho, {
           caminho,
           nome: file.name,
-          urlPublica: publicUrl,
+          urlPublica: resolverUrlImagem(caminho),
           criadoEm: file.created_at || new Date().toISOString(),
           tamanho: file.metadata?.size || null,
           linksUsando: mapLinksPorImagem[caminho] || [],
@@ -3834,21 +3866,62 @@ async function carregarGaleriaFotos(forcar = false) {
     console.warn('Listagem storage:', err);
   }
 
-  // 3. Garante que qualquer imagem usada nos links cadastrados esteja presente
+  // 2b. Tenta listar objetos em lojistas/user_id se existirem
+  try {
+    const { data: filesLojistas } = await sb.storage.from('banners').list(`lojistas/${state.user.id}`, {
+      limit: 100,
+      sortBy: { column: 'created_at', order: 'desc' }
+    });
+    if (Array.isArray(filesLojistas)) {
+      filesLojistas.forEach((file) => {
+        if (!file.name || file.name.startsWith('.')) return;
+        const caminho = `lojistas/${state.user.id}/${file.name}`;
+        fotosMap.set(caminho, {
+          caminho,
+          nome: file.name,
+          urlPublica: resolverUrlImagem(caminho),
+          criadoEm: file.created_at || new Date().toISOString(),
+          tamanho: file.metadata?.size || null,
+          linksUsando: mapLinksPorImagem[caminho] || [],
+        });
+      });
+    }
+  } catch (_) {}
+
+  // 3. Garante que qualquer imagem usada nos links cadastrados esteja presente (principal e adicionais)
   (state.links || []).forEach((link) => {
-    if (link.imagem_path && !fotosMap.has(link.imagem_path)) {
+    if (link.imagem_path) {
       const caminho = link.imagem_path;
-      const { data: { publicUrl } } = sb.storage.from('banners').getPublicUrl(caminho);
+      const fotoExistente = fotosMap.get(caminho);
       const nome = caminho.split('/').pop() || 'banner.jpg';
       fotosMap.set(caminho, {
         caminho,
-        nome,
-        urlPublica: `${publicUrl}?v=${link.versao || 1}`,
-        criadoEm: link.criado_em,
-        tamanho: null,
+        nome: fotoExistente?.nome || nome,
+        urlPublica: resolverUrlImagem(caminho, link.versao || 1),
+        criadoEm: fotoExistente?.criadoEm || link.criado_em,
+        tamanho: fotoExistente?.tamanho || null,
         linksUsando: mapLinksPorImagem[caminho] || [],
       });
     }
+
+    let fotosExtras = [];
+    try {
+      fotosExtras = Array.isArray(link.fotos_galeria) ? link.fotos_galeria : JSON.parse(link.fotos_galeria || '[]');
+    } catch (_) {}
+
+    fotosExtras.forEach((caminhoExtra) => {
+      if (!caminhoExtra) return;
+      const fotoExistente = fotosMap.get(caminhoExtra);
+      const nome = caminhoExtra.split('/').pop() || 'foto-oferta.jpg';
+      fotosMap.set(caminhoExtra, {
+        caminho: caminhoExtra,
+        nome: fotoExistente?.nome || nome,
+        urlPublica: resolverUrlImagem(caminhoExtra, link.versao || 1),
+        criadoEm: fotoExistente?.criadoEm || link.criado_em,
+        tamanho: fotoExistente?.tamanho || null,
+        linksUsando: mapLinksPorImagem[caminhoExtra] || [],
+      });
+    });
   });
 
   // Ordena da mais recente para a mais antiga
@@ -3948,17 +4021,20 @@ function renderizarGridGaleria() {
 
     return `
       <div class="bg-surface-container-lowest border border-outline-variant/60 hover:border-primary/50 rounded-2xl overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col justify-between group">
-        <!-- Visualizador 1.91:1 Estrito PostLink HD -->
-        <div class="relative aspect-[1.91/1] bg-surface-container-high overflow-hidden">
-          <img src="${foto.urlPublica}" alt="${escapeHtml(foto.nome)}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
-          <div class="absolute top-2.5 left-2.5">
+        <!-- Visualizador Proporcional e Elegante para Qualquer Formato de Imagem -->
+        <div class="relative h-48 sm:h-52 bg-surface-container-high flex items-center justify-center overflow-hidden">
+          <!-- Backdrop desfocado sutil que harmoniza com as cores da foto -->
+          <img src="${foto.urlPublica}" alt="" aria-hidden="true" class="absolute inset-0 w-full h-full object-cover blur-md opacity-20 scale-110 pointer-events-none">
+          <!-- Foto completa sem cortes de topo ou base -->
+          <img src="${foto.urlPublica}" alt="${escapeHtml(foto.nome)}" loading="lazy" class="relative z-1 max-w-full max-h-48 sm:max-h-52 object-contain p-2 group-hover:scale-102 transition-transform duration-300" onerror="tratarErroImagemGaleria(this, '${escapeHtml(foto.caminho)}')">
+          <div class="absolute top-2.5 left-2.5 z-10">
             ${badgeUsoHtml}
           </div>
-          <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5">
-            <button type="button" class="btn-recortar-foto-card w-7 h-7 rounded-full bg-black/50 hover:bg-primary text-white flex items-center justify-center transition-colors backdrop-blur-xs shadow-xs" data-caminho="${foto.caminho}" title="Recortar e ajustar proporção">
+          <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10">
+            <button type="button" class="btn-recortar-foto-card w-7 h-7 rounded-full bg-black/60 hover:bg-primary text-white flex items-center justify-center transition-colors backdrop-blur-xs shadow-xs" data-caminho="${foto.caminho}" title="Recortar e ajustar proporção">
               <span class="material-symbols-outlined text-sm">crop</span>
             </button>
-            <button type="button" class="btn-excluir-foto w-7 h-7 rounded-full bg-black/50 hover:bg-error text-white flex items-center justify-center transition-colors backdrop-blur-xs shadow-xs" data-caminho="${foto.caminho}" title="Excluir foto">
+            <button type="button" class="btn-excluir-foto w-7 h-7 rounded-full bg-black/60 hover:bg-error text-white flex items-center justify-center transition-colors backdrop-blur-xs shadow-xs" data-caminho="${foto.caminho}" title="Excluir foto">
               <span class="material-symbols-outlined text-sm">delete</span>
             </button>
           </div>
@@ -4044,17 +4120,18 @@ function renderizarModalGaleria() {
 
     return `
       <div class="modal-foto-item cursor-pointer rounded-xl overflow-hidden border-2 transition-all group relative ${isSelecionada ? 'border-primary ring-4 ring-primary/20 shadow-md' : 'border-outline-variant/60 hover:border-primary/50'}" data-caminho="${foto.caminho}">
-        <div class="aspect-[1.91/1] bg-surface-container-high relative overflow-hidden">
-          <img src="${foto.urlPublica}" alt="${escapeHtml(foto.nome)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200">
+        <div class="relative h-32 bg-surface-container-high flex items-center justify-center overflow-hidden">
+          <img src="${foto.urlPublica}" alt="" aria-hidden="true" class="absolute inset-0 w-full h-full object-cover blur-sm opacity-20 scale-110 pointer-events-none">
+          <img src="${foto.urlPublica}" alt="${escapeHtml(foto.nome)}" class="relative z-1 max-w-full max-h-32 object-contain p-1 group-hover:scale-102 transition-transform duration-200" onerror="tratarErroImagemGaleria(this, '${escapeHtml(foto.caminho)}')">
           ${isSelecionada ? `
-            <div class="absolute inset-0 bg-primary/20 flex items-center justify-center">
+            <div class="absolute inset-0 bg-primary/20 backdrop-blur-2xs flex items-center justify-center z-10">
               <span class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center shadow-md">
                 <span class="material-symbols-outlined text-lg font-bold">check</span>
               </span>
             </div>
           ` : ''}
           ${qtdLinks > 0 ? `
-            <span class="absolute bottom-1.5 left-1.5 bg-black/60 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded backdrop-blur-xs">
+            <span class="absolute bottom-1.5 left-1.5 bg-black/70 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded backdrop-blur-xs z-10">
               ${qtdLinks} ${qtdLinks === 1 ? 'link' : 'links'}
             </span>
           ` : ''}
@@ -4092,8 +4169,7 @@ function aplicarFotoGaleriaNoFormulario(caminhoImagem, isEdicao = false) {
   let publicUrl = foto ? foto.urlPublica : null;
 
   if (!publicUrl) {
-    const { data: { publicUrl: urlGerada } } = sb.storage.from('banners').getPublicUrl(caminhoImagem);
-    publicUrl = urlGerada;
+    publicUrl = resolverUrlImagem(caminhoImagem);
   }
 
   const nomeArquivo = foto ? foto.nome : (caminhoImagem.split('/').pop() || 'banner.jpg');
@@ -4222,10 +4298,8 @@ async function processarUploadDiretoGaleria(files) {
     try {
       const blob = await comprimirImagem(file, { larguraMax: 1200, alvoKB: 300 });
       const caminho = `${state.user.id}/galeria-${Date.now()}-${slugAleatorio()}.jpg`;
-      const { error } = await sb.storage
-        .from('banners')
-        .upload(caminho, blob, { contentType: 'image/jpeg' });
-      if (!error) enviados += 1;
+      const resUp = await uploadImagemOtimizada(blob, caminho);
+      if (resUp && resUp.caminho) enviados += 1;
     } catch (err) {
       console.error('Erro no upload para galeria:', err);
     }

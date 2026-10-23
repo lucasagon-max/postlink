@@ -176,29 +176,24 @@ export async function onRequestGet(context) {
   const url = `${reqUrl.origin}/${encodeURIComponent(loja)}/${encodeURIComponent(slug)}${sufixoVersao}`;
 
   // Resolução da URL da imagem com cache global e entrega otimizada
-  let imagem = null;
-  if (link.imagem_path) {
-    if (link.imagem_path.startsWith('http://') || link.imagem_path.startsWith('https://')) {
-      imagem = link.imagem_path;
-    } else if (link.imagem_path.startsWith('/imagens/')) {
-      imagem = `${reqUrl.origin}${link.imagem_path}`;
-    } else if (link.imagem_path.startsWith('lojistas/')) {
-      imagem = `${reqUrl.origin}/imagens/${link.imagem_path}`;
-    } else {
-      imagem = `${supabaseUrl}/storage/v1/object/public/banners/${link.imagem_path}?v=${link.versao || 1}`;
+  function resolverUrlPublica(caminho, versao = null) {
+    if (!caminho) return null;
+    if (caminho.startsWith('http://') || caminho.startsWith('https://')) {
+      return versao ? `${caminho}${caminho.includes('?') ? '&' : '?'}v=${versao}` : caminho;
     }
+    const limpo = caminho.replace(/^\/+/, '');
+    const pathSemImagens = limpo.replace(/^imagens\//, '');
+    const paramVersao = versao ? `?v=${versao}` : '';
+    return `${reqUrl.origin}/imagens/${pathSemImagens}${paramVersao}`;
   }
+
+  const imagem = resolverUrlPublica(link.imagem_path, link.versao || 1);
 
   // Resolução de fotos adicionais da galeria
   let fotosGaleria = [];
   try {
     const rawFotos = Array.isArray(link.fotos_galeria) ? link.fotos_galeria : JSON.parse(link.fotos_galeria || '[]');
-    fotosGaleria = (rawFotos || []).map((f) => {
-      if (f.startsWith('http://') || f.startsWith('https://')) return f;
-      if (f.startsWith('/imagens/')) return `${reqUrl.origin}${f}`;
-      if (f.startsWith('lojistas/')) return `${reqUrl.origin}/imagens/${f}`;
-      return `${supabaseUrl}/storage/v1/object/public/banners/${f}`;
-    });
+    fotosGaleria = (rawFotos || []).map((f) => resolverUrlPublica(f)).filter(Boolean);
   } catch (_) {
     fotosGaleria = [];
   }
@@ -212,18 +207,7 @@ export async function onRequestGet(context) {
   }
 
   // Resolução do logotipo da loja
-  let lojaLogo = null;
-  if (link.loja_logo) {
-    if (link.loja_logo.startsWith('http://') || link.loja_logo.startsWith('https://')) {
-      lojaLogo = link.loja_logo;
-    } else if (link.loja_logo.startsWith('/imagens/')) {
-      lojaLogo = `${reqUrl.origin}${link.loja_logo}`;
-    } else if (link.loja_logo.startsWith('lojistas/')) {
-      lojaLogo = `${reqUrl.origin}/imagens/${link.loja_logo}`;
-    } else {
-      lojaLogo = `${supabaseUrl}/storage/v1/object/public/banners/${link.loja_logo}`;
-    }
-  }
+  const lojaLogo = resolverUrlPublica(link.loja_logo);
 
   // Se o visitante clicou diretamente para ir ao destino final (?go=1)
   if (reqUrl.searchParams.get('go') === '1') {
