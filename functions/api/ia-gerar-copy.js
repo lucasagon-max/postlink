@@ -429,7 +429,13 @@ REGRAS RÍGIDAS DE FORMATAÇÃO E COPYWRITING:
 5. SLUG AMIGÁVEL (Entre 4 e 25 caracteres):
    - Apenas letras minúsculas, números e hífens (ex: geleia-morango-artesanal).
 
-6. RETORNE 3 VARIAÇÕES DISTINTAS DENTRO DO TOM "${configTom.nome}":
+6. DESTAQUES DA OFERTA (Array de 3 itens curtos):
+   - 3 benefícios diretos e atrativos do produto/serviço (ex: "Qualidade garantida com pronta entrega", "Embalagem para presente inclusa", "Condições especiais pelo WhatsApp").
+
+7. BOTÃO DE AÇÃO (CTA) (Máximo 30 caracteres):
+   - Chamada direta de alto impacto (ex: "Pedir pelo WhatsApp", "Garantir Desconto", "Falar com Atendente").
+
+8. RETORNE 3 VARIAÇÕES DISTINTAS DENTRO DO TOM "${configTom.nome}":
    - Opção 1: "${configTom.variacoes[0]}"
    - Opção 2: "${configTom.variacoes[1]}"
    - Opção 3: "${configTom.variacoes[2]}"
@@ -443,7 +449,10 @@ Retorne EXCLUSIVAMENTE um objeto JSON no formato:
       "descricao": "...",
       "mensagem_whatsapp": "...",
       "mensagem_compartilhamento": "...",
-      "slug": "..."
+      "slug": "...",
+      "beneficios": ["...", "...", "..."],
+      "cta_label": "Pedir pelo WhatsApp",
+      "condicao_pagamento": "..."
     },
     {
       "tom": "${configTom.variacoes[1]}",
@@ -451,7 +460,10 @@ Retorne EXCLUSIVAMENTE um objeto JSON no formato:
       "descricao": "...",
       "mensagem_whatsapp": "...",
       "mensagem_compartilhamento": "...",
-      "slug": "..."
+      "slug": "...",
+      "beneficios": ["...", "...", "..."],
+      "cta_label": "Garantir Oferta",
+      "condicao_pagamento": "..."
     },
     {
       "tom": "${configTom.variacoes[2]}",
@@ -459,7 +471,10 @@ Retorne EXCLUSIVAMENTE um objeto JSON no formato:
       "descricao": "...",
       "mensagem_whatsapp": "...",
       "mensagem_compartilhamento": "...",
-      "slug": "..."
+      "slug": "...",
+      "beneficios": ["...", "...", "..."],
+      "cta_label": "Comprar Agora",
+      "condicao_pagamento": "..."
     }
   ]
 }`;
@@ -514,6 +529,18 @@ Ação solicitada: "${tipo_acao}"`;
         msgComp = msgComp.slice(0, 999).trim();
       }
 
+      let beneficiosLimpos = [];
+      if (Array.isArray(item.beneficios)) {
+        beneficiosLimpos = item.beneficios.map(b => truncar(String(b), 60)).filter(Boolean).slice(0, 4);
+      }
+      if (beneficiosLimpos.length === 0) {
+        beneficiosLimpos = [
+          'Qualidade garantida e pronta entrega',
+          'Atendimento rápido e direto no WhatsApp',
+          'Condição especial por tempo limitado'
+        ];
+      }
+
       return {
         id: idx + 1,
         tom: item.tom || configTom.variacoes[idx] || `Opção ${idx + 1}`,
@@ -522,6 +549,9 @@ Ação solicitada: "${tipo_acao}"`;
         mensagem_whatsapp: (item.mensagem_whatsapp || item.whatsapp_message || `Olá! Quero mais informações sobre ${textoBase}.`).slice(0, 150),
         mensagem_compartilhamento: msgComp,
         slug: limparSlug(item.slug || `oferta-${idx + 1}`),
+        beneficios: beneficiosLimpos,
+        cta_label: truncar(item.cta_label || 'Pedir pelo WhatsApp', 30),
+        condicao_pagamento: truncar(item.condicao_pagamento || '', 50),
       };
     });
 

@@ -14,6 +14,8 @@ const state = {
   filtroAtual: 'todos',
   termoBusca: '',
   tipoDestino: 'whatsapp', // 'whatsapp' | 'url'
+  tipoLink: 'direto', // 'direto' | 'vitrine'
+  fotosExtrasVitrine: [],
   estatisticas: {},
   linkEditando: null,
   arquivoBlob: null,
@@ -25,6 +27,7 @@ const state = {
   termoBuscaGaleria: '',
   fotoParaExcluir: null,
   fotoTemporariaModal: null,
+  modalGaleriaModo: 'principal', // 'principal' | 'vitrine_extra'
 
   // Horários de Pico e Métricas por Hora
   picosHorarios: {},
@@ -93,6 +96,23 @@ const el = {
   tituloFormLink: document.getElementById('titulo-form-link'),
   subtituloFormLink: document.getElementById('subtitulo-form-link'),
   formLink: document.getElementById('form-link'),
+  btnTipoDireto: document.getElementById('btn-tipo-direto'),
+  btnTipoVitrine: document.getElementById('btn-tipo-vitrine'),
+  badgeTipoLink: document.getElementById('badge-tipo-link'),
+  descTipoLink: document.getElementById('desc-tipo-link'),
+  boxCamposVitrine: document.getElementById('box-campos-vitrine'),
+  inputPrecoDe: document.getElementById('input-preco-de'),
+  inputPrecoPor: document.getElementById('input-preco-por'),
+  inputCondicaoPagamento: document.getElementById('input-condicao-pagamento'),
+  inputBeneficio1: document.getElementById('input-beneficio-1'),
+  inputBeneficio2: document.getElementById('input-beneficio-2'),
+  inputBeneficio3: document.getElementById('input-beneficio-3'),
+  btnIaBeneficios: document.getElementById('btn-ia-beneficios'),
+  inputCtaLabel: document.getElementById('input-cta-label'),
+  btnAdicionarFotoGaleriaVitrine: document.getElementById('btn-adicionar-foto-galeria-vitrine'),
+  containerFotosExtrasVitrine: document.getElementById('container-fotos-extras-vitrine'),
+  labelNenhumaFotoExtra: document.getElementById('label-nenhuma-foto-extra'),
+
   inputArquivo: document.getElementById('input-arquivo'),
   dropzone: document.getElementById('dropzone'),
   fname: document.getElementById('fname'),
@@ -141,11 +161,13 @@ const el = {
   modalIaResultados: document.getElementById('modal-ia-resultados'),
   modalIaCardsLista: document.getElementById('modal-ia-cards-lista'),
 
-  // Live Preview WhatsApp & Redes Sociais
+  // Live Preview WhatsApp & Redes Sociais & Vitrine
   previewTabWa: document.getElementById('preview-tab-wa'),
   previewTabSocial: document.getElementById('preview-tab-social'),
+  previewTabVitrine: document.getElementById('preview-tab-vitrine'),
   previewFrameWa: document.getElementById('preview-frame-wa'),
   previewFrameSocial: document.getElementById('preview-frame-social'),
+  previewFrameVitrine: document.getElementById('preview-frame-vitrine'),
   waPreviewMsgTexto: document.getElementById('wa-preview-msg-texto'),
   ph: document.getElementById('ph'),
   im: document.getElementById('im'),
@@ -157,6 +179,21 @@ const el = {
   ptSocial: document.getElementById('pt-social'),
   pdSocial: document.getElementById('pd-social'),
   socialCardHost: document.getElementById('social-card-host'),
+
+  imVitrine: document.getElementById('im-vitrine'),
+  phVitrine: document.getElementById('ph-vitrine'),
+  ptVitrine: document.getElementById('pt-vitrine'),
+  pdVitrine: document.getElementById('pd-vitrine'),
+  vitrineAvatarLoja: document.getElementById('vitrine-avatar-loja'),
+  vitrineNomeLoja: document.getElementById('vitrine-nome-loja'),
+  vitrineBadgeDesconto: document.getElementById('vitrine-badge-desconto'),
+  vitrineBlocoPreco: document.getElementById('vitrine-bloco-preco'),
+  vitrinePrecoDe: document.getElementById('vitrine-preco-de'),
+  vitrinePrecoPor: document.getElementById('vitrine-preco-por'),
+  vitrineCondicao: document.getElementById('vitrine-condicao'),
+  vitrineBlocoBeneficios: document.getElementById('vitrine-bloco-beneficios'),
+  vitrineListaBeneficios: document.getElementById('vitrine-lista-beneficios'),
+  vitrineBtnLabel: document.getElementById('vitrine-btn-label'),
 
   // Box Sucesso Inline
   res: document.getElementById('res'),
@@ -480,6 +517,61 @@ function limparSlug(v) {
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9-]/g, '-')
     .replace(/-+/g, '-');
+}
+
+// Resolução Inteligente de URL de Imagem (suporta CDN R2, URLs completas e legado)
+function resolverUrlImagem(caminho, versao = 1) {
+  if (!caminho) return '';
+  if (caminho.startsWith('http://') || caminho.startsWith('https://')) {
+    return `${caminho}${caminho.includes('?') ? '&' : '?'}v=${versao}`;
+  }
+  if (caminho.startsWith('/imagens/')) {
+    return `${caminho}?v=${versao}`;
+  }
+  if (caminho.startsWith('lojistas/')) {
+    return `/imagens/${caminho}?v=${versao}`;
+  }
+  const { data: { publicUrl } } = sb.storage.from('banners').getPublicUrl(caminho);
+  return `${publicUrl}?v=${versao}`;
+}
+
+// Upload Seguro de Imagens Otimizadas com Alta Performance e Fallback
+async function uploadImagemOtimizada(blob, caminhoDesejado = '') {
+  let token = '';
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    token = session?.access_token || '';
+  } catch (_) {}
+
+  try {
+    const headers = {
+      'Content-Type': blob.type || 'image/jpeg',
+    };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    if (caminhoDesejado) headers['X-File-Path'] = caminhoDesejado;
+
+    const res = await fetch('/api/upload-imagem', {
+      method: 'POST',
+      headers,
+      body: blob,
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.sucesso && data.caminho) {
+        return { caminho: data.caminho, url: data.url };
+      }
+    }
+  } catch (errApi) {
+    console.warn('[PostLink] Fallback para armazenamento de transição:', errApi);
+  }
+
+  // Fallback seguro caso o endpoint de alta velocidade não esteja acessível
+  const caminhoPadrao = caminhoDesejado || `${state.user.id}/${Date.now()}.jpg`;
+  const { error } = await sb.storage.from('banners').upload(caminhoPadrao, blob, { contentType: 'image/jpeg', upsert: true });
+  if (error) throw error;
+  const { data: { publicUrl } } = sb.storage.from('banners').getPublicUrl(caminhoPadrao);
+  return { caminho: caminhoPadrao, url: publicUrl };
 }
 
 // Montagem de URLs com Versionamento (?v=2, ?v=3...)
@@ -1140,13 +1232,16 @@ function renderizarLinks() {
 
     const versaoAtual = link.versao || 1;
     const fullUrl = montarUrlLink(state.loja.slug, link.slug, versaoAtual);
-    const { data: { publicUrl } } = sb.storage.from('banners').getPublicUrl(link.imagem_path);
-    const imgUrl = `${publicUrl}?v=${versaoAtual}`;
+    const imgUrl = resolverUrlImagem(link.imagem_path, versaoAtual);
     const st = state.estatisticas[link.id] || { total: 0, recentes: 0 };
 
     const p = obterPlanoAtual();
     const edicoesFeitas = Math.max(0, versaoAtual - 1);
     const edicoesRestantes = Math.max(0, 5 - edicoesFeitas);
+
+    const tipoBadgeHtml = link.tipo_link === 'vitrine'
+      ? `<span class="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-secondary-container text-on-secondary-container">Vitrine</span>`
+      : '';
 
     const versaoBadgeHtml = p.maxEdicoes === Infinity
       ? `<span class="inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-surface-container-high text-primary">v${versaoAtual} · ${p.nome}</span>`
@@ -1228,7 +1323,7 @@ function renderizarLinks() {
           <p class="text-[11px] font-mono text-primary truncate" title="${fullUrl}">
             /${state.loja.slug}/${link.slug}${versaoAtual > 1 ? `?v=${versaoAtual}` : ''}
           </p>
-          ${versaoBadgeHtml}
+          <div class="flex items-center gap-1 shrink-0">${tipoBadgeHtml}${versaoBadgeHtml}</div>
         </div>
 
         <div class="bg-surface-container-low rounded-lg p-2 mb-3 text-xs">
@@ -1422,6 +1517,18 @@ function prepararFormularioNovo() {
   if (el.eDest) el.eDest.textContent = '';
   if (el.res) el.res.classList.add('hidden');
 
+  // Reset dos campos da Página de Oferta (Vitrine)
+  state.fotosExtrasVitrine = [];
+  if (el.inputPrecoDe) el.inputPrecoDe.value = '';
+  if (el.inputPrecoPor) el.inputPrecoPor.value = '';
+  if (el.inputCondicaoPagamento) el.inputCondicaoPagamento.value = '';
+  if (el.inputBeneficio1) el.inputBeneficio1.value = '';
+  if (el.inputBeneficio2) el.inputBeneficio2.value = '';
+  if (el.inputBeneficio3) el.inputBeneficio3.value = '';
+  if (el.inputCtaLabel) el.inputCtaLabel.value = 'Pedir pelo WhatsApp';
+  renderizarFotosExtrasVitrine();
+  switchTipoLink('direto');
+
   switchDestTab('whatsapp');
 
   // Pré-define com o WhatsApp cadastrado do lojista
@@ -1605,6 +1712,31 @@ async function prepararFormularioEdicao(id) {
     el.inputValidoAte.value = link.valido_ate ? new Date(link.valido_ate).toISOString().slice(0, 16) : '';
   }
 
+  // Preenche dados da Página de Oferta (Vitrine)
+  if (el.inputPrecoDe) el.inputPrecoDe.value = link.preco_de || '';
+  if (el.inputPrecoPor) el.inputPrecoPor.value = link.preco_por || '';
+  if (el.inputCondicaoPagamento) el.inputCondicaoPagamento.value = link.condicao_pagamento || '';
+
+  let bList = [];
+  try {
+    bList = Array.isArray(link.beneficios) ? link.beneficios : JSON.parse(link.beneficios || '[]');
+  } catch (_) {
+    bList = [];
+  }
+  if (el.inputBeneficio1) el.inputBeneficio1.value = bList[0] || '';
+  if (el.inputBeneficio2) el.inputBeneficio2.value = bList[1] || '';
+  if (el.inputBeneficio3) el.inputBeneficio3.value = bList[2] || '';
+  if (el.inputCtaLabel) el.inputCtaLabel.value = link.cta_label || 'Pedir pelo WhatsApp';
+
+  try {
+    state.fotosExtrasVitrine = Array.isArray(link.fotos_galeria) ? link.fotos_galeria : JSON.parse(link.fotos_galeria || '[]');
+  } catch (_) {
+    state.fotosExtrasVitrine = [];
+  }
+  renderizarFotosExtrasVitrine();
+
+  switchTipoLink(link.tipo_link || 'direto');
+
   // Foto existente vinculada ao link
   state.fotoSelecionadaGaleria = link.imagem_path;
   aplicarFotoGaleriaNoFormulario(link.imagem_path, true);
@@ -1786,22 +1918,274 @@ function atualizarLivePreview() {
     }
     if (el.phSocial) el.phSocial.classList.remove('hidden');
   }
+
+  // Sincroniza Preview da Página de Oferta (Vitrine)
+  if (el.ptVitrine) el.ptVitrine.textContent = titulo;
+  if (el.pdVitrine) el.pdVitrine.textContent = desc || 'Descrição da oferta.';
+  if (el.vitrineNomeLoja) el.vitrineNomeLoja.textContent = lojaNome;
+  if (el.vitrineAvatarLoja) el.vitrineAvatarLoja.textContent = (lojaNome || 'L').charAt(0).toUpperCase();
+
+  const precoDe = el.inputPrecoDe ? Number(el.inputPrecoDe.value) : 0;
+  const precoPor = el.inputPrecoPor ? Number(el.inputPrecoPor.value) : 0;
+
+  if (el.vitrinePrecoDe) {
+    if (precoDe > 0) {
+      el.vitrinePrecoDe.textContent = `De ${precoDe.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`;
+      el.vitrinePrecoDe.classList.remove('hidden');
+    } else {
+      el.vitrinePrecoDe.classList.add('hidden');
+    }
+  }
+
+  if (el.vitrinePrecoPor) {
+    if (precoPor > 0) {
+      el.vitrinePrecoPor.textContent = precoPor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+      if (el.vitrineBlocoPreco) el.vitrineBlocoPreco.classList.remove('hidden');
+    } else if (precoDe > 0) {
+      el.vitrinePrecoPor.textContent = precoDe.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+      if (el.vitrineBlocoPreco) el.vitrineBlocoPreco.classList.remove('hidden');
+    } else {
+      if (el.vitrineBlocoPreco) el.vitrineBlocoPreco.classList.add('hidden');
+    }
+  }
+
+  if (el.vitrineBadgeDesconto) {
+    if (precoDe > 0 && precoPor > 0 && precoDe > precoPor) {
+      const descPct = Math.round(((precoDe - precoPor) / precoDe) * 100);
+      el.vitrineBadgeDesconto.textContent = `-${descPct}%`;
+      el.vitrineBadgeDesconto.classList.remove('hidden');
+    } else {
+      el.vitrineBadgeDesconto.classList.add('hidden');
+    }
+  }
+
+  const cond = el.inputCondicaoPagamento ? el.inputCondicaoPagamento.value.trim() : '';
+  if (el.vitrineCondicao) {
+    el.vitrineCondicao.textContent = cond;
+    el.vitrineCondicao.style.display = cond ? 'block' : 'none';
+  }
+
+  // Destaques / Benefícios
+  const b1 = el.inputBeneficio1 ? el.inputBeneficio1.value.trim() : '';
+  const b2 = el.inputBeneficio2 ? el.inputBeneficio2.value.trim() : '';
+  const b3 = el.inputBeneficio3 ? el.inputBeneficio3.value.trim() : '';
+  const listBeneficios = [b1, b2, b3].filter(Boolean);
+
+  if (el.vitrineListaBeneficios) {
+    if (listBeneficios.length > 0) {
+      el.vitrineListaBeneficios.innerHTML = listBeneficios
+        .map(b => `<li class="flex items-center gap-1.5"><span class="text-secondary-dark font-bold text-xs">✓</span> ${escapeHtml(b)}</li>`)
+        .join('');
+      if (el.vitrineBlocoBeneficios) el.vitrineBlocoBeneficios.classList.remove('hidden');
+    } else {
+      if (el.vitrineBlocoBeneficios) el.vitrineBlocoBeneficios.classList.add('hidden');
+    }
+  }
+
+  const ctaTxt = (el.inputCtaLabel && el.inputCtaLabel.value.trim()) || 'Pedir pelo WhatsApp';
+  if (el.vitrineBtnLabel) el.vitrineBtnLabel.textContent = ctaTxt;
+
+  // Imagem no preview da Vitrine
+  if (el.im && !el.im.classList.contains('hidden') && el.im.src) {
+    if (el.imVitrine) {
+      el.imVitrine.src = el.im.src;
+      el.imVitrine.classList.remove('hidden');
+    }
+    if (el.phVitrine) el.phVitrine.classList.add('hidden');
+  } else {
+    if (el.imVitrine) {
+      el.imVitrine.classList.add('hidden');
+      el.imVitrine.src = '';
+    }
+    if (el.phVitrine) el.phVitrine.classList.remove('hidden');
+  }
 }
 
-// Controle de Abas no Preview (WhatsApp vs Redes Sociais)
-if (el.previewTabWa && el.previewTabSocial) {
-  el.previewTabWa.addEventListener('click', () => {
-    if (el.previewFrameWa) el.previewFrameWa.classList.remove('hidden');
-    if (el.previewFrameSocial) el.previewFrameSocial.classList.add('hidden');
-    el.previewTabWa.className = 'flex items-center gap-1 px-2.5 py-1 rounded-md bg-surface-container-lowest text-primary font-bold shadow-2xs transition-all';
-    el.previewTabSocial.className = 'flex items-center gap-1 px-2.5 py-1 rounded-md text-on-surface-variant hover:text-on-surface transition-all';
-  });
+// Controle de Abas no Preview (WhatsApp vs Redes Sociais vs Vitrine)
+function setPreviewTab(tab) {
+  const isWa = tab === 'wa';
+  const isSocial = tab === 'social';
+  const isVitrine = tab === 'vitrine';
 
-  el.previewTabSocial.addEventListener('click', () => {
-    if (el.previewFrameSocial) el.previewFrameSocial.classList.remove('hidden');
-    if (el.previewFrameWa) el.previewFrameWa.classList.add('hidden');
-    el.previewTabSocial.className = 'flex items-center gap-1 px-2.5 py-1 rounded-md bg-surface-container-lowest text-primary font-bold shadow-2xs transition-all';
-    el.previewTabWa.className = 'flex items-center gap-1 px-2.5 py-1 rounded-md text-on-surface-variant hover:text-on-surface transition-all';
+  if (el.previewFrameWa) el.previewFrameWa.classList.toggle('hidden', !isWa);
+  if (el.previewFrameSocial) el.previewFrameSocial.classList.toggle('hidden', !isSocial);
+  if (el.previewFrameVitrine) el.previewFrameVitrine.classList.toggle('hidden', !isVitrine);
+
+  if (el.previewTabWa) {
+    el.previewTabWa.className = isWa
+      ? 'flex items-center gap-1 px-2.5 py-1 rounded-md bg-surface-container-lowest text-primary font-bold shadow-2xs transition-all'
+      : 'flex items-center gap-1 px-2.5 py-1 rounded-md text-on-surface-variant hover:text-on-surface transition-all';
+  }
+  if (el.previewTabSocial) {
+    el.previewTabSocial.className = isSocial
+      ? 'flex items-center gap-1 px-2.5 py-1 rounded-md bg-surface-container-lowest text-primary font-bold shadow-2xs transition-all'
+      : 'flex items-center gap-1 px-2.5 py-1 rounded-md text-on-surface-variant hover:text-on-surface transition-all';
+  }
+  if (el.previewTabVitrine) {
+    el.previewTabVitrine.className = isVitrine
+      ? 'flex items-center gap-1 px-2.5 py-1 rounded-md bg-surface-container-lowest text-primary font-bold shadow-2xs transition-all'
+      : 'flex items-center gap-1 px-2.5 py-1 rounded-md text-on-surface-variant hover:text-on-surface transition-all';
+  }
+}
+
+if (el.previewTabWa) el.previewTabWa.addEventListener('click', () => setPreviewTab('wa'));
+if (el.previewTabSocial) el.previewTabSocial.addEventListener('click', () => setPreviewTab('social'));
+if (el.previewTabVitrine) el.previewTabVitrine.addEventListener('click', () => setPreviewTab('vitrine'));
+
+// Controle do Tipo de Experiência do Link (Direto vs Vitrine)
+function switchTipoLink(tipo = 'direto') {
+  state.tipoLink = tipo;
+  const isVitrine = tipo === 'vitrine';
+
+  if (el.btnTipoDireto) {
+    el.btnTipoDireto.className = isVitrine
+      ? 'flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-on-surface-variant hover:text-on-surface text-xs font-medium transition-all'
+      : 'flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-surface-container-lowest text-primary text-xs font-bold shadow-xs transition-all';
+  }
+  if (el.btnTipoVitrine) {
+    el.btnTipoVitrine.className = isVitrine
+      ? 'flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-surface-container-lowest text-primary text-xs font-bold shadow-xs transition-all'
+      : 'flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-on-surface-variant hover:text-on-surface text-xs font-medium transition-all';
+  }
+  if (el.badgeTipoLink) {
+    el.badgeTipoLink.textContent = isVitrine ? 'Página de Oferta' : 'Redirecionamento Rápido';
+    el.badgeTipoLink.className = isVitrine
+      ? 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container'
+      : 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant';
+  }
+  if (el.descTipoLink) {
+    el.descTipoLink.textContent = isVitrine
+      ? 'Apresenta detalhes completos, preço e fotos antes do comprador abrir o WhatsApp ou destino final.'
+      : 'Transição rápida (<1s) levando o visitante diretamente ao seu link ou conversa no WhatsApp.';
+  }
+  if (el.boxCamposVitrine) {
+    el.boxCamposVitrine.classList.toggle('hidden', !isVitrine);
+  }
+
+  if (isVitrine) {
+    setPreviewTab('vitrine');
+  } else {
+    setPreviewTab('wa');
+  }
+  atualizarLivePreview();
+}
+
+if (el.btnTipoDireto) el.btnTipoDireto.addEventListener('click', () => switchTipoLink('direto'));
+if (el.btnTipoVitrine) el.btnTipoVitrine.addEventListener('click', () => switchTipoLink('vitrine'));
+
+// Listeners de atualização em tempo real para campos da Vitrine
+[
+  el.inputPrecoDe,
+  el.inputPrecoPor,
+  el.inputCondicaoPagamento,
+  el.inputBeneficio1,
+  el.inputBeneficio2,
+  el.inputBeneficio3,
+  el.inputCtaLabel,
+].forEach((input) => {
+  if (input) {
+    input.addEventListener('input', atualizarLivePreview);
+  }
+});
+
+// Botão de sugestão de destaques da oferta com IA
+if (el.btnIaBeneficios) {
+  el.btnIaBeneficios.addEventListener('click', async () => {
+    const contexto = (el.inputTitulo && el.inputTitulo.value.trim()) ||
+                     (el.inputDescricao && el.inputDescricao.value.trim()) ||
+                     (state.loja && state.loja.nome) || '';
+    if (!contexto) {
+      toast('Preencha ao menos o título ou descrição da oferta para sugerir os destaques.', 'info');
+      return;
+    }
+
+    el.btnIaBeneficios.disabled = true;
+    el.btnIaBeneficios.innerHTML = '<span class="material-symbols-outlined text-xs animate-spin">refresh</span><span>Sugerindo...</span>';
+
+    try {
+      const res = await fetch('/api/ia-gerar-copy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          loja_id: state.user?.id,
+          contexto: contexto,
+          tipo_acao: 'beneficios',
+          tom: state.ia?.tomSelecionado || 'urgencia',
+        }),
+      });
+
+      if (res.ok) {
+        const dados = await res.json();
+        const opcao = dados.sugestoes?.[0];
+        if (opcao && Array.isArray(opcao.beneficios) && opcao.beneficios.length > 0) {
+          if (el.inputBeneficio1) el.inputBeneficio1.value = opcao.beneficios[0] || '';
+          if (el.inputBeneficio2) el.inputBeneficio2.value = opcao.beneficios[1] || '';
+          if (el.inputBeneficio3) el.inputBeneficio3.value = opcao.beneficios[2] || '';
+          if (opcao.condicao_pagamento && el.inputCondicaoPagamento && !el.inputCondicaoPagamento.value) {
+            el.inputCondicaoPagamento.value = opcao.condicao_pagamento;
+          }
+          if (opcao.cta_label && el.inputCtaLabel && !el.inputCtaLabel.value) {
+            el.inputCtaLabel.value = opcao.cta_label;
+          }
+          atualizarLivePreview();
+          toast('Destaques da oferta sugeridos com sucesso!', 'success');
+        }
+      }
+    } catch (_) {
+      toast('Não foi possível gerar sugestões automáticas no momento.', 'error');
+    } finally {
+      el.btnIaBeneficios.disabled = false;
+      el.btnIaBeneficios.innerHTML = '<span class="material-symbols-outlined text-xs">auto_awesome</span><span>Sugerir com IA</span>';
+    }
+  });
+}
+
+// Renderização das fotos extras da Página de Oferta (Vitrine)
+function renderizarFotosExtrasVitrine() {
+  if (!el.containerFotosExtrasVitrine) return;
+  const fotos = Array.isArray(state.fotosExtrasVitrine) ? state.fotosExtrasVitrine : [];
+
+  if (fotos.length === 0) {
+    el.containerFotosExtrasVitrine.innerHTML = `
+      <span class="text-[11px] text-outline" id="label-nenhuma-foto-extra">
+        Nenhuma foto adicional selecionada. O banner principal será a foto de destaque.
+      </span>
+    `;
+    return;
+  }
+
+  el.containerFotosExtrasVitrine.innerHTML = fotos.map((fotoPath, idx) => {
+    const url = resolverUrlImagem(fotoPath);
+    return `
+      <div class="relative w-16 h-16 rounded-xl border border-outline-variant/70 overflow-hidden group shadow-xs bg-surface-container shrink-0">
+        <img src="${url}" alt="Foto adicional ${idx + 1}" class="w-full h-full object-cover">
+        <button type="button" class="btn-remover-foto-extra absolute top-1 right-1 w-4 h-4 rounded-full bg-black/75 hover:bg-error text-white text-[10px] flex items-center justify-center transition-all shadow-xs" data-index="${idx}" title="Remover foto">
+          ✕
+        </button>
+      </div>
+    `;
+  }).join('');
+
+  el.containerFotosExtrasVitrine.querySelectorAll('.btn-remover-foto-extra').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const idx = Number(btn.dataset.index);
+      if (!isNaN(idx) && idx >= 0 && idx < state.fotosExtrasVitrine.length) {
+        state.fotosExtrasVitrine.splice(idx, 1);
+        renderizarFotosExtrasVitrine();
+      }
+    });
+  });
+}
+
+// Botão para adicionar fotos extras na Vitrine
+if (el.btnAdicionarFotoGaleriaVitrine) {
+  el.btnAdicionarFotoGaleriaVitrine.addEventListener('click', () => {
+    if (Array.isArray(state.fotosExtrasVitrine) && state.fotosExtrasVitrine.length >= 4) {
+      toast('Você já adicionou o limite de 4 fotos adicionais na oferta.', 'info');
+      return;
+    }
+    abrirModalSelecaoGaleria('vitrine_extra');
   });
 }
 
@@ -2042,11 +2426,8 @@ if (el.formLink) {
 
         if (state.arquivoBlob) {
           caminhoImagem = `${state.user.id}/${state.linkEditando.id}-v${versao}.jpg`;
-          const { error: errUpload } = await sb.storage
-            .from('banners')
-            .upload(caminhoImagem, state.arquivoBlob, { contentType: 'image/jpeg' });
-
-          if (errUpload) throw errUpload;
+          const resUp = await uploadImagemOtimizada(state.arquivoBlob, caminhoImagem);
+          caminhoImagem = resUp.caminho;
         } else if (state.fotoSelecionadaGaleria) {
           caminhoImagem = state.fotoSelecionadaGaleria;
         }
@@ -2063,6 +2444,17 @@ if (el.formLink) {
             versao,
             slug: slugFinal,
             mensagem_compartilhamento: mensagemCompartilhamento,
+            tipo_link: state.tipoLink || 'direto',
+            preco_de: el.inputPrecoDe && el.inputPrecoDe.value ? Number(el.inputPrecoDe.value) : null,
+            preco_por: el.inputPrecoPor && el.inputPrecoPor.value ? Number(el.inputPrecoPor.value) : null,
+            condicao_pagamento: el.inputCondicaoPagamento ? el.inputCondicaoPagamento.value.trim() : null,
+            beneficios: [
+              el.inputBeneficio1?.value.trim(),
+              el.inputBeneficio2?.value.trim(),
+              el.inputBeneficio3?.value.trim(),
+            ].filter(Boolean),
+            cta_label: el.inputCtaLabel ? el.inputCtaLabel.value.trim() || 'Pedir pelo WhatsApp' : 'Pedir pelo WhatsApp',
+            fotos_galeria: state.fotosExtrasVitrine || [],
           })
           .eq('id', state.linkEditando.id);
 
@@ -2090,11 +2482,8 @@ if (el.formLink) {
           caminhoImagem = state.fotoSelecionadaGaleria;
         } else {
           caminhoImagem = `${state.user.id}/${linkId}-v${versao}.jpg`;
-          const { error: errUpload } = await sb.storage
-            .from('banners')
-            .upload(caminhoImagem, state.arquivoBlob, { contentType: 'image/jpeg' });
-
-          if (errUpload) throw errUpload;
+          const resUp = await uploadImagemOtimizada(state.arquivoBlob, caminhoImagem);
+          caminhoImagem = resUp.caminho;
         }
 
         let slugFinal = slugDesejado;
@@ -2114,6 +2503,17 @@ if (el.formLink) {
             valido_ate: validoAte,
             ativo: true,
             mensagem_compartilhamento: mensagemCompartilhamento,
+            tipo_link: state.tipoLink || 'direto',
+            preco_de: el.inputPrecoDe && el.inputPrecoDe.value ? Number(el.inputPrecoDe.value) : null,
+            preco_por: el.inputPrecoPor && el.inputPrecoPor.value ? Number(el.inputPrecoPor.value) : null,
+            condicao_pagamento: el.inputCondicaoPagamento ? el.inputCondicaoPagamento.value.trim() : null,
+            beneficios: [
+              el.inputBeneficio1?.value.trim(),
+              el.inputBeneficio2?.value.trim(),
+              el.inputBeneficio3?.value.trim(),
+            ].filter(Boolean),
+            cta_label: el.inputCtaLabel ? el.inputCtaLabel.value.trim() || 'Pedir pelo WhatsApp' : 'Pedir pelo WhatsApp',
+            fotos_galeria: state.fotosExtrasVitrine || [],
           });
 
           if (!errInsert) {
@@ -3428,8 +3828,13 @@ function renderizarGridGaleria() {
   }).join('');
 }
 
-function abrirModalSelecaoGaleria() {
-  state.fotoTemporariaModal = state.fotoSelecionadaGaleria;
+function abrirModalSelecaoGaleria(modo = 'principal') {
+  state.modalGaleriaModo = modo;
+  state.fotoTemporariaModal = modo === 'principal' ? state.fotoSelecionadaGaleria : null;
+  const tituloEl = document.getElementById('modal-galeria-titulo');
+  if (tituloEl) {
+    tituloEl.textContent = modo === 'vitrine_extra' ? 'Adicionar Foto à Oferta' : 'Escolher Foto da Galeria';
+  }
   if (el.modalGaleriaSelecao) {
     el.modalGaleriaSelecao.classList.remove('hidden');
     el.modalGaleriaSelecao.style.display = 'flex';
@@ -3511,6 +3916,7 @@ function atualizarBotaoConfirmarModal() {
     if (el.modalGaleriaSelecionadaInfo) {
       el.modalGaleriaSelecionadaInfo.textContent = `Selecionada: ${selecionada.nome}`;
     }
+    el.modalGaleriaBtnConfirmar.textContent = state.modalGaleriaModo === 'vitrine_extra' ? 'Adicionar à Oferta' : 'Usar Foto Selecionada';
   } else {
     el.modalGaleriaBtnConfirmar.disabled = true;
     if (el.modalGaleriaSelecionadaInfo) {
@@ -3700,11 +4106,28 @@ if (el.modalGaleriaBtnCancelar) {
 // Confirmação da Foto Selecionada no Modal
 if (el.modalGaleriaBtnConfirmar) {
   el.modalGaleriaBtnConfirmar.addEventListener('click', () => {
-    if (state.fotoTemporariaModal) {
-      aplicarFotoGaleriaNoFormulario(state.fotoTemporariaModal);
+    if (!state.fotoTemporariaModal) return;
+
+    if (state.modalGaleriaModo === 'vitrine_extra') {
+      if (!Array.isArray(state.fotosExtrasVitrine)) state.fotosExtrasVitrine = [];
+      if (state.fotosExtrasVitrine.length >= 4) {
+        toast('Limite de 4 fotos adicionais atingido para a oferta.', 'warning');
+        return;
+      }
+      if (!state.fotosExtrasVitrine.includes(state.fotoTemporariaModal)) {
+        state.fotosExtrasVitrine.push(state.fotoTemporariaModal);
+        renderizarFotosExtrasVitrine();
+        toast('Foto adicionada à oferta com sucesso!', 'success');
+      } else {
+        toast('Esta foto já foi adicionada à oferta.', 'info');
+      }
       fecharModalSelecaoGaleria();
-      toast('Foto da galeria aplicada com sucesso!', 'success');
+      return;
     }
+
+    aplicarFotoGaleriaNoFormulario(state.fotoTemporariaModal);
+    fecharModalSelecaoGaleria();
+    toast('Foto da galeria aplicada com sucesso!', 'success');
   });
 }
 
@@ -3734,15 +4157,24 @@ if (el.inputUploadModalGaleria) {
     try {
       const blob = await comprimirImagem(file, { larguraMax: 1200, alvoKB: 300 });
       const caminho = `${state.user.id}/galeria-${Date.now()}-${slugAleatorio()}.jpg`;
-      const { error } = await sb.storage
-        .from('banners')
-        .upload(caminho, blob, { contentType: 'image/jpeg' });
-      if (error) throw error;
+      const resUp = await uploadImagemOtimizada(blob, caminho);
+      const caminhoFinal = resUp?.caminho || caminho;
 
       await carregarGaleriaFotos(true);
-      aplicarFotoGaleriaNoFormulario(caminho);
-      fecharModalSelecaoGaleria();
-      toast('Foto adicionada e aplicada ao cartão!', 'success');
+
+      if (state.modalGaleriaModo === 'vitrine_extra') {
+        if (!Array.isArray(state.fotosExtrasVitrine)) state.fotosExtrasVitrine = [];
+        if (state.fotosExtrasVitrine.length < 4) {
+          state.fotosExtrasVitrine.push(caminhoFinal);
+          renderizarFotosExtrasVitrine();
+        }
+        fecharModalSelecaoGaleria();
+        toast('Foto adicionada à galeria e à oferta com sucesso!', 'success');
+      } else {
+        aplicarFotoGaleriaNoFormulario(caminhoFinal);
+        fecharModalSelecaoGaleria();
+        toast('Foto adicionada e aplicada ao cartão!', 'success');
+      }
     } catch (err) {
       toast('Erro ao enviar foto: ' + err.message, 'error');
     }

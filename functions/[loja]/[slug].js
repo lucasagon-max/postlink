@@ -47,6 +47,7 @@ import * as mpCancelarAssinatura from '../api/mp-cancelar-assinatura.js';
 import * as fetchMetadata from '../api/fetch-metadata.js';
 import * as configSite from '../api/configuracoes-site.js';
 import * as iaGerarCopy from '../api/ia-gerar-copy.js';
+import * as uploadImagem from '../api/upload-imagem.js';
 
 async function dispatchApi(context) {
   const slug = context.params?.slug;
@@ -59,6 +60,7 @@ async function dispatchApi(context) {
   if (slug === 'fetch-metadata') return fetchMetadata.onRequest(context);
   if (slug === 'configuracoes-site') return configSite.onRequestGet(context);
   if (slug === 'ia-gerar-copy') return iaGerarCopy.onRequest(context);
+  if (slug === 'upload-imagem') return uploadImagem.onRequest(context);
 
   return new Response(JSON.stringify({ erro: 'Endpoint não encontrado em /api/' }), {
     status: 404,
@@ -96,7 +98,7 @@ export async function onRequestGet(context) {
     return dispatchApi(context);
   }
 
-  const RESERVADAS = ['painel', 'login', 'admin', 'assets', 'termos', 'privacidade', 'planos', 'denunciar', 'favicon.ico'];
+  const RESERVADAS = ['painel', 'login', 'admin', 'assets', 'termos', 'privacidade', 'planos', 'denunciar', 'imagens', 'favicon.ico'];
   if (RESERVADAS.includes(loja) && env.ASSETS) {
     const rawPath = new URL(request.url).pathname;
     const tentativas = [rawPath];
@@ -147,7 +149,42 @@ export async function onRequestGet(context) {
   const versaoEfetiva = versaoQueryParam || (link.versao && Number(link.versao) > 1 ? link.versao : null);
   const sufixoVersao = versaoEfetiva ? `?v=${versaoEfetiva}` : '';
   const url = `${reqUrl.origin}/${encodeURIComponent(loja)}/${encodeURIComponent(slug)}${sufixoVersao}`;
-  const imagem = `${supabaseUrl}/storage/v1/object/public/banners/${link.imagem_path}?v=${link.versao || 1}`;
+
+  // Resolução da URL da imagem com cache global e entrega otimizada
+  let imagem = null;
+  if (link.imagem_path) {
+    if (link.imagem_path.startsWith('http://') || link.imagem_path.startsWith('https://')) {
+      imagem = link.imagem_path;
+    } else if (link.imagem_path.startsWith('/imagens/')) {
+      imagem = `${reqUrl.origin}${link.imagem_path}`;
+    } else if (link.imagem_path.startsWith('lojistas/')) {
+      imagem = `${reqUrl.origin}/imagens/${link.imagem_path}`;
+    } else {
+      imagem = `${supabaseUrl}/storage/v1/object/public/banners/${link.imagem_path}?v=${link.versao || 1}`;
+    }
+  }
+
+  // Resolução de fotos adicionais da galeria
+  let fotosGaleria = [];
+  try {
+    const rawFotos = Array.isArray(link.fotos_galeria) ? link.fotos_galeria : JSON.parse(link.fotos_galeria || '[]');
+    fotosGaleria = (rawFotos || []).map((f) => {
+      if (f.startsWith('http://') || f.startsWith('https://')) return f;
+      if (f.startsWith('/imagens/')) return `${reqUrl.origin}${f}`;
+      if (f.startsWith('lojistas/')) return `${reqUrl.origin}/imagens/${f}`;
+      return `${supabaseUrl}/storage/v1/object/public/banners/${f}`;
+    });
+  } catch (_) {
+    fotosGaleria = [];
+  }
+
+  // Resolução de tópicos de benefícios
+  let beneficios = [];
+  try {
+    beneficios = Array.isArray(link.beneficios) ? link.beneficios : JSON.parse(link.beneficios || '[]');
+  } catch (_) {
+    beneficios = [];
+  }
 
   // Se for robô (crawler do WhatsApp, Meta, Telegram, etc.): devolve apenas meta tags Open Graph
   if (ROBOS.test(ua)) {
@@ -156,18 +193,34 @@ export async function onRequestGet(context) {
     });
   }
 
-  // Se for pessoa real: registra clique assincronamente e apresenta a tela de transição instantânea
+  // Se for pessoa real: registra clique assincronamente
   if (typeof waitUntil === 'function') {
     waitUntil(registrarClique(env, link.link_id, request));
   } else {
     registrarClique(env, link.link_id, request).catch(() => {});
   }
 
+  // Modo 1: Página de Oferta / Mini-Vitrine (apresenta detalhes, fotos e preço antes da ação)
+  if (link.tipo_link === 'vitrine') {
+    return html(paginaVitrine({
+      link,
+      url,
+      imagem,
+      fotosGaleria,
+      beneficios,
+      lojaNome: link.loja_nome || 'Loja Oficial',
+      destino: link.destino,
+    }), 200, {
+      'cache-control': 'no-store',
+    });
+  }
+
+  // Modo 2: Redirecionamento Rápido (transição com ação de contingência)
   return html(paginaTransicao({
     destino: link.destino,
     lojaNome: link.loja_nome || 'Loja',
     titulo: link.titulo || 'Oferta Exclusiva',
-    imagem: link.imagem_path ? imagem : null,
+    imagem: imagem,
   }), 200, {
     'cache-control': 'no-store',
   });
@@ -516,8 +569,7 @@ function paginaTransicao({ destino, lojaNome, titulo, imagem }) {
   </main>
 
   <footer>
-    <span>Redirecionamento técnico provido por PostLink</span>
-  </footer> gerado via PostLink</span>
+    <span>🔒 Ambiente Seguro · PostLink</span>
   </footer>
 
   <script>
@@ -528,6 +580,405 @@ function paginaTransicao({ destino, lojaNome, titulo, imagem }) {
         location.href = ${js};
       }
     }, 280);
+  </script>
+</body>
+</html>`;
+}
+
+function formatarMoeda(val) {
+  if (val === null || val === undefined || val === '') return '';
+  const n = Number(val);
+  if (isNaN(n)) return String(val);
+  return n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+
+function paginaVitrine({ link, url, imagem, fotosGaleria = [], beneficios = [], lojaNome, destino }) {
+  const d = esc(destino);
+  const nome = esc(lojaNome);
+  const tit = esc(link.titulo || 'Oferta Especial');
+  const desc = esc(link.descricao || '');
+  const cta = esc(link.cta_label || 'Pedir pelo WhatsApp');
+  const condicao = esc(link.condicao_pagamento || '');
+
+  const temPrecoDe = link.preco_de !== null && link.preco_de !== undefined && Number(link.preco_de) > 0;
+  const temPrecoPor = link.preco_por !== null && link.preco_por !== undefined && Number(link.preco_por) > 0;
+  const precoDeFormatado = temPrecoDe ? formatarMoeda(link.preco_de) : '';
+  const precoPorFormatado = temPrecoPor ? formatarMoeda(link.preco_por) : '';
+
+  let percentualDesconto = 0;
+  if (temPrecoDe && temPrecoPor && Number(link.preco_de) > Number(link.preco_por)) {
+    percentualDesconto = Math.round(((Number(link.preco_de) - Number(link.preco_por)) / Number(link.preco_de)) * 100);
+  }
+
+  const todasFotos = [];
+  if (imagem) todasFotos.push(imagem);
+  for (const f of fotosGaleria) {
+    if (f && !todasFotos.includes(f)) todasFotos.push(f);
+  }
+
+  const galeriaHtml = todasFotos.length > 0
+    ? `
+      <div class="gallery-container">
+        <div class="hero-image-wrapper">
+          <img id="main-product-img" src="${esc(todasFotos[0])}" alt="${tit}" class="hero-image">
+          ${percentualDesconto > 0 ? `<span class="badge-discount">-${percentualDesconto}%</span>` : ''}
+        </div>
+        ${todasFotos.length > 1 ? `
+          <div class="thumbnails-track">
+            ${todasFotos.map((f, i) => `
+              <button type="button" class="thumb-btn ${i === 0 ? 'active' : ''}" onclick="selecionarFoto('${esc(f)}', this)" aria-label="Ver foto ${i + 1}">
+                <img src="${esc(f)}" alt="${tit} - Foto ${i + 1}">
+              </button>
+            `).join('')}
+          </div>
+        ` : ''}
+      </div>
+    `
+    : '';
+
+  const precoHtml = (temPrecoDe || temPrecoPor)
+    ? `
+      <div class="price-box">
+        <div class="price-values">
+          ${temPrecoDe ? `<span class="price-old">De ${precoDeFormatado}</span>` : ''}
+          ${temPrecoPor ? `<span class="price-current">Por <strong>${precoPorFormatado}</strong></span>` : ''}
+        </div>
+        ${condicao ? `<div class="price-condition">${condicao}</div>` : ''}
+      </div>
+    `
+    : '';
+
+  const beneficiosHtml = beneficios.length > 0
+    ? `
+      <div class="benefits-card">
+        <h3 class="benefits-title">Destaques da Oferta</h3>
+        <ul class="benefits-list">
+          ${beneficios.map(b => `
+            <li>
+              <span class="check-icon">✓</span>
+              <span>${esc(b)}</span>
+            </li>
+          `).join('')}
+        </ul>
+      </div>
+    `
+    : '';
+
+  return `<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>${tit} · ${nome}</title>
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      background: #faf8ff;
+      color: #131b2e;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 12px;
+      -webkit-font-smoothing: antialiased;
+    }
+    .wrapper {
+      max-width: 440px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 4px 14px;
+    }
+    .store-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      padding: 6px 12px;
+      border-radius: 999px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+    .store-avatar {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #003e80;
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .store-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: #131b2e;
+    }
+    .verified-dot {
+      width: 7px;
+      height: 7px;
+      background: #22c55e;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .brand-tag {
+      font-size: 11px;
+      font-weight: 700;
+      color: #003e80;
+      letter-spacing: -0.3px;
+    }
+    .card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 18px;
+      box-shadow: 0 10px 30px -5px rgba(0, 62, 128, 0.07);
+    }
+    .gallery-container {
+      margin-bottom: 16px;
+    }
+    .hero-image-wrapper {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1.91 / 1;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+    }
+    .hero-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: opacity 0.2s ease;
+    }
+    .badge-discount {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: #ba1a1a;
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      box-shadow: 0 2px 6px rgba(186, 26, 26, 0.35);
+    }
+    .thumbnails-track {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .thumb-btn {
+      width: 54px;
+      height: 40px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 2px solid #e2e8f0;
+      background: #f8fafc;
+      padding: 0;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.15s ease;
+    }
+    .thumb-btn.active {
+      border-color: #003e80;
+      box-shadow: 0 0 0 2px rgba(0, 62, 128, 0.2);
+    }
+    .thumb-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .product-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #131b2e;
+      line-height: 1.3;
+      margin-bottom: 8px;
+      letter-spacing: -0.3px;
+    }
+    .product-desc {
+      font-size: 13.5px;
+      color: #424751;
+      line-height: 1.55;
+      margin-bottom: 16px;
+      white-space: pre-line;
+    }
+    .price-box {
+      background: #f2f3ff;
+      border: 1px solid #d6e3ff;
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+    }
+    .price-values {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .price-old {
+      font-size: 12.5px;
+      color: #737782;
+      text-decoration: line-through;
+    }
+    .price-current {
+      font-size: 18px;
+      color: #003e80;
+      font-weight: 600;
+    }
+    .price-current strong {
+      font-size: 22px;
+      font-weight: 800;
+      color: #006e2f;
+    }
+    .price-condition {
+      font-size: 11.5px;
+      color: #003e80;
+      font-weight: 600;
+      margin-top: 3px;
+    }
+    .benefits-card {
+      background: #fcfcfd;
+      border: 1px solid #eaedff;
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 18px;
+    }
+    .benefits-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #003e80;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .benefits-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .benefits-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 7px;
+      font-size: 13px;
+      color: #131b2e;
+      line-height: 1.4;
+    }
+    .check-icon {
+      color: #007432;
+      background: #dcfce7;
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 900;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .btn-cta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 15px 20px;
+      border-radius: 14px;
+      background: #22c55e;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 15px;
+      text-decoration: none;
+      box-shadow: 0 4px 14px rgba(34, 197, 94, 0.35);
+      transition: background 0.15s ease, transform 0.1s ease;
+      cursor: pointer;
+    }
+    .btn-cta:hover {
+      background: #006e2f;
+    }
+    .btn-cta:active {
+      transform: scale(0.97);
+    }
+    .cta-icon {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
+    footer {
+      text-align: center;
+      padding: 16px 0 8px;
+      font-size: 11.5px;
+      color: #737782;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <header>
+      <div class="store-badge">
+        <div class="store-avatar">${nome.charAt(0).toUpperCase()}</div>
+        <span class="store-name">${nome}</span>
+        <span class="verified-dot" title="Loja Ativa"></span>
+      </div>
+      <div class="brand-tag">
+        <span>PostLink</span>
+      </div>
+    </header>
+
+    <main class="card">
+      ${galeriaHtml}
+      <h1 class="product-title">${tit}</h1>
+      ${desc ? `<p class="product-desc">${desc}</p>` : ''}
+      ${precoHtml}
+      ${beneficiosHtml}
+
+      <a href="${d}" class="btn-cta" rel="noopener">
+        <svg class="cta-icon" viewBox="0 0 24 24"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm0 17.65c-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.1 8.1 0 0 1-1.24-4.28c0-4.5 3.66-8.16 8.17-8.16 2.18 0 4.23.85 5.77 2.39a8.1 8.1 0 0 1 2.39 5.77c.01 4.5-3.65 8.14-8.1 8.14zm4.47-6.1c-.25-.12-1.46-.72-1.68-.8-.23-.08-.39-.12-.56.12-.17.25-.64.8-.79.97-.14.17-.29.19-.53.07-.25-.12-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.14.17-.25.25-.41.08-.17.04-.31-.02-.43s-.56-1.34-.76-1.84c-.2-.48-.4-.42-.56-.43h-.47c-.17 0-.43.06-.66.31-.23.25-.87.85-.87 2.07 0 1.22.89 2.4 1.01 2.56.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.53.6.19 1.14.16 1.57.1.48-.07 1.46-.6 1.67-1.18.21-.58.21-1.07.15-1.18-.06-.11-.23-.17-.48-.29z"/></svg>
+        <span>${cta}</span>
+      </a>
+    </main>
+  </div>
+
+  <footer>
+    <span>🔒 Ambiente Seguro · PostLink</span>
+  </footer>
+
+  <script>
+    function selecionarFoto(url, btn) {
+      var img = document.getElementById('main-product-img');
+      if (img) img.src = url;
+      var buttons = document.querySelectorAll('.thumb-btn');
+      buttons.forEach(function(b) { b.classList.remove('active'); });
+      if (btn) btn.classList.add('active');
+    }
   </script>
 </body>
 </html>`;
