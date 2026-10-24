@@ -4020,17 +4020,17 @@ function renderizarGridGaleria() {
     }
 
     return `
-      <div class="bg-surface-container-lowest border border-outline-variant/60 hover:border-primary/50 rounded-2xl overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col justify-between group">
+      <div class="bg-surface-container-lowest border border-outline-variant/60 hover:border-primary/50 rounded-2xl overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col justify-between group" style="min-height: 270px;">
         <!-- Visualizador Proporcional e Elegante para Qualquer Formato de Imagem -->
-        <div class="relative h-48 sm:h-52 bg-surface-container-high flex items-center justify-center overflow-hidden">
+        <div class="relative w-full bg-surface-container-high flex items-center justify-center overflow-hidden" style="height: 190px; min-height: 190px;">
           <!-- Backdrop desfocado sutil que harmoniza com as cores da foto -->
-          <img src="${foto.urlPublica}" alt="" aria-hidden="true" class="absolute inset-0 w-full h-full object-cover blur-md opacity-20 scale-110 pointer-events-none">
+          <img src="${foto.urlPublica}" alt="" aria-hidden="true" class="absolute inset-0 w-full h-full object-cover blur-md opacity-25 scale-110 pointer-events-none" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: blur(12px);">
           <!-- Foto completa sem cortes de topo ou base -->
-          <img src="${foto.urlPublica}" alt="${escapeHtml(foto.nome)}" loading="lazy" class="relative z-1 max-w-full max-h-48 sm:max-h-52 object-contain p-2 group-hover:scale-102 transition-transform duration-300" onerror="tratarErroImagemGaleria(this, '${escapeHtml(foto.caminho)}')">
-          <div class="absolute top-2.5 left-2.5 z-10">
+          <img src="${foto.urlPublica}" alt="${escapeHtml(foto.nome)}" loading="lazy" class="relative z-1 object-contain p-2 group-hover:scale-102 transition-transform duration-300" style="position: relative; z-index: 1; max-width: 100%; max-height: 180px; object-fit: contain;" onerror="tratarErroImagemGaleria(this, '${escapeHtml(foto.caminho)}')">
+          <div class="absolute top-2.5 left-2.5 z-10" style="position: absolute; top: 10px; left: 10px; z-index: 10;">
             ${badgeUsoHtml}
           </div>
-          <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10">
+          <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10" style="position: absolute; top: 10px; right: 10px; z-index: 10;">
             <button type="button" class="btn-recortar-foto-card w-7 h-7 rounded-full bg-black/60 hover:bg-primary text-white flex items-center justify-center transition-colors backdrop-blur-xs shadow-xs" data-caminho="${foto.caminho}" title="Recortar e ajustar proporção">
               <span class="material-symbols-outlined text-sm">crop</span>
             </button>
@@ -4119,24 +4119,26 @@ function renderizarModalGaleria() {
     const qtdLinks = foto.linksUsando.length;
 
     return `
-      <div class="modal-foto-item cursor-pointer rounded-xl overflow-hidden border-2 transition-all group relative ${isSelecionada ? 'border-primary ring-4 ring-primary/20 shadow-md' : 'border-outline-variant/60 hover:border-primary/50'}" data-caminho="${foto.caminho}">
-        <div class="relative h-32 bg-surface-container-high flex items-center justify-center overflow-hidden">
-          <img src="${foto.urlPublica}" alt="" aria-hidden="true" class="absolute inset-0 w-full h-full object-cover blur-sm opacity-20 scale-110 pointer-events-none">
-          <img src="${foto.urlPublica}" alt="${escapeHtml(foto.nome)}" class="relative z-1 max-w-full max-h-32 object-contain p-1 group-hover:scale-102 transition-transform duration-200" onerror="tratarErroImagemGaleria(this, '${escapeHtml(foto.caminho)}')">
+      <div class="modal-foto-item cursor-pointer rounded-xl overflow-hidden border-2 transition-all group relative flex flex-col justify-between bg-surface-container-lowest shadow-xs hover:shadow-md ${isSelecionada ? 'border-primary ring-4 ring-primary/20 shadow-md' : 'border-outline-variant/60 hover:border-primary/50'}" data-caminho="${foto.caminho}" style="min-height: 180px;">
+        <div class="relative w-full bg-surface-container-high flex items-center justify-center overflow-hidden" style="height: 140px; min-height: 140px;">
+          <!-- Backdrop desfocado sutil que harmoniza com as cores da foto -->
+          <img src="${foto.urlPublica}" alt="" aria-hidden="true" class="absolute inset-0 w-full h-full object-cover blur-sm opacity-25 scale-110 pointer-events-none" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: blur(8px);">
+          <!-- Foto completa sem cortes de topo ou base -->
+          <img src="${foto.urlPublica}" alt="${escapeHtml(foto.nome)}" class="relative z-1 object-contain p-1.5 transition-transform duration-200 group-hover:scale-102" style="position: relative; z-index: 1; max-width: 100%; max-height: 130px; object-fit: contain;" onerror="tratarErroImagemGaleria(this, '${escapeHtml(foto.caminho)}')">
           ${isSelecionada ? `
-            <div class="absolute inset-0 bg-primary/20 backdrop-blur-2xs flex items-center justify-center z-10">
+            <div class="absolute inset-0 bg-primary/25 backdrop-blur-2xs flex items-center justify-center z-10" style="position: absolute; inset: 0; z-index: 10;">
               <span class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center shadow-md">
                 <span class="material-symbols-outlined text-lg font-bold">check</span>
               </span>
             </div>
           ` : ''}
           ${qtdLinks > 0 ? `
-            <span class="absolute bottom-1.5 left-1.5 bg-black/70 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded backdrop-blur-xs z-10">
+            <span class="absolute bottom-1.5 left-1.5 bg-black/75 text-white text-[10px] font-semibold px-2 py-0.5 rounded-md backdrop-blur-xs z-10" style="position: absolute; bottom: 6px; left: 6px; z-index: 10;">
               ${qtdLinks} ${qtdLinks === 1 ? 'link' : 'links'}
             </span>
           ` : ''}
         </div>
-        <div class="p-2 bg-surface-container-lowest flex items-center justify-between text-xs">
+        <div class="p-2.5 bg-surface-container-lowest flex items-center justify-between text-xs border-t border-outline-variant/30">
           <span class="truncate font-semibold text-on-surface" title="${escapeHtml(foto.nome)}">${escapeHtml(foto.nome)}</span>
         </div>
       </div>
