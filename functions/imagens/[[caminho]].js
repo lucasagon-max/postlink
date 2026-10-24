@@ -16,56 +16,67 @@ export async function onRequestGet(context) {
 
   const bucketR2 = env.R2_BANNERS || env.R2_STORAGE || env.BUCKET_BANNERS || env.R2;
 
-  // 1. Busca no armazenamento de alta performance
+  // Sanitiza e gera candidatos de caminhos (com e sem prefixo lojistas/)
+  const limpo = caminho.replace(/^\/+/, '').replace(/^imagens\//, '');
+  const semLojistas = limpo.replace(/^lojistas\//, '');
+  const comLojistas = limpo.startsWith('lojistas/') ? limpo : `lojistas/${limpo}`;
+  const candidatos = Array.from(new Set([limpo, semLojistas, comLojistas])).filter(Boolean);
+
+  // 1. Busca no armazenamento de alta performance testando os caminhos candidatos
   if (bucketR2) {
+    for (const cand of candidatos) {
+      try {
+        const objeto = await bucketR2.get(cand);
+
+        if (objeto) {
+          // Validação de ETag para economia de transferência (304 Not Modified)
+          const ifNoneMatch = request.headers.get('if-none-match');
+          if (ifNoneMatch && ifNoneMatch === objeto.httpEtag) {
+            return new Response(null, { status: 304 });
+          }
+
+          const headers = new Headers();
+          objeto.writeHttpMetadata(headers);
+          headers.set('etag', objeto.httpEtag);
+          headers.set('cache-control', 'public, max-age=31536000, immutable');
+          headers.set('x-content-type-options', 'nosniff');
+
+          // Se o tipo MIME não estiver gravado nos metadados, detecta pela extensão
+          if (!headers.get('content-type')) {
+            if (cand.endsWith('.webp')) headers.set('content-type', 'image/webp');
+            else if (cand.endsWith('.png')) headers.set('content-type', 'image/png');
+            else headers.set('content-type', 'image/jpeg');
+          }
+
+          return new Response(objeto.body, { headers });
+        }
+      } catch (_) {}
+    }
+  }
+
+  // 2. Fallback transparente para o armazenamento de transição testando os caminhos candidatos
+  const sbUrl = env.SUPABASE_URL || DEFAULT_SUPABASE_URL;
+
+  for (const cand of candidatos) {
     try {
-      const objeto = await bucketR2.get(caminho);
+      const urlFallback = `${sbUrl}/storage/v1/object/public/banners/${cand}`;
+      const respFallback = await fetch(urlFallback, {
+        headers: {
+          'accept': request.headers.get('accept') || 'image/*',
+        },
+      });
 
-      if (objeto) {
-        // Validação de ETag para economia de transferência (304 Not Modified)
-        const ifNoneMatch = request.headers.get('if-none-match');
-        if (ifNoneMatch && ifNoneMatch === objeto.httpEtag) {
-          return new Response(null, { status: 304 });
-        }
-
-        const headers = new Headers();
-        objeto.writeHttpMetadata(headers);
-        headers.set('etag', objeto.httpEtag);
-        headers.set('cache-control', 'public, max-age=31536000, immutable');
+      if (respFallback.ok) {
+        const headers = new Headers(respFallback.headers);
+        headers.set('cache-control', 'public, max-age=86400');
         headers.set('x-content-type-options', 'nosniff');
-
-        // Se o tipo MIME não estiver gravado nos metadados, detecta pela extensão
-        if (!headers.get('content-type')) {
-          if (caminho.endsWith('.webp')) headers.set('content-type', 'image/webp');
-          else if (caminho.endsWith('.png')) headers.set('content-type', 'image/png');
-          else headers.set('content-type', 'image/jpeg');
-        }
-
-        return new Response(objeto.body, { headers });
+        return new Response(respFallback.body, {
+          status: respFallback.status,
+          headers,
+        });
       }
     } catch (_) {}
   }
-
-  // 2. Fallback transparente para o armazenamento de transição
-  const sbUrl = env.SUPABASE_URL || DEFAULT_SUPABASE_URL;
-  const urlFallback = `${sbUrl}/storage/v1/object/public/banners/${caminho}`;
-
-  try {
-    const respFallback = await fetch(urlFallback, {
-      headers: {
-        'accept': request.headers.get('accept') || 'image/*',
-      },
-    });
-
-    if (respFallback.ok) {
-      const headers = new Headers(respFallback.headers);
-      headers.set('cache-control', 'public, max-age=86400');
-      return new Response(respFallback.body, {
-        status: respFallback.status,
-        headers,
-      });
-    }
-  } catch (_) {}
 
   return new Response('Imagem não encontrada', { status: 404 });
 }

@@ -524,38 +524,102 @@ function limparSlug(v) {
     .replace(/-+/g, '-');
 }
 
-// Resolução Inteligente de URL de Imagem (suporta CDN, URLs completas e legado)
+// Resolução Inteligente e Resiliente de URL de Imagem (suporta CDN, URLs completas e nuvem)
 function resolverUrlImagem(caminho, versao = 1) {
   if (!caminho) return '';
   if (caminho.startsWith('http://') || caminho.startsWith('https://')) {
     return `${caminho}${caminho.includes('?') ? '&' : '?'}v=${versao}`;
   }
   const limpo = caminho.replace(/^\/+/, '');
-  if (limpo.startsWith('imagens/')) {
-    return `/${limpo}${limpo.includes('?') ? '&' : '?'}v=${versao}`;
-  }
-  if (limpo.startsWith('lojistas/')) {
-    return `/imagens/${limpo}?v=${versao}`;
-  }
-  const { data: { publicUrl } } = sb.storage.from('banners').getPublicUrl(limpo);
-  return `${publicUrl}?v=${versao}`;
-}
+  const semImagens = limpo.replace(/^imagens\//, '');
 
-// Fallback automático para imagens da galeria caso um provedor de mídia falhe
-window.tratarErroImagemGaleria = function (imgEl, caminho) {
-  if (!imgEl || imgEl.dataset.tentativaFallback) return;
-  imgEl.dataset.tentativaFallback = 'true';
-  const limpo = (caminho || '').replace(/^\/+/, '');
-  if (imgEl.src && imgEl.src.includes('supabase.co')) {
-    const semImagens = limpo.replace(/^imagens\//, '');
-    imgEl.src = `/imagens/${semImagens}`;
-  } else {
+  // Detecção de ambiente de desenvolvimento local sem proxy/functions (localhost ou portas de desenvolvimento)
+  const isLocalhost = typeof window !== 'undefined' && 
+    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.port === '5500' || window.location.port === '5173');
+
+  if (isLocalhost) {
     try {
-      const { data: { publicUrl } } = sb.storage.from('banners').getPublicUrl(limpo.replace(/^imagens\//, ''));
-      if (publicUrl) imgEl.src = publicUrl;
+      const { data: { publicUrl } } = sb.storage.from('banners').getPublicUrl(semImagens);
+      return `${publicUrl}?v=${versao}`;
     } catch (_) {}
   }
+
+  return `/imagens/${semImagens}?v=${versao}`;
+}
+
+// Manipulador Universal Resiliente para qualquer imagem ou preview que falhe ao carregar
+window.tratarErroImagemGenerico = function (imgEl, caminhoOriginal = '') {
+  if (!imgEl) return;
+  const etapa = Number(imgEl.dataset.tentativaFallback || 0);
+  const caminho = (caminhoOriginal || imgEl.dataset.caminhoOriginal || imgEl.getAttribute('data-caminho') || '').replace(/^\/+/, '');
+  const semLojistas = caminho.replace(/^lojistas\//, '').replace(/^imagens\//, '');
+  const comLojistas = `lojistas/${semLojistas}`;
+  const versao = imgEl.dataset.versao || 1;
+
+  imgEl.dataset.tentativaFallback = String(etapa + 1);
+  if (!imgEl.dataset.caminhoOriginal && caminho) {
+    imgEl.dataset.caminhoOriginal = caminho;
+  }
+
+  // Se for blob ou data-uri, não tenta trocar
+  if (imgEl.src && (imgEl.src.startsWith('blob:') || imgEl.src.startsWith('data:'))) {
+    return;
+  }
+
+  // 1ª alternativa: se falhou em /imagens/, tenta a nuvem direta sem prefixo
+  if (etapa === 0) {
+    try {
+      const { data: { publicUrl } } = sb.storage.from('banners').getPublicUrl(semLojistas);
+      if (publicUrl && imgEl.src !== `${publicUrl}?v=${versao}`) {
+        imgEl.src = `${publicUrl}?v=${versao}`;
+        return;
+      }
+    } catch (_) {}
+  }
+
+  // 2ª alternativa: tenta a nuvem direta com prefixo lojistas/
+  if (etapa <= 1) {
+    try {
+      const { data: { publicUrl } } = sb.storage.from('banners').getPublicUrl(comLojistas);
+      if (publicUrl && imgEl.src !== `${publicUrl}?v=${versao}`) {
+        imgEl.src = `${publicUrl}?v=${versao}`;
+        return;
+      }
+    } catch (_) {}
+  }
+
+  // 3ª alternativa: tenta via rota /imagens/
+  if (etapa <= 2) {
+    const urlCdn = `/imagens/${semLojistas}?v=${versao}`;
+    if (imgEl.src && !imgEl.src.includes(urlCdn)) {
+      imgEl.src = urlCdn;
+      return;
+    }
+  }
+
+  // Se esgotou todas as alternativas: restaura elegantemente os placeholders
+  if (imgEl.id === 'im') {
+    imgEl.classList.add('hidden');
+    if (el.ph) el.ph.style.display = 'flex';
+    if (el.imSocial) el.imSocial.classList.add('hidden');
+    if (el.phSocial) el.phSocial.classList.remove('hidden');
+    if (el.imVitrine) el.imVitrine.classList.add('hidden');
+    if (el.phVitrine) el.phVitrine.classList.remove('hidden');
+  } else if (imgEl.id === 'im-social') {
+    imgEl.classList.add('hidden');
+    if (el.phSocial) el.phSocial.classList.remove('hidden');
+  } else if (imgEl.id === 'im-vitrine') {
+    imgEl.classList.add('hidden');
+    if (el.phVitrine) el.phVitrine.classList.remove('hidden');
+  } else if (imgEl.id === 'thumb-foto-selecionada') {
+    if (el.bannerFotoSelecionadaGaleria) el.bannerFotoSelecionadaGaleria.classList.add('hidden');
+  } else if (imgEl.id === 'vitrine-avatar-img') {
+    imgEl.classList.add('hidden');
+    if (el.vitrineAvatarLoja) el.vitrineAvatarLoja.classList.remove('hidden');
+  }
 };
+
+window.tratarErroImagemGaleria = window.tratarErroImagemGenerico;
 
 // Upload Seguro de Imagens Otimizadas com Alta Performance e Fallback
 async function uploadImagemOtimizada(blob, caminhoDesejado = '') {
@@ -1344,7 +1408,7 @@ function renderizarLinks() {
     card.innerHTML = `
       <div>
         <div class="relative aspect-[1.91/1] rounded-xl overflow-hidden bg-surface-container-low mb-3 border border-outline-variant/40">
-          <img src="${imgUrl}" alt="${link.titulo || 'Banner'}" class="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300">
+          <img src="${imgUrl}" alt="${link.titulo || 'Banner'}" class="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300" onerror="window.tratarErroImagemGenerico && window.tratarErroImagemGenerico(this, '${escapeHtml(link.imagem_path)}')">
           <span class="absolute top-2 left-2 text-[10px] font-mono font-extrabold px-2 py-0.5 rounded-full bg-surface-container-lowest/95 text-primary shadow-xs backdrop-blur-xs">
             v${versaoAtual}
           </span>
@@ -1950,9 +2014,15 @@ function atualizarLivePreview() {
   }
 
   // Sincroniza imagem entre WhatsApp e Redes Sociais
-  if (el.im && !el.im.classList.contains('hidden') && el.im.src) {
+  const temImagemAtiva = Boolean(el.im && !el.im.classList.contains('hidden') && el.im.src && !el.im.src.startsWith('data:image/svg'));
+
+  if (temImagemAtiva) {
     if (el.imSocial) {
-      el.imSocial.src = el.im.src;
+      if (el.imSocial.src !== el.im.src) {
+        el.imSocial.dataset.caminhoOriginal = el.im.dataset.caminhoOriginal || '';
+        el.imSocial.dataset.tentativaFallback = '0';
+        el.imSocial.src = el.im.src;
+      }
       el.imSocial.classList.remove('hidden');
     }
     if (el.phSocial) el.phSocial.classList.add('hidden');
@@ -2044,9 +2114,13 @@ function atualizarLivePreview() {
   if (el.vitrineBtnLabel) el.vitrineBtnLabel.textContent = ctaTxt;
 
   // Imagem no preview da Vitrine
-  if (el.im && !el.im.classList.contains('hidden') && el.im.src) {
+  if (temImagemAtiva) {
     if (el.imVitrine) {
-      el.imVitrine.src = el.im.src;
+      if (el.imVitrine.src !== el.im.src) {
+        el.imVitrine.dataset.caminhoOriginal = el.im.dataset.caminhoOriginal || '';
+        el.imVitrine.dataset.tentativaFallback = '0';
+        el.imVitrine.src = el.im.src;
+      }
       el.imVitrine.classList.remove('hidden');
     }
     if (el.phVitrine) el.phVitrine.classList.add('hidden');
@@ -4176,7 +4250,11 @@ function aplicarFotoGaleriaNoFormulario(caminhoImagem, isEdicao = false) {
 
   const nomeArquivo = foto ? foto.nome : (caminhoImagem.split('/').pop() || 'banner.jpg');
 
-  if (el.thumbFotoSelecionada) el.thumbFotoSelecionada.src = publicUrl;
+  if (el.thumbFotoSelecionada) {
+    el.thumbFotoSelecionada.dataset.caminhoOriginal = caminhoImagem;
+    el.thumbFotoSelecionada.dataset.tentativaFallback = '0';
+    el.thumbFotoSelecionada.src = publicUrl;
+  }
   if (el.nomeFotoSelecionada) el.nomeFotoSelecionada.textContent = nomeArquivo;
   if (el.bannerFotoSelecionadaGaleria) el.bannerFotoSelecionadaGaleria.classList.remove('hidden');
 
@@ -4185,6 +4263,8 @@ function aplicarFotoGaleriaNoFormulario(caminhoImagem, isEdicao = false) {
   if (el.eImg) el.eImg.textContent = '';
 
   if (el.im) {
+    el.im.dataset.caminhoOriginal = caminhoImagem;
+    el.im.dataset.tentativaFallback = '0';
     el.im.src = publicUrl;
     el.im.classList.remove('hidden');
   }
