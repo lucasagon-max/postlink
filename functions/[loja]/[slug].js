@@ -829,23 +829,18 @@ function paginaVitrine({ link, url, imagem, fotosGaleria = [], beneficios = [], 
     .hero-image-wrapper {
       position: relative;
       width: 100%;
-      max-height: 480px;
+      aspect-ratio: 1.91 / 1;
       border-radius: 14px;
       overflow: hidden;
-      background: #f8fafc;
+      background: #f1f5f9;
       border: 1px solid #e2e8f0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
     .hero-image {
       width: 100%;
-      height: auto;
-      max-height: 480px;
-      object-fit: contain;
+      height: 100%;
+      object-fit: cover;
       display: block;
       transition: opacity 0.2s ease;
-      border-radius: 14px;
     }
     .badge-discount {
       position: absolute;
@@ -869,18 +864,15 @@ function paginaVitrine({ link, url, imagem, fotosGaleria = [], beneficios = [], 
     }
     .thumb-btn {
       width: 54px;
-      height: 48px;
+      height: 40px;
       border-radius: 8px;
       overflow: hidden;
       border: 2px solid #e2e8f0;
-      background: #f8fafc;
+      background: #f1f5f9;
       padding: 0;
       cursor: pointer;
       flex-shrink: 0;
       transition: all 0.15s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
     .thumb-btn.active {
       border-color: #003e80;

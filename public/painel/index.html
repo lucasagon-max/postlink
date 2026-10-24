@@ -727,7 +727,7 @@
               <!-- Banner de foto selecionada da galeria -->
               <div id="banner-foto-selecionada-galeria" class="hidden bg-secondary-container/30 border border-secondary/40 rounded-xl p-3 flex items-center justify-between gap-3 transition-all">
                 <div class="flex items-center gap-2.5 min-w-0">
-                  <img id="thumb-foto-selecionada" src="" alt="Foto selecionada" class="w-14 h-12 rounded-lg object-contain bg-surface-container border border-secondary/30 shadow-2xs shrink-0 p-0.5" onerror="window.tratarErroImagemGenerico && window.tratarErroImagemGenerico(this)">
+                  <img id="thumb-foto-selecionada" src="" alt="Foto selecionada" class="w-14 h-9 rounded-lg object-cover border border-secondary/30 shadow-2xs shrink-0">
                   <div class="min-w-0">
                     <div class="flex items-center gap-1.5">
                       <span class="text-xs font-bold text-on-surface truncate" id="nome-foto-selecionada">Foto da galeria</span>
@@ -1115,12 +1115,12 @@
                 <!-- Cartão Open Graph HD -->
                 <div class="rounded-lg overflow-hidden border border-black/10 bg-white">
                   <!-- Container da Imagem com Aspect Ratio 1.91:1 -->
-                  <div class="relative aspect-[1.91/1] bg-surface-container-high flex items-center justify-center overflow-hidden" style="min-height: 160px;">
+                  <div class="relative aspect-[1.91/1] bg-surface-container-high flex items-center justify-center overflow-hidden">
                     <div id="ph" class="flex flex-col items-center justify-center text-outline text-center p-3">
                       <span class="material-symbols-outlined text-3xl mb-1">image</span>
                       <span class="text-xs font-semibold">Prévia do Banner HD</span>
                     </div>
-                    <img id="im" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E" alt="Banner HD do Link" class="hidden w-full h-full object-cover" onerror="window.tratarErroImagemGenerico && window.tratarErroImagemGenerico(this)">
+                    <img id="im" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E" alt="Banner HD do Link" class="hidden w-full h-full object-cover">
                     <!-- Favicon no Canto Inferior Direito do Preview -->
                     <div class="absolute bottom-2 right-2 bg-white/95 backdrop-blur-xs p-1 rounded-md shadow-xs flex items-center justify-center pointer-events-none z-10" title="Favicon PostLink">
                       <img src="/favicon-32x32.png" alt="Favicon" class="w-4 h-4 rounded-xs object-contain">
@@ -1153,8 +1153,8 @@
                 <span>Feed (LinkedIn / Facebook / Twitter)</span>
               </div>
               <div class="bg-surface-container-lowest rounded-xl border border-outline-variant/70 overflow-hidden shadow-xs">
-                <div class="relative aspect-[1.91/1] bg-surface-container-high overflow-hidden" style="min-height: 160px;">
-                  <img id="im-social" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E" alt="Banner Redes Sociais" class="w-full h-full object-cover hidden" onerror="window.tratarErroImagemGenerico && window.tratarErroImagemGenerico(this)">
+                <div class="relative aspect-[1.91/1] bg-surface-container-high overflow-hidden">
+                  <img id="im-social" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E" alt="Banner Redes Sociais" class="w-full h-full object-cover hidden">
                   <div id="ph-social" class="w-full h-full flex flex-col items-center justify-center text-outline p-4 text-center">
                     <span class="material-symbols-outlined text-3xl mb-1">image</span>
                     <span class="text-xs">Prévia 1200x630 HD</span>
@@ -1201,14 +1201,14 @@
                   </div>
                 </div>
 
-                <!-- Banner/Foto Principal (Proporção Natural Escolhida) -->
-                <div class="relative bg-surface-container-high rounded-lg overflow-hidden border border-outline-variant/50 flex items-center justify-center min-h-[140px] max-h-[260px]" style="min-height: 160px;">
-                  <img id="im-vitrine" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E" alt="Banner da Oferta" class="w-full h-auto max-h-[260px] object-contain rounded-lg hidden" onerror="window.tratarErroImagemGenerico && window.tratarErroImagemGenerico(this)">
-                  <div id="ph-vitrine" class="w-full h-28 flex flex-col items-center justify-center text-outline text-center p-2">
+                <!-- Banner/Foto Principal -->
+                <div class="relative aspect-[1.91/1] bg-surface-container-high rounded-lg overflow-hidden border border-outline-variant/50">
+                  <img id="im-vitrine" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E" alt="Banner da Oferta" class="w-full h-full object-cover hidden">
+                  <div id="ph-vitrine" class="w-full h-full flex flex-col items-center justify-center text-outline text-center p-2">
                     <span class="material-symbols-outlined text-2xl mb-0.5">image</span>
                     <span class="text-[11px]">Foto da Oferta</span>
                   </div>
-                  <span id="vitrine-badge-desconto" class="hidden absolute top-2 left-2 bg-error text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow-xs z-10">-30%</span>
+                  <span id="vitrine-badge-desconto" class="hidden absolute top-2 left-2 bg-error text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow-xs">-30%</span>
                 </div>
 
                 <!-- Título e Descrição -->
@@ -1317,7 +1317,7 @@
 
         <div class="flex items-center justify-between pt-1 border-t border-surface-container-high/60 text-xs text-on-surface-variant">
           <span id="contador-fotos-galeria" class="font-medium">Carregando fotos...</span>
-          <span class="text-outline text-[11px] hidden sm:inline">Visualização em alta definição para WhatsApp e Vitrines</span>
+          <span class="text-outline text-[11px] hidden sm:inline">Proporção HD 1.91:1 otimizada para WhatsApp</span>
         </div>
       </div>
 
@@ -2595,7 +2595,7 @@
   <div id="toast-container"></div>
 
   <!-- Script principal do Painel SPA (com timestamp anti-cache) -->
-  <script type="module" src="/painel/app.js?v=20261024_preview_fix_v9"></script>
+  <script type="module" src="/painel/app.js?v=20261024_banner_restaurado_v10"></script>
 
 </body>
 </html>

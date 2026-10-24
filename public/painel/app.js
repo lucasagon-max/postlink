@@ -524,102 +524,21 @@ function limparSlug(v) {
     .replace(/-+/g, '-');
 }
 
-// Resolução Inteligente e Resiliente de URL de Imagem (suporta CDN, URLs completas e nuvem)
+// Resolução de URL de Imagem (suporta CDN e armazenamento nativo)
 function resolverUrlImagem(caminho, versao = 1) {
   if (!caminho) return '';
   if (caminho.startsWith('http://') || caminho.startsWith('https://')) {
     return `${caminho}${caminho.includes('?') ? '&' : '?'}v=${versao}`;
   }
-  const limpo = caminho.replace(/^\/+/, '');
-  const semImagens = limpo.replace(/^imagens\//, '');
-
-  // Detecção de ambiente de desenvolvimento local sem proxy/functions (localhost ou portas de desenvolvimento)
-  const isLocalhost = typeof window !== 'undefined' && 
-    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.port === '5500' || window.location.port === '5173');
-
-  if (isLocalhost) {
-    try {
-      const { data: { publicUrl } } = sb.storage.from('banners').getPublicUrl(semImagens);
-      return `${publicUrl}?v=${versao}`;
-    } catch (_) {}
+  if (caminho.startsWith('/imagens/')) {
+    return `${caminho}?v=${versao}`;
   }
-
-  return `/imagens/${semImagens}?v=${versao}`;
+  if (caminho.startsWith('lojistas/')) {
+    return `/imagens/${caminho}?v=${versao}`;
+  }
+  const { data: { publicUrl } } = sb.storage.from('banners').getPublicUrl(caminho);
+  return `${publicUrl}?v=${versao}`;
 }
-
-// Manipulador Universal Resiliente para qualquer imagem ou preview que falhe ao carregar
-window.tratarErroImagemGenerico = function (imgEl, caminhoOriginal = '') {
-  if (!imgEl) return;
-  const etapa = Number(imgEl.dataset.tentativaFallback || 0);
-  const caminho = (caminhoOriginal || imgEl.dataset.caminhoOriginal || imgEl.getAttribute('data-caminho') || '').replace(/^\/+/, '');
-  const semLojistas = caminho.replace(/^lojistas\//, '').replace(/^imagens\//, '');
-  const comLojistas = `lojistas/${semLojistas}`;
-  const versao = imgEl.dataset.versao || 1;
-
-  imgEl.dataset.tentativaFallback = String(etapa + 1);
-  if (!imgEl.dataset.caminhoOriginal && caminho) {
-    imgEl.dataset.caminhoOriginal = caminho;
-  }
-
-  // Se for blob ou data-uri, não tenta trocar
-  if (imgEl.src && (imgEl.src.startsWith('blob:') || imgEl.src.startsWith('data:'))) {
-    return;
-  }
-
-  // 1ª alternativa: se falhou em /imagens/, tenta a nuvem direta sem prefixo
-  if (etapa === 0) {
-    try {
-      const { data: { publicUrl } } = sb.storage.from('banners').getPublicUrl(semLojistas);
-      if (publicUrl && imgEl.src !== `${publicUrl}?v=${versao}`) {
-        imgEl.src = `${publicUrl}?v=${versao}`;
-        return;
-      }
-    } catch (_) {}
-  }
-
-  // 2ª alternativa: tenta a nuvem direta com prefixo lojistas/
-  if (etapa <= 1) {
-    try {
-      const { data: { publicUrl } } = sb.storage.from('banners').getPublicUrl(comLojistas);
-      if (publicUrl && imgEl.src !== `${publicUrl}?v=${versao}`) {
-        imgEl.src = `${publicUrl}?v=${versao}`;
-        return;
-      }
-    } catch (_) {}
-  }
-
-  // 3ª alternativa: tenta via rota /imagens/
-  if (etapa <= 2) {
-    const urlCdn = `/imagens/${semLojistas}?v=${versao}`;
-    if (imgEl.src && !imgEl.src.includes(urlCdn)) {
-      imgEl.src = urlCdn;
-      return;
-    }
-  }
-
-  // Se esgotou todas as alternativas: restaura elegantemente os placeholders
-  if (imgEl.id === 'im') {
-    imgEl.classList.add('hidden');
-    if (el.ph) el.ph.style.display = 'flex';
-    if (el.imSocial) el.imSocial.classList.add('hidden');
-    if (el.phSocial) el.phSocial.classList.remove('hidden');
-    if (el.imVitrine) el.imVitrine.classList.add('hidden');
-    if (el.phVitrine) el.phVitrine.classList.remove('hidden');
-  } else if (imgEl.id === 'im-social') {
-    imgEl.classList.add('hidden');
-    if (el.phSocial) el.phSocial.classList.remove('hidden');
-  } else if (imgEl.id === 'im-vitrine') {
-    imgEl.classList.add('hidden');
-    if (el.phVitrine) el.phVitrine.classList.remove('hidden');
-  } else if (imgEl.id === 'thumb-foto-selecionada') {
-    if (el.bannerFotoSelecionadaGaleria) el.bannerFotoSelecionadaGaleria.classList.add('hidden');
-  } else if (imgEl.id === 'vitrine-avatar-img') {
-    imgEl.classList.add('hidden');
-    if (el.vitrineAvatarLoja) el.vitrineAvatarLoja.classList.remove('hidden');
-  }
-};
-
-window.tratarErroImagemGaleria = window.tratarErroImagemGenerico;
 
 // Upload Seguro de Imagens Otimizadas com Alta Performance e Fallback
 async function uploadImagemOtimizada(blob, caminhoDesejado = '') {
@@ -1408,7 +1327,7 @@ function renderizarLinks() {
     card.innerHTML = `
       <div>
         <div class="relative aspect-[1.91/1] rounded-xl overflow-hidden bg-surface-container-low mb-3 border border-outline-variant/40">
-          <img src="${imgUrl}" alt="${link.titulo || 'Banner'}" class="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300" onerror="window.tratarErroImagemGenerico && window.tratarErroImagemGenerico(this, '${escapeHtml(link.imagem_path)}')">
+          <img src="${imgUrl}" alt="${link.titulo || 'Banner'}" class="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300">
           <span class="absolute top-2 left-2 text-[10px] font-mono font-extrabold px-2 py-0.5 rounded-full bg-surface-container-lowest/95 text-primary shadow-xs backdrop-blur-xs">
             v${versaoAtual}
           </span>
@@ -1906,7 +1825,7 @@ async function tratarArquivoSelecionado(file) {
   abrirEditorRecorte({
     arquivoOuUrl: file,
     modo: 'formulario',
-    aspectInicial: state.tipoLink === 'vitrine' ? NaN : 1.912,
+    aspectInicial: 1.912,
   });
 }
 
@@ -2014,15 +1933,9 @@ function atualizarLivePreview() {
   }
 
   // Sincroniza imagem entre WhatsApp e Redes Sociais
-  const temImagemAtiva = Boolean(el.im && !el.im.classList.contains('hidden') && el.im.src && !el.im.src.startsWith('data:image/svg'));
-
-  if (temImagemAtiva) {
+  if (el.im && !el.im.classList.contains('hidden') && el.im.src) {
     if (el.imSocial) {
-      if (el.imSocial.src !== el.im.src) {
-        el.imSocial.dataset.caminhoOriginal = el.im.dataset.caminhoOriginal || '';
-        el.imSocial.dataset.tentativaFallback = '0';
-        el.imSocial.src = el.im.src;
-      }
+      el.imSocial.src = el.im.src;
       el.imSocial.classList.remove('hidden');
     }
     if (el.phSocial) el.phSocial.classList.add('hidden');
@@ -2114,13 +2027,9 @@ function atualizarLivePreview() {
   if (el.vitrineBtnLabel) el.vitrineBtnLabel.textContent = ctaTxt;
 
   // Imagem no preview da Vitrine
-  if (temImagemAtiva) {
+  if (el.im && !el.im.classList.contains('hidden') && el.im.src) {
     if (el.imVitrine) {
-      if (el.imVitrine.src !== el.im.src) {
-        el.imVitrine.dataset.caminhoOriginal = el.im.dataset.caminhoOriginal || '';
-        el.imVitrine.dataset.tentativaFallback = '0';
-        el.imVitrine.src = el.im.src;
-      }
+      el.imVitrine.src = el.im.src;
       el.imVitrine.classList.remove('hidden');
     }
     if (el.phVitrine) el.phVitrine.classList.add('hidden');
@@ -4094,21 +4003,18 @@ function renderizarGridGaleria() {
     }
 
     return `
-      <div class="bg-surface-container-lowest border border-outline-variant/60 hover:border-primary/50 rounded-2xl overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col justify-between group" style="min-height: 270px;">
-        <!-- Visualizador Proporcional e Elegante para Qualquer Formato de Imagem -->
-        <div class="relative w-full bg-surface-container-high flex items-center justify-center overflow-hidden" style="height: 190px; min-height: 190px;">
-          <!-- Backdrop desfocado sutil que harmoniza com as cores da foto -->
-          <img src="${foto.urlPublica}" alt="" aria-hidden="true" class="absolute inset-0 w-full h-full object-cover blur-md opacity-25 scale-110 pointer-events-none" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: blur(12px);">
-          <!-- Foto completa sem cortes de topo ou base -->
-          <img src="${foto.urlPublica}" alt="${escapeHtml(foto.nome)}" loading="lazy" class="relative z-1 object-contain p-2 group-hover:scale-102 transition-transform duration-300" style="position: relative; z-index: 1; max-width: 100%; max-height: 180px; object-fit: contain;" onerror="tratarErroImagemGaleria(this, '${escapeHtml(foto.caminho)}')">
-          <div class="absolute top-2.5 left-2.5 z-10" style="position: absolute; top: 10px; left: 10px; z-index: 10;">
+      <div class="bg-surface-container-lowest border border-outline-variant/60 hover:border-primary/50 rounded-2xl overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col justify-between group">
+        <!-- Visualizador 1.91:1 Estrito PostLink HD -->
+        <div class="relative aspect-[1.91/1] bg-surface-container-high overflow-hidden">
+          <img src="${foto.urlPublica}" alt="${escapeHtml(foto.nome)}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+          <div class="absolute top-2.5 left-2.5">
             ${badgeUsoHtml}
           </div>
-          <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10" style="position: absolute; top: 10px; right: 10px; z-index: 10;">
-            <button type="button" class="btn-recortar-foto-card w-7 h-7 rounded-full bg-black/60 hover:bg-primary text-white flex items-center justify-center transition-colors backdrop-blur-xs shadow-xs" data-caminho="${foto.caminho}" title="Recortar e ajustar proporção">
+          <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5">
+            <button type="button" class="btn-recortar-foto-card w-7 h-7 rounded-full bg-black/50 hover:bg-primary text-white flex items-center justify-center transition-colors backdrop-blur-xs shadow-xs" data-caminho="${foto.caminho}" title="Recortar e ajustar proporção">
               <span class="material-symbols-outlined text-sm">crop</span>
             </button>
-            <button type="button" class="btn-excluir-foto w-7 h-7 rounded-full bg-black/60 hover:bg-error text-white flex items-center justify-center transition-colors backdrop-blur-xs shadow-xs" data-caminho="${foto.caminho}" title="Excluir foto">
+            <button type="button" class="btn-excluir-foto w-7 h-7 rounded-full bg-black/50 hover:bg-error text-white flex items-center justify-center transition-colors backdrop-blur-xs shadow-xs" data-caminho="${foto.caminho}" title="Excluir foto">
               <span class="material-symbols-outlined text-sm">delete</span>
             </button>
           </div>
@@ -4193,26 +4099,23 @@ function renderizarModalGaleria() {
     const qtdLinks = foto.linksUsando.length;
 
     return `
-      <div class="modal-foto-item cursor-pointer rounded-xl overflow-hidden border-2 transition-all group relative flex flex-col justify-between bg-surface-container-lowest shadow-xs hover:shadow-md ${isSelecionada ? 'border-primary ring-4 ring-primary/20 shadow-md' : 'border-outline-variant/60 hover:border-primary/50'}" data-caminho="${foto.caminho}" style="min-height: 180px;">
-        <div class="relative w-full bg-surface-container-high flex items-center justify-center overflow-hidden" style="height: 140px; min-height: 140px;">
-          <!-- Backdrop desfocado sutil que harmoniza com as cores da foto -->
-          <img src="${foto.urlPublica}" alt="" aria-hidden="true" class="absolute inset-0 w-full h-full object-cover blur-sm opacity-25 scale-110 pointer-events-none" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: blur(8px);">
-          <!-- Foto completa sem cortes de topo ou base -->
-          <img src="${foto.urlPublica}" alt="${escapeHtml(foto.nome)}" class="relative z-1 object-contain p-1.5 transition-transform duration-200 group-hover:scale-102" style="position: relative; z-index: 1; max-width: 100%; max-height: 130px; object-fit: contain;" onerror="tratarErroImagemGaleria(this, '${escapeHtml(foto.caminho)}')">
+      <div class="modal-foto-item cursor-pointer rounded-xl overflow-hidden border-2 transition-all group relative ${isSelecionada ? 'border-primary ring-4 ring-primary/20 shadow-md' : 'border-outline-variant/60 hover:border-primary/50'}" data-caminho="${foto.caminho}">
+        <div class="aspect-[1.91/1] bg-surface-container-high relative overflow-hidden">
+          <img src="${foto.urlPublica}" alt="${escapeHtml(foto.nome)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200">
           ${isSelecionada ? `
-            <div class="absolute inset-0 bg-primary/25 backdrop-blur-2xs flex items-center justify-center z-10" style="position: absolute; inset: 0; z-index: 10;">
+            <div class="absolute inset-0 bg-primary/20 flex items-center justify-center">
               <span class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center shadow-md">
                 <span class="material-symbols-outlined text-lg font-bold">check</span>
               </span>
             </div>
           ` : ''}
           ${qtdLinks > 0 ? `
-            <span class="absolute bottom-1.5 left-1.5 bg-black/75 text-white text-[10px] font-semibold px-2 py-0.5 rounded-md backdrop-blur-xs z-10" style="position: absolute; bottom: 6px; left: 6px; z-index: 10;">
+            <span class="absolute bottom-1.5 left-1.5 bg-black/60 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded backdrop-blur-xs">
               ${qtdLinks} ${qtdLinks === 1 ? 'link' : 'links'}
             </span>
           ` : ''}
         </div>
-        <div class="p-2.5 bg-surface-container-lowest flex items-center justify-between text-xs border-t border-outline-variant/30">
+        <div class="p-2 bg-surface-container-lowest flex items-center justify-between text-xs">
           <span class="truncate font-semibold text-on-surface" title="${escapeHtml(foto.nome)}">${escapeHtml(foto.nome)}</span>
         </div>
       </div>
@@ -4245,16 +4148,13 @@ function aplicarFotoGaleriaNoFormulario(caminhoImagem, isEdicao = false) {
   let publicUrl = foto ? foto.urlPublica : null;
 
   if (!publicUrl) {
-    publicUrl = resolverUrlImagem(caminhoImagem);
+    const { data: { publicUrl: urlGerada } } = sb.storage.from('banners').getPublicUrl(caminhoImagem);
+    publicUrl = urlGerada;
   }
 
   const nomeArquivo = foto ? foto.nome : (caminhoImagem.split('/').pop() || 'banner.jpg');
 
-  if (el.thumbFotoSelecionada) {
-    el.thumbFotoSelecionada.dataset.caminhoOriginal = caminhoImagem;
-    el.thumbFotoSelecionada.dataset.tentativaFallback = '0';
-    el.thumbFotoSelecionada.src = publicUrl;
-  }
+  if (el.thumbFotoSelecionada) el.thumbFotoSelecionada.src = publicUrl;
   if (el.nomeFotoSelecionada) el.nomeFotoSelecionada.textContent = nomeArquivo;
   if (el.bannerFotoSelecionadaGaleria) el.bannerFotoSelecionadaGaleria.classList.remove('hidden');
 
@@ -4263,8 +4163,6 @@ function aplicarFotoGaleriaNoFormulario(caminhoImagem, isEdicao = false) {
   if (el.eImg) el.eImg.textContent = '';
 
   if (el.im) {
-    el.im.dataset.caminhoOriginal = caminhoImagem;
-    el.im.dataset.tentativaFallback = '0';
     el.im.src = publicUrl;
     el.im.classList.remove('hidden');
   }
@@ -4870,6 +4768,17 @@ if (el.editorAspectChips) {
     const aspect = aspectStr === 'NaN' ? NaN : parseFloat(aspectStr);
     editorContexto.aspectRatioAtual = aspect;
     instanciaCropper.setAspectRatio(aspect);
+
+    // Sugestão de moldura inteligente para fotos verticais ou quadradas
+    if (aspectStr === '1' || aspectStr === '0.75' || aspectStr === '0.5625') {
+      if (el.editorCheckMoldura && !el.editorCheckMoldura.checked) {
+        el.editorCheckMoldura.checked = true;
+      }
+    } else if (aspectStr === '1.912') {
+      if (el.editorCheckMoldura) {
+        el.editorCheckMoldura.checked = false;
+      }
+    }
   });
 }
 
@@ -4936,7 +4845,7 @@ if (el.modalEditorBtnConfirmar) {
 // Botão de Recorte da Foto Selecionada no Formulário
 if (el.btnRecortarFotoSelecionada) {
   el.btnRecortarFotoSelecionada.addEventListener('click', () => {
-    const aspectPadrao = state.tipoLink === 'vitrine' ? NaN : 1.912;
+    const aspectPadrao = 1.912;
     if (state.fotoSelecionadaGaleria) {
       const foto = state.fotosGaleria.find((f) => f.caminho === state.fotoSelecionadaGaleria);
       const url = foto ? foto.urlPublica : (el.thumbFotoSelecionada ? el.thumbFotoSelecionada.src : null);
