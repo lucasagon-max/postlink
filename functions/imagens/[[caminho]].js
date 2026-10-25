@@ -68,8 +68,17 @@ export async function onRequestGet(context) {
 
       if (respFallback.ok) {
         const headers = new Headers(respFallback.headers);
-        headers.set('cache-control', 'public, max-age=86400');
+        headers.set('cache-control', 'public, max-age=31536000, immutable');
         headers.set('x-content-type-options', 'nosniff');
+        headers.set('access-control-allow-origin', '*');
+
+        const ct = headers.get('content-type') || '';
+        if (!ct || ct.includes('text/html')) {
+          if (cand.endsWith('.webp')) headers.set('content-type', 'image/webp');
+          else if (cand.endsWith('.png')) headers.set('content-type', 'image/png');
+          else headers.set('content-type', 'image/jpeg');
+        }
+
         return new Response(respFallback.body, {
           status: respFallback.status,
           headers,
@@ -78,7 +87,10 @@ export async function onRequestGet(context) {
     } catch (_) {}
   }
 
-  return new Response('Imagem não encontrada', { status: 404 });
+  return new Response('Imagem não encontrada', {
+    status: 404,
+    headers: { 'content-type': 'text/plain; charset=utf-8' },
+  });
 }
 
 export async function onRequest(context) {

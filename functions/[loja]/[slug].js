@@ -123,7 +123,13 @@ export async function onRequestGet(context) {
     return dispatchApi(context);
   }
 
-  const RESERVADAS = ['painel', 'login', 'admin', 'assets', 'termos', 'privacidade', 'planos', 'denunciar', 'imagens', 'favicon.ico'];
+  if (loja === 'imagens') {
+    const limpo = slug ? slug.replace(/^\/+/, '') : '';
+    const supabaseUrl = env.SUPABASE_URL || DEFAULT_SUPABASE_URL;
+    return Response.redirect(`${supabaseUrl}/storage/v1/object/public/banners/${limpo}`, 302);
+  }
+
+  const RESERVADAS = ['painel', 'login', 'admin', 'assets', 'termos', 'privacidade', 'planos', 'denunciar', 'favicon.ico'];
   if (RESERVADAS.includes(loja) && env.ASSETS) {
     const rawPath = new URL(request.url).pathname;
     const tentativas = [rawPath];
@@ -184,7 +190,7 @@ export async function onRequestGet(context) {
     const limpo = caminho.replace(/^\/+/, '');
     const pathSemImagens = limpo.replace(/^imagens\//, '');
     const paramVersao = versao ? `?v=${versao}` : '';
-    return `${reqUrl.origin}/imagens/${pathSemImagens}${paramVersao}`;
+    return `${supabaseUrl}/storage/v1/object/public/banners/${pathSemImagens}${paramVersao}`;
   }
 
   const imagem = resolverUrlPublica(link.imagem_path, link.versao || 1);
@@ -375,28 +381,33 @@ async function registrarClique(env, linkId, request, etapa = 'acesso') {
 function paginaOG({ link, url, imagem }) {
   const t = esc(link.titulo || link.loja_nome || 'PostLink');
   const d = link.descricao
-    ? `<meta property="og:description" content="${esc(link.descricao)}">\n<meta name="description" content="${esc(link.descricao)}">`
+    ? `<meta property="og:description" content="${esc(link.descricao)}">\n  <meta name="description" content="${esc(link.descricao)}">`
     : '';
+  const mimeType = imagem && (imagem.includes('.png') ? 'image/png' : imagem.includes('.webp') ? 'image/webp' : 'image/jpeg');
 
   return `<!doctype html>
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <meta name="robots" content="noindex">
   <title>${t}</title>
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <meta property="og:site_name" content="${esc(link.loja_nome || 'PostLink')}">
   <meta property="og:type" content="website">
+  <meta property="og:url" content="${esc(url)}">
   <meta property="og:title" content="${t}">
   ${d}
   <meta property="og:image" content="${esc(imagem)}">
+  <meta property="og:image:secure_url" content="${esc(imagem)}">
+  <meta property="og:image:type" content="${mimeType}">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:url" content="${esc(url)}">
+  <meta property="og:image:alt" content="${t}">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${t}">
+  ${link.descricao ? `<meta name="twitter:description" content="${esc(link.descricao)}">` : ''}
   <meta name="twitter:image" content="${esc(imagem)}">
 </head>
 <body></body>

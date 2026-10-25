@@ -530,14 +530,14 @@ function resolverUrlImagem(caminho, versao = 1) {
   if (caminho.startsWith('http://') || caminho.startsWith('https://')) {
     return `${caminho}${caminho.includes('?') ? '&' : '?'}v=${versao}`;
   }
-  if (caminho.startsWith('/imagens/')) {
-    return `${caminho}?v=${versao}`;
-  }
-  if (caminho.startsWith('lojistas/')) {
-    return `/imagens/${caminho}?v=${versao}`;
-  }
-  const { data: { publicUrl } } = sb.storage.from('banners').getPublicUrl(caminho);
-  return `${publicUrl}?v=${versao}`;
+  const limpo = String(caminho).replace(/^\/+/, '').replace(/^imagens\//, '');
+  try {
+    const { data } = sb.storage.from('banners').getPublicUrl(limpo);
+    if (data?.publicUrl) {
+      return `${data.publicUrl}?v=${versao}`;
+    }
+  } catch (_) {}
+  return `/imagens/${limpo}?v=${versao}`;
 }
 
 // Upload Seguro de Imagens Otimizadas com Alta Performance e Fallback

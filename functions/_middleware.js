@@ -111,6 +111,11 @@ export async function onRequest(context) {
     return next();
   }
 
+  // 1.1 Chamadas de mídia dinâmica e proxy de imagens seguem direto para functions/imagens/[[caminho]].js
+  if (pathname.startsWith('/imagens/')) {
+    return next();
+  }
+
   // Endpoint de verificação e diagnóstico de saúde das rotas
   if (pathname === '/api-health') {
     return new Response(JSON.stringify({ status: 'ok', timestamp: new Date().toISOString() }), {
@@ -118,7 +123,7 @@ export async function onRequest(context) {
     });
   }
 
-  // 1.1 Interceptor para robôs de preview social (WhatsApp, Facebook, Twitter, Telegram, etc.) na raiz
+  // 1.2 Interceptor para robôs de preview social (WhatsApp, Facebook, Twitter, Telegram, etc.) na raiz
   if ((pathname === '/' || pathname === '/index.html') && ROBOS.test(ua)) {
     const config = await obterConfiguracoesSite(env);
     const corpoHtml = gerarHtmlOpenGraphOficial(config);
@@ -148,6 +153,12 @@ export async function onRequest(context) {
       try {
         const resp = await env.ASSETS.fetch(new URL(p, request.url));
         if (resp && resp.status < 400) {
+          const contentType = resp.headers.get('content-type') || '';
+          const isHtmlReq = assetPath.endsWith('.html') || assetPath.endsWith('/') || assetPath === '';
+          if (!isHtmlReq && contentType.includes('text/html')) {
+            // Ignora retorno de index.html gerado pelo fallback de SPA do Cloudflare Pages
+            continue;
+          }
           return resp;
         }
       } catch (_) {}
