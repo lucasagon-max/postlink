@@ -215,3 +215,29 @@ h3 {
   animation: floatSlow 5s ease-in-out 2.5s infinite;
 }
 
+/* Transições e Animações para as Prévias e Vitrine na Home */
+.hero-view-transition {
+  transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hero-view-hidden {
+  display: none !important;
+  opacity: 0;
+  transform: scale(0.98);
+}
+
+.hero-view-active {
+  display: block !important;
+  opacity: 1;
+  transform: scale(1);
+}
+
+.pulse-soft {
+  animation: pulseSoft 2s ease-in-out infinite;
+}
+
+@keyframes pulseSoft {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+

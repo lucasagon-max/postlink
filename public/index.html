@@ -61,6 +61,14 @@
 
       <!-- Right Actions -->
       <div class="flex items-center gap-1.5 sm:gap-3">
+        <a href="#vitrine"
+          class="hidden md:inline-flex text-sm font-semibold text-on-surface-variant hover:text-primary px-3 py-2 rounded-lg hover:bg-surface-container transition-all items-center min-h-[40px]">
+          Página Vitrine
+        </a>
+        <a href="#assistente-ia"
+          class="hidden md:inline-flex text-sm font-semibold text-on-surface-variant hover:text-primary px-3 py-2 rounded-lg hover:bg-surface-container transition-all items-center min-h-[40px]">
+          Assistente IA
+        </a>
         <a href="/planos/"
           class="text-sm font-semibold text-on-surface-variant hover:text-primary px-3 py-2 rounded-lg hover:bg-surface-container transition-all inline-flex items-center min-h-[40px]">
           Planos
@@ -107,10 +115,8 @@
               <span class="relative inline-flex rounded-full h-2 w-2 bg-secondary"></span>
             </span>
             <span
-              class="bg-secondary/15 text-secondary-dark text-[10px] font-black uppercase px-1.5 py-0.5 rounded tracking-wider border border-secondary/20">NOVO
-              2.0</span>
-            <span id="hero-badge-texto" class="text-slate-700 font-medium">Abre direto no WhatsApp · Zero fotos na
-              galeria do cliente</span>
+              class="bg-secondary/15 text-secondary-dark text-[10px] font-black uppercase px-1.5 py-0.5 rounded tracking-wider border border-secondary/20">NOVO 2.0</span>
+            <span id="hero-badge-texto" class="text-slate-700 font-medium">Cartões HD · Página Vitrine · Criação com IA</span>
           </div>
 
           <!-- Título Principal de Alto Impacto (Headline) -->
@@ -126,9 +132,7 @@
 
           <!-- Subtítulo Fluido e Convincente (Descrição) -->
           <p id="hero-descricao" class="text-base sm:text-lg text-slate-600 leading-relaxed font-normal max-w-xl">
-            Quase ninguém baixa fotos avulsas no WhatsApp para não lotar a memória do celular — e mesmo quem baixa não
-            vai a lugar nenhum ao clicar na foto. Com o PostLink, seu produto já aparece aberto na conversa, sem ocupar
-            a galeria do cliente e direcionando para o seu atendimento com 1 clique.
+            Crie anúncios magnéticos com o apoio de <strong>Inteligência Artificial</strong>, compartilhe cartões em alta definição que abrem sozinhos no WhatsApp e direcione clientes para sua própria <strong>Página Vitrine</strong> com fotos, preço promocional e botão de pedido direto.
           </p>
 
           <!-- Botões de Ação Principais (CTA) -->
@@ -167,7 +171,7 @@
 
         </div>
 
-        <!-- COLUNA DIREITA: EXEMPLO DE PRÉ-VISUALIZAÇÃO DO LINK COMPARTILHADO (5 colunas no desktop) -->
+        <!-- COLUNA DIREITA: EXEMPLO DE PRÉ-VISUALIZAÇÃO INTERATIVA (5 colunas no desktop) -->
         <div class="lg:col-span-5 relative">
 
           <!-- Glow sutil e suave atrás do cartão social -->
@@ -175,121 +179,222 @@
             class="absolute -inset-2 bg-gradient-to-tr from-emerald-500/20 via-primary/15 to-emerald-500/10 rounded-[32px] blur-xl opacity-75 -z-10">
           </div>
 
-          <!-- Micro-badge flutuante decorativo -->
-          <div class="hidden sm:block absolute -top-4 -right-3 z-20 animate-float-slow">
+          <!-- Seletor de Prévia Interativa: Cartão WhatsApp vs Página Vitrine -->
+          <div class="flex items-center justify-center p-1 bg-white/95 backdrop-blur-md rounded-xl border border-slate-200/90 mb-3.5 shadow-2xs max-w-[320px] mx-auto sm:mx-0">
+            <button type="button" id="tab-hero-whatsapp" onclick="alternarPreviaHero('whatsapp')"
+              class="flex-1 py-1.5 px-3 rounded-lg text-xs font-bold text-primary bg-primary/10 border border-primary/20 shadow-2xs transition-all flex items-center justify-center gap-1.5 active:scale-95">
+              <span class="material-symbols-outlined text-sm text-secondary">chat</span>
+              <span>Cartão WhatsApp</span>
+            </button>
+            <button type="button" id="tab-hero-vitrine" onclick="alternarPreviaHero('vitrine')"
+              class="flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold text-slate-600 hover:text-primary transition-all flex items-center justify-center gap-1.5 active:scale-95">
+              <span class="material-symbols-outlined text-sm text-primary">storefront</span>
+              <span>Página Vitrine</span>
+            </button>
+          </div>
+
+          <!-- VISÃO 1: CARTÃO DO WHATSAPP (PADRÃO) -->
+          <div id="hero-view-whatsapp" class="hero-view-transition hero-view-active">
+            <!-- Micro-badge flutuante decorativo -->
+            <div class="hidden sm:block absolute -top-4 -right-3 z-20 animate-float-slow">
+              <div
+                class="glass-pill px-3 py-1.5 rounded-xl shadow-md border border-emerald-500/25 flex items-center gap-2 bg-white/95">
+                <span class="material-symbols-outlined text-secondary text-base">verified</span>
+                <span class="text-[11px] font-black text-slate-800">Visualização em HD</span>
+              </div>
+            </div>
+
+            <!-- Card de Post em Rede Social com o Link Compartilhado (Estilo social.cards hero-post-card) -->
             <div
-              class="glass-pill px-3 py-1.5 rounded-xl shadow-md border border-emerald-500/25 flex items-center gap-2 bg-white/95">
-              <span class="material-symbols-outlined text-secondary text-base">verified</span>
-              <span class="text-[11px] font-black text-slate-800">Visualização em HD</span>
+              class="bg-white rounded-2xl border border-slate-200/90 shadow-[0_20px_50px_-15px_rgba(0,62,128,0.08),0_0_0_1px_rgba(226,232,240,0.7)] overflow-hidden transition-all duration-300 hover:shadow-2xl text-left">
+
+              <!-- Cabeçalho do Post Social (Autor) -->
+              <div class="p-4 sm:p-5 pb-3">
+                <div class="flex items-center justify-between gap-3 mb-2.5">
+                  <div class="flex items-center gap-3">
+                    <div
+                      class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-sm ring-1 ring-slate-200 overflow-hidden shrink-0 shadow-2xs">
+                      <img src="/apple-touch-icon.png" alt="PostLink" class="w-full h-full object-cover">
+                    </div>
+                    <div>
+                      <div class="flex items-center gap-1.5">
+                        <span class="text-sm font-bold text-slate-900 leading-none">Sua Loja Oficial</span>
+                        <span class="material-symbols-outlined text-sm text-secondary"
+                          style="font-variation-settings: 'FILL' 1;">verified</span>
+                      </div>
+                      <span class="text-xs text-slate-400 font-mono">@sualoja · postlink.com.br</span>
+                    </div>
+                  </div>
+                  <span
+                    class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/70">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Prévia Ativa
+                  </span>
+                </div>
+
+                <p id="hero-preview-texto" class="text-xs sm:text-sm text-slate-700 leading-snug">
+                  Compartilhe ofertas no WhatsApp com um cartão visual em alta definição que abre sozinho! 👇
+                </p>
+              </div>
+
+              <!-- O Cartão de Pré-visualização do Link Compartilhado (Open Graph Card) -->
+              <div class="px-4 sm:px-5 pb-4">
+                <div id="hero-shared-link-card"
+                  class="group/card block rounded-xl overflow-hidden border border-slate-200/90 bg-white hover:border-emerald-500/50 hover:shadow-md transition-all cursor-pointer shadow-2xs"
+                  title="Clique para testar o cartão de prévia">
+
+                  <!-- Área do Banner Oficial da Home (Configurável no Painel Admin) -->
+                  <div id="hero-banner-container"
+                    class="relative aspect-[1.91/1] w-full overflow-hidden bg-slate-100 select-none">
+                    <img id="hero-banner-img" src="/assets/img/logotipo_postlink.jpg" alt="Prévia do Link Compartilhado"
+                      class="w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-[1.02]">
+
+                    <!-- Badges sobre o Banner -->
+                    <div
+                      class="absolute top-2.5 left-2.5 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider flex items-center gap-1">
+                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                      HD Open Graph
+                    </div>
+                    <div
+                      class="absolute top-2.5 right-2.5 bg-white/95 backdrop-blur-md text-slate-800 text-[10px] font-bold px-2 py-0.5 rounded-md shadow-xs flex items-center gap-1 group-hover/card:bg-secondary group-hover/card:text-white transition-colors">
+                      <span class="material-symbols-outlined text-xs">touch_app</span>
+                      <span>Toque para testar</span>
+                    </div>
+
+                    <!-- Selo Favicon no Canto Inferior Direito do Preview -->
+                    <div
+                      class="absolute bottom-2.5 right-2.5 bg-white/95 backdrop-blur-md p-1.5 rounded-lg shadow-sm flex items-center justify-center pointer-events-none"
+                      title="Favicon PostLink">
+                      <img src="/favicon-32x32.png" alt="Favicon" class="w-4 h-4 rounded-xs object-contain">
+                    </div>
+                  </div>
+
+                  <!-- Rodapé do Cartão com Título e Rota de Redirecionamento -->
+                  <div class="p-3.5 bg-white border-t border-slate-100 flex items-start justify-between gap-3">
+                    <div class="min-w-0">
+                      <p
+                        class="text-[10px] font-mono uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1.5">
+                        <img src="/favicon-32x32.png" alt="Favicon" class="w-3.5 h-3.5 rounded-xs inline-block shrink-0">
+                        <span>POSTLINK.COM.BR</span>
+                      </p>
+                      <h4 id="hero-preview-titulo"
+                        class="text-xs sm:text-sm font-extrabold text-slate-900 leading-snug truncate mt-0.5">
+                        Lançamento Especial · Oferta Exclusiva com 1 Clique
+                      </h4>
+                      <p class="text-[11px] text-slate-500 leading-tight mt-1 flex items-center gap-1 truncate">
+                        <span class="material-symbols-outlined text-xs text-secondary-dark shrink-0">turn_right</span>
+                        <span id="hero-preview-subtitulo" class="font-medium text-slate-600">postlink.com.br/sua-loja ➔
+                          Redireciona para o destino</span>
+                      </p>
+                    </div>
+                    <div
+                      class="w-8 h-8 rounded-lg bg-emerald-50 text-secondary-dark flex items-center justify-center shrink-0 group-hover/card:bg-secondary group-hover/card:text-white transition-all shadow-2xs mt-0.5">
+                      <span class="material-symbols-outlined text-base">arrow_outward</span>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- Rodapé do Post Social (Métricas & Benefícios de visualização) -->
+              <div
+                class="px-4 sm:px-5 py-2.5 bg-slate-50/90 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                <div class="flex items-center gap-3">
+                  <span class="flex items-center gap-1 font-semibold text-emerald-700 text-[11px] sm:text-xs">
+                    <span class="material-symbols-outlined text-sm text-secondary">bolt</span> Abre direto sem download
+                  </span>
+                  <span class="hidden sm:inline-flex items-center gap-1 text-slate-500 text-[11px]">
+                    <span class="material-symbols-outlined text-sm text-slate-400">memory</span> 0 KB salvos
+                  </span>
+                </div>
+                <span class="text-[10px] font-mono text-slate-400 font-semibold">100% Clicável</span>
+              </div>
+
             </div>
           </div>
 
-          <!-- Card de Post em Rede Social com o Link Compartilhado (Estilo social.cards hero-post-card) -->
-          <div
-            class="bg-white rounded-2xl border border-slate-200/90 shadow-[0_20px_50px_-15px_rgba(0,62,128,0.08),0_0_0_1px_rgba(226,232,240,0.7)] overflow-hidden transition-all duration-300 hover:shadow-2xl text-left">
-
-            <!-- Cabeçalho do Post Social (Autor) -->
-            <div class="p-4 sm:p-5 pb-3">
-              <div class="flex items-center justify-between gap-3 mb-2.5">
-                <div class="flex items-center gap-3">
-                  <div
-                    class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-sm ring-1 ring-slate-200 overflow-hidden shrink-0 shadow-2xs">
-                    <img src="/apple-touch-icon.png" alt="PostLink" class="w-full h-full object-cover">
-                  </div>
-                  <div>
-                    <div class="flex items-center gap-1.5">
-                      <span class="text-sm font-bold text-slate-900 leading-none">Sua Loja Oficial</span>
-                      <span class="material-symbols-outlined text-sm text-secondary"
-                        style="font-variation-settings: 'FILL' 1;">verified</span>
-                    </div>
-                    <span class="text-xs text-slate-400 font-mono">@sualoja · postlink.com.br</span>
-                  </div>
-                </div>
-                <span
-                  class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/70">
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                  Prévia Ativa
-                </span>
-              </div>
-
-              <p id="hero-preview-texto" class="text-xs sm:text-sm text-slate-700 leading-snug">
-                Compartilhe ofertas no WhatsApp com um cartão visual em alta definição que abre sozinho! 👇
-              </p>
-            </div>
-
-            <!-- O Cartão de Pré-visualização do Link Compartilhado (Open Graph Card) -->
-            <div class="px-4 sm:px-5 pb-4">
-              <div id="hero-shared-link-card"
-                class="group/card block rounded-xl overflow-hidden border border-slate-200/90 bg-white hover:border-emerald-500/50 hover:shadow-md transition-all cursor-pointer shadow-2xs"
-                title="Clique para testar o cartão de prévia">
-
-                <!-- Área do Banner Oficial da Home (Configurável no Painel Admin) -->
-                <div id="hero-banner-container"
-                  class="relative aspect-[1.91/1] w-full overflow-hidden bg-slate-100 select-none">
-                  <img id="hero-banner-img" src="/assets/img/logotipo_postlink.jpg" alt="Prévia do Link Compartilhado"
-                    class="w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-[1.02]">
-
-                  <!-- Badges sobre o Banner -->
-                  <div
-                    class="absolute top-2.5 left-2.5 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider flex items-center gap-1">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                    HD Open Graph
-                  </div>
-                  <div
-                    class="absolute top-2.5 right-2.5 bg-white/95 backdrop-blur-md text-slate-800 text-[10px] font-bold px-2 py-0.5 rounded-md shadow-xs flex items-center gap-1 group-hover/card:bg-secondary group-hover/card:text-white transition-colors">
-                    <span class="material-symbols-outlined text-xs">touch_app</span>
-                    <span>Toque para testar</span>
-                  </div>
-
-                  <!-- Selo Favicon no Canto Inferior Direito do Preview -->
-                  <div
-                    class="absolute bottom-2.5 right-2.5 bg-white/95 backdrop-blur-md p-1.5 rounded-lg shadow-sm flex items-center justify-center pointer-events-none"
-                    title="Favicon PostLink">
-                    <img src="/favicon-32x32.png" alt="Favicon" class="w-4 h-4 rounded-xs object-contain">
-                  </div>
-                </div>
-
-                <!-- Rodapé do Cartão com Título e Rota de Redirecionamento -->
-                <div class="p-3.5 bg-white border-t border-slate-100 flex items-start justify-between gap-3">
-                  <div class="min-w-0">
-                    <p
-                      class="text-[10px] font-mono uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1.5">
-                      <img src="/favicon-32x32.png" alt="Favicon" class="w-3.5 h-3.5 rounded-xs inline-block shrink-0">
-                      <span>POSTLINK.COM.BR</span>
-                    </p>
-                    <h4 id="hero-preview-titulo"
-                      class="text-xs sm:text-sm font-extrabold text-slate-900 leading-snug truncate mt-0.5">
-                      Lançamento Especial · Oferta Exclusiva com 1 Clique
-                    </h4>
-                    <p class="text-[11px] text-slate-500 leading-tight mt-1 flex items-center gap-1 truncate">
-                      <span class="material-symbols-outlined text-xs text-secondary-dark shrink-0">turn_right</span>
-                      <span id="hero-preview-subtitulo" class="font-medium text-slate-600">postlink.com.br/sua-loja ➔
-                        Redireciona para o destino</span>
-                    </p>
-                  </div>
-                  <div
-                    class="w-8 h-8 rounded-lg bg-emerald-50 text-secondary-dark flex items-center justify-center shrink-0 group-hover/card:bg-secondary group-hover/card:text-white transition-all shadow-2xs mt-0.5">
-                    <span class="material-symbols-outlined text-base">arrow_outward</span>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-
-            <!-- Rodapé do Post Social (Métricas & Benefícios de visualização) -->
+          <!-- VISÃO 2: MOCKUP DA PÁGINA VITRINE -->
+          <div id="hero-view-vitrine" class="hero-view-transition hero-view-hidden">
             <div
-              class="px-4 sm:px-5 py-2.5 bg-slate-50/90 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-              <div class="flex items-center gap-3">
-                <span class="flex items-center gap-1 font-semibold text-emerald-700 text-[11px] sm:text-xs">
-                  <span class="material-symbols-outlined text-sm text-secondary">bolt</span> Abre direto sem download
-                </span>
-                <span class="hidden sm:inline-flex items-center gap-1 text-slate-500 text-[11px]">
-                  <span class="material-symbols-outlined text-sm text-slate-400">memory</span> 0 KB salvos
+              class="bg-white rounded-2xl border border-slate-200/90 shadow-[0_20px_50px_-15px_rgba(0,62,128,0.08),0_0_0_1px_rgba(226,232,240,0.7)] overflow-hidden transition-all duration-300 text-left">
+              
+              <!-- Topo da Vitrine (Marca & Segurança) -->
+              <div class="px-4 py-3 bg-slate-50/90 border-b border-slate-100 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <img src="/apple-touch-icon.png" alt="Sua Loja" class="w-6 h-6 rounded-md object-cover ring-1 ring-slate-200">
+                  <span class="text-xs font-bold text-slate-900">Sua Loja Oficial</span>
+                  <span class="material-symbols-outlined text-xs text-secondary" style="font-variation-settings: 'FILL' 1;">verified</span>
+                </div>
+                <span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/70">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  Página de Oferta
                 </span>
               </div>
-              <span class="text-[10px] font-mono text-slate-400 font-semibold">100% Clicável</span>
-            </div>
 
+              <!-- Foto Principal com Badge de Desconto & Miniaturas -->
+              <div class="relative aspect-[1.5/1] w-full bg-slate-100 overflow-hidden">
+                <img id="hero-vitrine-img" src="/assets/img/ex02.png" alt="Produto em Oferta" class="w-full h-full object-cover transition-all duration-300">
+                <span class="absolute top-2.5 left-2.5 bg-gradient-to-r from-red-600 to-red-500 text-white text-[10px] font-black px-2.5 py-1 rounded-md shadow-xs">
+                  -33% OFF
+                </span>
+                <!-- Miniaturas clicáveis -->
+                <div class="absolute bottom-2.5 left-2.5 flex items-center gap-1.5 bg-black/50 backdrop-blur-md p-1 rounded-lg">
+                  <button type="button" onclick="trocarFotoHeroVitrine('/assets/img/ex02.png', this)" class="hero-vitrine-thumb w-7 h-7 rounded border-2 border-white overflow-hidden active:scale-95 transition-all">
+                    <img src="/assets/img/ex02.png" alt="Thumb 1" class="w-full h-full object-cover">
+                  </button>
+                  <button type="button" onclick="trocarFotoHeroVitrine('/assets/img/Ex01.png', this)" class="hero-vitrine-thumb w-7 h-7 rounded border border-white/60 overflow-hidden opacity-70 hover:opacity-100 active:scale-95 transition-all">
+                    <img src="/assets/img/Ex01.png" alt="Thumb 2" class="w-full h-full object-cover">
+                  </button>
+                  <button type="button" onclick="trocarFotoHeroVitrine('/assets/img/logotipo_postlink.jpg', this)" class="hero-vitrine-thumb w-7 h-7 rounded border border-white/60 overflow-hidden opacity-70 hover:opacity-100 active:scale-95 transition-all">
+                    <img src="/assets/img/logotipo_postlink.jpg" alt="Thumb 3" class="w-full h-full object-cover">
+                  </button>
+                </div>
+              </div>
+
+              <!-- Detalhes do Produto e Preço -->
+              <div class="p-4 space-y-3">
+                <div>
+                  <h4 class="text-xs sm:text-sm font-extrabold text-slate-900 leading-snug">
+                    Oferta Exclusiva · Pronto para Envio com Desconto Especial
+                  </h4>
+                  <div class="flex items-baseline gap-2 mt-1">
+                    <span class="text-xs text-slate-400 line-through">De R$ 180,00</span>
+                    <span class="text-base font-black text-secondary-dark">Por R$ 119,90</span>
+                  </div>
+                  <p class="text-[11px] font-medium text-emerald-700 mt-0.5 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-xs">payments</span>
+                    <span>Em até 3x sem juros ou 5% de desconto no Pix</span>
+                  </p>
+                </div>
+
+                <!-- Lista de Destaques/Benefícios -->
+                <ul class="text-[11px] text-slate-600 space-y-1.5 pt-2 border-t border-slate-100">
+                  <li class="flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-xs text-secondary font-bold">check_circle</span>
+                    <span>Envio imediato com código de rastreamento</span>
+                  </li>
+                  <li class="flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-xs text-secondary font-bold">check_circle</span>
+                    <span>Garantia de 30 dias direto com a loja</span>
+                  </li>
+                </ul>
+
+                <!-- Botão de Ação Direta para WhatsApp -->
+                <a href="/planos/" class="w-full py-2.5 px-3 rounded-xl bg-secondary hover:bg-secondary-dark text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all">
+                  <span class="material-symbols-outlined text-sm">chat</span>
+                  <span>Pedir pelo WhatsApp</span>
+                  <span class="material-symbols-outlined text-xs">arrow_forward</span>
+                </a>
+              </div>
+
+              <!-- Rodapé da Vitrine com Métrica do Funil -->
+              <div class="px-4 py-2 bg-slate-50/90 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+                <span class="flex items-center gap-1 font-semibold text-primary">
+                  <span class="material-symbols-outlined text-xs">monitoring</span> Funil: 142 acessos · 51 pedidos
+                </span>
+                <span class="font-mono text-[10px] text-emerald-800 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200/60">36% de conversão</span>
+              </div>
+            </div>
           </div>
 
         </div>
@@ -533,8 +638,348 @@
       </div>
     </section>
 
+    <!-- SEÇÃO: PÁGINA VITRINE (PÁGINA DE OFERTA EXCLUSIVA DO PRODUTO) -->
+    <section id="vitrine" class="px-4 sm:px-6 lg:px-8 py-16 sm:py-24 max-w-6xl mx-auto border-t border-outline-variant/50">
+      
+      <!-- Cabeçalho da Seção -->
+      <div class="text-center mb-12 sm:mb-16 max-w-3xl mx-auto">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold mb-3 border border-primary/20">
+          <span class="material-symbols-outlined text-sm">storefront</span>
+          <span>Página Vitrine de Oferta</span>
+        </div>
+        <h2 class="text-2xl sm:text-4xl font-black text-on-surface tracking-tight leading-tight">
+          Apresente seu produto com autoridade máxima: <br class="hidden sm:inline">
+          <span class="text-primary">Conheça a Página Vitrine</span>
+        </h2>
+        <p class="text-sm sm:text-base text-on-surface-variant mt-3 leading-relaxed">
+          Transforme seu link em uma página de oferta exclusiva, limpa e pensada para converter cada visitante em pedidos fechados diretamente no seu WhatsApp — sem complicação de sites pesados.
+        </p>
+      </div>
+
+      <!-- Grid Principal: Mockup Interativo à Esquerda + 4 Benefícios à Direita -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+        
+        <!-- COLUNA ESQUERDA: MOCKUP DO SMARTPHONE COM A VITRINE INTERATIVA (5 colunas) -->
+        <div class="lg:col-span-5 max-w-sm mx-auto w-full">
+          <!-- Smartphone Outer Shell -->
+          <div class="relative rounded-[36px] p-3 bg-slate-900 shadow-[0_25px_60px_-15px_rgba(0,62,128,0.2),0_0_0_1px_rgba(15,23,42,0.8)]">
+            
+            <!-- Notch superior do celular -->
+            <div class="absolute top-4 left-1/2 -translate-x-1/2 w-28 h-4 bg-slate-950 rounded-full z-20 flex items-center justify-center">
+              <span class="w-2.5 h-2.5 rounded-full bg-slate-800 mr-2"></span>
+              <span class="w-1.5 h-1.5 rounded-full bg-slate-700"></span>
+            </div>
+
+            <!-- Tela do Smartphone -->
+            <div class="bg-[#FAF8FF] rounded-[28px] overflow-hidden text-left relative pt-6 flex flex-col justify-between border border-slate-800 min-h-[580px]">
+              
+              <!-- Header da Loja na Vitrine -->
+              <div class="px-3.5 py-2.5 bg-white border-b border-slate-200/80 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <img src="/apple-touch-icon.png" alt="Logo Loja" class="w-6 h-6 rounded-md object-cover ring-1 ring-slate-200">
+                  <div>
+                    <div class="flex items-center gap-1">
+                      <span class="text-xs font-bold text-slate-900 leading-none">Sua Loja</span>
+                      <span class="material-symbols-outlined text-xs text-secondary" style="font-variation-settings: 'FILL' 1;">verified</span>
+                    </div>
+                    <span class="text-[9px] text-slate-400 font-mono">postlink.com.br/loja</span>
+                  </div>
+                </div>
+                <span class="inline-flex items-center gap-1 text-[9px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  Seguro
+                </span>
+              </div>
+
+              <!-- Área de Foto e Carrossel da Oferta -->
+              <div class="p-3">
+                <div class="relative aspect-square w-full rounded-xl overflow-hidden bg-slate-100 border border-slate-200/80 shadow-2xs">
+                  <img id="vitrine-demo-main-img" src="/assets/img/ex02.png" alt="Produto em Oferta" class="w-full h-full object-cover transition-all duration-300">
+                  <span class="absolute top-2 left-2 bg-gradient-to-r from-red-600 to-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded shadow-xs">
+                    -33% OFF
+                  </span>
+                </div>
+
+                <!-- Carrossel de Miniaturas Clicáveis -->
+                <div class="flex items-center justify-center gap-2 mt-2">
+                  <button type="button" onclick="trocarFotoVitrineSecao('/assets/img/ex02.png', this)" class="vitrine-sec-thumb w-9 h-9 rounded-lg border-2 border-primary overflow-hidden shadow-2xs active:scale-95 transition-all">
+                    <img src="/assets/img/ex02.png" alt="Foto 1" class="w-full h-full object-cover">
+                  </button>
+                  <button type="button" onclick="trocarFotoVitrineSecao('/assets/img/Ex01.png', this)" class="vitrine-sec-thumb w-9 h-9 rounded-lg border border-slate-300 overflow-hidden opacity-70 hover:opacity-100 shadow-2xs active:scale-95 transition-all">
+                    <img src="/assets/img/Ex01.png" alt="Foto 2" class="w-full h-full object-cover">
+                  </button>
+                  <button type="button" onclick="trocarFotoVitrineSecao('/assets/img/logotipo_postlink.jpg', this)" class="vitrine-sec-thumb w-9 h-9 rounded-lg border border-slate-300 overflow-hidden opacity-70 hover:opacity-100 shadow-2xs active:scale-95 transition-all">
+                    <img src="/assets/img/logotipo_postlink.jpg" alt="Foto 3" class="w-full h-full object-cover">
+                  </button>
+                </div>
+              </div>
+
+              <!-- Bloco de Informações da Oferta -->
+              <div class="px-3 pb-3 space-y-2.5 flex-grow">
+                <div>
+                  <h4 class="text-xs sm:text-sm font-extrabold text-slate-900 leading-tight">
+                    Combo Promocional Especial (Pronto para Envio)
+                  </h4>
+                  <div class="flex items-baseline gap-2 mt-1">
+                    <span class="text-xs text-slate-400 line-through">De R$ 180,00</span>
+                    <span class="text-base font-black text-secondary-dark">Por R$ 119,90</span>
+                  </div>
+                  <div class="mt-1 text-[10px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200/70 rounded-md px-2 py-0.5 inline-flex items-center gap-1">
+                    <span class="material-symbols-outlined text-xs">credit_card</span>
+                    <span>Em até 3x sem juros ou 5% OFF no Pix</span>
+                  </div>
+                </div>
+
+                <!-- Tópicos de Diferenciais -->
+                <div class="bg-white rounded-lg p-2 border border-slate-200/80 space-y-1 text-[10px] text-slate-600">
+                  <div class="font-bold text-slate-800 text-[10px] mb-0.5">Destaques da Oferta:</div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-xs text-secondary font-bold">check</span>
+                    <span>Envio imediato em até 24 horas</span>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-xs text-secondary font-bold">check</span>
+                    <span>Produto original com garantia e suporte</span>
+                  </div>
+                </div>
+
+                <!-- Botão CTA Principal da Vitrine -->
+                <div class="pt-1">
+                  <a href="/planos/" class="w-full py-2.5 px-3 rounded-xl bg-secondary hover:bg-secondary-dark text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all">
+                    <span class="material-symbols-outlined text-sm">chat</span>
+                    <span>Pedir pelo WhatsApp</span>
+                    <span class="material-symbols-outlined text-xs">arrow_forward</span>
+                  </a>
+                </div>
+              </div>
+
+              <!-- Rodapé da Vitrine com Selo PostLink -->
+              <div class="py-2 px-3 bg-white border-t border-slate-100 text-center text-[10px] text-slate-500 flex items-center justify-center gap-1">
+                <img src="/favicon-32x32.png" alt="PostLink" class="w-3.5 h-3.5 rounded-xs">
+                <span>Página Segura por <strong>PostLink</strong></span>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- COLUNA DIREITA: 4 CARDS DE BENEFÍCIOS PRÁTICOS (7 colunas) -->
+        <div class="lg:col-span-7 space-y-4 text-left">
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            
+            <!-- Benefício 1: Galeria -->
+            <div class="bg-surface-container-lowest border border-outline-variant/70 rounded-2xl p-5 shadow-xs flex flex-col justify-between">
+              <div>
+                <div class="w-10 h-10 rounded-xl bg-primary-fixed text-primary flex items-center justify-center font-bold mb-3 shadow-2xs">
+                  <span class="material-symbols-outlined text-xl">photo_library</span>
+                </div>
+                <h3 class="text-base font-bold text-on-surface mb-1.5">Galeria com Várias Fotos</h3>
+                <p class="text-xs sm:text-sm text-on-surface-variant leading-relaxed">
+                  Mostre detalhes, cores e ângulos diferentes em um carrossel nítido. O cliente vê tudo sem que você precise mandar 10 fotos soltas no chat.
+                </p>
+              </div>
+            </div>
+
+            <!-- Benefício 2: Preço & Desconto -->
+            <div class="bg-surface-container-lowest border border-outline-variant/70 rounded-2xl p-5 shadow-xs flex flex-col justify-between">
+              <div>
+                <div class="w-10 h-10 rounded-xl bg-secondary-container text-on-secondary-container flex items-center justify-center font-bold mb-3 shadow-2xs">
+                  <span class="material-symbols-outlined text-xl">local_offer</span>
+                </div>
+                <h3 class="text-base font-bold text-on-surface mb-1.5">Preço De / Por com Desconto</h3>
+                <p class="text-xs sm:text-sm text-on-surface-variant leading-relaxed">
+                  Destaque o valor promocional com cálculo automático de economia (ex: -33% OFF). O senso de oportunidade acelera a tomada de decisão.
+                </p>
+              </div>
+            </div>
+
+            <!-- Benefício 3: Pagamento -->
+            <div class="bg-surface-container-lowest border border-outline-variant/70 rounded-2xl p-5 shadow-xs flex flex-col justify-between">
+              <div>
+                <div class="w-10 h-10 rounded-xl bg-primary-fixed text-primary flex items-center justify-center font-bold mb-3 shadow-2xs">
+                  <span class="material-symbols-outlined text-xl">credit_card</span>
+                </div>
+                <h3 class="text-base font-bold text-on-surface mb-1.5">Condições de Pagamento</h3>
+                <p class="text-xs sm:text-sm text-on-surface-variant leading-relaxed">
+                  Deixe claro se aceita Pix com desconto ou parcelamento sem juros no cartão, eliminando dúvidas comuns antes mesmo do cliente perguntar.
+                </p>
+              </div>
+            </div>
+
+            <!-- Benefício 4: Funil de Métricas -->
+            <div class="bg-surface-container-lowest border border-outline-variant/70 rounded-2xl p-5 shadow-xs flex flex-col justify-between">
+              <div>
+                <div class="w-10 h-10 rounded-xl bg-secondary-container text-on-secondary-container flex items-center justify-center font-bold mb-3 shadow-2xs">
+                  <span class="material-symbols-outlined text-xl">query_stats</span>
+                </div>
+                <h3 class="text-base font-bold text-on-surface mb-1.5">Métricas de Funil Real</h3>
+                <p class="text-xs sm:text-sm text-on-surface-variant leading-relaxed">
+                  Saiba exatamente quantas pessoas visualizaram a sua vitrine e quantas tocaram no botão para pedir. Métricas reais para guiar suas vendas.
+                </p>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Chamada de Ação Rápida -->
+          <div class="bg-surface-container-low border border-primary/20 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="text-left">
+              <span class="text-xs font-extrabold text-primary uppercase tracking-wider block mb-0.5">Sem Complicação</span>
+              <p class="text-xs sm:text-sm text-slate-700 font-medium">Você ativa a Página Vitrine no mesmo formulário onde cria o link comum.</p>
+            </div>
+            <a href="/planos/" class="bg-primary hover:bg-primary-container text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-xs active:scale-95 transition-all shrink-0 inline-flex items-center gap-1.5">
+              <span>Testar Página Vitrine</span>
+              <span class="material-symbols-outlined text-sm">arrow_forward</span>
+            </a>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- SEÇÃO: ASSISTENTE DE COPYWRITING COM INTELIGÊNCIA ARTIFICIAL -->
+    <section id="assistente-ia" class="px-4 sm:px-6 lg:px-8 py-16 sm:py-24 max-w-5xl mx-auto border-t border-outline-variant/50">
+      
+      <!-- Cabeçalho da Seção -->
+      <div class="text-center mb-12 sm:mb-16 max-w-3xl mx-auto">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-xs font-bold mb-3 border border-secondary/30">
+          <span class="material-symbols-outlined text-sm text-secondary-dark">auto_awesome</span>
+          <span>Inteligência Artificial Integrada</span>
+        </div>
+        <h2 class="text-2xl sm:text-4xl font-black text-on-surface tracking-tight leading-tight">
+          Crie anúncios vendedores em segundos: <br class="hidden sm:inline">
+          <span class="text-secondary-dark">Assistente de Copy com IA</span>
+        </h2>
+        <p class="text-sm sm:text-base text-on-surface-variant mt-3 leading-relaxed">
+          Acabe com a dúvida do que escrever. Nossa inteligência artificial sugere títulos persuasivos, descrições envolventes e a mensagem ideal para o seu cliente fechar pelo WhatsApp com 1 clique.
+        </p>
+      </div>
+
+      <!-- Simulador Interativo do Assistente de IA -->
+      <div class="bg-surface-container-lowest border border-outline-variant/70 rounded-3xl p-5 sm:p-8 shadow-xs text-left max-w-4xl mx-auto">
+        
+        <!-- Chips de Seleção de Nichos de Exemplo -->
+        <div class="mb-6">
+          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5">
+            Clique em um segmento para testar o Assistente de IA:
+          </label>
+          <div class="flex flex-wrap items-center gap-2">
+            <button type="button" onclick="selecionarNichoIa('doces', this)" class="btn-ia-nicho py-2 px-3.5 rounded-xl border border-primary bg-primary/10 text-primary text-xs font-bold flex items-center gap-1.5 shadow-2xs active:scale-95 transition-all">
+              <span class="material-symbols-outlined text-sm text-primary">cake</span>
+              <span>Doces & Confeitaria</span>
+            </button>
+            <button type="button" onclick="selecionarNichoIa('moda', this)" class="btn-ia-nicho py-2 px-3.5 rounded-xl border border-outline-variant bg-surface-container-low text-on-surface text-xs font-semibold flex items-center gap-1.5 hover:border-primary active:scale-95 transition-all">
+              <span class="material-symbols-outlined text-sm text-slate-500">apparel</span>
+              <span>Moda & Vestuário</span>
+            </button>
+            <button type="button" onclick="selecionarNichoIa('eletronicos', this)" class="btn-ia-nicho py-2 px-3.5 rounded-xl border border-outline-variant bg-surface-container-low text-on-surface text-xs font-semibold flex items-center gap-1.5 hover:border-primary active:scale-95 transition-all">
+              <span class="material-symbols-outlined text-sm text-slate-500">devices</span>
+              <span>Eletrônicos & Tech</span>
+            </button>
+            <button type="button" onclick="selecionarNichoIa('delivery', this)" class="btn-ia-nicho py-2 px-3.5 rounded-xl border border-outline-variant bg-surface-container-low text-on-surface text-xs font-semibold flex items-center gap-1.5 hover:border-primary active:scale-95 transition-all">
+              <span class="material-symbols-outlined text-sm text-slate-500">fastfood</span>
+              <span>Gastronomia & Lanches</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Linha de Entrada do Lojista -->
+        <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200/80 mb-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          <div class="flex-grow">
+            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">O que você digita no painel:</span>
+            <p id="ia-sim-input" class="text-sm font-semibold text-slate-800 mt-0.5">
+              "Bolo no pote artesanal sabor leite ninho com morango fresco"
+            </p>
+          </div>
+          <div class="inline-flex items-center gap-1.5 bg-secondary-container text-on-secondary-container px-3 py-1.5 rounded-xl text-xs font-extrabold border border-secondary/30 shrink-0 self-start sm:self-center">
+            <span class="material-symbols-outlined text-sm text-secondary-dark">bolt</span>
+            <span>Gerado em 2 segundos</span>
+          </div>
+        </div>
+
+        <!-- 3 Blocos de Resultados Gerados pela IA -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          
+          <!-- Resultado 1: Título -->
+          <div class="bg-surface-container-low border border-outline-variant/60 rounded-2xl p-4 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-extrabold text-primary uppercase tracking-wider flex items-center gap-1">
+                  <span class="material-symbols-outlined text-sm">title</span> Título de Impacto
+                </span>
+                <span class="text-[10px] font-bold bg-white text-slate-600 px-2 py-0.5 rounded border border-slate-200">Para o Cartão</span>
+              </div>
+              <p id="ia-sim-titulo" class="text-xs sm:text-sm font-bold text-slate-900 leading-snug">
+                🍓 Explosão de Ninho & Morango: O Bolo no Pote artesanal que vai adoçar seu dia!
+              </p>
+            </div>
+            <div class="mt-3 pt-2 border-t border-slate-200/60 text-[11px] text-slate-500 flex items-center gap-1">
+              <span class="material-symbols-outlined text-xs text-secondary font-bold">check</span>
+              <span>Gatilho de desejo ativado</span>
+            </div>
+          </div>
+
+          <!-- Resultado 2: Descrição -->
+          <div class="bg-surface-container-low border border-outline-variant/60 rounded-2xl p-4 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-extrabold text-primary uppercase tracking-wider flex items-center gap-1">
+                  <span class="material-symbols-outlined text-sm">description</span> Descrição Vendedora
+                </span>
+                <span class="text-[10px] font-bold bg-white text-slate-600 px-2 py-0.5 rounded border border-slate-200">Vitrine / Feed</span>
+              </div>
+              <p id="ia-sim-descricao" class="text-xs text-slate-700 leading-relaxed">
+                Camadas generosas de creme ninho aveludado e morangos frescos selecionados. Uma sobremesa irresistível feita hoje para você!
+              </p>
+            </div>
+            <div class="mt-3 pt-2 border-t border-slate-200/60 text-[11px] text-slate-500 flex items-center gap-1">
+              <span class="material-symbols-outlined text-xs text-secondary font-bold">check</span>
+              <span>Texto fluido e sem clichês</span>
+            </div>
+          </div>
+
+          <!-- Resultado 3: Mensagem WhatsApp -->
+          <div class="bg-surface-container-low border border-outline-variant/60 rounded-2xl p-4 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-extrabold text-secondary-dark uppercase tracking-wider flex items-center gap-1">
+                  <span class="material-symbols-outlined text-sm text-secondary">chat</span> Mensagem WhatsApp
+                </span>
+                <span class="text-[10px] font-bold bg-white text-slate-600 px-2 py-0.5 rounded border border-slate-200">Fechamento</span>
+              </div>
+              <p id="ia-sim-mensagem" class="text-xs text-slate-700 leading-relaxed font-mono bg-white p-2.5 rounded-xl border border-slate-200">
+                "Olá! Vi a oferta do Bolo no Pote no PostLink e quero garantir 2 unidades hoje mesmo!"
+              </p>
+            </div>
+            <div class="mt-3 pt-2 border-t border-slate-200/60 text-[11px] text-slate-500 flex items-center gap-1">
+              <span class="material-symbols-outlined text-xs text-secondary font-bold">check</span>
+              <span>Cliente chega pronto para pagar</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Barra de Benefício Final da IA -->
+        <div class="mt-6 pt-5 border-t border-outline-variant/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-base text-secondary font-bold">verified</span>
+            <span>Disponível diretamente na tela de criação de links no painel do lojista.</span>
+          </div>
+          <a href="/planos/" class="font-bold text-primary hover:text-secondary-dark inline-flex items-center gap-1">
+            <span>Experimentar no teste grátis</span>
+            <span class="material-symbols-outlined text-sm">arrow_forward</span>
+          </a>
+        </div>
+
+      </div>
+
+    </section>
+
     <!-- COMO FUNCIONA (3 PASSOS) -->
-    <section class="px-4 sm:px-6 py-16 sm:py-20 max-w-5xl mx-auto">
+    <section id="como-funciona" class="px-4 sm:px-6 py-16 sm:py-20 max-w-5xl mx-auto">
       <div class="text-center mb-12">
         <h2 class="text-2xl sm:text-3xl font-extrabold text-on-surface tracking-tight">Como funciona em 3 passos</h2>
         <p class="text-sm text-on-surface-variant mt-2 max-w-xl mx-auto">Crie links atraentes em menos de 1 minuto sem
@@ -550,10 +995,9 @@
               class="w-10 h-10 rounded-xl bg-primary-fixed text-primary flex items-center justify-center font-bold text-base mb-4 shadow-xs">
               1
             </div>
-            <h3 class="text-base font-bold text-on-surface mb-2">Suba a Foto da Oferta</h3>
+            <h3 class="text-base font-bold text-on-surface mb-2">Suba a Foto & Crie com IA</h3>
             <p class="text-sm text-on-surface-variant leading-relaxed">
-              Selecione uma foto da sua galeria. Nosso algoritmo converte sua imagem em um cartão leve de alta definição
-              que abre sozinho no WhatsApp sem salvar arquivos no celular do cliente.
+              Adicione a imagem da oferta para gerar o cartão em alta resolução e use nosso Assistente de IA para sugerir títulos chamativos e mensagens persuasivas em segundos.
             </p>
           </div>
         </div>
@@ -566,10 +1010,9 @@
               class="w-10 h-10 rounded-xl bg-secondary-container text-on-secondary-container flex items-center justify-center font-bold text-base mb-4 shadow-xs">
               2
             </div>
-            <h3 class="text-base font-bold text-on-surface mb-2">Defina o Destino Inteligente</h3>
+            <h3 class="text-base font-bold text-on-surface mb-2">Escolha Direto ou Página Vitrine</h3>
             <p class="text-sm text-on-surface-variant leading-relaxed">
-              Acabe com a foto que não leva a lugar nenhum: escolha se o clique abre uma conversa privada no seu
-              WhatsApp (com mensagem de compra pronta) ou se leva para o seu catálogo ou site.
+              Você decide a experiência do cliente: encaminhe direto para o seu WhatsApp/site ou encante com uma Página Vitrine exclusiva com fotos, preço promocional e benefícios.
             </p>
           </div>
         </div>
@@ -582,10 +1025,9 @@
               class="w-10 h-10 rounded-xl bg-primary-fixed text-primary flex items-center justify-center font-bold text-base mb-4 shadow-xs">
               3
             </div>
-            <h3 class="text-base font-bold text-on-surface mb-2">Envie, Encaminhe e Venda</h3>
+            <h3 class="text-base font-bold text-on-surface mb-2">Envie e Meça o Funil Real</h3>
             <p class="text-sm text-on-surface-variant leading-relaxed">
-              Cole o link gerado nos grupos e conversas. O cartão aparece aberto na hora, ninguém precisa baixar imagem
-              na galeria e você acompanha todos os cliques em tempo real no painel.
+              Cole o link nos grupos e conversas. O cartão abre na hora sem salvar arquivos no celular do cliente e você mede visualizações e pedidos em tempo real.
             </p>
           </div>
         </div>
@@ -733,6 +1175,137 @@
         });
       }
     })();
+  </script>
+
+  <!-- Scripts Interativos das Novas Funcionalidades (Hero Preview, Vitrine e Simulador IA) -->
+  <script>
+    // 1. Alternador de Prévia do Hero (Cartão WhatsApp vs Página Vitrine)
+    function alternarPreviaHero(modo) {
+      const tabWa = document.getElementById('tab-hero-whatsapp');
+      const tabVitrine = document.getElementById('tab-hero-vitrine');
+      const viewWa = document.getElementById('hero-view-whatsapp');
+      const viewVitrine = document.getElementById('hero-view-vitrine');
+
+      if (!tabWa || !tabVitrine || !viewWa || !viewVitrine) return;
+
+      if (modo === 'whatsapp') {
+        tabWa.className = 'flex-1 py-1.5 px-3 rounded-lg text-xs font-bold text-primary bg-primary/10 border border-primary/20 shadow-2xs transition-all flex items-center justify-center gap-1.5 active:scale-95';
+        tabVitrine.className = 'flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold text-slate-600 hover:text-primary transition-all flex items-center justify-center gap-1.5 active:scale-95 border-0 bg-transparent';
+        viewWa.classList.remove('hero-view-hidden');
+        viewWa.classList.add('hero-view-active');
+        viewVitrine.classList.remove('hero-view-active');
+        viewVitrine.classList.add('hero-view-hidden');
+      } else {
+        tabVitrine.className = 'flex-1 py-1.5 px-3 rounded-lg text-xs font-bold text-primary bg-primary/10 border border-primary/20 shadow-2xs transition-all flex items-center justify-center gap-1.5 active:scale-95';
+        tabWa.className = 'flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold text-slate-600 hover:text-primary transition-all flex items-center justify-center gap-1.5 active:scale-95 border-0 bg-transparent';
+        viewVitrine.classList.remove('hero-view-hidden');
+        viewVitrine.classList.add('hero-view-active');
+        viewWa.classList.remove('hero-view-active');
+        viewWa.classList.add('hero-view-hidden');
+      }
+    }
+
+    // 2. Troca de Foto na Mini-Vitrine do Hero
+    function trocarFotoHeroVitrine(src, btn) {
+      const img = document.getElementById('hero-vitrine-img');
+      if (img) {
+        img.style.opacity = '0.4';
+        setTimeout(() => {
+          img.src = src;
+          img.style.opacity = '1';
+        }, 120);
+      }
+      document.querySelectorAll('.hero-vitrine-thumb').forEach(b => {
+        b.className = 'hero-vitrine-thumb w-7 h-7 rounded border border-white/60 overflow-hidden opacity-70 hover:opacity-100 active:scale-95 transition-all';
+      });
+      if (btn) {
+        btn.className = 'hero-vitrine-thumb w-7 h-7 rounded border-2 border-white overflow-hidden active:scale-95 transition-all';
+      }
+    }
+
+    // 3. Troca de Foto no Mockup da Seção Vitrine
+    function trocarFotoVitrineSecao(src, btn) {
+      const img = document.getElementById('vitrine-demo-main-img');
+      if (img) {
+        img.style.opacity = '0.3';
+        setTimeout(() => {
+          img.src = src;
+          img.style.opacity = '1';
+        }, 120);
+      }
+      document.querySelectorAll('.vitrine-sec-thumb').forEach(b => {
+        b.className = 'vitrine-sec-thumb w-9 h-9 rounded-lg border border-slate-300 overflow-hidden opacity-70 hover:opacity-100 shadow-2xs active:scale-95 transition-all';
+      });
+      if (btn) {
+        btn.className = 'vitrine-sec-thumb w-9 h-9 rounded-lg border-2 border-primary overflow-hidden shadow-2xs active:scale-95 transition-all';
+      }
+    }
+
+    // 4. Simulador do Assistente de Copy com IA
+    const exemplosIa = {
+      doces: {
+        input: '"Bolo no pote artesanal sabor leite ninho com morango fresco"',
+        titulo: '🍓 Explosão de Ninho & Morango: O Bolo no Pote artesanal que vai adoçar seu dia!',
+        descricao: 'Camadas generosas de creme ninho aveludado e morangos frescos selecionados. Uma sobremesa irresistível feita hoje para você!',
+        mensagem: '"Olá! Vi a oferta do Bolo no Pote no PostLink e quero garantir 2 unidades hoje mesmo!"'
+      },
+      moda: {
+        input: '"Vestido midi linho puro com fenda lateral elegante"',
+        titulo: '✨ Elegância & Frescor: Vestido Midi em Linho Puro para Arrasar nesta Temporada!',
+        descricao: 'Caimento impecável, toque suave e acabamento de alta costura. Peça versátil do dia à noite com estoque limitado.',
+        mensagem: '"Olá! Adorei o Vestido Midi no PostLink. Ainda tem no tamanho M disponível para envio?"'
+      },
+      eletronicos: {
+        input: '"Fone sem fio bluetooth com cancelamento de ruído ativo"',
+        titulo: '🎧 Som Imersivo Sem Fio: Fone Bluetooth com Cancelamento de Ruído em Oferta!',
+        descricao: 'Bateria para até 30 horas, graves potentes e chamadas ultra nítidas. O companheiro perfeito para seus treinos e rotina.',
+        mensagem: '"Olá! Vi o fone sem fio no PostLink e quero saber se o frete é grátis para o meu CEP!"'
+      },
+      delivery: {
+        input: '"Hambúrguer artesanal duplo smash com cheddar e bacon crocante"',
+        titulo: '🍔 O Smash Duplo dos Sonhos: Blend 160g, Cheddar Derretido e Bacon Crocante!',
+        descricao: 'Pão brioche selado na manteiga, duas carnes suculentas grelhadas na brasa e maionese especial da casa. Peça e receba quentinho!',
+        mensagem: '"Olá! Quero pedir o Smash Duplo do PostLink com refrigerante e batata frita agora!"'
+      }
+    };
+
+    function selecionarNichoIa(nicho, btn) {
+      const data = exemplosIa[nicho];
+      if (!data) return;
+
+      const elInput = document.getElementById('ia-sim-input');
+      const elTit = document.getElementById('ia-sim-titulo');
+      const elDesc = document.getElementById('ia-sim-descricao');
+      const elMsg = document.getElementById('ia-sim-mensagem');
+
+      // Feedback suave de transição
+      [elInput, elTit, elDesc, elMsg].forEach(el => {
+        if (el) el.style.opacity = '0.3';
+      });
+
+      setTimeout(() => {
+        if (elInput) elInput.textContent = data.input;
+        if (elTit) elTit.textContent = data.titulo;
+        if (elDesc) elDesc.textContent = data.descricao;
+        if (elMsg) elMsg.textContent = data.mensagem;
+
+        [elInput, elTit, elDesc, elMsg].forEach(el => {
+          if (el) el.style.opacity = '1';
+        });
+      }, 150);
+
+      document.querySelectorAll('.btn-ia-nicho').forEach(b => {
+        b.className = 'btn-ia-nicho py-2 px-3.5 rounded-xl border border-outline-variant bg-surface-container-low text-on-surface text-xs font-semibold flex items-center gap-1.5 hover:border-primary active:scale-95 transition-all';
+        const icon = b.querySelector('.material-symbols-outlined');
+        if (icon) icon.className = 'material-symbols-outlined text-sm text-slate-500';
+      });
+
+      if (btn) {
+        btn.className = 'btn-ia-nicho py-2 px-3.5 rounded-xl border border-primary bg-primary/10 text-primary text-xs font-bold flex items-center gap-1.5 shadow-2xs active:scale-95 transition-all';
+        const icon = btn.querySelector('.material-symbols-outlined');
+        if (icon) icon.className = 'material-symbols-outlined text-sm text-primary';
+      }
+    }
   </script>
 
   <!-- Carregador Dinâmico das Configurações Oficiais (Banner, Título, Descrição) -->
