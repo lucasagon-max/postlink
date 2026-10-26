@@ -2692,7 +2692,6 @@ if (el.formLink) {
       } else {
         toast('Erro ao salvar link: ' + msg, 'error');
       }
-    }
     } finally {
       if (el.btnSubmeterLink) {
         el.btnSubmeterLink.disabled = false;
