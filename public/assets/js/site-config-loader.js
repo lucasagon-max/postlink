@@ -38,11 +38,12 @@
     // 4. Banner / Foto de Exemplo da Vitrine na Landing Page
     const bannerContainer = document.getElementById('hero-banner-container');
     const bannerImg = document.getElementById('hero-banner-img');
-    if (bannerImg) {
-      const bannerAtivo = config.banner_ativo !== false;
-      const vitrineUrl = (config.preview_imagem_url || config.banner_url || '').trim();
-      const defaultImg = '/assets/img/logotipo_postlink.jpg';
+    const heroVitrineImg = document.getElementById('hero-vitrine-img');
+    const vitrineUrl = (config.preview_imagem_url || config.banner_url || '').trim();
+    const bannerAtivo = config.banner_ativo !== false;
+    const defaultImg = '/assets/img/logotipo_postlink.jpg';
 
+    if (bannerImg) {
       if (bannerAtivo) {
         bannerImg.src = vitrineUrl ? vitrineUrl : defaultImg;
         if (bannerContainer) {
@@ -54,6 +55,10 @@
       }
     }
 
+    if (heroVitrineImg && vitrineUrl) {
+      heroVitrineImg.src = vitrineUrl;
+    }
+
     // 4.1. Textos da Pré-visualização de Exemplo na Landing Page
     const elPreviewTexto = document.getElementById('hero-preview-texto');
     if (elPreviewTexto && (config.preview_descricao || config.preview_texto)) {
@@ -61,8 +66,10 @@
     }
 
     const elPreviewTitulo = document.getElementById('hero-preview-titulo');
-    if (elPreviewTitulo && config.preview_titulo) {
-      elPreviewTitulo.textContent = config.preview_titulo;
+    const elVitrineTitulo = document.getElementById('hero-vitrine-titulo');
+    if (config.preview_titulo) {
+      if (elPreviewTitulo) elPreviewTitulo.textContent = config.preview_titulo;
+      if (elVitrineTitulo) elVitrineTitulo.textContent = config.preview_titulo;
     }
 
     const elPreviewSubtitulo = document.getElementById('hero-preview-subtitulo');

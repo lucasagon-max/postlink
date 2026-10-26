@@ -181,6 +181,12 @@ const el = {
   prevHeroPreviewSubtitulo: document.getElementById('prev-hero-preview-subtitulo'),
   prevHeroCtaTexto: document.getElementById('prev-hero-cta-texto'),
   prevHeroTopCta: document.getElementById('prev-hero-top-cta'),
+  btnPrevMiniTabWa: document.getElementById('btn-prev-mini-tab-wa'),
+  btnPrevMiniTabVitrine: document.getElementById('btn-prev-mini-tab-vitrine'),
+  prevHeroWaContainer: document.getElementById('prev-hero-wa-container'),
+  prevHeroVitrineContainer: document.getElementById('prev-hero-vitrine-container'),
+  prevHeroVitrineImg: document.getElementById('prev-hero-vitrine-img'),
+  prevHeroVitrineTitulo: document.getElementById('prev-hero-vitrine-titulo'),
   prevWaImg: document.getElementById('prev-wa-img'),
   prevWaPlaceholder: document.getElementById('prev-wa-placeholder'),
   prevWaTitulo: document.getElementById('prev-wa-titulo'),
@@ -969,9 +975,50 @@ function ativarPreviewFrame(tipo) {
   }
 }
 
+// Alterna entre o Cartão WhatsApp e a Página Vitrine na miniatura da Hero
+function alternarMiniPreviaAdmin(modo) {
+  const waContainer = el.prevHeroWaContainer || document.getElementById('prev-hero-wa-container');
+  const vitrineContainer = el.prevHeroVitrineContainer || document.getElementById('prev-hero-vitrine-container');
+  const btnWa = el.btnPrevMiniTabWa || document.getElementById('btn-prev-mini-tab-wa');
+  const btnVitrine = el.btnPrevMiniTabVitrine || document.getElementById('btn-prev-mini-tab-vitrine');
+
+  if (modo === 'wa') {
+    if (waContainer) {
+      waContainer.classList.remove('hidden');
+      waContainer.style.display = 'block';
+    }
+    if (vitrineContainer) {
+      vitrineContainer.classList.add('hidden');
+      vitrineContainer.style.display = 'none';
+    }
+    if (btnWa) {
+      btnWa.className = 'flex-1 py-0.5 px-1.5 rounded-md font-bold bg-white text-primary shadow-2xs transition-all';
+    }
+    if (btnVitrine) {
+      btnVitrine.className = 'flex-1 py-0.5 px-1.5 rounded-md font-medium text-on-surface-variant hover:text-on-surface transition-all';
+    }
+  } else {
+    if (vitrineContainer) {
+      vitrineContainer.classList.remove('hidden');
+      vitrineContainer.style.display = 'block';
+    }
+    if (waContainer) {
+      waContainer.classList.add('hidden');
+      waContainer.style.display = 'none';
+    }
+    if (btnVitrine) {
+      btnVitrine.className = 'flex-1 py-0.5 px-1.5 rounded-md font-bold bg-white text-primary shadow-2xs transition-all';
+    }
+    if (btnWa) {
+      btnWa.className = 'flex-1 py-0.5 px-1.5 rounded-md font-medium text-on-surface-variant hover:text-on-surface transition-all';
+    }
+  }
+}
+
 // Exporta globalmente para máxima disponibilidade e suporte a cliques
 window.alternarSubabaSite = alternarSubabaSite;
 window.ativarPreviewFrame = ativarPreviewFrame;
+window.alternarMiniPreviaAdmin = alternarMiniPreviaAdmin;
 
 // Carrega as configurações do site oficial do Supabase
 async function carregarConfiguracoesSite() {
@@ -982,9 +1029,9 @@ async function carregarConfiguracoesSite() {
     state.siteConfig = data || {
       id: 'oficial',
       titulo: 'Transforme ofertas em cartões em alta definição que abrem sozinhos e vendem no WhatsApp',
-      descricao: 'Quase ninguém baixa fotos avulsas no WhatsApp para não lotar a memória do celular — e mesmo quem baixa não vai a lugar nenhum ao clicar na foto. Com o PostLink, seu produto já aparece aberto na conversa, sem ocupar a galeria do cliente e direcionando para o seu atendimento com 1 clique.',
+      descricao: 'Crie anúncios magnéticos com o apoio de Inteligência Artificial, compartilhe cartões em alta definição que abrem sozinhos no WhatsApp e direcione clientes para sua própria Página Vitrine com fotos, preço promocional e botão de pedido direto.',
       banner_url: null,
-      badge_texto: 'Abre direto no WhatsApp · Zero fotos na galeria do cliente',
+      badge_texto: 'Cartões HD · Página Vitrine · Criação com IA',
       cta_texto: 'Começar Grátis',
       cta_url: '/planos/',
       banner_ativo: true,
@@ -1206,6 +1253,14 @@ function atualizarLivePreviewSite() {
     if (el.prevHeroBannerImg) el.prevHeroBannerImg.classList.add('hidden');
     if (el.prevHeroBannerPlaceholder) el.prevHeroBannerPlaceholder.classList.remove('hidden');
     if (el.prevHeroBannerTag) el.prevHeroBannerTag.classList.add('hidden');
+  }
+
+  // Atualiza também a prévia da Página Vitrine na miniatura
+  if (el.prevHeroVitrineImg) {
+    el.prevHeroVitrineImg.src = vitrineImg || '/assets/img/ex02.png';
+  }
+  if (el.prevHeroVitrineTitulo) {
+    el.prevHeroVitrineTitulo.textContent = previewTitulo;
   }
 
   // --- B. RENDERIZAÇÃO DO WHATSAPP CARD (LINK OFICIAL POSTLINK) ---
@@ -1489,8 +1544,8 @@ async function salvarConfiguracoesSite() {
 function restaurarPadraoSite() {
   const padrao = {
     titulo: 'Transforme ofertas em cartões em alta definição que abrem sozinhos e vendem no WhatsApp',
-    descricao: 'Quase ninguém baixa fotos avulsas no WhatsApp para não lotar a memória do celular — e mesmo quem baixa não vai a lugar nenhum ao clicar na foto. Com o PostLink, seu produto já aparece aberto na conversa, sem ocupar a galeria do cliente e direcionando para o seu atendimento com 1 clique.',
-    badge_texto: 'Abre direto no WhatsApp · Zero fotos na galeria do cliente',
+    descricao: 'Crie anúncios magnéticos com o apoio de Inteligência Artificial, compartilhe cartões em alta definição que abrem sozinhos no WhatsApp e direcione clientes para sua própria Página Vitrine com fotos, preço promocional e botão de pedido direto.',
+    badge_texto: 'Cartões HD · Página Vitrine · Criação com IA',
     cta_texto: 'Começar Grátis',
     cta_url: '/planos/',
     banner_url: null,
@@ -1556,6 +1611,20 @@ function configurarEventosEditorSite() {
     if (btnHero) {
       e.preventDefault();
       ativarPreviewFrame('hero');
+      return;
+    }
+
+    const btnMiniWa = e.target.closest('#btn-prev-mini-tab-wa');
+    if (btnMiniWa) {
+      e.preventDefault();
+      alternarMiniPreviaAdmin('wa');
+      return;
+    }
+
+    const btnMiniVitrine = e.target.closest('#btn-prev-mini-tab-vitrine');
+    if (btnMiniVitrine) {
+      e.preventDefault();
+      alternarMiniPreviaAdmin('vitrine');
       return;
     }
   });
@@ -1794,6 +1863,10 @@ function configurarEventosEditorSite() {
   if (el.btnPreviewTabHero && el.btnPreviewTabWa) {
     el.btnPreviewTabHero.addEventListener('click', () => ativarPreviewFrame('hero'));
     el.btnPreviewTabWa.addEventListener('click', () => ativarPreviewFrame('wa'));
+  }
+  if (el.btnPrevMiniTabWa && el.btnPrevMiniTabVitrine) {
+    el.btnPrevMiniTabWa.addEventListener('click', () => alternarMiniPreviaAdmin('wa'));
+    el.btnPrevMiniTabVitrine.addEventListener('click', () => alternarMiniPreviaAdmin('vitrine'));
   }
 
   // 5. Botões de Ação
