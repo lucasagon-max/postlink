@@ -876,10 +876,20 @@
     // Checar se já está logado (apenas se NÃO for recuperação de senha)
     async function checarSessao() {
       if (modoRedefinicaoAtivo) return;
-      const { data: { session } } = await sb.auth.getSession();
-      if (session && !modoRedefinicaoAtivo) {
-        redirecionarAposAuth();
-      }
+      try {
+        const { data: { session } } = await sb.auth.getSession();
+        if (session && !modoRedefinicaoAtivo) {
+          // Se o token estiver expirado, tenta renovar antes de redirecionar
+          if (session.expires_at && (session.expires_at * 1000) <= (Date.now() + 60000)) {
+            const { data: refData, error: refErr } = await sb.auth.refreshSession();
+            if (refErr || !refData?.session) {
+              await sb.auth.signOut();
+              return;
+            }
+          }
+          redirecionarAposAuth();
+        }
+      } catch (_) {}
     }
     checarSessao();
 

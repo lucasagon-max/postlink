@@ -627,82 +627,160 @@ async function init() {
     }
   });
 
-  const { data: { session } } = await sb.auth.getSession();
-  if (!session) {
-    if (window.location.hash.includes('access_token')) {
+  try {
+    const { data: { session }, error: sessionErr } = await sb.auth.getSession();
+    if (!session || sessionErr) {
+      if (window.location.hash.includes('access_token')) {
+        return;
+      }
+      window.location.href = '/login/';
       return;
     }
+
+    // Se o token estiver expirado ou muito próximo de expirar (< 60s), renova antes de inicializar
+    let sessaoAtiva = session;
+    if (session.expires_at && (session.expires_at * 1000) <= (Date.now() + 60000)) {
+      try {
+        const { data: refreshData, error: refreshErr } = await sb.auth.refreshSession();
+        if (!refreshErr && refreshData?.session) {
+          sessaoAtiva = refreshData.session;
+        } else {
+          console.warn('[PostLink] Token expirado e falha na renovação automática. Redirecionando para login.');
+          await sb.auth.signOut();
+          window.location.href = '/login/';
+          return;
+        }
+      } catch (errRef) {
+        console.warn('[PostLink] Erro no refresh de sessão:', errRef);
+        await sb.auth.signOut();
+        window.location.href = '/login/';
+        return;
+      }
+    }
+
+    state.user = sessaoAtiva.user;
+    await carregarDadosLojaEAssinatura();
+  } catch (errInit) {
+    console.error('[PostLink] Erro na inicialização:', errInit);
     window.location.href = '/login/';
-    return;
   }
-  state.user = session.user;
-  await carregarDadosLojaEAssinatura();
 }
 
 async function carregarDadosLojaEAssinatura() {
-  const { data: lojas, error: errLoja } = await sb
-    .from('lojas')
-    .select('*')
-    .eq('id', state.user.id);
-
-  if (errLoja) {
-    toast('Erro ao carregar dados da loja: ' + errLoja.message, 'error');
-    return;
-  }
-
-  if (!lojas || lojas.length === 0) {
-    mostrarView('onboarding');
-    if (el.onboardingPrefixo) {
-      el.onboardingPrefixo.textContent = window.location.origin + '/';
-    }
-    return;
-  }
-
-  state.loja = lojas[0];
-  if (el.navLojaNome) {
-    el.navLojaNome.textContent = state.loja.nome;
-  }
-  if (el.btnNovoLinkTop) {
-    el.btnNovoLinkTop.style.display = 'inline-flex';
-    el.btnNovoLinkTop.classList.remove('hidden');
-  }
-  if (el.btnGaleriaTop) {
-    el.btnGaleriaTop.style.display = 'inline-flex';
-    el.btnGaleriaTop.classList.remove('hidden');
-  }
-
-  const { data: assinaturas } = await sb
-    .from('assinaturas')
-    .select('*')
-    .eq('loja_id', state.loja.id);
-
-  if (assinaturas && assinaturas.length > 0) {
-    state.assinatura = assinaturas[0];
-    atualizarBarraAssinatura();
-  }
-
-  // Carrega status de cota diária do assistente de IA
-  carregarStatusIa();
-
-  // Verifica se o usuário veio de um fluxo de compra direta de plano
   try {
-    const pendenteRaw = localStorage.getItem('postlink_checkout_pendente');
-    if (pendenteRaw) {
-      const pendente = JSON.parse(pendenteRaw);
-      localStorage.removeItem('postlink_checkout_pendente');
-      if (pendente && pendente.plano) {
-        planoSelecionado = pendente.plano;
-        billingCycle = pendente.ciclo === 'anual' ? 'yearly' : 'monthly';
-        window.location.hash = '#/plano';
-        setTimeout(() => {
-          toast(`Plano ${DADOS_EXIBICAO_PLANOS[planoSelecionado]?.nome || ''} pré-selecionado! Escolha a forma de pagamento abaixo.`, 'info');
-        }, 300);
-      }
-    }
-  } catch(e) {}
+    const { data: lojas, error: errLoja } = await sb
+      .from('lojas')
+      .select('*')
+      .eq('id', state.user.id);
 
-  window.addEventListener('hashchange', router);
-  router();
+    if (errLoja) {
+      console.warn('[PostLink] Erro ao carregar lojas:', errLoja);
+      const isAuthErr = errLoja.message?.toLowerCase().includes('jwt') || 
+                        errLoja.message?.toLowerCase().includes('expired') || 
+                        errLoja.code === 'PGRST301' || 
+                        errLoja.status === 401;
+
+      if (isAuthErr) {
+        try {
+          const { data: refreshData, error: refreshErr } = await sb.auth.refreshSession();
+          if (!refreshErr && refreshData?.session) {
+            state.user = refreshData.session.user;
+            return await carregarDadosLojaEAssinatura();
+          }
+        } catch (_) {}
+
+        await sb.auth.signOut();
+        toast('Sua sessão expirou. Redirecionando para login...', 'info');
+        setTimeout(() => { window.location.href = '/login/'; }, 1000);
+        return;
+      }
+
+      toast('Erro ao carregar dados da loja: ' + errLoja.message, 'error');
+      if (el.viewLoading) {
+        el.viewLoading.innerHTML = `
+          <div class="max-w-md mx-auto p-6 bg-surface-container-lowest rounded-2xl border border-error/30 text-center shadow-lg">
+            <span class="material-symbols-outlined text-4xl text-error mb-2">error</span>
+            <h3 class="text-base font-bold text-on-surface mb-1">Não foi possível carregar o painel</h3>
+            <p class="text-xs text-on-surface-variant mb-4">${errLoja.message}</p>
+            <div class="flex items-center justify-center gap-3">
+              <button onclick="window.location.reload()" class="px-4 py-2 bg-primary text-white text-xs font-bold rounded-lg hover:bg-primary-container transition-colors">Tentar novamente</button>
+              <a href="/login/" onclick="localStorage.clear()" class="px-4 py-2 bg-surface-container text-on-surface text-xs font-bold rounded-lg border border-outline-variant hover:bg-surface-container-high transition-colors">Fazer Login</a>
+            </div>
+          </div>
+        `;
+      }
+      return;
+    }
+
+    if (!lojas || lojas.length === 0) {
+      mostrarView('onboarding');
+      if (el.onboardingPrefixo) {
+        el.onboardingPrefixo.textContent = window.location.origin + '/';
+      }
+      return;
+    }
+
+    state.loja = lojas[0];
+    if (el.navLojaNome) {
+      el.navLojaNome.textContent = state.loja.nome;
+    }
+    if (el.btnNovoLinkTop) {
+      el.btnNovoLinkTop.style.display = 'inline-flex';
+      el.btnNovoLinkTop.classList.remove('hidden');
+    }
+    if (el.btnGaleriaTop) {
+      el.btnGaleriaTop.style.display = 'inline-flex';
+      el.btnGaleriaTop.classList.remove('hidden');
+    }
+
+    const { data: assinaturas } = await sb
+      .from('assinaturas')
+      .select('*')
+      .eq('loja_id', state.loja.id);
+
+    if (assinaturas && assinaturas.length > 0) {
+      state.assinatura = assinaturas[0];
+      atualizarBarraAssinatura();
+    }
+
+    // Carrega status de cota diária do assistente de IA
+    carregarStatusIa();
+
+    // Verifica se o usuário veio de um fluxo de compra direta de plano
+    try {
+      const pendenteRaw = localStorage.getItem('postlink_checkout_pendente');
+      if (pendenteRaw) {
+        const pendente = JSON.parse(pendenteRaw);
+        localStorage.removeItem('postlink_checkout_pendente');
+        if (pendente && pendente.plano) {
+          planoSelecionado = pendente.plano;
+          billingCycle = pendente.ciclo === 'anual' ? 'yearly' : 'monthly';
+          window.location.hash = '#/plano';
+          setTimeout(() => {
+            toast(`Plano ${DADOS_EXIBICAO_PLANOS[planoSelecionado]?.nome || ''} pré-selecionado! Escolha a forma de pagamento abaixo.`, 'info');
+          }, 300);
+        }
+      }
+    } catch(e) {}
+
+    window.addEventListener('hashchange', router);
+    router();
+  } catch (errGlobal) {
+    console.error('[PostLink] Erro crítico no carregamento do painel:', errGlobal);
+    if (el.viewLoading) {
+      el.viewLoading.innerHTML = `
+        <div class="max-w-md mx-auto p-6 bg-surface-container-lowest rounded-2xl border border-error/30 text-center shadow-lg">
+          <span class="material-symbols-outlined text-4xl text-error mb-2">warning</span>
+          <h3 class="text-base font-bold text-on-surface mb-1">Falha ao inicializar painel</h3>
+          <p class="text-xs text-on-surface-variant mb-4">${errGlobal.message || 'Erro inesperado'}</p>
+          <div class="flex items-center justify-center gap-3">
+            <button onclick="window.location.reload()" class="px-4 py-2 bg-primary text-white text-xs font-bold rounded-lg hover:bg-primary-container transition-colors">Tentar novamente</button>
+            <a href="/login/" onclick="localStorage.clear()" class="px-4 py-2 bg-surface-container text-on-surface text-xs font-bold rounded-lg border border-outline-variant hover:bg-surface-container-high transition-colors">Fazer Login</a>
+          </div>
+        </div>
+      `;
+    }
+  }
 }
 
 function atualizarBarraAssinatura() {
