@@ -2443,6 +2443,29 @@ if (el.formLink) {
     }
 
     try {
+      // 1. Garantir que a sessão de autenticação do lojista está ativa e com token renovado
+      let userAtual = state.user;
+      try {
+        const { data: sessionData } = await sb.auth.getSession();
+        let session = sessionData?.session;
+        if (!session) {
+          const { data: refreshData, error: refreshErr } = await sb.auth.refreshSession();
+          if (!refreshErr && refreshData?.session) {
+            session = refreshData.session;
+          }
+        }
+        if (session && session.user) {
+          state.user = session.user;
+          userAtual = session.user;
+        } else {
+          toast('Sua sessão expirou por segurança. Faça login novamente para salvar.', 'error');
+          setTimeout(() => { window.location.href = '/login/'; }, 1500);
+          return;
+        }
+      } catch (authErr) {
+        console.warn('Verificação de sessão preventiva:', authErr);
+      }
+
       const titulo = (el.inputTitulo && el.inputTitulo.value.trim()) || null;
       const descricao = (el.inputDescricao && el.inputDescricao.value.trim()) || null;
       const slugDesejado = (el.inputSlug && limparSlug(el.inputSlug.value.trim())) || null;
@@ -2466,7 +2489,7 @@ if (el.formLink) {
         let caminhoImagem = state.linkEditando.imagem_path;
 
         if (state.arquivoBlob) {
-          caminhoImagem = `${state.user.id}/${state.linkEditando.id}-v${versao}.jpg`;
+          caminhoImagem = `${userAtual.id}/${state.linkEditando.id}-v${versao}.jpg`;
           const resUp = await uploadImagemOtimizada(state.arquivoBlob, caminhoImagem);
           caminhoImagem = resUp.caminho;
         } else if (state.fotoSelecionadaGaleria) {
@@ -2522,7 +2545,7 @@ if (el.formLink) {
           // Reutiliza imagem salva da galeria (zero upload redundante!)
           caminhoImagem = state.fotoSelecionadaGaleria;
         } else {
-          caminhoImagem = `${state.user.id}/${linkId}-v${versao}.jpg`;
+          caminhoImagem = `${userAtual.id}/${linkId}-v${versao}.jpg`;
           const resUp = await uploadImagemOtimizada(state.arquivoBlob, caminhoImagem);
           caminhoImagem = resUp.caminho;
         }
@@ -2534,7 +2557,7 @@ if (el.formLink) {
           const slugTentativa = slugFinal || slugAleatorio();
           const { error: errInsert } = await sb.from('links').insert({
             id: linkId,
-            loja_id: state.user.id,
+            loja_id: userAtual.id,
             slug: slugTentativa,
             destino,
             imagem_path: caminhoImagem,
@@ -2585,7 +2608,13 @@ if (el.formLink) {
         carregarGaleriaFotos(true);
       }
     } catch (err) {
-      toast('Erro ao salvar link: ' + err.message, 'error');
+      const msg = err.message || '';
+      if (msg.includes('row-level security') || err.code === '42501') {
+        toast('Sua sessão expirou ou não tem permissão para esta loja. Faça login novamente.', 'error');
+      } else {
+        toast('Erro ao salvar link: ' + msg, 'error');
+      }
+    }
     } finally {
       if (el.btnSubmeterLink) {
         el.btnSubmeterLink.disabled = false;
