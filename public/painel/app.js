@@ -566,6 +566,9 @@ async function uploadImagemOtimizada(blob, caminhoDesejado = '') {
       if (data && data.sucesso && data.caminho) {
         return { caminho: data.caminho, url: data.url };
       }
+    } else {
+      const erroApi = await res.json().catch(() => null);
+      console.warn('[PostLink] Upload via /api/upload-imagem falhou:', res.status, erroApi);
     }
   } catch (errApi) {
     console.warn('[PostLink] Fallback para armazenamento de transição:', errApi);
@@ -574,7 +577,10 @@ async function uploadImagemOtimizada(blob, caminhoDesejado = '') {
   // Fallback seguro caso o endpoint de alta velocidade não esteja acessível
   const caminhoPadrao = caminhoDesejado || `${state.user.id}/${Date.now()}.jpg`;
   const { error } = await sb.storage.from('banners').upload(caminhoPadrao, blob, { contentType: 'image/jpeg', upsert: true });
-  if (error) throw error;
+  if (error) {
+    console.error('[PostLink Storage] Erro no upload do banner:', error);
+    throw new Error('Falha no upload da imagem (Storage): ' + (error.message || 'Permissão negada'));
+  }
   const { data: { publicUrl } } = sb.storage.from('banners').getPublicUrl(caminhoPadrao);
   return { caminho: caminhoPadrao, url: publicUrl };
 }
@@ -608,6 +614,65 @@ function adicionarParametroUrl(urlStr, chave, valor) {
     const separador = urlStr.includes('?') ? '&' : '?';
     return `${urlStr}${separador}${encodeURIComponent(chave)}=${encodeURIComponent(valor)}`;
   }
+}
+
+// Manter sessão ativa enquanto o usuário estiver trabalhando no painel
+function iniciarKeepAliveSessao() {
+  if (window.__postlinkKeepAliveIniciado) return;
+  window.__postlinkKeepAliveIniciado = true;
+
+  // 1. Checagem periódica a cada 5 minutos
+  setInterval(async () => {
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      if (session && session.expires_at) {
+        const tempoRestanteMs = (session.expires_at * 1000) - Date.now();
+        // Se faltar menos de 10 minutos para expirar o JWT, renova em background
+        if (tempoRestanteMs < 600000) {
+          console.log('[PostLink] Sessão próxima de expirar. Renovando token automaticamente...');
+          const { data, error } = await sb.auth.refreshSession();
+          if (!error && data?.session) {
+            state.user = data.session.user;
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('[PostLink Keep-Alive] Falha ao verificar/renovar sessão:', err);
+    }
+  }, 5 * 60 * 1000);
+
+  // 2. Renovar caso a aba do navegador seja reativada
+  window.addEventListener('focus', async () => {
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      if (session && session.expires_at && (session.expires_at * 1000) <= (Date.now() + 180000)) {
+        const { data, error } = await sb.auth.refreshSession();
+        if (!error && data?.session) {
+          state.user = data.session.user;
+        }
+      }
+    } catch (_) {}
+  });
+
+  // 3. Atualizar atividade do usuário em eventos de interação
+  let ultimoPingInteracao = Date.now();
+  const registrarAtividade = async () => {
+    const agora = Date.now();
+    // Throttle de 10 minutos para evitar chamadas excessivas
+    if (agora - ultimoPingInteracao > 10 * 60 * 1000) {
+      ultimoPingInteracao = agora;
+      try {
+        const { data: { session } } = await sb.auth.getSession();
+        if (session && session.expires_at && (session.expires_at * 1000) <= (Date.now() + 600000)) {
+          await sb.auth.refreshSession();
+        }
+      } catch (_) {}
+    }
+  };
+
+  ['click', 'keydown', 'touchstart'].forEach(evt => {
+    window.addEventListener(evt, registrarAtividade, { passive: true });
+  });
 }
 
 // Inicialização da Sessão
@@ -659,6 +724,7 @@ async function init() {
     }
 
     state.user = sessaoAtiva.user;
+    iniciarKeepAliveSessao();
     await carregarDadosLojaEAssinatura();
   } catch (errInit) {
     console.error('[PostLink] Erro na inicialização:', errInit);
@@ -2600,7 +2666,10 @@ if (el.formLink) {
           })
           .eq('id', state.linkEditando.id);
 
-        if (errUpdate) throw errUpdate;
+        if (errUpdate) {
+          console.error('[PostLink Database] Erro no update do link:', errUpdate);
+          throw new Error('Falha ao atualizar link no banco (RLS): ' + (errUpdate.message || 'Permissão negada'));
+        }
 
         toast(`Link atualizado com sucesso! (Versão ${versao})`, 'success');
         const linkPronto = montarUrlLink(state.loja.slug, slugFinal, versao);
@@ -2669,14 +2738,15 @@ if (el.formLink) {
           }
 
           if (!state.fotoSelecionadaGaleria) {
-            await sb.storage.from('banners').remove([caminhoImagem]);
+            await sb.storage.from('banners').remove([caminhoImagem]).catch(() => {});
           }
-          throw errInsert;
+          console.error('[PostLink Database] Erro no insert do link:', errInsert);
+          throw new Error('Falha ao gravar link no banco (RLS): ' + (errInsert.message || 'Permissão negada'));
         }
 
         if (!sucesso) {
           if (!state.fotoSelecionadaGaleria) {
-            await sb.storage.from('banners').remove([caminhoImagem]);
+            await sb.storage.from('banners').remove([caminhoImagem]).catch(() => {});
           }
           throw new Error('Não foi possível gerar um apelido livre para o link. Tente outro.');
         }
@@ -2686,9 +2756,23 @@ if (el.formLink) {
         carregarGaleriaFotos(true);
       }
     } catch (err) {
+      console.error('[PostLink] Erro detalhado ao submeter link:', err);
       const msg = err.message || '';
-      if (msg.includes('row-level security') || err.code === '42501') {
-        toast('Sua sessão expirou ou não tem permissão para esta loja. Faça login novamente.', 'error');
+
+      let sessaoValida = null;
+      try {
+        const { data } = await sb.auth.getSession();
+        sessaoValida = data?.session;
+      } catch (_) {}
+
+      if (!sessaoValida) {
+        toast('Sua sessão foi encerrada. Faça login novamente.', 'error');
+        setTimeout(() => { window.location.href = '/login/'; }, 2000);
+        return;
+      }
+
+      if (msg.includes('row-level security') || err.code === '42501' || msg.includes('(RLS)') || msg.includes('(Storage)')) {
+        toast(msg || 'Permissão negada pelas políticas do Supabase (RLS). Execute a migration de permissões no Supabase.', 'error');
       } else {
         toast('Erro ao salvar link: ' + msg, 'error');
       }
