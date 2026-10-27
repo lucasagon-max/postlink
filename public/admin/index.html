@@ -545,27 +545,42 @@
           <!-- COLUNA ESQUERDA: FORMULÁRIO DE EDIÇÃO (7 colunas em telas grandes) -->
           <div class="lg:col-span-7 space-y-5">
 
-            <!-- SELETOR DE SUB-ABAS DE EDIÇÃO -->
-            <div class="bg-surface-container-lowest border border-outline-variant/60 rounded-2xl p-2 shadow-xs flex flex-wrap items-center gap-2">
-              <button type="button" id="btn-subtab-landing" data-subtab="landing" onclick="window.alternarSubabaSite && window.alternarSubabaSite('landing')" class="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all bg-primary text-white shadow-2xs cursor-pointer">
-                <span class="material-symbols-outlined text-base">view_quilt</span>
-                <span>1. Hero &amp; WhatsApp</span>
-                <span id="subtab-badge-landing" class="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-white/20 text-white">Anúncio &amp; Headline</span>
-              </button>
-              <button type="button" id="btn-subtab-vitrine" data-subtab="vitrine" onclick="window.alternarSubabaSite && window.alternarSubabaSite('vitrine')" class="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-medium transition-all text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface cursor-pointer">
-                <span class="material-symbols-outlined text-base">collections</span>
-                <span>2. Galeria &amp; Página Vitrine</span>
-                <span id="subtab-badge-vitrine" class="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-primary/10 text-primary">Carrossel &amp; Oferta</span>
-              </button>
-              <button type="button" id="btn-subtab-oficial" data-subtab="oficial" onclick="window.alternarSubabaSite && window.alternarSubabaSite('oficial')" class="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-medium transition-all text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface cursor-pointer">
-                <span class="material-symbols-outlined text-base">share</span>
-                <span>3. Link Oficial PostLink</span>
-                <span id="subtab-badge-oficial" class="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-800">WhatsApp / Redes</span>
-              </button>
+            <!-- SELETOR DE SUB-ABAS DE EDIÇÃO POR SEÇÃO (7 SEÇÕES) -->
+            <div class="bg-surface-container-lowest border border-outline-variant/60 rounded-2xl p-2 shadow-xs">
+              <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+                <button type="button" id="btn-subtab-hero" data-subtab="hero" onclick="window.alternarSubabaSite && window.alternarSubabaSite('hero')" class="site-subtab-btn flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all bg-primary text-white shadow-2xs whitespace-nowrap cursor-pointer shrink-0">
+                  <span class="material-symbols-outlined text-base">view_quilt</span>
+                  <span>1. Hero &amp; WhatsApp</span>
+                </button>
+                <button type="button" id="btn-subtab-dores" data-subtab="dores" onclick="window.alternarSubabaSite && window.alternarSubabaSite('dores')" class="site-subtab-btn flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface whitespace-nowrap cursor-pointer shrink-0">
+                  <span class="material-symbols-outlined text-base">warning</span>
+                  <span>2. Dores &amp; Barreiras</span>
+                </button>
+                <button type="button" id="btn-subtab-comparativo" data-subtab="comparativo" onclick="window.alternarSubabaSite && window.alternarSubabaSite('comparativo')" class="site-subtab-btn flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface whitespace-nowrap cursor-pointer shrink-0">
+                  <span class="material-symbols-outlined text-base">compare_arrows</span>
+                  <span>3. Comparativo HD</span>
+                </button>
+                <button type="button" id="btn-subtab-vitrine" data-subtab="vitrine" onclick="window.alternarSubabaSite && window.alternarSubabaSite('vitrine')" class="site-subtab-btn flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface whitespace-nowrap cursor-pointer shrink-0">
+                  <span class="material-symbols-outlined text-base">collections</span>
+                  <span>4. Página Vitrine</span>
+                </button>
+                <button type="button" id="btn-subtab-passos" data-subtab="passos" onclick="window.alternarSubabaSite && window.alternarSubabaSite('passos')" class="site-subtab-btn flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface whitespace-nowrap cursor-pointer shrink-0">
+                  <span class="material-symbols-outlined text-base">steps</span>
+                  <span>5. Como Funciona</span>
+                </button>
+                <button type="button" id="btn-subtab-cta-final" data-subtab="cta_final" onclick="window.alternarSubabaSite && window.alternarSubabaSite('cta_final')" class="site-subtab-btn flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface whitespace-nowrap cursor-pointer shrink-0">
+                  <span class="material-symbols-outlined text-base">stars</span>
+                  <span>6. Chamada Final</span>
+                </button>
+                <button type="button" id="btn-subtab-oficial" data-subtab="oficial" onclick="window.alternarSubabaSite && window.alternarSubabaSite('oficial')" class="site-subtab-btn flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface whitespace-nowrap cursor-pointer shrink-0">
+                  <span class="material-symbols-outlined text-base">share</span>
+                  <span>7. Link Oficial</span>
+                </button>
+              </div>
             </div>
 
-            <!-- SUB-ABA 1: EXEMPLO NA LANDING PAGE (VITRINE DO PRODUTO + HERO) -->
-            <div id="subtab-pane-landing" class="space-y-5">
+            <!-- SEÇÃO 1: HERO & WHATSAPP CARD -->
+            <div id="subtab-pane-hero" class="site-subtab-pane space-y-5">
 
               <!-- CARD 1: CARTÃO DE PRÉ-VISUALIZAÇÃO DE EXEMPLO (DEMONSTRAÇÃO DA LANDING PAGE) -->
               <div class="bg-surface-container-lowest border-2 border-primary/20 rounded-2xl p-5 shadow-xs space-y-5">
@@ -713,7 +728,7 @@
                     <span class="material-symbols-outlined text-lg">edit_note</span>
                   </div>
                   <div>
-                    <h2 class="text-sm font-bold text-on-surface">Textos da Hero (Lado Esquerdo do Site)</h2>
+                    <h2 class="text-sm font-bold text-on-surface">Textos da Hero (Headline Principal)</h2>
                     <p class="text-[11px] text-on-surface-variant">Defina a proposta de valor e apresentação que o visitante lê ao entrar</p>
                   </div>
                 </div>
@@ -734,9 +749,6 @@
                     <span id="site-titulo-contador" class="text-[10px] font-mono text-outline font-semibold">0 / 120</span>
                   </div>
                   <textarea id="site-input-titulo" rows="3" placeholder="Transforme ofertas em cartões em alta definição que abrem sozinhos e vendem no WhatsApp" class="w-full text-xs sm:text-sm px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all resize-y leading-snug"></textarea>
-                  <p class="text-[11px] text-outline">
-                    Dica: Frases de impacto claras aumentam a conversão de novos lojistas em até 35%.
-                  </p>
                 </div>
 
                 <!-- Descrição / Subtítulo -->
@@ -756,7 +768,7 @@
                     <span class="material-symbols-outlined text-lg">smart_button</span>
                   </div>
                   <div>
-                    <h2 class="text-sm font-bold text-on-surface">Botão de Conversão (CTA)</h2>
+                    <h2 class="text-sm font-bold text-on-surface">Botão de Conversão da Hero (CTA)</h2>
                     <p class="text-[11px] text-on-surface-variant">Personalize o texto do botão principal do cabeçalho e da hero</p>
                   </div>
                 </div>
@@ -771,14 +783,145 @@
                     <input type="text" id="site-input-cta-url" placeholder="/planos/" class="w-full text-xs px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all">
                   </div>
                 </div>
-              <!-- CARD 4: MOCKUP HD DA SEÇÃO COMO FUNCIONA -->
+              </div>
+
+            </div>
+
+            <!-- SEÇÃO 2: DORES & BARREIRAS DO CLIENTE -->
+            <div id="subtab-pane-dores" class="site-subtab-pane space-y-5 hidden">
+
+              <!-- CARD 1: CABEÇALHO DA SEÇÃO DORES -->
+              <div class="bg-surface-container-lowest border-2 border-amber-500/20 rounded-2xl p-5 shadow-xs space-y-4">
+                <div class="flex items-center gap-2.5 pb-3 border-b border-outline-variant/50">
+                  <div class="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-700 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-xl">warning</span>
+                  </div>
+                  <div>
+                    <h2 class="text-sm font-bold text-on-surface">Cabeçalho da Seção de Dores &amp; Barreiras</h2>
+                    <p class="text-[11px] text-on-surface-variant">Destaque os problemas que o comerciante enfrenta ao mandar fotos avulsas</p>
+                  </div>
+                </div>
+
+                <div class="space-y-3">
+                  <div class="space-y-1.5">
+                    <label for="site-input-dores-titulo" class="text-xs font-semibold text-on-surface">Título da Seção</label>
+                    <input type="text" id="site-input-dores-titulo" placeholder="O problema de mandar fotos soltas no WhatsApp" class="w-full text-xs sm:text-sm px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all font-semibold">
+                  </div>
+                  <div class="space-y-1.5">
+                    <label for="site-input-dores-subtitulo" class="text-xs font-semibold text-on-surface">Subtítulo Explicativo</label>
+                    <textarea id="site-input-dores-subtitulo" rows="2" placeholder="Por que seu cliente não baixa as fotos e você perde vendas todos os dias para a concorrência" class="w-full text-xs px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all resize-y leading-relaxed"></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <!-- CARD 2: AS DUAS BARREIRAS DO COMPRADOR -->
+              <div class="bg-surface-container-lowest border border-outline-variant/60 rounded-2xl p-5 shadow-xs space-y-4">
+                <div class="flex items-center gap-2 pb-3 border-b border-outline-variant/50">
+                  <div class="w-8 h-8 rounded-xl bg-error/10 text-error flex items-center justify-center">
+                    <span class="material-symbols-outlined text-lg">block</span>
+                  </div>
+                  <div>
+                    <h2 class="text-sm font-bold text-on-surface">Barreiras do Comprador (Cards Vermelhos)</h2>
+                    <p class="text-[11px] text-on-surface-variant">Os dois grandes obstáculos que impedem o cliente de ver a foto</p>
+                  </div>
+                </div>
+
+                <div class="space-y-4">
+                  <!-- Barreira 1 -->
+                  <div class="p-3.5 rounded-xl bg-error/5 border border-error/20 space-y-2">
+                    <span class="text-[10px] font-bold text-error uppercase">Barreira 1 (Bloqueio Automático)</span>
+                    <input type="text" id="site-input-dores-barreira1-titulo" placeholder="Bloqueio do WhatsApp e Mídia Oculta" class="w-full text-xs font-bold px-3 py-2 rounded-lg border border-outline-variant bg-white focus:border-primary outline-none">
+                    <textarea id="site-input-dores-barreira1-texto" rows="2" placeholder="Fotos soltas chegam com borrão e botão de download manual. A maioria dos contatos simplesmente ignora sem sequer abrir." class="w-full text-xs px-3 py-2 rounded-lg border border-outline-variant bg-white focus:border-primary outline-none resize-y leading-relaxed"></textarea>
+                  </div>
+
+                  <!-- Barreira 2 -->
+                  <div class="p-3.5 rounded-xl bg-error/5 border border-error/20 space-y-2">
+                    <span class="text-[10px] font-bold text-error uppercase">Barreira 2 (Memória do Celular)</span>
+                    <input type="text" id="site-input-dores-barreira2-titulo" placeholder="Memória Cheia e Desconfiança" class="w-full text-xs font-bold px-3 py-2 rounded-lg border border-outline-variant bg-white focus:border-primary outline-none">
+                    <textarea id="site-input-dores-barreira2-texto" rows="2" placeholder="Ninguém quer acumular centenas de fotos pesadas na galeria pessoal para conferir um produto que nem sabe se vai comprar." class="w-full text-xs px-3 py-2 rounded-lg border border-outline-variant bg-white focus:border-primary outline-none resize-y leading-relaxed"></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <!-- CARD 3: A SOLUÇÃO POSTLINK -->
+              <div class="bg-surface-container-lowest border border-outline-variant/60 rounded-2xl p-5 shadow-xs space-y-4">
+                <div class="flex items-center gap-2 pb-3 border-b border-outline-variant/50">
+                  <div class="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-700 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-lg">check_circle</span>
+                  </div>
+                  <div>
+                    <h2 class="text-sm font-bold text-on-surface">Card da Solução PostLink (Verde)</h2>
+                    <p class="text-[11px] text-on-surface-variant">Mensagem que fecha a seção explicando como o PostLink resolve</p>
+                  </div>
+                </div>
+
+                <div class="space-y-1.5">
+                  <label for="site-input-dores-solucao-texto" class="text-xs font-semibold text-on-surface">Texto de Solução</label>
+                  <textarea id="site-input-dores-solucao-texto" rows="3" placeholder="O PostLink resolve isso na raiz: um único link leve que abre um cartão interativo em alta definição direto na conversa, sem download e com botão de pedido." class="w-full text-xs px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all resize-y leading-relaxed"></textarea>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- SEÇÃO 3: COMPARATIVO ANTES VS DEPOIS & MOCKUP HD -->
+            <div id="subtab-pane-comparativo" class="site-subtab-pane space-y-5 hidden">
+
+              <!-- CARD 1: CABEÇALHO DO COMPARATIVO -->
+              <div class="bg-surface-container-lowest border-2 border-primary/20 rounded-2xl p-5 shadow-xs space-y-4">
+                <div class="flex items-center gap-2.5 pb-3 border-b border-outline-variant/50">
+                  <div class="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                    <span class="material-symbols-outlined text-xl">compare_arrows</span>
+                  </div>
+                  <div>
+                    <h2 class="text-sm font-bold text-on-surface">Cabeçalho da Seção Comparativa</h2>
+                    <p class="text-[11px] text-on-surface-variant">Contraste entre o envio tradicional amador e o cartão inteligente PostLink</p>
+                  </div>
+                </div>
+
+                <div class="space-y-3">
+                  <div class="space-y-1.5">
+                    <label for="site-input-comp-titulo" class="text-xs font-semibold text-on-surface">Título da Seção</label>
+                    <input type="text" id="site-input-comp-titulo" placeholder="Antes vs Depois: Veja a diferença na prática" class="w-full text-xs sm:text-sm px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all font-semibold">
+                  </div>
+                  <div class="space-y-1.5">
+                    <label for="site-input-comp-subtitulo" class="text-xs font-semibold text-on-surface">Subtítulo Explicativo</label>
+                    <textarea id="site-input-comp-subtitulo" rows="2" placeholder="Compare a experiência amadora de mandar fotos soltas com o profissionalismo do PostLink" class="w-full text-xs px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all resize-y leading-relaxed"></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <!-- CARD 2: TEXTOS DO CARD "COM POSTLINK" -->
+              <div class="bg-surface-container-lowest border border-outline-variant/60 rounded-2xl p-5 shadow-xs space-y-4">
+                <div class="flex items-center gap-2 pb-3 border-b border-outline-variant/50">
+                  <div class="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-700 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-lg">auto_awesome</span>
+                  </div>
+                  <div>
+                    <h2 class="text-sm font-bold text-on-surface">Card do "Depois" (Com o PostLink)</h2>
+                    <p class="text-[11px] text-on-surface-variant">Destaques exibidos no balão do WhatsApp com o cartão ativo</p>
+                  </div>
+                </div>
+
+                <div class="space-y-3">
+                  <div class="space-y-1.5">
+                    <label for="site-input-comp-depois-titulo" class="text-xs font-semibold text-on-surface">Título do Cartão</label>
+                    <input type="text" id="site-input-comp-depois-titulo" placeholder="Cartão Inteligente PostLink" class="w-full text-xs px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all font-bold">
+                  </div>
+                  <div class="space-y-1.5">
+                    <label for="site-input-comp-depois-texto" class="text-xs font-semibold text-on-surface">Descrição dos Benefícios</label>
+                    <textarea id="site-input-comp-depois-texto" rows="3" placeholder="Abre em tela cheia na hora, destaca o produto com foto em alta resolução, preço e botão para fechar a compra com 1 toque." class="w-full text-xs px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all resize-y leading-relaxed"></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <!-- CARD 3: MOCKUP HD DO BALÃO WHATSAPP DA SEÇÃO COMPARATIVO -->
               <div class="bg-surface-container-lowest border border-outline-variant/60 rounded-2xl p-5 shadow-xs space-y-4">
                 <div class="flex items-center gap-2 pb-3 border-b border-outline-variant/50">
                   <div class="w-8 h-8 rounded-xl bg-secondary-container/30 text-secondary-dark flex items-center justify-center">
                     <span class="material-symbols-outlined text-lg">image</span>
                   </div>
                   <div>
-                    <h2 class="text-sm font-bold text-on-surface">Mockup HD da Seção "Como Funciona"</h2>
+                    <h2 class="text-sm font-bold text-on-surface">Imagem HD do Balão de Comparativo</h2>
                     <p class="text-[11px] text-on-surface-variant">Personalize a imagem que aparece no balão WhatsApp da seção explicativa na Home</p>
                   </div>
                 </div>
@@ -794,10 +937,38 @@
 
             </div>
 
-            <!-- SUB-ABA 2: GALERIA DE FOTOS DA VITRINE & OFERTA DEMONSTRATIVA -->
-            <div id="subtab-pane-vitrine" class="space-y-5 hidden">
+            <!-- SEÇÃO 4: GALERIA DE FOTOS DA VITRINE & OFERTA DEMONSTRATIVA -->
+            <div id="subtab-pane-vitrine" class="site-subtab-pane space-y-5 hidden">
 
-              <!-- CARD 1: GERENCIADOR DO CARROSSEL DE FOTOS DA VITRINE -->
+              <!-- CARD 1: CABEÇALHO DA SEÇÃO VITRINE NA HOME -->
+              <div class="bg-surface-container-lowest border-2 border-primary/20 rounded-2xl p-5 shadow-xs space-y-4">
+                <div class="flex items-center gap-2.5 pb-3 border-b border-outline-variant/50">
+                  <div class="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                    <span class="material-symbols-outlined text-xl">storefront</span>
+                  </div>
+                  <div>
+                    <h2 class="text-sm font-bold text-on-surface">Cabeçalho da Seção Página Vitrine</h2>
+                    <p class="text-[11px] text-on-surface-variant">Textos de apresentação da seção na Home que introduz a vitrine interativa</p>
+                  </div>
+                </div>
+
+                <div class="space-y-3">
+                  <div class="space-y-1.5">
+                    <label for="site-input-vitrine-badge-secao" class="text-xs font-semibold text-on-surface">Badge da Seção</label>
+                    <input type="text" id="site-input-vitrine-badge-secao" placeholder="Página Vitrine de Oferta" class="w-full text-xs px-3 py-2 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all font-semibold">
+                  </div>
+                  <div class="space-y-1.5">
+                    <label for="site-input-vitrine-secao-titulo" class="text-xs font-semibold text-on-surface">Título da Seção Vitrine</label>
+                    <input type="text" id="site-input-vitrine-secao-titulo" placeholder="Apresente seu produto com autoridade máxima: Conheça a Página Vitrine" class="w-full text-xs sm:text-sm px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all font-bold">
+                  </div>
+                  <div class="space-y-1.5">
+                    <label for="site-input-vitrine-secao-subtitulo" class="text-xs font-semibold text-on-surface">Subtítulo da Seção Vitrine</label>
+                    <textarea id="site-input-vitrine-secao-subtitulo" rows="2" placeholder="Transforme seu link em uma página de oferta exclusiva, limpa e pensada para converter cada visitante em pedidos fechados diretamente no seu WhatsApp — sem complicação de sites pesados." class="w-full text-xs px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all resize-y leading-relaxed"></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <!-- CARD 2: GERENCIADOR DO CARROSSEL DE FOTOS DA VITRINE -->
               <div class="bg-surface-container-lowest border-2 border-primary/20 rounded-2xl p-5 shadow-xs space-y-5">
                 <div class="flex items-center justify-between pb-3 border-b border-outline-variant/50">
                   <div class="flex items-center gap-2.5">
@@ -865,7 +1036,7 @@
                 </div>
               </div>
 
-              <!-- CARD 2: DADOS COMERCIAIS DA VITRINE (PREÇOS, DESCONTO E CONDIÇÃO) -->
+              <!-- CARD 3: DADOS COMERCIAIS DA VITRINE (PREÇOS, DESCONTO E CONDIÇÃO) -->
               <div class="bg-surface-container-lowest border border-outline-variant/60 rounded-2xl p-5 shadow-xs space-y-4">
                 <div class="flex items-center gap-2 pb-3 border-b border-outline-variant/50">
                   <div class="w-8 h-8 rounded-xl bg-secondary-container/30 text-secondary-dark flex items-center justify-center">
@@ -917,7 +1088,7 @@
                 </div>
               </div>
 
-              <!-- CARD 3: IDENTIDADE DA LOJA DEMONSTRATIVA -->
+              <!-- CARD 4: IDENTIDADE DA LOJA DEMONSTRATIVA -->
               <div class="bg-surface-container-lowest border border-outline-variant/60 rounded-2xl p-5 shadow-xs space-y-4">
                 <div class="flex items-center gap-2 pb-3 border-b border-outline-variant/50">
                   <div class="w-8 h-8 rounded-xl bg-primary-container/20 text-primary flex items-center justify-center">
@@ -943,8 +1114,128 @@
 
             </div>
 
-            <!-- SUB-ABA 3: PRÉVIA OFICIAL DO DOMÍNIO POSTLINK (WHATSAPP / REDES SOCIAIS) -->
-            <div id="subtab-pane-oficial" class="space-y-5 hidden">
+            <!-- SEÇÃO 5: COMO FUNCIONA EM 3 PASSOS -->
+            <div id="subtab-pane-passos" class="site-subtab-pane space-y-5 hidden">
+
+              <!-- CARD 1: CABEÇALHO DA SEÇÃO DE PASSOS -->
+              <div class="bg-surface-container-lowest border-2 border-primary/20 rounded-2xl p-5 shadow-xs space-y-4">
+                <div class="flex items-center gap-2.5 pb-3 border-b border-outline-variant/50">
+                  <div class="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                    <span class="material-symbols-outlined text-xl">steps</span>
+                  </div>
+                  <div>
+                    <h2 class="text-sm font-bold text-on-surface">Cabeçalho da Seção "Como Funciona"</h2>
+                    <p class="text-[11px] text-on-surface-variant">O título e descrição que introduzem os 3 passos simples</p>
+                  </div>
+                </div>
+
+                <div class="space-y-3">
+                  <div class="space-y-1.5">
+                    <label for="site-input-passos-titulo" class="text-xs font-semibold text-on-surface">Título da Seção</label>
+                    <input type="text" id="site-input-passos-titulo" placeholder="Como funciona em 3 passos" class="w-full text-xs sm:text-sm px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all font-semibold">
+                  </div>
+                  <div class="space-y-1.5">
+                    <label for="site-input-passos-subtitulo" class="text-xs font-semibold text-on-surface">Subtítulo Explicativo</label>
+                    <textarea id="site-input-passos-subtitulo" rows="2" placeholder="Crie links atraentes em menos de 1 minuto sem precisar de designer ou desenvolvedor" class="w-full text-xs px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all resize-y leading-relaxed"></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <!-- CARD 2: OS 3 PASSOS DETALHADOS -->
+              <div class="bg-surface-container-lowest border border-outline-variant/60 rounded-2xl p-5 shadow-xs space-y-4">
+                <div class="flex items-center gap-2 pb-3 border-b border-outline-variant/50">
+                  <div class="w-8 h-8 rounded-xl bg-secondary-container/30 text-secondary-dark flex items-center justify-center">
+                    <span class="material-symbols-outlined text-lg">format_list_numbered</span>
+                  </div>
+                  <div>
+                    <h2 class="text-sm font-bold text-on-surface">Detalhamento dos 3 Passos</h2>
+                    <p class="text-[11px] text-on-surface-variant">Personalize o título e a explicação de cada etapa da jornada</p>
+                  </div>
+                </div>
+
+                <div class="space-y-4">
+                  <!-- Passo 1 -->
+                  <div class="p-3.5 rounded-xl bg-surface-container-low border border-outline-variant/60 space-y-2">
+                    <div class="flex items-center gap-2">
+                      <span class="w-6 h-6 rounded-lg bg-primary text-white flex items-center justify-center text-xs font-bold">1</span>
+                      <span class="text-xs font-bold text-on-surface">Passo 1</span>
+                    </div>
+                    <input type="text" id="site-input-passo1-titulo" placeholder="Suba a Foto & Crie com IA" class="w-full text-xs font-bold px-3 py-2 rounded-lg border border-outline-variant bg-white focus:border-primary outline-none">
+                    <textarea id="site-input-passo1-desc" rows="2" placeholder="Adicione a imagem da oferta para gerar o cartão em alta resolução e use nosso Assistente de IA para sugerir títulos chamativos e mensagens persuasivas em segundos." class="w-full text-xs px-3 py-2 rounded-lg border border-outline-variant bg-white focus:border-primary outline-none resize-y leading-relaxed"></textarea>
+                  </div>
+
+                  <!-- Passo 2 -->
+                  <div class="p-3.5 rounded-xl bg-surface-container-low border border-outline-variant/60 space-y-2">
+                    <div class="flex items-center gap-2">
+                      <span class="w-6 h-6 rounded-lg bg-secondary-container text-on-secondary-container flex items-center justify-center text-xs font-bold">2</span>
+                      <span class="text-xs font-bold text-on-surface">Passo 2</span>
+                    </div>
+                    <input type="text" id="site-input-passo2-titulo" placeholder="Escolha Direto ou Página Vitrine" class="w-full text-xs font-bold px-3 py-2 rounded-lg border border-outline-variant bg-white focus:border-primary outline-none">
+                    <textarea id="site-input-passo2-desc" rows="2" placeholder="Você decide a experiência do cliente: encaminhe direto para o seu WhatsApp/site ou encante com uma Página Vitrine exclusiva com fotos, preço promocional e benefícios." class="w-full text-xs px-3 py-2 rounded-lg border border-outline-variant bg-white focus:border-primary outline-none resize-y leading-relaxed"></textarea>
+                  </div>
+
+                  <!-- Passo 3 -->
+                  <div class="p-3.5 rounded-xl bg-surface-container-low border border-outline-variant/60 space-y-2">
+                    <div class="flex items-center gap-2">
+                      <span class="w-6 h-6 rounded-lg bg-primary text-white flex items-center justify-center text-xs font-bold">3</span>
+                      <span class="text-xs font-bold text-on-surface">Passo 3</span>
+                    </div>
+                    <input type="text" id="site-input-passo3-titulo" placeholder="Envie e Meça o Funil Real" class="w-full text-xs font-bold px-3 py-2 rounded-lg border border-outline-variant bg-white focus:border-primary outline-none">
+                    <textarea id="site-input-passo3-desc" rows="2" placeholder="Cole o link nos grupos e conversas. O cartão abre na hora sem salvar arquivos no celular do cliente e você mede visualizações e pedidos em tempo real." class="w-full text-xs px-3 py-2 rounded-lg border border-outline-variant bg-white focus:border-primary outline-none resize-y leading-relaxed"></textarea>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- SEÇÃO 6: CHAMADA FINAL / TRIAL -->
+            <div id="subtab-pane-cta-final" class="site-subtab-pane space-y-5 hidden">
+
+              <!-- CARD 1: BANNER DE CONVERSÃO FINAL -->
+              <div class="bg-surface-container-lowest border-2 border-primary/20 rounded-2xl p-5 shadow-xs space-y-4">
+                <div class="flex items-center gap-2.5 pb-3 border-b border-outline-variant/50">
+                  <div class="w-9 h-9 rounded-xl bg-secondary-container/30 text-secondary-dark flex items-center justify-center">
+                    <span class="material-symbols-outlined text-xl">stars</span>
+                  </div>
+                  <div>
+                    <h2 class="text-sm font-bold text-on-surface">Banner Final de Conversão (Rodapé da Home)</h2>
+                    <p class="text-[11px] text-on-surface-variant">A última chamada para convidar o comerciante a iniciar o teste grátis</p>
+                  </div>
+                </div>
+
+                <div class="space-y-3">
+                  <div class="space-y-1.5">
+                    <label for="site-input-cta-final-badge" class="text-xs font-semibold text-on-surface">Badge de Garantia / Benefício</label>
+                    <input type="text" id="site-input-cta-final-badge" placeholder="7 Dias de Teste Gratuito Completo" class="w-full text-xs px-3 py-2 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all font-semibold">
+                  </div>
+
+                  <div class="space-y-1.5">
+                    <label for="site-input-cta-final-titulo" class="text-xs font-semibold text-on-surface">Título da Chamada Final</label>
+                    <input type="text" id="site-input-cta-final-titulo" placeholder="Pronto para transformar fotos estáticas em vendas reais?" class="w-full text-xs sm:text-sm px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all font-bold">
+                  </div>
+
+                  <div class="space-y-1.5">
+                    <label for="site-input-cta-final-subtitulo" class="text-xs font-semibold text-on-surface">Subtítulo Persuasivo</label>
+                    <textarea id="site-input-cta-final-subtitulo" rows="3" placeholder="Pare de mandar fotos pesadas que ninguém baixa. Comece seu teste de 7 dias grátis agora mesmo e crie seus primeiros cartões inteligentes clicáveis." class="w-full text-xs px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all resize-y leading-relaxed"></textarea>
+                  </div>
+
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <div class="space-y-1.5">
+                      <label for="site-input-cta-final-btn-texto" class="text-xs font-semibold text-on-surface">Texto do Botão Final</label>
+                      <input type="text" id="site-input-cta-final-btn-texto" placeholder="Criar Link Grátis Agora" class="w-full text-xs px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all font-bold">
+                    </div>
+                    <div class="space-y-1.5">
+                      <label for="site-input-cta-final-btn-url" class="text-xs font-semibold text-on-surface">Destino do Botão Final</label>
+                      <input type="text" id="site-input-cta-final-btn-url" placeholder="/planos/" class="w-full text-xs px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- SEÇÃO 7: PRÉVIA OFICIAL DO DOMÍNIO POSTLINK (WHATSAPP / REDES SOCIAIS) -->
+            <div id="subtab-pane-oficial" class="site-subtab-pane space-y-5 hidden">
 
               <!-- CARD DEDICADO: CONFIGURAÇÃO DE COMPARTILHAMENTO DO LINK POSTLINK.COM.BR -->
               <div class="bg-surface-container-lowest border-2 border-emerald-500/20 rounded-2xl p-5 shadow-xs space-y-5">
@@ -1111,15 +1402,18 @@
                   <span class="text-xs font-bold text-on-surface">Prévia em Tempo Real</span>
                 </div>
 
-                <div class="flex items-center gap-1 bg-surface-container-highest/60 p-0.5 rounded-lg border border-outline-variant/40 text-[11px]">
-                  <button type="button" id="btn-preview-tab-hero" onclick="window.ativarPreviewFrame && window.ativarPreviewFrame('hero')" class="px-2.5 py-1 rounded-md font-bold transition-all bg-surface-container-lowest text-primary shadow-2xs cursor-pointer">
-                    Site (Hero)
+                <div class="flex items-center gap-1 bg-surface-container-highest/60 p-0.5 rounded-lg border border-outline-variant/40 text-[11px] overflow-x-auto">
+                  <button type="button" id="btn-preview-tab-hero" onclick="window.ativarPreviewFrame && window.ativarPreviewFrame('hero')" class="px-2 py-1 rounded-md font-bold transition-all bg-surface-container-lowest text-primary shadow-2xs cursor-pointer whitespace-nowrap">
+                    Hero
                   </button>
-                  <button type="button" id="btn-preview-tab-smartphone" onclick="window.ativarPreviewFrame && window.ativarPreviewFrame('smartphone')" class="px-2.5 py-1 rounded-md font-medium transition-all text-on-surface-variant hover:text-on-surface cursor-pointer">
-                    Página Vitrine
+                  <button type="button" id="btn-preview-tab-smartphone" onclick="window.ativarPreviewFrame && window.ativarPreviewFrame('smartphone')" class="px-2 py-1 rounded-md font-medium transition-all text-on-surface-variant hover:text-on-surface cursor-pointer whitespace-nowrap">
+                    Vitrine
                   </button>
-                  <button type="button" id="btn-preview-tab-wa" onclick="window.ativarPreviewFrame && window.ativarPreviewFrame('wa')" class="px-2.5 py-1 rounded-md font-medium transition-all text-on-surface-variant hover:text-on-surface cursor-pointer">
-                    WhatsApp Card
+                  <button type="button" id="btn-preview-tab-comparativo" onclick="window.ativarPreviewFrame && window.ativarPreviewFrame('comparativo')" class="px-2 py-1 rounded-md font-medium transition-all text-on-surface-variant hover:text-on-surface cursor-pointer whitespace-nowrap">
+                    Comparativo
+                  </button>
+                  <button type="button" id="btn-preview-tab-wa" onclick="window.ativarPreviewFrame && window.ativarPreviewFrame('wa')" class="px-2 py-1 rounded-md font-medium transition-all text-on-surface-variant hover:text-on-surface cursor-pointer whitespace-nowrap">
+                    WhatsApp OG
                   </button>
                 </div>
               </div>
@@ -1399,7 +1693,46 @@
                 </div>
               </div>
 
-            </div>
+              <!-- VIEW 4: PRÉVIA DO COMPARATIVO (ANTES VS DEPOIS) -->
+              <div id="preview-frame-comparativo" class="hidden p-4 sm:p-5 bg-background space-y-4 text-left">
+                <div class="text-[11px] text-center text-outline font-medium">
+                  Prévia da Seção Comparativa Antes vs Depois na Home:
+                </div>
+
+                <div class="space-y-1 text-center">
+                  <h4 id="prev-comp-titulo" class="text-xs sm:text-sm font-black text-on-surface">Antes vs Depois: Veja a diferença</h4>
+                  <p id="prev-comp-subtitulo" class="text-[10px] text-on-surface-variant line-clamp-2">Compare o envio tradicional amador com a experiência do PostLink</p>
+                </div>
+
+                <!-- Mini Grid Comparativo -->
+                <div class="grid grid-cols-2 gap-2.5">
+                  <!-- Coluna Antes -->
+                  <div class="p-2.5 rounded-xl bg-error/5 border border-error/20 space-y-1.5 opacity-80">
+                    <div class="flex items-center gap-1 text-[9px] font-bold text-error">
+                      <span class="material-symbols-outlined text-xs">close</span>
+                      <span>Sem PostLink</span>
+                    </div>
+                    <div class="aspect-[4/3] rounded-lg bg-slate-200/80 flex flex-col items-center justify-center p-2 text-center text-[8px] text-slate-500">
+                      <span class="material-symbols-outlined text-sm mb-0.5">download_for_offline</span>
+                      <span>Mídia oculta e botão de download</span>
+                    </div>
+                    <p class="text-[8px] text-on-surface-variant leading-tight">Fotos soltas com borrão e ignoradas na conversa.</p>
+                  </div>
+
+                  <!-- Coluna Depois -->
+                  <div class="p-2.5 rounded-xl bg-emerald-500/5 border border-emerald-500/30 space-y-1.5 shadow-2xs">
+                    <div class="flex items-center gap-1 text-[9px] font-bold text-emerald-800">
+                      <span class="material-symbols-outlined text-xs">check_circle</span>
+                      <span id="prev-comp-depois-titulo">Cartão Inteligente</span>
+                    </div>
+                    <div class="aspect-[4/3] rounded-lg bg-surface-container-low overflow-hidden border border-emerald-500/20 relative">
+                      <img id="prev-comp-img" src="/assets/img/ex02.png" alt="Card HD" class="w-full h-full object-cover">
+                      <span class="absolute bottom-1 right-1 bg-black/60 text-white text-[7px] font-bold px-1 rounded">HD Card</span>
+                    </div>
+                    <p id="prev-comp-depois-texto" class="text-[8px] text-on-surface-variant leading-tight line-clamp-2">Abre em tela cheia na hora com botão para fechar a compra.</p>
+                  </div>
+                </div>
+              </div>
 
           </div>
 

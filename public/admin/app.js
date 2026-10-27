@@ -118,18 +118,24 @@ const el = {
   siteAuditData: document.getElementById('site-audit-data'),
   siteAuditUsuario: document.getElementById('site-audit-usuario'),
 
-  // Sub-abas de Edição do Site
-  btnSubtabLanding: document.getElementById('btn-subtab-landing'),
+  // Sub-abas de Edição do Site (7 Seções)
+  btnSubtabHero: document.getElementById('btn-subtab-hero'),
+  btnSubtabDores: document.getElementById('btn-subtab-dores'),
+  btnSubtabComparativo: document.getElementById('btn-subtab-comparativo'),
   btnSubtabVitrine: document.getElementById('btn-subtab-vitrine'),
+  btnSubtabPassos: document.getElementById('btn-subtab-passos'),
+  btnSubtabCtaFinal: document.getElementById('btn-subtab-cta-final'),
   btnSubtabOficial: document.getElementById('btn-subtab-oficial'),
-  subtabPaneLanding: document.getElementById('subtab-pane-landing'),
-  subtabPaneVitrine: document.getElementById('subtab-pane-vitrine'),
-  subtabPaneOficial: document.getElementById('subtab-pane-oficial'),
-  subtabBadgeLanding: document.getElementById('subtab-badge-landing'),
-  subtabBadgeVitrine: document.getElementById('subtab-badge-vitrine'),
-  subtabBadgeOficial: document.getElementById('subtab-badge-oficial'),
 
-  // Sub-aba 1: Exemplo na Landing Page (Vitrine de Demonstração & Hero)
+  subtabPaneHero: document.getElementById('subtab-pane-hero'),
+  subtabPaneDores: document.getElementById('subtab-pane-dores'),
+  subtabPaneComparativo: document.getElementById('subtab-pane-comparativo'),
+  subtabPaneVitrine: document.getElementById('subtab-pane-vitrine'),
+  subtabPanePassos: document.getElementById('subtab-pane-passos'),
+  subtabPaneCtaFinal: document.getElementById('subtab-pane-cta-final'),
+  subtabPaneOficial: document.getElementById('subtab-pane-oficial'),
+
+  // Seção 1: Hero & WhatsApp Card
   siteSwitchBannerAtivo: document.getElementById('site-switch-banner-ativo'),
   siteDropzone: document.getElementById('site-dropzone'),
   siteFileBanner: document.getElementById('site-file-banner'),
@@ -153,9 +159,27 @@ const el = {
   siteDescContador: document.getElementById('site-desc-contador'),
   siteInputCtaTexto: document.getElementById('site-input-cta-texto'),
   siteInputCtaUrl: document.getElementById('site-input-cta-url'),
+
+  // Seção 2: Dores & Barreiras
+  siteInputDoresTitulo: document.getElementById('site-input-dores-titulo'),
+  siteInputDoresSubtitulo: document.getElementById('site-input-dores-subtitulo'),
+  siteInputDoresBarreira1Titulo: document.getElementById('site-input-dores-barreira1-titulo'),
+  siteInputDoresBarreira1Texto: document.getElementById('site-input-dores-barreira1-texto'),
+  siteInputDoresBarreira2Titulo: document.getElementById('site-input-dores-barreira2-titulo'),
+  siteInputDoresBarreira2Texto: document.getElementById('site-input-dores-barreira2-texto'),
+  siteInputDoresSolucaoTexto: document.getElementById('site-input-dores-solucao-texto'),
+
+  // Seção 3: Comparativo HD
+  siteInputCompTitulo: document.getElementById('site-input-comp-titulo'),
+  siteInputCompSubtitulo: document.getElementById('site-input-comp-subtitulo'),
+  siteInputCompDepoisTitulo: document.getElementById('site-input-comp-depois-titulo'),
+  siteInputCompDepoisTexto: document.getElementById('site-input-comp-depois-texto'),
   siteInputComoFuncionaImg: document.getElementById('site-input-como-funciona-img'),
 
-  // Sub-aba 2: Galeria & Página Vitrine
+  // Seção 4: Galeria & Página Vitrine
+  siteInputVitrineBadgeSecao: document.getElementById('site-input-vitrine-badge-secao'),
+  siteInputVitrineSecaoTitulo: document.getElementById('site-input-vitrine-secao-titulo'),
+  siteInputVitrineSecaoSubtitulo: document.getElementById('site-input-vitrine-secao-subtitulo'),
   siteVitrineFotosContainer: document.getElementById('site-vitrine-fotos-lista'),
   siteVitrineContadorFotos: document.getElementById('site-vitrine-contador-fotos'),
   siteDropzoneVitrineExtra: document.getElementById('site-dropzone-vitrine-extra'),
@@ -172,7 +196,24 @@ const el = {
   siteInputLojaNome: document.getElementById('site-input-loja-nome'),
   siteInputLojaAvatar: document.getElementById('site-input-loja-avatar'),
 
-  // Sub-aba 3: Link Oficial PostLink (WhatsApp & Redes)
+  // Seção 5: Como Funciona (3 Passos)
+  siteInputPassosTitulo: document.getElementById('site-input-passos-titulo'),
+  siteInputPassosSubtitulo: document.getElementById('site-input-passos-subtitulo'),
+  siteInputPasso1Titulo: document.getElementById('site-input-passo1-titulo'),
+  siteInputPasso1Desc: document.getElementById('site-input-passo1-desc'),
+  siteInputPasso2Titulo: document.getElementById('site-input-passo2-titulo'),
+  siteInputPasso2Desc: document.getElementById('site-input-passo2-desc'),
+  siteInputPasso3Titulo: document.getElementById('site-input-passo3-titulo'),
+  siteInputPasso3Desc: document.getElementById('site-input-passo3-desc'),
+
+  // Seção 6: Chamada Final / Trial
+  siteInputCtaFinalBadge: document.getElementById('site-input-cta-final-badge'),
+  siteInputCtaFinalTitulo: document.getElementById('site-input-cta-final-titulo'),
+  siteInputCtaFinalSubtitulo: document.getElementById('site-input-cta-final-subtitulo'),
+  siteInputCtaFinalBtnTexto: document.getElementById('site-input-cta-final-btn-texto'),
+  siteInputCtaFinalBtnUrl: document.getElementById('site-input-cta-final-btn-url'),
+
+  // Seção 7: Link Oficial PostLink (WhatsApp & Redes)
   siteDropzoneOficial: document.getElementById('site-dropzone-oficial'),
   siteFileOficial: document.getElementById('site-file-oficial'),
   siteOficialPreviewBox: document.getElementById('site-oficial-preview-box'),
@@ -191,9 +232,11 @@ const el = {
   // Live Preview do Site Oficial (Coluna Direita)
   btnPreviewTabHero: document.getElementById('btn-preview-tab-hero'),
   btnPreviewTabSmartphone: document.getElementById('btn-preview-tab-smartphone'),
+  btnPreviewTabComparativo: document.getElementById('btn-preview-tab-comparativo'),
   btnPreviewTabWa: document.getElementById('btn-preview-tab-wa'),
   previewFrameHero: document.getElementById('preview-frame-hero'),
   previewFrameSmartphone: document.getElementById('preview-frame-smartphone'),
+  previewFrameComparativo: document.getElementById('preview-frame-comparativo'),
   previewFrameWa: document.getElementById('preview-frame-wa'),
   prevHeroBadgeWrap: document.getElementById('prev-hero-badge-wrap'),
   prevHeroBadge: document.getElementById('prev-hero-badge'),
@@ -229,6 +272,11 @@ const el = {
   prevSmartPrecoPor: document.getElementById('prev-smart-preco-por'),
   prevSmartCondicao: document.getElementById('prev-smart-condicao'),
   prevSmartBeneficios: document.getElementById('prev-smart-beneficios'),
+  prevCompTitulo: document.getElementById('prev-comp-titulo'),
+  prevCompSubtitulo: document.getElementById('prev-comp-subtitulo'),
+  prevCompDepoisTitulo: document.getElementById('prev-comp-depois-titulo'),
+  prevCompDepoisTexto: document.getElementById('prev-comp-depois-texto'),
+  prevCompImg: document.getElementById('prev-comp-img'),
   prevWaImg: document.getElementById('prev-wa-img'),
   prevWaPlaceholder: document.getElementById('prev-wa-placeholder'),
   prevWaTitulo: document.getElementById('prev-wa-titulo'),
@@ -929,105 +977,81 @@ function configurarNavegacao() {
 // 6. EDITOR DO SITE OFICIAL (POSTLINK)
 // ==========================================
 
-// Alterna entre as 3 sub-abas do Editor (1. Hero & WhatsApp / 2. Galeria & Vitrine / 3. Link Oficial)
+// Alterna entre as 7 sub-abas de personalização do Site Oficial
 function alternarSubabaSite(aba) {
   state.subabaSiteAtiva = aba;
 
-  const btnLanding = el.btnSubtabLanding || document.getElementById('btn-subtab-landing');
-  const btnVitrine = el.btnSubtabVitrine || document.getElementById('btn-subtab-vitrine');
-  const btnOficial = el.btnSubtabOficial || document.getElementById('btn-subtab-oficial');
-  const badgeLanding = document.getElementById('subtab-badge-landing');
-  const badgeVitrine = document.getElementById('subtab-badge-vitrine');
-  const badgeOficial = document.getElementById('subtab-badge-oficial');
-  const paneLanding = el.subtabPaneLanding || document.getElementById('subtab-pane-landing');
-  const paneVitrine = el.subtabPaneVitrine || document.getElementById('subtab-pane-vitrine');
-  const paneOficial = el.subtabPaneOficial || document.getElementById('subtab-pane-oficial');
+  const abasDisponiveis = [
+    { id: 'hero', btn: el.btnSubtabHero || document.getElementById('btn-subtab-hero'), pane: el.subtabPaneHero || document.getElementById('subtab-pane-hero'), preview: 'hero' },
+    { id: 'dores', btn: el.btnSubtabDores || document.getElementById('btn-subtab-dores'), pane: el.subtabPaneDores || document.getElementById('subtab-pane-dores'), preview: 'hero' },
+    { id: 'comparativo', btn: el.btnSubtabComparativo || document.getElementById('btn-subtab-comparativo'), pane: el.subtabPaneComparativo || document.getElementById('subtab-pane-comparativo'), preview: 'comparativo' },
+    { id: 'vitrine', btn: el.btnSubtabVitrine || document.getElementById('btn-subtab-vitrine'), pane: el.subtabPaneVitrine || document.getElementById('subtab-pane-vitrine'), preview: 'smartphone' },
+    { id: 'passos', btn: el.btnSubtabPassos || document.getElementById('btn-subtab-passos'), pane: el.subtabPanePassos || document.getElementById('subtab-pane-passos'), preview: 'hero' },
+    { id: 'cta_final', btn: el.btnSubtabCtaFinal || document.getElementById('btn-subtab-cta-final'), pane: el.subtabPaneCtaFinal || document.getElementById('subtab-pane-cta-final'), preview: 'hero' },
+    { id: 'oficial', btn: el.btnSubtabOficial || document.getElementById('btn-subtab-oficial'), pane: el.subtabPaneOficial || document.getElementById('subtab-pane-oficial'), preview: 'wa' },
+  ];
 
-  const classesAtivo = 'flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all bg-primary text-white shadow-2xs cursor-pointer';
-  const classesInativo = 'flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-medium transition-all text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface cursor-pointer';
+  const classesAtivo = 'site-subtab-btn flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all bg-primary text-white shadow-2xs whitespace-nowrap cursor-pointer shrink-0';
+  const classesInativo = 'site-subtab-btn flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface whitespace-nowrap cursor-pointer shrink-0';
 
-  if (aba === 'landing') {
-    if (btnLanding) btnLanding.className = classesAtivo;
-    if (btnVitrine) btnVitrine.className = classesInativo;
-    if (btnOficial) btnOficial.className = classesInativo;
+  let previewAlvo = 'hero';
 
-    if (badgeLanding) badgeLanding.className = 'text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-white/20 text-white';
-    if (badgeVitrine) badgeVitrine.className = 'text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-amber-500/20 text-amber-800';
-    if (badgeOficial) badgeOficial.className = 'text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-800';
+  abasDisponiveis.forEach(item => {
+    const isAtivo = item.id === aba || (aba === 'landing' && item.id === 'hero');
+    if (item.btn) {
+      item.btn.className = isAtivo ? classesAtivo : classesInativo;
+    }
+    if (item.pane) {
+      if (isAtivo) {
+        item.pane.classList.remove('hidden');
+        item.pane.style.display = 'block';
+        previewAlvo = item.preview;
+      } else {
+        item.pane.classList.add('hidden');
+        item.pane.style.display = 'none';
+      }
+    }
+  });
 
-    if (paneLanding) { paneLanding.classList.remove('hidden'); paneLanding.style.display = 'block'; }
-    if (paneVitrine) { paneVitrine.classList.add('hidden'); paneVitrine.style.display = 'none'; }
-    if (paneOficial) { paneOficial.classList.add('hidden'); paneOficial.style.display = 'none'; }
-
-    ativarPreviewFrame('hero');
-  } else if (aba === 'vitrine') {
-    if (btnVitrine) btnVitrine.className = classesAtivo;
-    if (btnLanding) btnLanding.className = classesInativo;
-    if (btnOficial) btnOficial.className = classesInativo;
-
-    if (badgeVitrine) badgeVitrine.className = 'text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-white/20 text-white';
-    if (badgeLanding) badgeLanding.className = 'text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-primary/10 text-primary';
-    if (badgeOficial) badgeOficial.className = 'text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-800';
-
-    if (paneVitrine) { paneVitrine.classList.remove('hidden'); paneVitrine.style.display = 'block'; }
-    if (paneLanding) { paneLanding.classList.add('hidden'); paneLanding.style.display = 'none'; }
-    if (paneOficial) { paneOficial.classList.add('hidden'); paneOficial.style.display = 'none'; }
-
-    ativarPreviewFrame('smartphone');
-  } else {
-    if (btnOficial) btnOficial.className = classesAtivo;
-    if (btnLanding) btnLanding.className = classesInativo;
-    if (btnVitrine) btnVitrine.className = classesInativo;
-
-    if (badgeOficial) badgeOficial.className = 'text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-white/20 text-white';
-    if (badgeLanding) badgeLanding.className = 'text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-primary/10 text-primary';
-    if (badgeVitrine) badgeVitrine.className = 'text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-amber-500/20 text-amber-800';
-
-    if (paneOficial) { paneOficial.classList.remove('hidden'); paneOficial.style.display = 'block'; }
-    if (paneLanding) { paneLanding.classList.add('hidden'); paneLanding.style.display = 'none'; }
-    if (paneVitrine) { paneVitrine.classList.add('hidden'); paneVitrine.style.display = 'none'; }
-
-    ativarPreviewFrame('wa');
-  }
+  ativarPreviewFrame(previewAlvo);
 }
 
 // Alterna entre o frame da Hero, Smartphone (Vitrine Interativa) e balão do WhatsApp no Live Preview
+// Alterna entre o frame da Hero, Smartphone (Vitrine Interativa), Comparativo e balão do WhatsApp no Live Preview
 function ativarPreviewFrame(tipo) {
   const frameHero = el.previewFrameHero || document.getElementById('preview-frame-hero');
   const frameSmartphone = el.previewFrameSmartphone || document.getElementById('preview-frame-smartphone');
+  const frameComparativo = el.previewFrameComparativo || document.getElementById('preview-frame-comparativo');
   const frameWa = el.previewFrameWa || document.getElementById('preview-frame-wa');
+
   const btnHero = el.btnPreviewTabHero || document.getElementById('btn-preview-tab-hero');
   const btnSmartphone = el.btnPreviewTabSmartphone || document.getElementById('btn-preview-tab-smartphone');
+  const btnComparativo = el.btnPreviewTabComparativo || document.getElementById('btn-preview-tab-comparativo');
   const btnWa = el.btnPreviewTabWa || document.getElementById('btn-preview-tab-wa');
 
-  const classesAtivo = 'px-2.5 py-1 rounded-md font-bold transition-all bg-surface-container-lowest text-primary shadow-2xs cursor-pointer';
-  const classesInativo = 'px-2.5 py-1 rounded-md font-medium transition-all text-on-surface-variant hover:text-on-surface cursor-pointer';
+  const classesAtivo = 'px-2 py-1 rounded-md font-bold transition-all bg-surface-container-lowest text-primary shadow-2xs cursor-pointer whitespace-nowrap';
+  const classesInativo = 'px-2 py-1 rounded-md font-medium transition-all text-on-surface-variant hover:text-on-surface cursor-pointer whitespace-nowrap';
 
-  if (tipo === 'hero') {
-    if (frameHero) { frameHero.classList.remove('hidden'); frameHero.style.display = 'block'; }
-    if (frameSmartphone) { frameSmartphone.classList.add('hidden'); frameSmartphone.style.display = 'none'; }
-    if (frameWa) { frameWa.classList.add('hidden'); frameWa.style.display = 'none'; }
+  const frames = [
+    { id: 'hero', el: frameHero, btn: btnHero },
+    { id: 'smartphone', el: frameSmartphone, btn: btnSmartphone },
+    { id: 'comparativo', el: frameComparativo, btn: btnComparativo },
+    { id: 'wa', el: frameWa, btn: btnWa },
+  ];
 
-    if (btnHero) btnHero.className = classesAtivo;
-    if (btnSmartphone) btnSmartphone.className = classesInativo;
-    if (btnWa) btnWa.className = classesInativo;
-  } else if (tipo === 'smartphone') {
-    if (frameSmartphone) { frameSmartphone.classList.remove('hidden'); frameSmartphone.style.display = 'block'; }
-    if (frameHero) { frameHero.classList.add('hidden'); frameHero.style.display = 'none'; }
-    if (frameWa) { frameWa.classList.add('hidden'); frameWa.style.display = 'none'; }
-
-    if (btnSmartphone) btnSmartphone.className = classesAtivo;
-    if (btnHero) btnHero.className = classesInativo;
-    if (btnWa) btnWa.className = classesInativo;
-  } else {
-    if (frameWa) { frameWa.classList.remove('hidden'); frameWa.style.display = 'block'; }
-    if (frameHero) { frameHero.classList.add('hidden'); frameHero.style.display = 'none'; }
-    if (frameSmartphone) { frameSmartphone.classList.add('hidden'); frameSmartphone.style.display = 'none'; }
-
-    if (btnWa) btnWa.className = classesAtivo;
-    if (btnHero) btnHero.className = classesInativo;
-    if (btnSmartphone) btnSmartphone.className = classesInativo;
-  }
+  frames.forEach(f => {
+    const isAtivo = f.id === tipo;
+    if (f.btn) f.btn.className = isAtivo ? classesAtivo : classesInativo;
+    if (f.el) {
+      if (isAtivo) {
+        f.el.classList.remove('hidden');
+        f.el.style.display = 'block';
+      } else {
+        f.el.classList.add('hidden');
+        f.el.style.display = 'none';
+      }
+    }
+  });
 }
 
 // Alterna entre o Cartão WhatsApp e a Página Vitrine na miniatura da Hero
@@ -1233,11 +1257,21 @@ async function carregarConfiguracoesSite() {
   }
 }
 
-// Preenche os inputs com o objeto de dados recebido do banco
+// Preenche os inputs com o objeto de dados recebido do banco (todas as 7 seções)
 function preencherFormularioSite(dados) {
   if (!dados) return;
 
-  // --- SUB-ABA 1: EXEMPLO NA LANDING PAGE ---
+  const secoes = dados.secoes_conteudo || {};
+
+  // --- 1. HERO & WHATSAPP CARD ---
+  const heroSec = secoes.hero || {};
+  if (el.siteInputBadge) el.siteInputBadge.value = heroSec.badge_texto || dados.badge_texto || '';
+  if (el.siteInputTitulo) el.siteInputTitulo.value = heroSec.titulo || dados.titulo || '';
+  if (el.siteInputDescricao) el.siteInputDescricao.value = heroSec.descricao || dados.descricao || '';
+  if (el.siteInputCtaTexto) el.siteInputCtaTexto.value = heroSec.cta_texto || dados.cta_texto || 'Começar Grátis';
+  if (el.siteInputCtaUrl) el.siteInputCtaUrl.value = heroSec.cta_url || dados.cta_url || '/planos/';
+  if (el.siteSwitchBannerAtivo) el.siteSwitchBannerAtivo.checked = dados.banner_ativo !== false;
+
   if (el.siteInputPreviewTitulo) {
     el.siteInputPreviewTitulo.value = dados.preview_titulo || 'Lançamento Especial · Oferta Exclusiva com 1 Clique';
   }
@@ -1247,13 +1281,6 @@ function preencherFormularioSite(dados) {
   if (el.siteInputPreviewSubtitulo) {
     el.siteInputPreviewSubtitulo.value = dados.preview_subtitulo || 'postlink.com.br/sua-loja ➔ Redireciona para o destino';
   }
-
-  if (el.siteInputBadge) el.siteInputBadge.value = dados.badge_texto || '';
-  if (el.siteInputTitulo) el.siteInputTitulo.value = dados.titulo || '';
-  if (el.siteInputDescricao) el.siteInputDescricao.value = dados.descricao || '';
-  if (el.siteInputCtaTexto) el.siteInputCtaTexto.value = dados.cta_texto || 'Começar Grátis';
-  if (el.siteInputCtaUrl) el.siteInputCtaUrl.value = dados.cta_url || '/planos/';
-  if (el.siteSwitchBannerAtivo) el.siteSwitchBannerAtivo.checked = dados.banner_ativo !== false;
 
   // Miniatura da foto da Vitrine de Exemplo
   const vitrineImg = dados.preview_imagem_url || dados.banner_url;
@@ -1269,15 +1296,37 @@ function preencherFormularioSite(dados) {
     if (el.siteInputBannerUrl) el.siteInputBannerUrl.value = '';
   }
 
-  // Card 4: Imagem da Seção "Como Funciona"
+  // --- 2. DORES & BARREIRAS ---
+  const doresSec = secoes.dores || {};
+  if (el.siteInputDoresTitulo) el.siteInputDoresTitulo.value = doresSec.titulo || 'O problema de mandar fotos soltas no WhatsApp';
+  if (el.siteInputDoresSubtitulo) el.siteInputDoresSubtitulo.value = doresSec.subtitulo || 'Por que seu cliente não baixa as fotos e você perde vendas todos os dias para a concorrência';
+  if (el.siteInputDoresBarreira1Titulo) el.siteInputDoresBarreira1Titulo.value = doresSec.barreira1_titulo || 'Bloqueio do WhatsApp e Mídia Oculta';
+  if (el.siteInputDoresBarreira1Texto) el.siteInputDoresBarreira1Texto.value = doresSec.barreira1_texto || 'Fotos soltas chegam com borrão e botão de download manual. A maioria dos contatos simplesmente ignora sem sequer abrir.';
+  if (el.siteInputDoresBarreira2Titulo) el.siteInputDoresBarreira2Titulo.value = doresSec.barreira2_titulo || 'Memória Cheia e Desconfiança';
+  if (el.siteInputDoresBarreira2Texto) el.siteInputDoresBarreira2Texto.value = doresSec.barreira2_texto || 'Ninguém quer acumular centenas de fotos pesadas na galeria pessoal para conferir um produto que nem sabe se vai comprar.';
+  if (el.siteInputDoresSolucaoTexto) el.siteInputDoresSolucaoTexto.value = doresSec.solucao_texto || 'O PostLink resolve isso na raiz: um único link leve que abre um cartão interativo em alta definição direto na conversa, sem download e com botão de pedido.';
+
+  // --- 3. COMPARATIVO HD ---
+  const compSec = secoes.comparativo || {};
+  if (el.siteInputCompTitulo) el.siteInputCompTitulo.value = compSec.titulo || 'Antes vs Depois: Veja a diferença na prática';
+  if (el.siteInputCompSubtitulo) el.siteInputCompSubtitulo.value = compSec.subtitulo || 'Compare a experiência amadora de mandar fotos soltas com o profissionalismo do PostLink';
+  if (el.siteInputCompDepoisTitulo) el.siteInputCompDepoisTitulo.value = compSec.depois_titulo || 'Cartão Inteligente PostLink';
+  if (el.siteInputCompDepoisTexto) el.siteInputCompDepoisTexto.value = compSec.depois_texto || 'Abre em tela cheia na hora, destaca o produto com foto em alta resolução, preço e botão para fechar a compra com 1 toque.';
   if (el.siteInputComoFuncionaImg) {
-    el.siteInputComoFuncionaImg.value = dados.como_funciona_imagem_url || '/assets/img/ex02.png';
+    el.siteInputComoFuncionaImg.value = compSec.imagem_url || dados.como_funciona_imagem_url || '/assets/img/ex02.png';
   }
 
-  // --- SUB-ABA 2: GALERIA & PÁGINA VITRINE ---
+  // --- 4. GALERIA & PÁGINA VITRINE ---
+  const vitrineSec = secoes.vitrine || {};
+  if (el.siteInputVitrineBadgeSecao) el.siteInputVitrineBadgeSecao.value = vitrineSec.badge_texto || 'Página Vitrine de Oferta';
+  if (el.siteInputVitrineSecaoTitulo) el.siteInputVitrineSecaoTitulo.value = vitrineSec.titulo || 'Apresente seu produto com autoridade máxima: Conheça a Página Vitrine';
+  if (el.siteInputVitrineSecaoSubtitulo) el.siteInputVitrineSecaoSubtitulo.value = vitrineSec.subtitulo || 'Transforme seu link em uma página de oferta exclusiva, limpa e pensada para converter cada visitante em pedidos fechados diretamente no seu WhatsApp — sem complicação de sites pesados.';
+
   // Carrossel de Fotos
   let fotosArray = [];
-  if (Array.isArray(dados.vitrine_fotos)) {
+  if (Array.isArray(vitrineSec.fotos) && vitrineSec.fotos.length > 0) {
+    fotosArray = vitrineSec.fotos;
+  } else if (Array.isArray(dados.vitrine_fotos)) {
     fotosArray = dados.vitrine_fotos;
   } else if (typeof dados.vitrine_fotos === 'string') {
     try { fotosArray = JSON.parse(dados.vitrine_fotos); } catch (_) { fotosArray = []; }
@@ -1292,17 +1341,15 @@ function preencherFormularioSite(dados) {
   renderizarListaFotosVitrineAdmin();
 
   // Oferta Vitrine
-  if (el.siteInputVitrineDesconto) el.siteInputVitrineDesconto.value = dados.vitrine_badge_desconto || '-33% OFF';
-  if (el.siteInputVitrinePrecoDe) el.siteInputVitrinePrecoDe.value = dados.vitrine_preco_de || '180,00';
-  if (el.siteInputVitrinePrecoPor) el.siteInputVitrinePrecoPor.value = dados.vitrine_preco_por || '119,90';
-  if (el.siteInputVitrineCondicao) el.siteInputVitrineCondicao.value = dados.vitrine_condicao || 'no Pix ou 3x de R$ 42,90 sem juros';
-  if (el.siteInputVitrineTitulo) el.siteInputVitrineTitulo.value = dados.vitrine_titulo || 'Conjunto Alfaiataria Premium · Edição Limitada Primavera';
+  if (el.siteInputVitrineDesconto) el.siteInputVitrineDesconto.value = vitrineSec.badge_desconto || dados.vitrine_badge_desconto || '-33% OFF';
+  if (el.siteInputVitrinePrecoDe) el.siteInputVitrinePrecoDe.value = vitrineSec.preco_de || dados.vitrine_preco_de || '180,00';
+  if (el.siteInputVitrinePrecoPor) el.siteInputVitrinePrecoPor.value = vitrineSec.preco_por || dados.vitrine_preco_por || '119,90';
+  if (el.siteInputVitrineCondicao) el.siteInputVitrineCondicao.value = vitrineSec.condicao || dados.vitrine_condicao || 'no Pix ou 3x de R$ 42,90 sem juros';
+  if (el.siteInputVitrineTitulo) el.siteInputVitrineTitulo.value = vitrineSec.produto_titulo || dados.vitrine_titulo || 'Conjunto Alfaiataria Premium · Edição Limitada Primavera';
 
-  let beneficios = [];
-  if (Array.isArray(dados.vitrine_beneficios)) {
-    beneficios = dados.vitrine_beneficios;
-  } else if (typeof dados.vitrine_beneficios === 'string') {
-    try { beneficios = JSON.parse(dados.vitrine_beneficios); } catch (_) { beneficios = []; }
+  let beneficios = (Array.isArray(vitrineSec.beneficios) && vitrineSec.beneficios.length > 0) ? vitrineSec.beneficios : dados.vitrine_beneficios;
+  if (typeof beneficios === 'string') {
+    try { beneficios = JSON.parse(beneficios); } catch (_) { beneficios = []; }
   }
   if (!beneficios || beneficios.length === 0) {
     beneficios = ['Envio Imediato com Rastreio em até 24h', 'Garantia Incondicional de Troca por 7 Dias'];
@@ -1311,25 +1358,46 @@ function preencherFormularioSite(dados) {
   if (el.siteInputVitrineBeneficio2) el.siteInputVitrineBeneficio2.value = beneficios[1] || '';
 
   // Identidade da Loja Demo
-  if (el.siteInputLojaNome) el.siteInputLojaNome.value = dados.loja_demonstrativa_nome || 'Aura Closet Oficial';
-  if (el.siteInputLojaAvatar) el.siteInputLojaAvatar.value = dados.loja_demonstrativa_avatar || '/assets/img/ex02.png';
+  if (el.siteInputLojaNome) el.siteInputLojaNome.value = vitrineSec.loja_nome || dados.loja_demonstrativa_nome || 'Aura Closet Oficial';
+  if (el.siteInputLojaAvatar) el.siteInputLojaAvatar.value = vitrineSec.loja_avatar || dados.loja_demonstrativa_avatar || '/assets/img/ex02.png';
 
-  // --- SUB-ABA 3: LINK OFICIAL POSTLINK ---
+  // --- 5. COMO FUNCIONA (3 PASSOS) ---
+  const passosSec = secoes.passos || {};
+  if (el.siteInputPassosTitulo) el.siteInputPassosTitulo.value = passosSec.titulo || 'Como funciona em 3 passos';
+  if (el.siteInputPassosSubtitulo) el.siteInputPassosSubtitulo.value = passosSec.subtitulo || 'Crie links atraentes em menos de 1 minuto sem precisar de designer ou desenvolvedor';
+  if (el.siteInputPasso1Titulo) el.siteInputPasso1Titulo.value = passosSec.passo1_titulo || 'Suba a Foto & Crie com IA';
+  if (el.siteInputPasso1Desc) el.siteInputPasso1Desc.value = passosSec.passo1_desc || 'Adicione a imagem da oferta para gerar o cartão em alta resolução e use nosso Assistente de IA para sugerir títulos chamativos e mensagens persuasivas em segundos.';
+  if (el.siteInputPasso2Titulo) el.siteInputPasso2Titulo.value = passosSec.passo2_titulo || 'Escolha Direto ou Página Vitrine';
+  if (el.siteInputPasso2Desc) el.siteInputPasso2Desc.value = passosSec.passo2_desc || 'Você decide a experiência do cliente: encaminhe direto para o seu WhatsApp/site ou encante com uma Página Vitrine exclusiva com fotos, preço promocional e benefícios.';
+  if (el.siteInputPasso3Titulo) el.siteInputPasso3Titulo.value = passosSec.passo3_titulo || 'Envie e Meça o Funil Real';
+  if (el.siteInputPasso3Desc) el.siteInputPasso3Desc.value = passosSec.passo3_desc || 'Cole o link nos grupos e conversas. O cartão abre na hora sem salvar arquivos no celular do cliente e você mede visualizações e pedidos em tempo real.';
+
+  // --- 6. CHAMADA FINAL / TRIAL ---
+  const ctaFinalSec = secoes.cta_final || {};
+  if (el.siteInputCtaFinalBadge) el.siteInputCtaFinalBadge.value = ctaFinalSec.badge_texto || '7 Dias de Teste Gratuito Completo';
+  if (el.siteInputCtaFinalTitulo) el.siteInputCtaFinalTitulo.value = ctaFinalSec.titulo || 'Pronto para transformar fotos estáticas em vendas reais?';
+  if (el.siteInputCtaFinalSubtitulo) el.siteInputCtaFinalSubtitulo.value = ctaFinalSec.subtitulo || 'Pare de mandar fotos pesadas que ninguém baixa. Comece seu teste de 7 dias grátis agora mesmo e crie seus primeiros cartões inteligentes clicáveis.';
+  if (el.siteInputCtaFinalBtnTexto) el.siteInputCtaFinalBtnTexto.value = ctaFinalSec.btn_texto || 'Criar Link Grátis Agora';
+  if (el.siteInputCtaFinalBtnUrl) el.siteInputCtaFinalBtnUrl.value = ctaFinalSec.btn_url || '/planos/';
+
+  // --- 7. LINK OFICIAL POSTLINK ---
+  const oficialSec = secoes.oficial || {};
   if (el.siteInputOficialTitulo) {
-    el.siteInputOficialTitulo.value = dados.oficial_og_titulo || 'PostLink · Smart Links em Alta Definição para WhatsApp';
+    el.siteInputOficialTitulo.value = oficialSec.og_titulo || dados.oficial_og_titulo || 'PostLink · Smart Links em Alta Definição para WhatsApp';
   }
   if (el.siteInputOficialDescricao) {
-    el.siteInputOficialDescricao.value = dados.oficial_og_descricao || 'Transforme fotos e ofertas em cartões em alta definição que abrem sozinhos no WhatsApp e aumentam suas vendas.';
+    el.siteInputOficialDescricao.value = oficialSec.og_descricao || dados.oficial_og_descricao || 'Transforme fotos e ofertas em cartões em alta definição que abrem sozinhos no WhatsApp e aumentam suas vendas.';
   }
 
   // Miniatura da imagem Oficial do PostLink
-  const oficialImg = dados.oficial_og_imagem_url || dados.banner_url || '/assets/img/logotipo_postlink.jpg';
-  if (dados.oficial_og_imagem_url && !state.siteOficialRemovido) {
+  const oficialImg = oficialSec.og_imagem_url || dados.oficial_og_imagem_url || dados.banner_url || '/assets/img/logotipo_postlink.jpg';
+  if ((oficialSec.og_imagem_url || dados.oficial_og_imagem_url) && !state.siteOficialRemovido) {
+    const urlOg = oficialSec.og_imagem_url || dados.oficial_og_imagem_url;
     if (el.siteOficialPreviewBox) el.siteOficialPreviewBox.classList.remove('hidden');
-    if (el.siteOficialThumb) el.siteOficialThumb.src = dados.oficial_og_imagem_url;
+    if (el.siteOficialThumb) el.siteOficialThumb.src = urlOg;
     if (el.siteOficialInfoNome) el.siteOficialInfoNome.textContent = 'Imagem Oficial Ativa';
     if (el.siteOficialInfoDetalhe) el.siteOficialInfoDetalhe.textContent = 'CDN PostLink · Redes Sociais';
-    if (el.siteInputOficialImgUrl) el.siteInputOficialImgUrl.value = dados.oficial_og_imagem_url;
+    if (el.siteInputOficialImgUrl) el.siteInputOficialImgUrl.value = urlOg;
   } else if (!state.siteOficialBlob) {
     if (el.siteOficialPreviewBox) el.siteOficialPreviewBox.classList.add('hidden');
     if (el.siteOficialThumb) el.siteOficialThumb.src = '';
@@ -1558,6 +1626,19 @@ function atualizarLivePreviewSite() {
   }
   if (el.prevWaPlaceholder) el.prevWaPlaceholder.classList.add('hidden');
 
+  // --- D. RENDERIZAÇÃO DO COMPARATIVO (ANTES VS DEPOIS) ---
+  const compTitulo = (el.siteInputCompTitulo?.value || '').trim() || 'Antes vs Depois: Veja a diferença na prática';
+  const compSubtitulo = (el.siteInputCompSubtitulo?.value || '').trim() || 'Compare o envio tradicional amador com a experiência do PostLink';
+  const compDepoisTit = (el.siteInputCompDepoisTitulo?.value || '').trim() || 'Cartão Inteligente PostLink';
+  const compDepoisTxt = (el.siteInputCompDepoisTexto?.value || '').trim() || 'Abre em tela cheia na hora, destaca o produto com foto em alta resolução, preço e botão para fechar a compra com 1 toque.';
+  const compImg = (el.siteInputComoFuncionaImg?.value || '').trim() || fotoCapaPrincipal || '/assets/img/ex02.png';
+
+  if (el.prevCompTitulo) el.prevCompTitulo.textContent = compTitulo;
+  if (el.prevCompSubtitulo) el.prevCompSubtitulo.textContent = compSubtitulo;
+  if (el.prevCompDepoisTitulo) el.prevCompDepoisTitulo.textContent = compDepoisTit;
+  if (el.prevCompDepoisTexto) el.prevCompDepoisTexto.textContent = compDepoisTxt;
+  if (el.prevCompImg) el.prevCompImg.src = compImg;
+
   // Marca status tag como "Edições Pendentes"
   if (el.siteStatusTag && state.siteConfig) {
     el.siteStatusTag.textContent = 'Alterações não salvas';
@@ -1647,7 +1728,7 @@ async function tratarArquivoOficialSite(file) {
   }
 }
 
-// Salva as alterações no Supabase (grava todos os grupos com integridade total)
+// Salva as alterações no Supabase (grava todos os grupos com integridade total e camada de fallback)
 async function salvarConfiguracoesSite() {
   if (!el.btnSiteSalvar) return;
 
@@ -1663,10 +1744,26 @@ async function salvarConfiguracoesSite() {
   const previewDescricao = (el.siteInputPreviewTexto?.value || '').trim() || 'Compartilhe ofertas no WhatsApp com um cartão visual em alta definição que abre sozinho! 👇';
   const previewSubtitulo = (el.siteInputPreviewSubtitulo?.value || '').trim() || 'postlink.com.br/sua-loja ➔ Redireciona para o destino';
 
-  // Imagem Como Funciona
+  // 2. Dores & Barreiras
+  const doresTitulo = (el.siteInputDoresTitulo?.value || '').trim() || 'O problema de mandar fotos soltas no WhatsApp';
+  const doresSubtitulo = (el.siteInputDoresSubtitulo?.value || '').trim() || 'Por que seu cliente não baixa as fotos e você perde vendas todos os dias para a concorrência';
+  const doresBarreira1Titulo = (el.siteInputDoresBarreira1Titulo?.value || '').trim() || 'Bloqueio do WhatsApp e Mídia Oculta';
+  const doresBarreira1Texto = (el.siteInputDoresBarreira1Texto?.value || '').trim() || 'Fotos soltas chegam com borrão e botão de download manual. A maioria dos contatos simplesmente ignora sem sequer abrir.';
+  const doresBarreira2Titulo = (el.siteInputDoresBarreira2Titulo?.value || '').trim() || 'Memória Cheia e Desconfiança';
+  const doresBarreira2Texto = (el.siteInputDoresBarreira2Texto?.value || '').trim() || 'Ninguém quer acumular centenas de fotos pesadas na galeria pessoal para conferir um produto que nem sabe se vai comprar.';
+  const doresSolucaoTexto = (el.siteInputDoresSolucaoTexto?.value || '').trim() || 'O PostLink resolve isso na raiz: um único link leve que abre um cartão interativo em alta definição direto na conversa, sem download e com botão de pedido.';
+
+  // 3. Comparativo
+  const compTitulo = (el.siteInputCompTitulo?.value || '').trim() || 'Antes vs Depois: Veja a diferença na prática';
+  const compSubtitulo = (el.siteInputCompSubtitulo?.value || '').trim() || 'Compare a experiência amadora de mandar fotos soltas com o profissionalismo do PostLink';
+  const compDepoisTitulo = (el.siteInputCompDepoisTitulo?.value || '').trim() || 'Cartão Inteligente PostLink';
+  const compDepoisTexto = (el.siteInputCompDepoisTexto?.value || '').trim() || 'Abre em tela cheia na hora, destaca o produto com foto em alta resolução, preço e botão para fechar a compra com 1 toque.';
   const comoFuncionaImg = (el.siteInputComoFuncionaImg?.value || '').trim() || '/assets/img/ex02.png';
 
-  // 2. Dados da Galeria & Página Vitrine
+  // 4. Galeria & Página Vitrine
+  const vitrineSecBadge = (el.siteInputVitrineBadgeSecao?.value || '').trim() || 'Página Vitrine de Oferta';
+  const vitrineSecTitulo = (el.siteInputVitrineSecaoTitulo?.value || '').trim() || 'Apresente seu produto com autoridade máxima: Conheça a Página Vitrine';
+  const vitrineSecSubtitulo = (el.siteInputVitrineSecaoSubtitulo?.value || '').trim() || 'Transforme seu link em uma página de oferta exclusiva, limpa e pensada para converter cada visitante em pedidos fechados diretamente no seu WhatsApp — sem complicação de sites pesados.';
   const vitrineBadgeDesconto = (el.siteInputVitrineDesconto?.value || '').trim() || '-33% OFF';
   const vitrinePrecoDe = (el.siteInputVitrinePrecoDe?.value || '').trim() || '180,00';
   const vitrinePrecoPor = (el.siteInputVitrinePrecoPor?.value || '').trim() || '119,90';
@@ -1678,7 +1775,24 @@ async function salvarConfiguracoesSite() {
   const lojaNome = (el.siteInputLojaNome?.value || '').trim() || 'Aura Closet Oficial';
   const lojaAvatar = (el.siteInputLojaAvatar?.value || '').trim() || '/assets/img/ex02.png';
 
-  // 3. Dados Oficiais de Compartilhamento
+  // 5. Passos (Como Funciona)
+  const passosTitulo = (el.siteInputPassosTitulo?.value || '').trim() || 'Como funciona em 3 passos';
+  const passosSubtitulo = (el.siteInputPassosSubtitulo?.value || '').trim() || 'Crie links atraentes em menos de 1 minuto sem precisar de designer ou desenvolvedor';
+  const passo1Titulo = (el.siteInputPasso1Titulo?.value || '').trim() || 'Suba a Foto & Crie com IA';
+  const passo1Desc = (el.siteInputPasso1Desc?.value || '').trim() || 'Adicione a imagem da oferta para gerar o cartão em alta resolução e use nosso Assistente de IA para sugerir títulos chamativos e mensagens persuasivas em segundos.';
+  const passo2Titulo = (el.siteInputPasso2Titulo?.value || '').trim() || 'Escolha Direto ou Página Vitrine';
+  const passo2Desc = (el.siteInputPasso2Desc?.value || '').trim() || 'Você decide a experiência do cliente: encaminhe direto para o seu WhatsApp/site ou encante com uma Página Vitrine exclusiva com fotos, preço promocional e benefícios.';
+  const passo3Titulo = (el.siteInputPasso3Titulo?.value || '').trim() || 'Envie e Meça o Funil Real';
+  const passo3Desc = (el.siteInputPasso3Desc?.value || '').trim() || 'Cole o link nos grupos e conversas. O cartão abre na hora sem salvar arquivos no celular do cliente e você mede visualizações e pedidos em tempo real.';
+
+  // 6. Chamada Final
+  const ctaFinalBadge = (el.siteInputCtaFinalBadge?.value || '').trim() || '7 Dias de Teste Gratuito Completo';
+  const ctaFinalTitulo = (el.siteInputCtaFinalTitulo?.value || '').trim() || 'Pronto para transformar fotos estáticas em vendas reais?';
+  const ctaFinalSubtitulo = (el.siteInputCtaFinalSubtitulo?.value || '').trim() || 'Pare de mandar fotos pesadas que ninguém baixa. Comece seu teste de 7 dias grátis agora mesmo e crie seus primeiros cartões inteligentes clicáveis.';
+  const ctaFinalBtnTexto = (el.siteInputCtaFinalBtnTexto?.value || '').trim() || 'Criar Link Grátis Agora';
+  const ctaFinalBtnUrl = (el.siteInputCtaFinalBtnUrl?.value || '').trim() || '/planos/';
+
+  // 7. Dados Oficiais de Compartilhamento
   const oficialOgTitulo = (el.siteInputOficialTitulo?.value || '').trim() || 'PostLink · Smart Links em Alta Definição para WhatsApp';
   const oficialOgDescricao = (el.siteInputOficialDescricao?.value || '').trim() || 'Transforme fotos e ofertas em cartões em alta definição que abrem sozinhos no WhatsApp e aumentam suas vendas.';
 
@@ -1707,10 +1821,7 @@ async function salvarConfiguracoesSite() {
 
     // 1. Processar Foto de Exemplo da Vitrine (preview_imagem_url)
     let previewImgUrl = state.siteConfig ? (state.siteConfig.preview_imagem_url || state.siteConfig.banner_url) : null;
-
-    if (state.siteBannerRemovido) {
-      previewImgUrl = null;
-    }
+    if (state.siteBannerRemovido) previewImgUrl = null;
 
     const urlManualVitrine = (el.siteInputBannerUrl?.value || '').trim();
     if (urlManualVitrine && !state.siteBannerBlob) {
@@ -1720,7 +1831,6 @@ async function salvarConfiguracoesSite() {
     if (state.siteBannerBlob) {
       toast('Enviando foto de exemplo da vitrine para o CDN…', 'info');
       const nomeArquivoVitrine = `${state.user.id}/site_preview_${Date.now()}.jpg`;
-
       const { error: errUploadVitrine } = await sb.storage
         .from('banners')
         .upload(nomeArquivoVitrine, state.siteBannerBlob, {
@@ -1739,10 +1849,7 @@ async function salvarConfiguracoesSite() {
 
     // 2. Processar Imagem Oficial de Compartilhamento (oficial_og_imagem_url)
     let oficialImgUrl = state.siteConfig ? (state.siteConfig.oficial_og_imagem_url || state.siteConfig.banner_url) : null;
-
-    if (state.siteOficialRemovido) {
-      oficialImgUrl = null;
-    }
+    if (state.siteOficialRemovido) oficialImgUrl = null;
 
     const urlManualOficial = (el.siteInputOficialImgUrl?.value || '').trim();
     if (urlManualOficial && !state.siteOficialBlob) {
@@ -1752,7 +1859,6 @@ async function salvarConfiguracoesSite() {
     if (state.siteOficialBlob) {
       toast('Enviando imagem oficial do PostLink para o CDN…', 'info');
       const nomeArquivoOficial = `${state.user.id}/site_oficial_${Date.now()}.jpg`;
-
       const { error: errUploadOficial } = await sb.storage
         .from('banners')
         .upload(nomeArquivoOficial, state.siteOficialBlob, {
@@ -1803,37 +1909,159 @@ async function salvarConfiguracoesSite() {
     // Fallback retrocompatível para banner_url
     const bannerUrlRetro = previewImgUrl || oficialImgUrl || null;
 
-    // 4. Invocar RPC com os 24 parâmetros no Supabase
-    const { data: resRpc, error: errRpc } = await sb.rpc('admin_salvar_configuracoes_site', {
-      p_titulo: titulo,
-      p_descricao: descricao,
-      p_banner_url: bannerUrlRetro,
-      p_badge_texto: badgeTexto,
-      p_cta_texto: ctaTexto,
-      p_cta_url: ctaUrl,
-      p_banner_ativo: bannerAtivo,
-      p_preview_titulo: previewTitulo,
-      p_preview_descricao: previewDescricao,
-      p_preview_subtitulo: previewSubtitulo,
-      p_preview_imagem_url: previewImgUrl,
-      p_oficial_og_titulo: oficialOgTitulo,
-      p_oficial_og_descricao: oficialOgDescricao,
-      p_oficial_og_imagem_url: oficialImgUrl,
-      p_vitrine_fotos: vitrineFotosUrls,
-      p_vitrine_badge_desconto: vitrineBadgeDesconto,
-      p_vitrine_preco_de: vitrinePrecoDe,
-      p_vitrine_preco_por: vitrinePrecoPor,
-      p_vitrine_condicao: vitrineCondicao,
-      p_vitrine_titulo: vitrineTitulo,
-      p_vitrine_beneficios: vitrineBeneficios,
-      p_como_funciona_imagem_url: comoFuncionaImg,
-      p_loja_demonstrativa_nome: lojaNome,
-      p_loja_demonstrativa_avatar: lojaAvatar,
-    });
+    // 4. Montar Objeto Estruturado de Todas as 7 Seções
+    const secoesConteudo = {
+      hero: {
+        badge_texto: badgeTexto,
+        titulo: titulo,
+        descricao: descricao,
+        cta_texto: ctaTexto,
+        cta_url: ctaUrl,
+      },
+      dores: {
+        titulo: doresTitulo,
+        subtitulo: doresSubtitulo,
+        barreira1_titulo: doresBarreira1Titulo,
+        barreira1_texto: doresBarreira1Texto,
+        barreira2_titulo: doresBarreira2Titulo,
+        barreira2_texto: doresBarreira2Texto,
+        solucao_texto: doresSolucaoTexto,
+      },
+      comparativo: {
+        titulo: compTitulo,
+        subtitulo: compSubtitulo,
+        depois_titulo: compDepoisTitulo,
+        depois_texto: compDepoisTexto,
+        imagem_url: comoFuncionaImg,
+      },
+      vitrine: {
+        badge_texto: vitrineSecBadge,
+        titulo: vitrineSecTitulo,
+        subtitulo: vitrineSecSubtitulo,
+        fotos: vitrineFotosUrls,
+        badge_desconto: vitrineBadgeDesconto,
+        preco_de: vitrinePrecoDe,
+        preco_por: vitrinePrecoPor,
+        condicao: vitrineCondicao,
+        produto_titulo: vitrineTitulo,
+        beneficios: vitrineBeneficios,
+        loja_nome: lojaNome,
+        loja_avatar: lojaAvatar,
+      },
+      passos: {
+        titulo: passosTitulo,
+        subtitulo: passosSubtitulo,
+        passo1_titulo: passo1Titulo,
+        passo1_desc: passo1Desc,
+        passo2_titulo: passo2Titulo,
+        passo2_desc: passo2Desc,
+        passo3_titulo: passo3Titulo,
+        passo3_desc: passo3Desc,
+      },
+      cta_final: {
+        badge_texto: ctaFinalBadge,
+        titulo: ctaFinalTitulo,
+        subtitulo: ctaFinalSubtitulo,
+        btn_texto: ctaFinalBtnTexto,
+        btn_url: ctaFinalBtnUrl,
+      },
+      oficial: {
+        og_titulo: oficialOgTitulo,
+        og_descricao: oficialOgDescricao,
+        og_imagem_url: oficialImgUrl,
+      },
+    };
 
-    if (errRpc) throw errRpc;
+    // 5. Invocação com Dupla Camada de Persistência (RPC + Fallback Upsert)
+    let dadosSalvos = null;
 
-    state.siteConfig = (resRpc && resRpc.dados) ? resRpc.dados : {
+    try {
+      // Tentativa 1: RPC com 25 parâmetros
+      const { data: resRpc, error: errRpc } = await sb.rpc('admin_salvar_configuracoes_site', {
+        p_titulo: titulo,
+        p_descricao: descricao,
+        p_banner_url: bannerUrlRetro,
+        p_badge_texto: badgeTexto,
+        p_cta_texto: ctaTexto,
+        p_cta_url: ctaUrl,
+        p_banner_ativo: bannerAtivo,
+        p_preview_titulo: previewTitulo,
+        p_preview_descricao: previewDescricao,
+        p_preview_subtitulo: previewSubtitulo,
+        p_preview_imagem_url: previewImgUrl,
+        p_oficial_og_titulo: oficialOgTitulo,
+        p_oficial_og_descricao: oficialOgDescricao,
+        p_oficial_og_imagem_url: oficialImgUrl,
+        p_vitrine_fotos: vitrineFotosUrls,
+        p_vitrine_badge_desconto: vitrineBadgeDesconto,
+        p_vitrine_preco_de: vitrinePrecoDe,
+        p_vitrine_preco_por: vitrinePrecoPor,
+        p_vitrine_condicao: vitrineCondicao,
+        p_vitrine_titulo: vitrineTitulo,
+        p_vitrine_beneficios: vitrineBeneficios,
+        p_como_funciona_imagem_url: comoFuncionaImg,
+        p_loja_demonstrativa_nome: lojaNome,
+        p_loja_demonstrativa_avatar: lojaAvatar,
+        p_secoes_conteudo: secoesConteudo,
+      });
+
+      if (errRpc) throw errRpc;
+      dadosSalvos = (resRpc && resRpc.dados) ? resRpc.dados : null;
+    } catch (errRpc) {
+      console.warn('RPC admin_salvar_configuracoes_site falhou, executando fallback direto na tabela configuracoes_site:', errRpc);
+
+      // Tentativa 2: Upsert direto autenticado na tabela
+      const payloadDireto = {
+        id: 'oficial',
+        titulo,
+        descricao,
+        banner_url: bannerUrlRetro,
+        badge_texto: badgeTexto,
+        cta_texto: ctaTexto,
+        cta_url: ctaUrl,
+        banner_ativo: bannerAtivo,
+        preview_titulo: previewTitulo,
+        preview_descricao: previewDescricao,
+        preview_subtitulo: previewSubtitulo,
+        preview_imagem_url: previewImgUrl,
+        oficial_og_titulo: oficialOgTitulo,
+        oficial_og_descricao: oficialOgDescricao,
+        oficial_og_imagem_url: oficialImgUrl,
+        vitrine_fotos: vitrineFotosUrls,
+        vitrine_badge_desconto: vitrineBadgeDesconto,
+        vitrine_preco_de: vitrinePrecoDe,
+        vitrine_preco_por: vitrinePrecoPor,
+        vitrine_condicao: vitrineCondicao,
+        vitrine_titulo: vitrineTitulo,
+        vitrine_beneficios: vitrineBeneficios,
+        como_funciona_imagem_url: comoFuncionaImg,
+        loja_demonstrativa_nome: lojaNome,
+        loja_demonstrativa_avatar: lojaAvatar,
+        secoes_conteudo: secoesConteudo,
+        atualizado_em: new Date().toISOString(),
+        atualizado_por: state.user ? state.user.email : 'admin',
+      };
+
+      const { data: resUpsert, error: errUpsert } = await sb
+        .from('configuracoes_site')
+        .upsert(payloadDireto)
+        .select()
+        .maybeSingle();
+
+      if (errUpsert) {
+        console.warn('Upsert completo com secoes_conteudo falhou, tentando fallback legado sem a coluna nova:', errUpsert);
+        delete payloadDireto.secoes_conteudo;
+        const { error: errUpsertLegado } = await sb
+          .from('configuracoes_site')
+          .upsert(payloadDireto);
+
+        if (errUpsertLegado) throw errUpsertLegado;
+      }
+
+      dadosSalvos = resUpsert || payloadDireto;
+    }
+
+    state.siteConfig = dadosSalvos || {
       titulo,
       descricao,
       banner_url: bannerUrlRetro,
@@ -1858,9 +2086,15 @@ async function salvarConfiguracoesSite() {
       como_funciona_imagem_url: comoFuncionaImg,
       loja_demonstrativa_nome: lojaNome,
       loja_demonstrativa_avatar: lojaAvatar,
+      secoes_conteudo: secoesConteudo,
       atualizado_em: new Date().toISOString(),
       atualizado_por: state.user ? state.user.email : 'admin',
     };
+
+    // Garante que secoes_conteudo esteja presente no estado mesmo se o banco não o retornou
+    if (!state.siteConfig.secoes_conteudo) {
+      state.siteConfig.secoes_conteudo = secoesConteudo;
+    }
 
     // Reseta blobs temporários após gravação bem-sucedida
     state.siteBannerBlob = null;
@@ -1876,7 +2110,7 @@ async function salvarConfiguracoesSite() {
       localStorage.setItem('postlink_site_config', JSON.stringify(state.siteConfig));
     } catch (_) {}
 
-    toast('Configurações salvas e publicadas com sucesso! ✨', 'success');
+    toast('Configurações de todas as seções salvas e publicadas com sucesso! ✨', 'success');
   } catch (err) {
     console.error('Erro ao salvar site:', err);
     toast('Erro ao salvar: ' + (err.message || err), 'error');
@@ -1890,7 +2124,7 @@ async function salvarConfiguracoesSite() {
   }
 }
 
-// Restaura os padrões de fábrica do PostLink
+// Restaura os padrões de fábrica do PostLink para todas as 7 seções
 function restaurarPadraoSite() {
   const padrao = {
     titulo: 'Transforme ofertas em cartões em alta definição que abrem sozinhos e vendem no WhatsApp',
@@ -1917,9 +2151,70 @@ function restaurarPadraoSite() {
     como_funciona_imagem_url: '/assets/img/ex02.png',
     loja_demonstrativa_nome: 'Aura Closet Oficial',
     loja_demonstrativa_avatar: '/assets/img/ex02.png',
+    secoes_conteudo: {
+      hero: {
+        badge_texto: 'Cartões HD · Página Vitrine · Criação com IA',
+        titulo: 'Transforme ofertas em cartões em alta definição que abrem sozinhos e vendem no WhatsApp',
+        descricao: 'Crie anúncios magnéticos com o apoio de Inteligência Artificial, compartilhe cartões em alta definição que abrem sozinhos no WhatsApp e direcione clientes para sua própria Página Vitrine com fotos, preço promocional e botão de pedido direto.',
+        cta_texto: 'Começar Grátis',
+        cta_url: '/planos/',
+      },
+      dores: {
+        titulo: 'O problema de mandar fotos soltas no WhatsApp',
+        subtitulo: 'Por que seu cliente não baixa as fotos e você perde vendas todos os dias para a concorrência',
+        barreira1_titulo: 'Bloqueio do WhatsApp e Mídia Oculta',
+        barreira1_texto: 'Fotos soltas chegam com borrão e botão de download manual. A maioria dos contatos simplesmente ignora sem sequer abrir.',
+        barreira2_titulo: 'Memória Cheia e Desconfiança',
+        barreira2_texto: 'Ninguém quer acumular centenas de fotos pesadas na galeria pessoal para conferir um produto que nem sabe se vai comprar.',
+        solucao_texto: 'O PostLink resolve isso na raiz: um único link leve que abre um cartão interativo em alta definição direto na conversa, sem download e com botão de pedido.',
+      },
+      comparativo: {
+        titulo: 'Antes vs Depois: Veja a diferença na prática',
+        subtitulo: 'Compare a experiência amadora de mandar fotos soltas com o profissionalismo do PostLink',
+        depois_titulo: 'Cartão Inteligente PostLink',
+        depois_texto: 'Abre em tela cheia na hora, destaca o produto com foto em alta resolução, preço e botão para fechar a compra com 1 toque.',
+        imagem_url: '/assets/img/ex02.png',
+      },
+      vitrine: {
+        badge_texto: 'Página Vitrine de Oferta',
+        titulo: 'Apresente seu produto com autoridade máxima: Conheça a Página Vitrine',
+        subtitulo: 'Transforme seu link em uma página de oferta exclusiva, limpa e pensada para converter cada visitante em pedidos fechados diretamente no seu WhatsApp — sem complicação de sites pesados.',
+        fotos: ['/assets/img/ex02.png', '/assets/img/Ex01.png', '/assets/img/logotipo_postlink.jpg'],
+        badge_desconto: '-33% OFF',
+        preco_de: '180,00',
+        preco_por: '119,90',
+        condicao: 'no Pix ou 3x de R$ 42,90 sem juros',
+        produto_titulo: 'Conjunto Alfaiataria Premium · Edição Limitada Primavera',
+        beneficios: ['Envio Imediato com Rastreio em até 24h', 'Garantia Incondicional de Troca por 7 Dias'],
+        loja_nome: 'Aura Closet Oficial',
+        loja_avatar: '/assets/img/ex02.png',
+      },
+      passos: {
+        titulo: 'Como funciona em 3 passos',
+        subtitulo: 'Crie links atraentes em menos de 1 minuto sem precisar de designer ou desenvolvedor',
+        passo1_titulo: 'Suba a Foto & Crie com IA',
+        passo1_desc: 'Adicione a imagem da oferta para gerar o cartão em alta resolução e use nosso Assistente de IA para sugerir títulos chamativos e mensagens persuasivas em segundos.',
+        passo2_titulo: 'Escolha Direto ou Página Vitrine',
+        passo2_desc: 'Você decide a experiência do cliente: encaminhe direto para o seu WhatsApp/site ou encante com uma Página Vitrine exclusiva com fotos, preço promocional e benefícios.',
+        passo3_titulo: 'Envie e Meça o Funil Real',
+        passo3_desc: 'Cole o link nos grupos e conversas. O cartão abre na hora sem salvar arquivos no celular do cliente e você mede visualizações e pedidos em tempo real.',
+      },
+      cta_final: {
+        badge_texto: '7 Dias de Teste Gratuito Completo',
+        titulo: 'Pronto para transformar fotos estáticas em vendas reais?',
+        subtitulo: 'Pare de mandar fotos pesadas que ninguém baixa. Comece seu teste de 7 dias grátis agora mesmo e crie seus primeiros cartões inteligentes clicáveis.',
+        btn_texto: 'Criar Link Grátis Agora',
+        btn_url: '/planos/',
+      },
+      oficial: {
+        og_titulo: 'PostLink · Smart Links em Alta Definição para WhatsApp',
+        og_descricao: 'Transforme fotos e ofertas em cartões em alta definição que abrem sozinhos no WhatsApp e aumentam suas vendas.',
+        og_imagem_url: null,
+      },
+    },
   };
 
-  if (!confirm('Deseja restaurar os textos e fotos padrão originais do PostLink? (Clique em Salvar Alterações após confirmar para gravar)')) {
+  if (!confirm('Deseja restaurar os textos e fotos padrão originais de todas as 7 seções do PostLink? (Clique em Salvar Alterações após confirmar para gravar)')) {
     return;
   }
 
@@ -1945,17 +2240,31 @@ function restaurarPadraoSite() {
 
   preencherFormularioSite(padrao);
   atualizarLivePreviewSite();
-  toast('Valores padrão restaurados na tela. Clique em "Salvar Alterações" para publicar.', 'info');
+  toast('Valores padrão de todas as seções restaurados na tela. Clique em "Salvar Alterações" para publicar.', 'info');
 }
 
 // Configura todos os ouvintes de eventos da aba do Site Oficial
 function configurarEventosEditorSite() {
   // Delegação global de cliques para sub-abas e botões de preview
   document.addEventListener('click', (e) => {
-    const btnOficial = e.target.closest('#btn-subtab-oficial, [data-subtab="oficial"]');
-    if (btnOficial) {
+    const btnHero = e.target.closest('#btn-subtab-hero, [data-subtab="hero"]');
+    if (btnHero) {
       e.preventDefault();
-      alternarSubabaSite('oficial');
+      alternarSubabaSite('hero');
+      return;
+    }
+
+    const btnDores = e.target.closest('#btn-subtab-dores, [data-subtab="dores"]');
+    if (btnDores) {
+      e.preventDefault();
+      alternarSubabaSite('dores');
+      return;
+    }
+
+    const btnComp = e.target.closest('#btn-subtab-comparativo, [data-subtab="comparativo"]');
+    if (btnComp) {
+      e.preventDefault();
+      alternarSubabaSite('comparativo');
       return;
     }
 
@@ -1966,10 +2275,31 @@ function configurarEventosEditorSite() {
       return;
     }
 
+    const btnPassos = e.target.closest('#btn-subtab-passos, [data-subtab="passos"]');
+    if (btnPassos) {
+      e.preventDefault();
+      alternarSubabaSite('passos');
+      return;
+    }
+
+    const btnCtaFinal = e.target.closest('#btn-subtab-cta-final, [data-subtab="cta_final"]');
+    if (btnCtaFinal) {
+      e.preventDefault();
+      alternarSubabaSite('cta_final');
+      return;
+    }
+
+    const btnOficial = e.target.closest('#btn-subtab-oficial, [data-subtab="oficial"]');
+    if (btnOficial) {
+      e.preventDefault();
+      alternarSubabaSite('oficial');
+      return;
+    }
+
     const btnLanding = e.target.closest('#btn-subtab-landing, [data-subtab="landing"]');
     if (btnLanding) {
       e.preventDefault();
-      alternarSubabaSite('landing');
+      alternarSubabaSite('hero');
       return;
     }
 
@@ -1987,10 +2317,17 @@ function configurarEventosEditorSite() {
       return;
     }
 
-    const btnHero = e.target.closest('#btn-preview-tab-hero');
-    if (btnHero) {
+    const btnHeroPrev = e.target.closest('#btn-preview-tab-hero');
+    if (btnHeroPrev) {
       e.preventDefault();
       ativarPreviewFrame('hero');
+      return;
+    }
+
+    const btnCompPrev = e.target.closest('#btn-preview-tab-comparativo');
+    if (btnCompPrev) {
+      e.preventDefault();
+      ativarPreviewFrame('comparativo');
       return;
     }
 
@@ -2009,30 +2346,27 @@ function configurarEventosEditorSite() {
     }
   });
 
-  // 1. Sub-abas de Edição (ouvintes diretos)
-  const bLanding = el.btnSubtabLanding || document.getElementById('btn-subtab-landing');
-  if (bLanding) {
-    bLanding.addEventListener('click', (e) => {
-      e.preventDefault();
-      alternarSubabaSite('landing');
-    });
-  }
-  const bVitrine = el.btnSubtabVitrine || document.getElementById('btn-subtab-vitrine');
-  if (bVitrine) {
-    bVitrine.addEventListener('click', (e) => {
-      e.preventDefault();
-      alternarSubabaSite('vitrine');
-    });
-  }
-  const bOficial = el.btnSubtabOficial || document.getElementById('btn-subtab-oficial');
-  if (bOficial) {
-    bOficial.addEventListener('click', (e) => {
-      e.preventDefault();
-      alternarSubabaSite('oficial');
-    });
-  }
+  // 1. Sub-abas de Edição (ouvintes diretos nos botões das 7 seções)
+  const subtabsLista = [
+    { el: el.btnSubtabHero, aba: 'hero' },
+    { el: el.btnSubtabDores, aba: 'dores' },
+    { el: el.btnSubtabComparativo, aba: 'comparativo' },
+    { el: el.btnSubtabVitrine, aba: 'vitrine' },
+    { el: el.btnSubtabPassos, aba: 'passos' },
+    { el: el.btnSubtabCtaFinal, aba: 'cta_final' },
+    { el: el.btnSubtabOficial, aba: 'oficial' },
+    { el: el.btnSubtabLanding, aba: 'hero' },
+  ];
+  subtabsLista.forEach(({ el: btn, aba }) => {
+    if (btn) {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        alternarSubabaSite(aba);
+      });
+    }
+  });
 
-  // 2. Sub-aba 1 (Hero & WhatsApp): Inputs e contadores
+  // 2. Seção 1 (Hero & WhatsApp): Inputs e contadores
   if (el.siteInputPreviewTitulo) {
     el.siteInputPreviewTitulo.addEventListener('input', () => {
       atualizarContadoresTextos();
@@ -2062,8 +2396,8 @@ function configurarEventosEditorSite() {
     });
   }
   if (el.siteInputCtaTexto) el.siteInputCtaTexto.addEventListener('input', atualizarLivePreviewSite);
+  if (el.siteInputCtaUrl) el.siteInputCtaUrl.addEventListener('input', atualizarLivePreviewSite);
   if (el.siteSwitchBannerAtivo) el.siteSwitchBannerAtivo.addEventListener('change', atualizarLivePreviewSite);
-  if (el.siteInputComoFuncionaImg) el.siteInputComoFuncionaImg.addEventListener('input', atualizarLivePreviewSite);
 
   // Dropzone da foto de exemplo da vitrine
   if (el.siteDropzone) {
@@ -2149,7 +2483,33 @@ function configurarEventosEditorSite() {
     });
   }
 
-  // 3. Sub-aba 2 (Galeria & Página Vitrine): Upload de fotos e inputs
+  // 3. Seção 2 (Dores & Barreiras)
+  const doresInputs = [
+    el.siteInputDoresTitulo,
+    el.siteInputDoresSubtitulo,
+    el.siteInputDoresBarreira1Titulo,
+    el.siteInputDoresBarreira1Texto,
+    el.siteInputDoresBarreira2Titulo,
+    el.siteInputDoresBarreira2Texto,
+    el.siteInputDoresSolucaoTexto,
+  ];
+  doresInputs.forEach((inp) => {
+    if (inp) inp.addEventListener('input', atualizarLivePreviewSite);
+  });
+
+  // 4. Seção 3 (Comparativo HD)
+  const compInputs = [
+    el.siteInputCompTitulo,
+    el.siteInputCompSubtitulo,
+    el.siteInputCompDepoisTitulo,
+    el.siteInputCompDepoisTexto,
+    el.siteInputComoFuncionaImg,
+  ];
+  compInputs.forEach((inp) => {
+    if (inp) inp.addEventListener('input', atualizarLivePreviewSite);
+  });
+
+  // 5. Seção 4 (Galeria & Página Vitrine): Upload de fotos e inputs
   if (el.siteDropzoneVitrineExtra) {
     ['dragenter', 'dragover'].forEach((eventName) => {
       el.siteDropzoneVitrineExtra.addEventListener(eventName, (e) => {
@@ -2200,8 +2560,10 @@ function configurarEventosEditorSite() {
     });
   }
 
-  // Inputs da vitrine
   const vitrineInputs = [
+    el.siteInputVitrineBadgeSecao,
+    el.siteInputVitrineSecaoTitulo,
+    el.siteInputVitrineSecaoSubtitulo,
     el.siteInputVitrineDesconto,
     el.siteInputVitrinePrecoDe,
     el.siteInputVitrinePrecoPor,
@@ -2216,7 +2578,34 @@ function configurarEventosEditorSite() {
     if (inp) inp.addEventListener('input', atualizarLivePreviewSite);
   });
 
-  // 4. Sub-aba 3 (Link Oficial PostLink): Inputs e contadores
+  // 6. Seção 5 (Como Funciona - 3 Passos)
+  const passosInputs = [
+    el.siteInputPassosTitulo,
+    el.siteInputPassosSubtitulo,
+    el.siteInputPasso1Titulo,
+    el.siteInputPasso1Desc,
+    el.siteInputPasso2Titulo,
+    el.siteInputPasso2Desc,
+    el.siteInputPasso3Titulo,
+    el.siteInputPasso3Desc,
+  ];
+  passosInputs.forEach((inp) => {
+    if (inp) inp.addEventListener('input', atualizarLivePreviewSite);
+  });
+
+  // 7. Seção 6 (Chamada Final / CTA)
+  const ctaFinalInputs = [
+    el.siteInputCtaFinalBadge,
+    el.siteInputCtaFinalTitulo,
+    el.siteInputCtaFinalSubtitulo,
+    el.siteInputCtaFinalBtnTexto,
+    el.siteInputCtaFinalBtnUrl,
+  ];
+  ctaFinalInputs.forEach((inp) => {
+    if (inp) inp.addEventListener('input', atualizarLivePreviewSite);
+  });
+
+  // 8. Seção 7 (Link Oficial PostLink): Inputs e contadores
   if (el.siteInputOficialTitulo) {
     el.siteInputOficialTitulo.addEventListener('input', () => {
       atualizarContadoresTextos();
@@ -2228,6 +2617,9 @@ function configurarEventosEditorSite() {
       atualizarContadoresTextos();
       atualizarLivePreviewSite();
     });
+  }
+  if (el.siteInputOficialImgUrl) {
+    el.siteInputOficialImgUrl.addEventListener('input', atualizarLivePreviewSite);
   }
 
   // Dropzone da imagem oficial
@@ -2314,9 +2706,10 @@ function configurarEventosEditorSite() {
     });
   }
 
-  // 5. Alternância entre prévia Hero, Smartphone Mockup e WhatsApp Card (Live Preview)
+  // 9. Alternância entre as 4 prévias em tempo real (Hero, Smartphone, Comparativo, WhatsApp)
   if (el.btnPreviewTabHero) el.btnPreviewTabHero.addEventListener('click', () => ativarPreviewFrame('hero'));
   if (el.btnPreviewTabSmartphone) el.btnPreviewTabSmartphone.addEventListener('click', () => ativarPreviewFrame('smartphone'));
+  if (el.btnPreviewTabComparativo) el.btnPreviewTabComparativo.addEventListener('click', () => ativarPreviewFrame('comparativo'));
   if (el.btnPreviewTabWa) el.btnPreviewTabWa.addEventListener('click', () => ativarPreviewFrame('wa'));
 
   if (el.btnPrevMiniTabWa && el.btnPrevMiniTabVitrine) {
@@ -2324,7 +2717,7 @@ function configurarEventosEditorSite() {
     el.btnPrevMiniTabVitrine.addEventListener('click', () => alternarMiniPreviaAdmin('vitrine'));
   }
 
-  // 6. Botões de Ação
+  // 10. Botões de Ação Global (Salvar e Restaurar Padrões)
   if (el.btnSiteSalvar) el.btnSiteSalvar.addEventListener('click', salvarConfiguracoesSite);
   if (el.btnSiteRestaurar) el.btnSiteRestaurar.addEventListener('click', restaurarPadraoSite);
 }

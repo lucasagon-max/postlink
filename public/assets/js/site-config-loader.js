@@ -1,64 +1,146 @@
 // public/assets/js/site-config-loader.js
-// Carregamento dinâmico das configurações oficiais do PostLink (Banner, Título, Descrição, etc.)
+// Carregamento dinâmico das configurações oficiais do PostLink (por seções e atributos individuais)
 
 (function () {
   const CACHE_KEY = 'postlink_site_config';
 
-  // Função para aplicar os dados no DOM da página
+  // Helper para atualizar texto com segurança
+  function setTexto(id, valor) {
+    if (!valor) return;
+    const el = document.getElementById(id);
+    if (el) el.textContent = valor;
+  }
+
+  // Helper para atualizar HTML com segurança
+  function setHTML(id, html) {
+    if (!html) return;
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = html;
+  }
+
+  // Helper para atualizar atributo src
+  function setSrc(id, src) {
+    if (!src) return;
+    const el = document.getElementById(id);
+    if (el) el.src = src;
+  }
+
+  // Helper para atualizar link href
+  function setHref(id, href) {
+    if (!href) return;
+    const el = document.getElementById(id);
+    if (el) el.href = href;
+  }
+
+  // Função principal para aplicar os dados no DOM da página
   function aplicarConfiguracoes(config) {
     if (!config) return;
 
-    // 1. Badge do Topo
-    const badgeWrap = document.getElementById('hero-badge-wrap');
-    const badgeTexto = document.getElementById('hero-badge-texto');
-    if (badgeTexto && config.badge_texto) {
-      badgeTexto.textContent = config.badge_texto;
+    const secoes = config.secoes_conteudo || {};
+
+    // ==========================================
+    // 1. SEÇÃO HERO
+    // ==========================================
+    const heroSec = secoes.hero || {};
+    const badgeTexto = heroSec.badge_texto || config.badge_texto;
+    if (badgeTexto) {
+      setTexto('hero-badge-texto', badgeTexto);
+      const badgeWrap = document.getElementById('hero-badge-wrap');
       if (badgeWrap) badgeWrap.classList.remove('hidden');
     }
 
-    // 2. Título Principal (Headline)
-    const elTitulo = document.getElementById('hero-titulo');
-    if (elTitulo && config.titulo) {
-      // Se for o texto padrão original, preserva as tags de estilo e destaque
-      const padraoOriginal = 'Transforme ofertas em cartões em alta definição que abrem sozinhos e vendem no WhatsApp';
-      if (config.titulo === padraoOriginal) {
-        elTitulo.innerHTML = `Transforme ofertas em <br class="hidden sm:inline">
-          <span class="text-primary-container">cartões em alta definição</span> que <span class="text-secondary-dark underline decoration-secondary decoration-wavy">abrem sozinhos e vendem</span> no WhatsApp`;
-      } else {
-        elTitulo.textContent = config.titulo;
+    const heroTitulo = heroSec.titulo || config.titulo;
+    if (heroTitulo) {
+      const elTitulo = document.getElementById('hero-titulo');
+      if (elTitulo) {
+        const padraoOriginal = 'Transforme ofertas em cartões em alta definição que abrem sozinhos e vendem no WhatsApp';
+        if (heroTitulo === padraoOriginal) {
+          elTitulo.innerHTML = `Transforme ofertas em <br class="hidden sm:inline">
+            <span class="text-primary-container">cartões em alta definição</span> que <span class="text-secondary-dark underline decoration-secondary decoration-wavy">abrem sozinhos e vendem</span> no WhatsApp`;
+        } else {
+          elTitulo.textContent = heroTitulo;
+        }
       }
     }
 
-    // 3. Descrição / Subtítulo
-    const elDesc = document.getElementById('hero-descricao');
-    if (elDesc && config.descricao) {
-      elDesc.textContent = config.descricao;
+    const heroDescricao = heroSec.descricao || config.descricao;
+    setTexto('hero-descricao', heroDescricao);
+
+    const ctaTexto = heroSec.cta_texto || config.cta_texto;
+    if (ctaTexto) {
+      setTexto('hero-cta-texto', ctaTexto);
+      const navCta = document.getElementById('nav-cta-btn');
+      if (navCta) {
+        const span = navCta.querySelector('span');
+        if (span) span.textContent = ctaTexto;
+      }
     }
 
-    // 4. Banner / Foto de Exemplo da Vitrine na Landing Page
+    const ctaUrl = heroSec.cta_url || config.cta_url;
+    if (ctaUrl) {
+      setHref('hero-cta-btn', ctaUrl);
+      setHref('nav-cta-btn', ctaUrl);
+    }
+
+    // Banner da Hero
     const bannerContainer = document.getElementById('hero-banner-container');
     const bannerImg = document.getElementById('hero-banner-img');
-    const heroVitrineImg = document.getElementById('hero-vitrine-img');
-    const vitrineDemoImg = document.getElementById('vitrine-demo-main-img');
     const vitrineUrl = (config.preview_imagem_url || config.banner_url || '').trim();
     const bannerAtivo = config.banner_ativo !== false;
     const defaultImg = '/assets/img/logotipo_postlink.jpg';
 
     if (bannerImg) {
       if (bannerAtivo) {
-        bannerImg.src = vitrineUrl ? vitrineUrl : defaultImg;
+        bannerImg.src = vitrineUrl || defaultImg;
         if (bannerContainer) {
-          bannerContainer.classList.remove('hidden');
-          bannerContainer.classList.remove('opacity-40');
+          bannerContainer.classList.remove('hidden', 'opacity-40');
         }
       } else {
         if (bannerContainer) bannerContainer.classList.add('opacity-40');
       }
     }
 
-    // 4.1. Carrossel de Fotos da Vitrine (Hero e Seção #vitrine)
+    // ==========================================
+    // 2. SEÇÃO DORES / BARREIRAS
+    // ==========================================
+    const doresSec = secoes.dores || {};
+    setTexto('dores-titulo', doresSec.titulo);
+    setTexto('dores-subtitulo', doresSec.subtitulo);
+    setTexto('dores-barreira1-titulo', doresSec.barreira1_titulo);
+    setTexto('dores-barreira1-texto', doresSec.barreira1_texto);
+    setTexto('dores-barreira2-titulo', doresSec.barreira2_titulo);
+    setTexto('dores-barreira2-texto', doresSec.barreira2_texto);
+    setTexto('dores-solucao-texto', doresSec.solucao_texto);
+
+    // ==========================================
+    // 3. SEÇÃO COMPARATIVO
+    // ==========================================
+    const compSec = secoes.comparativo || {};
+    setTexto('comparativo-titulo', compSec.titulo);
+    setTexto('comparativo-subtitulo', compSec.subtitulo);
+    setTexto('comparativo-depois-titulo', compSec.depois_titulo);
+    setTexto('comparativo-depois-texto', compSec.depois_texto);
+
+    const compImgUrl = compSec.imagem_url || config.como_funciona_imagem_url;
+    if (compImgUrl) {
+      setSrc('como-funciona-img', compImgUrl);
+    }
+
+    // ==========================================
+    // 4. SEÇÃO VITRINE (OFERTA INTERATIVA & CARROSSEL)
+    // ==========================================
+    const vitrineSec = secoes.vitrine || {};
+    setTexto('vitrine-secao-badge-texto', vitrineSec.badge_texto);
+    if (vitrineSec.titulo) {
+      setHTML('vitrine-secao-titulo', vitrineSec.titulo);
+    }
+    setTexto('vitrine-secao-subtitulo', vitrineSec.subtitulo);
+
+    // 4.1 Carrossel de Fotos da Vitrine
     let vitrineFotos = [];
-    if (Array.isArray(config.vitrine_fotos) && config.vitrine_fotos.length > 0) {
+    if (Array.isArray(vitrineSec.fotos) && vitrineSec.fotos.length > 0) {
+      vitrineFotos = vitrineSec.fotos.filter(Boolean);
+    } else if (Array.isArray(config.vitrine_fotos) && config.vitrine_fotos.length > 0) {
       vitrineFotos = config.vitrine_fotos.filter(Boolean);
     } else if (vitrineUrl) {
       vitrineFotos = [vitrineUrl, '/assets/img/Ex01.png', '/assets/img/logotipo_postlink.jpg'];
@@ -66,13 +148,12 @@
       vitrineFotos = ['/assets/img/ex02.png', '/assets/img/Ex01.png', '/assets/img/logotipo_postlink.jpg'];
     }
 
-    if (heroVitrineImg && vitrineFotos.length > 0) {
-      heroVitrineImg.src = vitrineFotos[0];
-    }
-    if (vitrineDemoImg && vitrineFotos.length > 0) {
-      vitrineDemoImg.src = vitrineFotos[0];
-    }
+    const heroVitrineImg = document.getElementById('hero-vitrine-img');
+    const vitrineDemoImg = document.getElementById('vitrine-demo-main-img');
+    if (heroVitrineImg && vitrineFotos.length > 0) heroVitrineImg.src = vitrineFotos[0];
+    if (vitrineDemoImg && vitrineFotos.length > 0) vitrineDemoImg.src = vitrineFotos[0];
 
+    // Miniaturas interativas da Vitrine na Hero
     const heroThumbsBox = document.getElementById('hero-vitrine-thumbs-container');
     if (heroThumbsBox && vitrineFotos.length > 0) {
       heroThumbsBox.innerHTML = vitrineFotos.map((url, i) => `
@@ -82,6 +163,7 @@
       `).join('');
     }
 
+    // Miniaturas interativas da Vitrine na Seção #vitrine
     const vitrineDemoThumbsBox = document.getElementById('vitrine-demo-thumbs-container');
     if (vitrineDemoThumbsBox && vitrineFotos.length > 0) {
       vitrineDemoThumbsBox.innerHTML = vitrineFotos.map((url, i) => `
@@ -91,53 +173,54 @@
       `).join('');
     }
 
-    // 4.2. Dados Comerciais da Vitrine (Desconto, Preços, Condições e Benefícios)
-    const heroBadgeDesc = document.getElementById('hero-vitrine-badge-desconto');
-    const vitrineBadgeDesc = document.getElementById('vitrine-demo-badge-desconto');
-    if (config.vitrine_badge_desconto) {
-      if (heroBadgeDesc) heroBadgeDesc.textContent = config.vitrine_badge_desconto;
-      if (vitrineBadgeDesc) vitrineBadgeDesc.textContent = config.vitrine_badge_desconto;
+    // 4.2 Dados Comerciais da Vitrine (Desconto, Preços, Condições e Benefícios)
+    const badgeDesconto = vitrineSec.badge_desconto || config.vitrine_badge_desconto;
+    if (badgeDesconto) {
+      setTexto('hero-vitrine-badge-desconto', badgeDesconto);
+      setTexto('vitrine-demo-badge-desconto', badgeDesconto);
     }
 
     const formatarPrecoDe = (p) => !p ? '' : (p.startsWith('De') ? p : `De R$ ${p}`);
     const formatarPrecoPor = (p) => !p ? '' : (p.startsWith('Por') ? p : `Por R$ ${p}`);
 
-    if (config.vitrine_preco_de) {
-      const pDe = formatarPrecoDe(config.vitrine_preco_de);
-      const elHDe = document.getElementById('hero-vitrine-preco-de');
-      const elVDe = document.getElementById('vitrine-demo-preco-de');
-      if (elHDe) elHDe.textContent = pDe;
-      if (elVDe) elVDe.textContent = pDe;
+    const precoDe = vitrineSec.preco_de || config.vitrine_preco_de;
+    if (precoDe) {
+      const pDe = formatarPrecoDe(precoDe);
+      setTexto('hero-vitrine-preco-de', pDe);
+      setTexto('vitrine-demo-preco-de', pDe);
     }
 
-    if (config.vitrine_preco_por) {
-      const pPor = formatarPrecoPor(config.vitrine_preco_por);
-      const elHPor = document.getElementById('hero-vitrine-preco-por');
-      const elVPor = document.getElementById('vitrine-demo-preco-por');
-      if (elHPor) elHPor.textContent = pPor;
-      if (elVPor) elVPor.textContent = pPor;
+    const precoPor = vitrineSec.preco_por || config.vitrine_preco_por;
+    if (precoPor) {
+      const pPor = formatarPrecoPor(precoPor);
+      setTexto('hero-vitrine-preco-por', pPor);
+      setTexto('vitrine-demo-preco-por', pPor);
     }
 
-    if (config.vitrine_condicao) {
+    const condicao = vitrineSec.condicao || config.vitrine_condicao;
+    if (condicao) {
       const heroCondicao = document.getElementById('hero-vitrine-condicao');
-      const vitrineCondicao = document.getElementById('vitrine-demo-condicao');
       if (heroCondicao) {
-        heroCondicao.innerHTML = `<span class="material-symbols-outlined text-xs">payments</span><span>${config.vitrine_condicao}</span>`;
+        heroCondicao.innerHTML = `<span class="material-symbols-outlined text-xs">payments</span><span>${condicao}</span>`;
       }
-      if (vitrineCondicao) {
-        vitrineCondicao.textContent = config.vitrine_condicao;
-      }
+      setTexto('vitrine-demo-condicao', condicao);
     }
 
-    if (config.vitrine_titulo) {
-      const elVitrineDemoTit = document.getElementById('vitrine-demo-titulo');
-      if (elVitrineDemoTit) elVitrineDemoTit.textContent = config.vitrine_titulo;
+    const vitrineTitulo = vitrineSec.produto_titulo || config.vitrine_titulo;
+    if (vitrineTitulo) {
+      setTexto('vitrine-demo-titulo', vitrineTitulo);
+      setTexto('hero-vitrine-titulo', vitrineTitulo);
+      setTexto('hero-preview-titulo', vitrineTitulo);
     }
 
-    if (Array.isArray(config.vitrine_beneficios) && config.vitrine_beneficios.length > 0) {
+    const beneficios = (Array.isArray(vitrineSec.beneficios) && vitrineSec.beneficios.length > 0)
+      ? vitrineSec.beneficios
+      : config.vitrine_beneficios;
+
+    if (Array.isArray(beneficios) && beneficios.length > 0) {
       const heroBeneficios = document.getElementById('hero-vitrine-beneficios');
       if (heroBeneficios) {
-        heroBeneficios.innerHTML = config.vitrine_beneficios.map(b => `
+        heroBeneficios.innerHTML = beneficios.map(b => `
           <li class="flex items-center gap-1.5">
             <span class="material-symbols-outlined text-xs text-secondary font-bold">check_circle</span>
             <span>${b}</span>
@@ -146,7 +229,7 @@
       }
       const vitrineBeneficiosLista = document.getElementById('vitrine-demo-beneficios-lista');
       if (vitrineBeneficiosLista) {
-        vitrineBeneficiosLista.innerHTML = config.vitrine_beneficios.map(b => `
+        vitrineBeneficiosLista.innerHTML = beneficios.map(b => `
           <div class="flex items-center gap-1.5">
             <span class="material-symbols-outlined text-xs text-secondary font-bold">check</span>
             <span>${b}</span>
@@ -155,81 +238,68 @@
       }
     }
 
-    // 4.3. Mockup da Seção Como Funciona
-    const comoFuncionaImg = document.getElementById('como-funciona-img');
-    if (comoFuncionaImg) {
-      comoFuncionaImg.src = config.como_funciona_imagem_url || vitrineFotos[0] || defaultImg;
+    // 4.3 Identidade da Loja Demonstrativa
+    const lojaNome = vitrineSec.loja_nome || config.loja_demonstrativa_nome;
+    if (lojaNome) {
+      setTexto('hero-social-author-nome', lojaNome);
+      setTexto('hero-vitrine-loja-nome', lojaNome);
+      setTexto('vitrine-demo-loja-nome', lojaNome);
     }
 
-    // 4.4. Identidade da Loja Demonstrativa
-    if (config.loja_demonstrativa_nome) {
-      const n1 = document.getElementById('hero-social-author-nome');
-      const n2 = document.getElementById('hero-vitrine-loja-nome');
-      const n3 = document.getElementById('vitrine-demo-loja-nome');
-      if (n1) n1.textContent = config.loja_demonstrativa_nome;
-      if (n2) n2.textContent = config.loja_demonstrativa_nome;
-      if (n3) n3.textContent = config.loja_demonstrativa_nome;
-    }
-    if (config.loja_demonstrativa_avatar) {
-      const a1 = document.getElementById('hero-social-author-avatar');
-      const a2 = document.getElementById('hero-vitrine-loja-avatar');
-      const a3 = document.getElementById('vitrine-demo-loja-avatar');
-      if (a1) a1.src = config.loja_demonstrativa_avatar;
-      if (a2) a2.src = config.loja_demonstrativa_avatar;
-      if (a3) a3.src = config.loja_demonstrativa_avatar;
+    const lojaAvatar = vitrineSec.loja_avatar || config.loja_demonstrativa_avatar;
+    if (lojaAvatar) {
+      setSrc('hero-social-author-avatar', lojaAvatar);
+      setSrc('hero-vitrine-loja-avatar', lojaAvatar);
+      setSrc('vitrine-demo-loja-avatar', lojaAvatar);
     }
 
-    // 4.5. Textos da Pré-visualização de Exemplo na Landing Page
-    const elPreviewTexto = document.getElementById('hero-preview-texto');
-    if (elPreviewTexto && (config.preview_descricao || config.preview_texto)) {
-      elPreviewTexto.textContent = config.preview_descricao || config.preview_texto;
+    // Textos da Pré-visualização do Hero Card
+    const previewTexto = config.preview_descricao || config.preview_texto;
+    if (previewTexto) setTexto('hero-preview-texto', previewTexto);
+    if (config.preview_subtitulo) setTexto('hero-preview-subtitulo', config.preview_subtitulo);
+
+    // ==========================================
+    // 5. SEÇÃO PASSOS (COMO FUNCIONA)
+    // ==========================================
+    const passosSec = secoes.passos || {};
+    setTexto('passos-titulo', passosSec.titulo);
+    setTexto('passos-subtitulo', passosSec.subtitulo);
+    setTexto('passo1-titulo', passosSec.passo1_titulo);
+    setTexto('passo1-desc', passosSec.passo1_desc);
+    setTexto('passo2-titulo', passosSec.passo2_titulo);
+    setTexto('passo2-desc', passosSec.passo2_desc);
+    setTexto('passo3-titulo', passosSec.passo3_titulo);
+    setTexto('passo3-desc', passosSec.passo3_desc);
+
+    // ==========================================
+    // 6. SEÇÃO CTA FINAL (TRIAL)
+    // ==========================================
+    const ctaFinalSec = secoes.cta_final || {};
+    setTexto('cta-final-badge-texto', ctaFinalSec.badge_texto);
+    setTexto('cta-final-titulo', ctaFinalSec.titulo);
+    setTexto('cta-final-subtitulo', ctaFinalSec.subtitulo);
+    setTexto('cta-final-btn-texto', ctaFinalSec.btn_texto);
+    if (ctaFinalSec.btn_url) {
+      setHref('cta-final-btn', ctaFinalSec.btn_url);
     }
 
-    const elPreviewTitulo = document.getElementById('hero-preview-titulo');
-    const elVitrineTitulo = document.getElementById('hero-vitrine-titulo');
-    if (config.preview_titulo) {
-      if (elPreviewTitulo) elPreviewTitulo.textContent = config.preview_titulo;
-      if (elVitrineTitulo) elVitrineTitulo.textContent = config.preview_titulo;
-    }
-
-    const elPreviewSubtitulo = document.getElementById('hero-preview-subtitulo');
-    if (elPreviewSubtitulo && config.preview_subtitulo) {
-      elPreviewSubtitulo.textContent = config.preview_subtitulo;
-    }
-
-    // 5. Botões de CTA
-    const navCtaBtn = document.getElementById('nav-cta-btn');
-    if (navCtaBtn && config.cta_texto) {
-      const spanTexto = navCtaBtn.querySelector('span');
-      if (spanTexto) spanTexto.textContent = config.cta_texto;
-      if (config.cta_url) navCtaBtn.href = config.cta_url;
-    }
-    const heroCtaBtn = document.getElementById('hero-cta-btn');
-    const heroCtaTexto = document.getElementById('hero-cta-texto');
-    if (heroCtaBtn && config.cta_texto) {
-      if (heroCtaTexto) {
-        heroCtaTexto.textContent = config.cta_texto;
-      } else {
-        const spanTexto = heroCtaBtn.querySelector('span');
-        if (spanTexto) spanTexto.textContent = config.cta_texto;
-      }
-      if (config.cta_url) heroCtaBtn.href = config.cta_url;
-    }
-
-    // 6. Atualiza Meta Tags Open Graph & Twitter Card do Link Oficial PostLink
-    const ogTitleContent = config.oficial_og_titulo || (config.titulo ? `${config.titulo} · PostLink` : 'PostLink · Smart Links em Alta Definição para WhatsApp');
+    // ==========================================
+    // 7. COMPARTILHAMENTO OFICIAL / OPEN GRAPH
+    // ==========================================
+    const oficialSec = secoes.oficial || {};
+    const ogTitleContent = oficialSec.og_titulo || config.oficial_og_titulo || (config.titulo ? `${config.titulo} · PostLink` : 'PostLink · Smart Links em Alta Definição para WhatsApp');
     const ogTitle = document.getElementById('og-title') || document.querySelector('meta[property="og:title"]');
     const twTitle = document.getElementById('tw-title') || document.querySelector('meta[name="twitter:title"]');
     if (ogTitle) ogTitle.setAttribute('content', ogTitleContent);
     if (twTitle) twTitle.setAttribute('content', ogTitleContent);
 
-    const ogDescContent = config.oficial_og_descricao || config.descricao || 'Transforme fotos e ofertas em cartões inteligentes de alta definição que abrem sozinhos no WhatsApp e vendem com 1 clique.';
+    const ogDescContent = oficialSec.og_descricao || config.oficial_og_descricao || config.descricao || 'Transforme fotos e ofertas em cartões inteligentes de alta definição que abrem sozinhos no WhatsApp e vendem com 1 clique.';
     const ogDesc = document.getElementById('og-desc') || document.querySelector('meta[property="og:description"]');
     const twDesc = document.getElementById('tw-desc') || document.querySelector('meta[name="twitter:description"]');
     if (ogDesc) ogDesc.setAttribute('content', ogDescContent);
     if (twDesc) twDesc.setAttribute('content', ogDescContent);
 
-    let ogImgContent = config.oficial_og_imagem_url || config.banner_url || 'https://www.postlink.com.br/assets/img/banner_postlink_og_1200x630.jpg';
+    let ogImgContent = oficialSec.og_imagem_url || config.oficial_og_imagem_url || config.banner_url || 'https://www.postlink.com.br/assets/img/banner_postlink_og_1200x630.jpg';
     if (ogImgContent.startsWith('/')) {
       ogImgContent = 'https://www.postlink.com.br' + ogImgContent;
     } else if (ogImgContent.startsWith('https://postlink.com.br/')) {

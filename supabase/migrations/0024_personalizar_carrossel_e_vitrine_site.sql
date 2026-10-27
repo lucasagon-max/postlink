@@ -1,8 +1,9 @@
 -- 0024_personalizar_carrossel_e_vitrine_site.sql
--- Personalização administrativa das novas imagens, carrosséis de fotos da vitrine, oferta e mockups da Home
+-- Personalização administrativa das novas imagens, carrosséis de fotos da vitrine, oferta, mockups e seções da Home
 
 -- 1. Novos campos na tabela public.configuracoes_site
 alter table public.configuracoes_site
+  add column if not exists secoes_conteudo jsonb default '{}'::jsonb,
   add column if not exists vitrine_fotos jsonb default '["/assets/img/ex02.png", "/assets/img/Ex01.png", "/assets/img/logotipo_postlink.jpg"]'::jsonb,
   add column if not exists vitrine_badge_desconto text default '-33% OFF',
   add column if not exists vitrine_preco_de text default '180,00',
@@ -17,6 +18,7 @@ alter table public.configuracoes_site
 -- 2. Inicializa valores para o registro oficial caso estejam nulos
 update public.configuracoes_site
 set
+  secoes_conteudo = coalesce(secoes_conteudo, '{}'::jsonb),
   vitrine_fotos = coalesce(vitrine_fotos, '["/assets/img/ex02.png", "/assets/img/Ex01.png", "/assets/img/logotipo_postlink.jpg"]'::jsonb),
   vitrine_badge_desconto = coalesce(vitrine_badge_desconto, '-33% OFF'),
   vitrine_preco_de = coalesce(vitrine_preco_de, '180,00'),
@@ -27,6 +29,25 @@ set
   loja_demonstrativa_nome = coalesce(loja_demonstrativa_nome, 'Sua Loja Oficial'),
   loja_demonstrativa_avatar = coalesce(loja_demonstrativa_avatar, '/apple-touch-icon.png')
 where id = 'oficial';
+
+-- Garante política RLS para administradores em public.configuracoes_site
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies 
+    where schemaname = 'public' 
+      and tablename = 'configuracoes_site' 
+      and policyname = 'Admins podem atualizar configuracoes_site'
+  ) then
+    create policy "Admins podem atualizar configuracoes_site"
+      on public.configuracoes_site
+      for all
+      to authenticated
+      using (public.is_super_admin())
+      with check (public.is_super_admin());
+  end if;
+end;
+$$;
 
 -- 3. Atualiza a RPC de leitura pública public.obter_configuracoes_site()
 create or replace function public.obter_configuracoes_site()
@@ -63,6 +84,8 @@ begin
     'oficial_og_titulo', coalesce(oficial_og_titulo, 'PostLink · Smart Links em Alta Definição para WhatsApp'),
     'oficial_og_descricao', coalesce(oficial_og_descricao, 'Transforme fotos e ofertas em cartões em alta definição que abrem sozinhos no WhatsApp e aumentam suas vendas.'),
     'oficial_og_imagem_url', coalesce(oficial_og_imagem_url, banner_url, 'https://postlink.com.br/assets/img/logotipo_postlink_1x1.jpg'),
+    -- Objeto Estruturado de Todas as Seções da Home
+    'secoes_conteudo', coalesce(secoes_conteudo, '{}'::jsonb),
     'atualizado_em', atualizado_em,
     'atualizado_por', atualizado_por
   )
@@ -75,7 +98,7 @@ begin
 end;
 $$;
 
--- 4. Renomeia assinatura anterior de 14 parâmetros para evitar ambiguidade
+-- 4. Renomeia assinatura anterior de 14 parâmetros se existir para evitar ambiguidade
 do $$
 begin
   if exists (
@@ -115,7 +138,8 @@ create or replace function public.admin_salvar_configuracoes_site(
   p_vitrine_beneficios jsonb default null,
   p_como_funciona_imagem_url text default null,
   p_loja_demonstrativa_nome text default null,
-  p_loja_demonstrativa_avatar text default null
+  p_loja_demonstrativa_avatar text default null,
+  p_secoes_conteudo jsonb default '{}'::jsonb
 )
 returns json
 language plpgsql security definer
@@ -174,6 +198,7 @@ begin
     como_funciona_imagem_url,
     loja_demonstrativa_nome,
     loja_demonstrativa_avatar,
+    secoes_conteudo,
     atualizado_em,
     atualizado_por
   )
@@ -203,6 +228,7 @@ begin
     p_como_funciona_imagem_url,
     coalesce(trim(p_loja_demonstrativa_nome), 'Sua Loja Oficial'),
     coalesce(trim(p_loja_demonstrativa_avatar), '/apple-touch-icon.png'),
+    coalesce(p_secoes_conteudo, '{}'::jsonb),
     now(),
     v_email
   )
@@ -231,6 +257,7 @@ begin
     como_funciona_imagem_url = excluded.como_funciona_imagem_url,
     loja_demonstrativa_nome = excluded.loja_demonstrativa_nome,
     loja_demonstrativa_avatar = excluded.loja_demonstrativa_avatar,
+    secoes_conteudo = coalesce(excluded.secoes_conteudo, configuracoes_site.secoes_conteudo, '{}'::jsonb),
     atualizado_em = now(),
     atualizado_por = v_email;
 
@@ -245,5 +272,5 @@ end;
 $$;
 
 -- 6. Concede permissões para authenticated e anon
-grant execute on function public.admin_salvar_configuracoes_site(text, text, text, text, text, text, boolean, text, text, text, text, text, text, text, jsonb, text, text, text, text, text, jsonb, text, text, text) to authenticated;
+grant execute on function public.admin_salvar_configuracoes_site(text, text, text, text, text, text, boolean, text, text, text, text, text, text, text, jsonb, text, text, text, text, text, jsonb, text, text, text, jsonb) to authenticated;
 grant execute on function public.obter_configuracoes_site() to anon, authenticated;
