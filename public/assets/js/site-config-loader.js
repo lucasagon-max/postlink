@@ -39,6 +39,7 @@
     const bannerContainer = document.getElementById('hero-banner-container');
     const bannerImg = document.getElementById('hero-banner-img');
     const heroVitrineImg = document.getElementById('hero-vitrine-img');
+    const vitrineDemoImg = document.getElementById('vitrine-demo-main-img');
     const vitrineUrl = (config.preview_imagem_url || config.banner_url || '').trim();
     const bannerAtivo = config.banner_ativo !== false;
     const defaultImg = '/assets/img/logotipo_postlink.jpg';
@@ -55,11 +56,130 @@
       }
     }
 
-    if (heroVitrineImg && vitrineUrl) {
-      heroVitrineImg.src = vitrineUrl;
+    // 4.1. Carrossel de Fotos da Vitrine (Hero e Seção #vitrine)
+    let vitrineFotos = [];
+    if (Array.isArray(config.vitrine_fotos) && config.vitrine_fotos.length > 0) {
+      vitrineFotos = config.vitrine_fotos.filter(Boolean);
+    } else if (vitrineUrl) {
+      vitrineFotos = [vitrineUrl, '/assets/img/Ex01.png', '/assets/img/logotipo_postlink.jpg'];
+    } else {
+      vitrineFotos = ['/assets/img/ex02.png', '/assets/img/Ex01.png', '/assets/img/logotipo_postlink.jpg'];
     }
 
-    // 4.1. Textos da Pré-visualização de Exemplo na Landing Page
+    if (heroVitrineImg && vitrineFotos.length > 0) {
+      heroVitrineImg.src = vitrineFotos[0];
+    }
+    if (vitrineDemoImg && vitrineFotos.length > 0) {
+      vitrineDemoImg.src = vitrineFotos[0];
+    }
+
+    const heroThumbsBox = document.getElementById('hero-vitrine-thumbs-container');
+    if (heroThumbsBox && vitrineFotos.length > 0) {
+      heroThumbsBox.innerHTML = vitrineFotos.map((url, i) => `
+        <button type="button" onclick="trocarFotoHeroVitrine('${url}', this)" class="hero-vitrine-thumb w-7 h-7 rounded ${i === 0 ? 'border-2 border-white' : 'border border-white/60 opacity-70 hover:opacity-100'} overflow-hidden active:scale-95 transition-all">
+          <img src="${url}" alt="Thumb ${i + 1}" class="w-full h-full object-cover">
+        </button>
+      `).join('');
+    }
+
+    const vitrineDemoThumbsBox = document.getElementById('vitrine-demo-thumbs-container');
+    if (vitrineDemoThumbsBox && vitrineFotos.length > 0) {
+      vitrineDemoThumbsBox.innerHTML = vitrineFotos.map((url, i) => `
+        <button type="button" onclick="trocarFotoVitrineSecao('${url}', this)" class="vitrine-sec-thumb w-9 h-9 rounded-lg ${i === 0 ? 'border-2 border-primary' : 'border border-slate-300 opacity-70 hover:opacity-100'} overflow-hidden shadow-2xs active:scale-95 transition-all">
+          <img src="${url}" alt="Foto ${i + 1}" class="w-full h-full object-cover">
+        </button>
+      `).join('');
+    }
+
+    // 4.2. Dados Comerciais da Vitrine (Desconto, Preços, Condições e Benefícios)
+    const heroBadgeDesc = document.getElementById('hero-vitrine-badge-desconto');
+    const vitrineBadgeDesc = document.getElementById('vitrine-demo-badge-desconto');
+    if (config.vitrine_badge_desconto) {
+      if (heroBadgeDesc) heroBadgeDesc.textContent = config.vitrine_badge_desconto;
+      if (vitrineBadgeDesc) vitrineBadgeDesc.textContent = config.vitrine_badge_desconto;
+    }
+
+    const formatarPrecoDe = (p) => !p ? '' : (p.startsWith('De') ? p : `De R$ ${p}`);
+    const formatarPrecoPor = (p) => !p ? '' : (p.startsWith('Por') ? p : `Por R$ ${p}`);
+
+    if (config.vitrine_preco_de) {
+      const pDe = formatarPrecoDe(config.vitrine_preco_de);
+      const elHDe = document.getElementById('hero-vitrine-preco-de');
+      const elVDe = document.getElementById('vitrine-demo-preco-de');
+      if (elHDe) elHDe.textContent = pDe;
+      if (elVDe) elVDe.textContent = pDe;
+    }
+
+    if (config.vitrine_preco_por) {
+      const pPor = formatarPrecoPor(config.vitrine_preco_por);
+      const elHPor = document.getElementById('hero-vitrine-preco-por');
+      const elVPor = document.getElementById('vitrine-demo-preco-por');
+      if (elHPor) elHPor.textContent = pPor;
+      if (elVPor) elVPor.textContent = pPor;
+    }
+
+    if (config.vitrine_condicao) {
+      const heroCondicao = document.getElementById('hero-vitrine-condicao');
+      const vitrineCondicao = document.getElementById('vitrine-demo-condicao');
+      if (heroCondicao) {
+        heroCondicao.innerHTML = `<span class="material-symbols-outlined text-xs">payments</span><span>${config.vitrine_condicao}</span>`;
+      }
+      if (vitrineCondicao) {
+        vitrineCondicao.textContent = config.vitrine_condicao;
+      }
+    }
+
+    if (config.vitrine_titulo) {
+      const elVitrineDemoTit = document.getElementById('vitrine-demo-titulo');
+      if (elVitrineDemoTit) elVitrineDemoTit.textContent = config.vitrine_titulo;
+    }
+
+    if (Array.isArray(config.vitrine_beneficios) && config.vitrine_beneficios.length > 0) {
+      const heroBeneficios = document.getElementById('hero-vitrine-beneficios');
+      if (heroBeneficios) {
+        heroBeneficios.innerHTML = config.vitrine_beneficios.map(b => `
+          <li class="flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-xs text-secondary font-bold">check_circle</span>
+            <span>${b}</span>
+          </li>
+        `).join('');
+      }
+      const vitrineBeneficiosLista = document.getElementById('vitrine-demo-beneficios-lista');
+      if (vitrineBeneficiosLista) {
+        vitrineBeneficiosLista.innerHTML = config.vitrine_beneficios.map(b => `
+          <div class="flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-xs text-secondary font-bold">check</span>
+            <span>${b}</span>
+          </div>
+        `).join('');
+      }
+    }
+
+    // 4.3. Mockup da Seção Como Funciona
+    const comoFuncionaImg = document.getElementById('como-funciona-img');
+    if (comoFuncionaImg) {
+      comoFuncionaImg.src = config.como_funciona_imagem_url || vitrineFotos[0] || defaultImg;
+    }
+
+    // 4.4. Identidade da Loja Demonstrativa
+    if (config.loja_demonstrativa_nome) {
+      const n1 = document.getElementById('hero-social-author-nome');
+      const n2 = document.getElementById('hero-vitrine-loja-nome');
+      const n3 = document.getElementById('vitrine-demo-loja-nome');
+      if (n1) n1.textContent = config.loja_demonstrativa_nome;
+      if (n2) n2.textContent = config.loja_demonstrativa_nome;
+      if (n3) n3.textContent = config.loja_demonstrativa_nome;
+    }
+    if (config.loja_demonstrativa_avatar) {
+      const a1 = document.getElementById('hero-social-author-avatar');
+      const a2 = document.getElementById('hero-vitrine-loja-avatar');
+      const a3 = document.getElementById('vitrine-demo-loja-avatar');
+      if (a1) a1.src = config.loja_demonstrativa_avatar;
+      if (a2) a2.src = config.loja_demonstrativa_avatar;
+      if (a3) a3.src = config.loja_demonstrativa_avatar;
+    }
+
+    // 4.5. Textos da Pré-visualização de Exemplo na Landing Page
     const elPreviewTexto = document.getElementById('hero-preview-texto');
     if (elPreviewTexto && (config.preview_descricao || config.preview_texto)) {
       elPreviewTexto.textContent = config.preview_descricao || config.preview_texto;

@@ -15,7 +15,7 @@ const state = {
   filtroStatus: 'todos',
   termoBusca: '',
   abaAtiva: 'visao-geral',
-  subabaSiteAtiva: 'landing', // 'landing' | 'oficial'
+  subabaSiteAtiva: 'landing', // 'landing' | 'vitrine' | 'oficial'
   siteConfig: null,
   // 1. Imagem de Exemplo da Vitrine (Landing Page)
   siteBannerBlob: null,
@@ -25,6 +25,8 @@ const state = {
   siteOficialBlob: null,
   siteOficialPreviewUrl: '',
   siteOficialRemovido: false,
+  // 3. Fotos do Carrossel da Vitrine (Array de { url: string, blob?: Blob, nome?: string })
+  siteVitrineFotos: [],
 };
 
 // Mapeamento de Elementos do DOM
@@ -118,11 +120,16 @@ const el = {
 
   // Sub-abas de Edição do Site
   btnSubtabLanding: document.getElementById('btn-subtab-landing'),
+  btnSubtabVitrine: document.getElementById('btn-subtab-vitrine'),
   btnSubtabOficial: document.getElementById('btn-subtab-oficial'),
   subtabPaneLanding: document.getElementById('subtab-pane-landing'),
+  subtabPaneVitrine: document.getElementById('subtab-pane-vitrine'),
   subtabPaneOficial: document.getElementById('subtab-pane-oficial'),
+  subtabBadgeLanding: document.getElementById('subtab-badge-landing'),
+  subtabBadgeVitrine: document.getElementById('subtab-badge-vitrine'),
+  subtabBadgeOficial: document.getElementById('subtab-badge-oficial'),
 
-  // Sub-aba 1: Exemplo na Landing Page (Vitrine de Demonstração)
+  // Sub-aba 1: Exemplo na Landing Page (Vitrine de Demonstração & Hero)
   siteSwitchBannerAtivo: document.getElementById('site-switch-banner-ativo'),
   siteDropzone: document.getElementById('site-dropzone'),
   siteFileBanner: document.getElementById('site-file-banner'),
@@ -146,8 +153,26 @@ const el = {
   siteDescContador: document.getElementById('site-desc-contador'),
   siteInputCtaTexto: document.getElementById('site-input-cta-texto'),
   siteInputCtaUrl: document.getElementById('site-input-cta-url'),
+  siteInputComoFuncionaImg: document.getElementById('site-input-como-funciona-img'),
 
-  // Sub-aba 2: Link Oficial PostLink (WhatsApp & Redes)
+  // Sub-aba 2: Galeria & Página Vitrine
+  siteVitrineFotosContainer: document.getElementById('site-vitrine-fotos-lista'),
+  siteVitrineContadorFotos: document.getElementById('site-vitrine-contador-fotos'),
+  siteDropzoneVitrineExtra: document.getElementById('site-dropzone-vitrine-extra'),
+  siteFileVitrineExtra: document.getElementById('site-file-vitrine-extra'),
+  siteInputVitrineNovaUrl: document.getElementById('site-input-vitrine-nova-url'),
+  btnAdicionarUrlVitrine: document.getElementById('btn-adicionar-url-vitrine'),
+  siteInputVitrineDesconto: document.getElementById('site-input-vitrine-desconto'),
+  siteInputVitrinePrecoDe: document.getElementById('site-input-vitrine-preco-de'),
+  siteInputVitrinePrecoPor: document.getElementById('site-input-vitrine-preco-por'),
+  siteInputVitrineCondicao: document.getElementById('site-input-vitrine-condicao'),
+  siteInputVitrineTitulo: document.getElementById('site-input-vitrine-titulo'),
+  siteInputVitrineBeneficio1: document.getElementById('site-input-vitrine-beneficio-1'),
+  siteInputVitrineBeneficio2: document.getElementById('site-input-vitrine-beneficio-2'),
+  siteInputLojaNome: document.getElementById('site-input-loja-nome'),
+  siteInputLojaAvatar: document.getElementById('site-input-loja-avatar'),
+
+  // Sub-aba 3: Link Oficial PostLink (WhatsApp & Redes)
   siteDropzoneOficial: document.getElementById('site-dropzone-oficial'),
   siteFileOficial: document.getElementById('site-file-oficial'),
   siteOficialPreviewBox: document.getElementById('site-oficial-preview-box'),
@@ -165,8 +190,10 @@ const el = {
 
   // Live Preview do Site Oficial (Coluna Direita)
   btnPreviewTabHero: document.getElementById('btn-preview-tab-hero'),
+  btnPreviewTabSmartphone: document.getElementById('btn-preview-tab-smartphone'),
   btnPreviewTabWa: document.getElementById('btn-preview-tab-wa'),
   previewFrameHero: document.getElementById('preview-frame-hero'),
+  previewFrameSmartphone: document.getElementById('preview-frame-smartphone'),
   previewFrameWa: document.getElementById('preview-frame-wa'),
   prevHeroBadgeWrap: document.getElementById('prev-hero-badge-wrap'),
   prevHeroBadge: document.getElementById('prev-hero-badge'),
@@ -186,7 +213,22 @@ const el = {
   prevHeroWaContainer: document.getElementById('prev-hero-wa-container'),
   prevHeroVitrineContainer: document.getElementById('prev-hero-vitrine-container'),
   prevHeroVitrineImg: document.getElementById('prev-hero-vitrine-img'),
+  prevHeroVitrineBadgeTag: document.getElementById('prev-hero-vitrine-badge-tag'),
+  prevHeroVitrineThumbs: document.getElementById('prev-hero-vitrine-thumbs'),
   prevHeroVitrineTitulo: document.getElementById('prev-hero-vitrine-titulo'),
+  prevHeroVitrinePrecoDe: document.getElementById('prev-hero-vitrine-preco-de'),
+  prevHeroVitrinePrecoPor: document.getElementById('prev-hero-vitrine-preco-por'),
+  prevHeroVitrineCondicao: document.getElementById('prev-hero-vitrine-condicao'),
+  prevSmartAvatar: document.getElementById('prev-smart-avatar'),
+  prevSmartNome: document.getElementById('prev-smart-nome'),
+  prevSmartMainImg: document.getElementById('prev-smart-main-img'),
+  prevSmartBadge: document.getElementById('prev-smart-badge'),
+  prevSmartThumbs: document.getElementById('prev-smart-thumbs'),
+  prevSmartTitulo: document.getElementById('prev-smart-titulo'),
+  prevSmartPrecoDe: document.getElementById('prev-smart-preco-de'),
+  prevSmartPrecoPor: document.getElementById('prev-smart-preco-por'),
+  prevSmartCondicao: document.getElementById('prev-smart-condicao'),
+  prevSmartBeneficios: document.getElementById('prev-smart-beneficios'),
   prevWaImg: document.getElementById('prev-wa-img'),
   prevWaPlaceholder: document.getElementById('prev-wa-placeholder'),
   prevWaTitulo: document.getElementById('prev-wa-titulo'),
@@ -887,91 +929,104 @@ function configurarNavegacao() {
 // 6. EDITOR DO SITE OFICIAL (POSTLINK)
 // ==========================================
 
-// Alterna entre as sub-abas do Editor (1. Vitrine Landing Page / 2. Link Oficial)
+// Alterna entre as 3 sub-abas do Editor (1. Hero & WhatsApp / 2. Galeria & Vitrine / 3. Link Oficial)
 function alternarSubabaSite(aba) {
   state.subabaSiteAtiva = aba;
 
   const btnLanding = el.btnSubtabLanding || document.getElementById('btn-subtab-landing');
+  const btnVitrine = el.btnSubtabVitrine || document.getElementById('btn-subtab-vitrine');
   const btnOficial = el.btnSubtabOficial || document.getElementById('btn-subtab-oficial');
   const badgeLanding = document.getElementById('subtab-badge-landing');
+  const badgeVitrine = document.getElementById('subtab-badge-vitrine');
   const badgeOficial = document.getElementById('subtab-badge-oficial');
   const paneLanding = el.subtabPaneLanding || document.getElementById('subtab-pane-landing');
+  const paneVitrine = el.subtabPaneVitrine || document.getElementById('subtab-pane-vitrine');
   const paneOficial = el.subtabPaneOficial || document.getElementById('subtab-pane-oficial');
 
+  const classesAtivo = 'flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all bg-primary text-white shadow-2xs cursor-pointer';
+  const classesInativo = 'flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-medium transition-all text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface cursor-pointer';
+
   if (aba === 'landing') {
-    if (btnLanding) {
-      btnLanding.className = 'flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all bg-primary text-white shadow-2xs cursor-pointer';
-    }
-    if (btnOficial) {
-      btnOficial.className = 'flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-medium transition-all text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface cursor-pointer';
-    }
+    if (btnLanding) btnLanding.className = classesAtivo;
+    if (btnVitrine) btnVitrine.className = classesInativo;
+    if (btnOficial) btnOficial.className = classesInativo;
+
     if (badgeLanding) badgeLanding.className = 'text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-white/20 text-white';
+    if (badgeVitrine) badgeVitrine.className = 'text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-amber-500/20 text-amber-800';
     if (badgeOficial) badgeOficial.className = 'text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-800';
 
-    if (paneLanding) {
-      paneLanding.classList.remove('hidden');
-      paneLanding.style.display = 'block';
-    }
-    if (paneOficial) {
-      paneOficial.classList.add('hidden');
-      paneOficial.style.display = 'none';
-    }
+    if (paneLanding) { paneLanding.classList.remove('hidden'); paneLanding.style.display = 'block'; }
+    if (paneVitrine) { paneVitrine.classList.add('hidden'); paneVitrine.style.display = 'none'; }
+    if (paneOficial) { paneOficial.classList.add('hidden'); paneOficial.style.display = 'none'; }
 
-    // Ao ir para a Vitrine da Landing Page, exibe automaticamente a prévia da Hero
     ativarPreviewFrame('hero');
+  } else if (aba === 'vitrine') {
+    if (btnVitrine) btnVitrine.className = classesAtivo;
+    if (btnLanding) btnLanding.className = classesInativo;
+    if (btnOficial) btnOficial.className = classesInativo;
+
+    if (badgeVitrine) badgeVitrine.className = 'text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-white/20 text-white';
+    if (badgeLanding) badgeLanding.className = 'text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-primary/10 text-primary';
+    if (badgeOficial) badgeOficial.className = 'text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-800';
+
+    if (paneVitrine) { paneVitrine.classList.remove('hidden'); paneVitrine.style.display = 'block'; }
+    if (paneLanding) { paneLanding.classList.add('hidden'); paneLanding.style.display = 'none'; }
+    if (paneOficial) { paneOficial.classList.add('hidden'); paneOficial.style.display = 'none'; }
+
+    ativarPreviewFrame('smartphone');
   } else {
-    if (btnOficial) {
-      btnOficial.className = 'flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all bg-primary text-white shadow-2xs cursor-pointer';
-    }
-    if (btnLanding) {
-      btnLanding.className = 'flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-medium transition-all text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface cursor-pointer';
-    }
+    if (btnOficial) btnOficial.className = classesAtivo;
+    if (btnLanding) btnLanding.className = classesInativo;
+    if (btnVitrine) btnVitrine.className = classesInativo;
+
     if (badgeOficial) badgeOficial.className = 'text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-white/20 text-white';
     if (badgeLanding) badgeLanding.className = 'text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-primary/10 text-primary';
+    if (badgeVitrine) badgeVitrine.className = 'text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-amber-500/20 text-amber-800';
 
-    if (paneOficial) {
-      paneOficial.classList.remove('hidden');
-      paneOficial.style.display = 'block';
-    }
-    if (paneLanding) {
-      paneLanding.classList.add('hidden');
-      paneLanding.style.display = 'none';
-    }
+    if (paneOficial) { paneOficial.classList.remove('hidden'); paneOficial.style.display = 'block'; }
+    if (paneLanding) { paneLanding.classList.add('hidden'); paneLanding.style.display = 'none'; }
+    if (paneVitrine) { paneVitrine.classList.add('hidden'); paneVitrine.style.display = 'none'; }
 
-    // Ao ir para o Link Oficial, exibe automaticamente o Balão de WhatsApp
     ativarPreviewFrame('wa');
   }
 }
 
-// Alterna entre o frame da Hero e o balão do WhatsApp no Live Preview
+// Alterna entre o frame da Hero, Smartphone (Vitrine Interativa) e balão do WhatsApp no Live Preview
 function ativarPreviewFrame(tipo) {
   const frameHero = el.previewFrameHero || document.getElementById('preview-frame-hero');
+  const frameSmartphone = el.previewFrameSmartphone || document.getElementById('preview-frame-smartphone');
   const frameWa = el.previewFrameWa || document.getElementById('preview-frame-wa');
   const btnHero = el.btnPreviewTabHero || document.getElementById('btn-preview-tab-hero');
+  const btnSmartphone = el.btnPreviewTabSmartphone || document.getElementById('btn-preview-tab-smartphone');
   const btnWa = el.btnPreviewTabWa || document.getElementById('btn-preview-tab-wa');
 
+  const classesAtivo = 'px-2.5 py-1 rounded-md font-bold transition-all bg-surface-container-lowest text-primary shadow-2xs cursor-pointer';
+  const classesInativo = 'px-2.5 py-1 rounded-md font-medium transition-all text-on-surface-variant hover:text-on-surface cursor-pointer';
+
   if (tipo === 'hero') {
-    if (frameHero) {
-      frameHero.classList.remove('hidden');
-      frameHero.style.display = 'block';
-    }
-    if (frameWa) {
-      frameWa.classList.add('hidden');
-      frameWa.style.display = 'none';
-    }
-    if (btnHero) btnHero.className = 'px-2.5 py-1 rounded-md font-bold transition-all bg-surface-container-lowest text-primary shadow-2xs cursor-pointer';
-    if (btnWa) btnWa.className = 'px-2.5 py-1 rounded-md font-medium transition-all text-on-surface-variant hover:text-on-surface cursor-pointer';
+    if (frameHero) { frameHero.classList.remove('hidden'); frameHero.style.display = 'block'; }
+    if (frameSmartphone) { frameSmartphone.classList.add('hidden'); frameSmartphone.style.display = 'none'; }
+    if (frameWa) { frameWa.classList.add('hidden'); frameWa.style.display = 'none'; }
+
+    if (btnHero) btnHero.className = classesAtivo;
+    if (btnSmartphone) btnSmartphone.className = classesInativo;
+    if (btnWa) btnWa.className = classesInativo;
+  } else if (tipo === 'smartphone') {
+    if (frameSmartphone) { frameSmartphone.classList.remove('hidden'); frameSmartphone.style.display = 'block'; }
+    if (frameHero) { frameHero.classList.add('hidden'); frameHero.style.display = 'none'; }
+    if (frameWa) { frameWa.classList.add('hidden'); frameWa.style.display = 'none'; }
+
+    if (btnSmartphone) btnSmartphone.className = classesAtivo;
+    if (btnHero) btnHero.className = classesInativo;
+    if (btnWa) btnWa.className = classesInativo;
   } else {
-    if (frameWa) {
-      frameWa.classList.remove('hidden');
-      frameWa.style.display = 'block';
-    }
-    if (frameHero) {
-      frameHero.classList.add('hidden');
-      frameHero.style.display = 'none';
-    }
-    if (btnWa) btnWa.className = 'px-2.5 py-1 rounded-md font-bold transition-all bg-surface-container-lowest text-primary shadow-2xs cursor-pointer';
-    if (btnHero) btnHero.className = 'px-2.5 py-1 rounded-md font-medium transition-all text-on-surface-variant hover:text-on-surface cursor-pointer';
+    if (frameWa) { frameWa.classList.remove('hidden'); frameWa.style.display = 'block'; }
+    if (frameHero) { frameHero.classList.add('hidden'); frameHero.style.display = 'none'; }
+    if (frameSmartphone) { frameSmartphone.classList.add('hidden'); frameSmartphone.style.display = 'none'; }
+
+    if (btnWa) btnWa.className = classesAtivo;
+    if (btnHero) btnHero.className = classesInativo;
+    if (btnSmartphone) btnSmartphone.className = classesInativo;
   }
 }
 
@@ -983,42 +1038,155 @@ function alternarMiniPreviaAdmin(modo) {
   const btnVitrine = el.btnPrevMiniTabVitrine || document.getElementById('btn-prev-mini-tab-vitrine');
 
   if (modo === 'wa') {
-    if (waContainer) {
-      waContainer.classList.remove('hidden');
-      waContainer.style.display = 'block';
-    }
-    if (vitrineContainer) {
-      vitrineContainer.classList.add('hidden');
-      vitrineContainer.style.display = 'none';
-    }
-    if (btnWa) {
-      btnWa.className = 'flex-1 py-0.5 px-1.5 rounded-md font-bold bg-white text-primary shadow-2xs transition-all';
-    }
-    if (btnVitrine) {
-      btnVitrine.className = 'flex-1 py-0.5 px-1.5 rounded-md font-medium text-on-surface-variant hover:text-on-surface transition-all';
-    }
+    if (waContainer) { waContainer.classList.remove('hidden'); waContainer.style.display = 'block'; }
+    if (vitrineContainer) { vitrineContainer.classList.add('hidden'); vitrineContainer.style.display = 'none'; }
+    if (btnWa) btnWa.className = 'flex-1 py-0.5 px-1.5 rounded-md font-bold bg-white text-primary shadow-2xs transition-all';
+    if (btnVitrine) btnVitrine.className = 'flex-1 py-0.5 px-1.5 rounded-md font-medium text-on-surface-variant hover:text-on-surface transition-all';
   } else {
-    if (vitrineContainer) {
-      vitrineContainer.classList.remove('hidden');
-      vitrineContainer.style.display = 'block';
-    }
-    if (waContainer) {
-      waContainer.classList.add('hidden');
-      waContainer.style.display = 'none';
-    }
-    if (btnVitrine) {
-      btnVitrine.className = 'flex-1 py-0.5 px-1.5 rounded-md font-bold bg-white text-primary shadow-2xs transition-all';
-    }
-    if (btnWa) {
-      btnWa.className = 'flex-1 py-0.5 px-1.5 rounded-md font-medium text-on-surface-variant hover:text-on-surface transition-all';
-    }
+    if (vitrineContainer) { vitrineContainer.classList.remove('hidden'); vitrineContainer.style.display = 'block'; }
+    if (waContainer) { waContainer.classList.add('hidden'); waContainer.style.display = 'none'; }
+    if (btnVitrine) btnVitrine.className = 'flex-1 py-0.5 px-1.5 rounded-md font-bold bg-white text-primary shadow-2xs transition-all';
+    if (btnWa) btnWa.className = 'flex-1 py-0.5 px-1.5 rounded-md font-medium text-on-surface-variant hover:text-on-surface transition-all';
   }
 }
 
-// Exporta globalmente para máxima disponibilidade e suporte a cliques
+// Renderiza os cards de fotos do carrossel na sub-aba Galeria
+function renderizarListaFotosVitrineAdmin() {
+  const container = el.siteVitrineFotosContainer || document.getElementById('site-vitrine-fotos-lista');
+  const contador = el.siteVitrineContadorFotos || document.getElementById('site-vitrine-contador-fotos');
+  if (!container) return;
+
+  const total = state.siteVitrineFotos.length;
+  if (contador) contador.textContent = `${total} / 6 fotos`;
+
+  if (total === 0) {
+    container.innerHTML = `
+      <div class="col-span-full p-4 rounded-xl border border-dashed border-outline-variant/40 bg-surface-container-lowest text-center">
+        <span class="material-symbols-outlined text-outline text-3xl mb-1">photo_library</span>
+        <p class="text-xs text-on-surface-variant font-medium">Nenhuma foto adicionada ao carrossel ainda.</p>
+        <p class="text-[11px] text-outline mt-0.5">Adicione fotos acima para demonstrar o carrossel aos clientes.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = state.siteVitrineFotos.map((foto, idx) => {
+    const isPrincipal = idx === 0;
+    const badgeLabel = isPrincipal ? 'Foto 1 · Capa Principal' : `Foto ${idx + 1}`;
+    const badgeClass = isPrincipal ? 'bg-primary text-white font-bold' : 'bg-surface-container text-on-surface-variant font-medium';
+
+    return `
+      <div class="flex items-center gap-3 p-2.5 rounded-xl border ${isPrincipal ? 'border-primary/40 bg-primary/5' : 'border-outline-variant/30 bg-surface-container-lowest'} group hover:shadow-2xs transition-all">
+        <div class="relative w-14 h-14 rounded-lg overflow-hidden bg-surface-container-high shrink-0 border border-outline-variant/20">
+          <img src="${foto.url}" alt="Foto ${idx + 1}" class="w-full h-full object-cover" />
+          <span class="absolute bottom-0 inset-x-0 bg-black/60 text-white text-[9px] text-center font-mono py-0.5">#${idx + 1}</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-1.5 mb-1">
+            <span class="text-[10px] px-2 py-0.5 rounded-md ${badgeClass}">${badgeLabel}</span>
+            ${foto.blob ? '<span class="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-600 font-semibold">Novo upload</span>' : ''}
+          </div>
+          <p class="text-[11px] font-mono text-outline truncate" title="${foto.url}">${foto.nome || foto.url.split('/').pop() || 'Foto ' + (idx + 1)}</p>
+        </div>
+        <div class="flex items-center gap-1 shrink-0">
+          ${idx > 0 ? `
+            <button type="button" onclick="moverFotoCarrosselAdmin(${idx}, -1)" title="Mover para cima" class="p-1 rounded-lg text-outline hover:text-primary hover:bg-surface-container-high transition-colors cursor-pointer">
+              <span class="material-symbols-outlined text-[18px]">arrow_upward</span>
+            </button>
+          ` : ''}
+          ${idx < total - 1 ? `
+            <button type="button" onclick="moverFotoCarrosselAdmin(${idx}, 1)" title="Mover para baixo" class="p-1 rounded-lg text-outline hover:text-primary hover:bg-surface-container-high transition-colors cursor-pointer">
+              <span class="material-symbols-outlined text-[18px]">arrow_downward</span>
+            </button>
+          ` : ''}
+          <button type="button" onclick="removerFotoCarrosselAdmin(${idx})" title="Remover foto" class="p-1 rounded-lg text-outline hover:text-error hover:bg-error/10 transition-colors cursor-pointer">
+            <span class="material-symbols-outlined text-[18px]">delete</span>
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// Adiciona uma nova foto ao carrossel
+async function adicionarFotoCarrosselAdmin(fileOuUrl, blobParam = null) {
+  if (state.siteVitrineFotos.length >= 6) {
+    toast('Limite máximo de 6 fotos no carrossel atingido.', 'info');
+    return;
+  }
+
+  if (typeof fileOuUrl === 'string') {
+    const url = fileOuUrl.trim();
+    if (!url) return;
+    state.siteVitrineFotos.push({ url, nome: 'Foto externa' });
+    renderizarListaFotosVitrineAdmin();
+    atualizarLivePreviewSite();
+    toast('Foto adicionada ao carrossel!', 'success');
+    return;
+  }
+
+  const file = fileOuUrl;
+  if (!file || !file.type.startsWith('image/')) {
+    toast('Por favor, selecione uma imagem válida.', 'error');
+    return;
+  }
+
+  try {
+    toast('Comprimindo foto para o carrossel (1200px HD)…', 'info');
+    const blob = blobParam || await comprimirImagem(file, { larguraMax: 1200, alvoKB: 300 });
+    const url = URL.createObjectURL(blob);
+    state.siteVitrineFotos.push({
+      url,
+      blob,
+      nome: file.name || 'Nova Foto'
+    });
+    renderizarListaFotosVitrineAdmin();
+    atualizarLivePreviewSite();
+    toast('Foto adicionada! Clique em "Salvar Alterações" para gravar.', 'success');
+  } catch (err) {
+    console.error('Erro ao adicionar foto ao carrossel:', err);
+    toast('Erro ao processar foto: ' + err.message, 'error');
+  }
+}
+
+// Remove foto do carrossel por índice
+function removerFotoCarrosselAdmin(idx) {
+  if (idx < 0 || idx >= state.siteVitrineFotos.length) return;
+  const item = state.siteVitrineFotos[idx];
+  if (item && item.url && item.url.startsWith('blob:')) {
+    URL.revokeObjectURL(item.url);
+  }
+  state.siteVitrineFotos.splice(idx, 1);
+  renderizarListaFotosVitrineAdmin();
+  atualizarLivePreviewSite();
+  toast('Foto removida da prévia. Salve para confirmar.', 'info');
+}
+
+// Move foto de posição no carrossel
+function moverFotoCarrosselAdmin(idx, dir) {
+  const novoIdx = idx + dir;
+  if (novoIdx < 0 || novoIdx >= state.siteVitrineFotos.length) return;
+  const temp = state.siteVitrineFotos[idx];
+  state.siteVitrineFotos[idx] = state.siteVitrineFotos[novoIdx];
+  state.siteVitrineFotos[novoIdx] = temp;
+  renderizarListaFotosVitrineAdmin();
+  atualizarLivePreviewSite();
+}
+
+// Altera a foto principal sendo visualizada na prévia interativa
+function trocarFotoPreviewAdmin(url) {
+  if (!url) return;
+  if (el.prevHeroVitrineImg) el.prevHeroVitrineImg.src = url;
+  if (el.prevSmartMainImg) el.prevSmartMainImg.src = url;
+}
+
+// Exporta globalmente para máxima disponibilidade e suporte a cliques inline
 window.alternarSubabaSite = alternarSubabaSite;
 window.ativarPreviewFrame = ativarPreviewFrame;
 window.alternarMiniPreviaAdmin = alternarMiniPreviaAdmin;
+window.removerFotoCarrosselAdmin = removerFotoCarrosselAdmin;
+window.moverFotoCarrosselAdmin = moverFotoCarrosselAdmin;
+window.trocarFotoPreviewAdmin = trocarFotoPreviewAdmin;
 
 // Carrega as configurações do site oficial do Supabase
 async function carregarConfiguracoesSite() {
@@ -1042,6 +1210,16 @@ async function carregarConfiguracoesSite() {
       oficial_og_titulo: 'PostLink · Smart Links em Alta Definição para WhatsApp',
       oficial_og_descricao: 'Transforme fotos e ofertas em cartões em alta definição que abrem sozinhos no WhatsApp e aumentam suas vendas.',
       oficial_og_imagem_url: null,
+      vitrine_fotos: ['/assets/img/ex02.png', '/assets/img/Ex01.png', '/assets/img/logotipo_postlink.jpg'],
+      vitrine_badge_desconto: '-33% OFF',
+      vitrine_preco_de: '180,00',
+      vitrine_preco_por: '119,90',
+      vitrine_condicao: 'no Pix ou 3x de R$ 42,90 sem juros',
+      vitrine_titulo: 'Conjunto Alfaiataria Premium · Edição Limitada Primavera',
+      vitrine_beneficios: ['Envio Imediato com Rastreio em até 24h', 'Garantia Incondicional de Troca por 7 Dias'],
+      como_funciona_imagem_url: '/assets/img/ex02.png',
+      loja_demonstrativa_nome: 'Aura Closet Oficial',
+      loja_demonstrativa_avatar: '/assets/img/ex02.png',
       atualizado_em: new Date().toISOString(),
       atualizado_por: 'sistema',
     };
@@ -1091,7 +1269,52 @@ function preencherFormularioSite(dados) {
     if (el.siteInputBannerUrl) el.siteInputBannerUrl.value = '';
   }
 
-  // --- SUB-ABA 2: LINK OFICIAL POSTLINK ---
+  // Card 4: Imagem da Seção "Como Funciona"
+  if (el.siteInputComoFuncionaImg) {
+    el.siteInputComoFuncionaImg.value = dados.como_funciona_imagem_url || '/assets/img/ex02.png';
+  }
+
+  // --- SUB-ABA 2: GALERIA & PÁGINA VITRINE ---
+  // Carrossel de Fotos
+  let fotosArray = [];
+  if (Array.isArray(dados.vitrine_fotos)) {
+    fotosArray = dados.vitrine_fotos;
+  } else if (typeof dados.vitrine_fotos === 'string') {
+    try { fotosArray = JSON.parse(dados.vitrine_fotos); } catch (_) { fotosArray = []; }
+  }
+  if (!fotosArray || fotosArray.length === 0) {
+    fotosArray = ['/assets/img/ex02.png', '/assets/img/Ex01.png', '/assets/img/logotipo_postlink.jpg'];
+  }
+  state.siteVitrineFotos = fotosArray.map((url, i) => ({
+    url,
+    nome: url.split('/').pop() || `Foto ${i + 1}`,
+  }));
+  renderizarListaFotosVitrineAdmin();
+
+  // Oferta Vitrine
+  if (el.siteInputVitrineDesconto) el.siteInputVitrineDesconto.value = dados.vitrine_badge_desconto || '-33% OFF';
+  if (el.siteInputVitrinePrecoDe) el.siteInputVitrinePrecoDe.value = dados.vitrine_preco_de || '180,00';
+  if (el.siteInputVitrinePrecoPor) el.siteInputVitrinePrecoPor.value = dados.vitrine_preco_por || '119,90';
+  if (el.siteInputVitrineCondicao) el.siteInputVitrineCondicao.value = dados.vitrine_condicao || 'no Pix ou 3x de R$ 42,90 sem juros';
+  if (el.siteInputVitrineTitulo) el.siteInputVitrineTitulo.value = dados.vitrine_titulo || 'Conjunto Alfaiataria Premium · Edição Limitada Primavera';
+
+  let beneficios = [];
+  if (Array.isArray(dados.vitrine_beneficios)) {
+    beneficios = dados.vitrine_beneficios;
+  } else if (typeof dados.vitrine_beneficios === 'string') {
+    try { beneficios = JSON.parse(dados.vitrine_beneficios); } catch (_) { beneficios = []; }
+  }
+  if (!beneficios || beneficios.length === 0) {
+    beneficios = ['Envio Imediato com Rastreio em até 24h', 'Garantia Incondicional de Troca por 7 Dias'];
+  }
+  if (el.siteInputVitrineBeneficio1) el.siteInputVitrineBeneficio1.value = beneficios[0] || '';
+  if (el.siteInputVitrineBeneficio2) el.siteInputVitrineBeneficio2.value = beneficios[1] || '';
+
+  // Identidade da Loja Demo
+  if (el.siteInputLojaNome) el.siteInputLojaNome.value = dados.loja_demonstrativa_nome || 'Aura Closet Oficial';
+  if (el.siteInputLojaAvatar) el.siteInputLojaAvatar.value = dados.loja_demonstrativa_avatar || '/assets/img/ex02.png';
+
+  // --- SUB-ABA 3: LINK OFICIAL POSTLINK ---
   if (el.siteInputOficialTitulo) {
     el.siteInputOficialTitulo.value = dados.oficial_og_titulo || 'PostLink · Smart Links em Alta Definição para WhatsApp';
   }
@@ -1184,7 +1407,7 @@ function atualizarAuditoriaSite(dados) {
   }
 }
 
-// Atualiza ambas as prévias (Hero e WhatsApp Card) em tempo real com fontes totalmente separadas
+// Atualiza todas as prévias (Hero, Smartphone e WhatsApp Card) em tempo real
 function atualizarLivePreviewSite() {
   // 1. Dados da Landing Page (Vitrine)
   const titulo = (el.siteInputTitulo?.value || '').trim() || 'Transforme ofertas em cartões em alta definição que abrem sozinhos e vendem no WhatsApp';
@@ -1209,11 +1432,31 @@ function atualizarLivePreviewSite() {
     }
   }
 
-  // 2. Dados Oficiais (Link postlink.com.br)
+  // 2. Dados da Oferta Vitrine & Carrossel
+  const vitrineDesconto = (el.siteInputVitrineDesconto?.value || '').trim() || '-33% OFF';
+  const vitrinePrecoDe = (el.siteInputVitrinePrecoDe?.value || '').trim() || '180,00';
+  const vitrinePrecoPor = (el.siteInputVitrinePrecoPor?.value || '').trim() || '119,90';
+  const vitrineCondicao = (el.siteInputVitrineCondicao?.value || '').trim() || 'no Pix ou 3x de R$ 42,90 sem juros';
+  const vitrineProdTitulo = (el.siteInputVitrineTitulo?.value || '').trim() || 'Conjunto Alfaiataria Premium · Edição Limitada Primavera';
+  const lojaNome = (el.siteInputLojaNome?.value || '').trim() || 'Aura Closet Oficial';
+  const lojaAvatar = (el.siteInputLojaAvatar?.value || '').trim() || '/assets/img/ex02.png';
+  const beneficio1 = (el.siteInputVitrineBeneficio1?.value || '').trim() || 'Envio Imediato com Rastreio em até 24h';
+  const beneficio2 = (el.siteInputVitrineBeneficio2?.value || '').trim() || 'Garantia Incondicional de Troca por 7 Dias';
+
+  // Lista de fotos ativas do carrossel
+  const fotosCarrossel = state.siteVitrineFotos.length > 0
+    ? state.siteVitrineFotos
+    : [
+        { url: vitrineImg || '/assets/img/ex02.png' },
+        { url: '/assets/img/Ex01.png' },
+        { url: '/assets/img/logotipo_postlink.jpg' },
+      ];
+  const fotoCapaPrincipal = fotosCarrossel[0]?.url || vitrineImg || '/assets/img/ex02.png';
+
+  // 3. Dados Oficiais (Link postlink.com.br)
   const oficialTitulo = (el.siteInputOficialTitulo?.value || '').trim() || 'PostLink · Smart Links em Alta Definição para WhatsApp';
   const oficialDescricao = (el.siteInputOficialDescricao?.value || '').trim() || 'Transforme fotos e ofertas em cartões em alta definição que abrem sozinhos no WhatsApp e aumentam suas vendas.';
 
-  // Imagem prioritária Oficial
   let oficialImg = '';
   if (!state.siteOficialRemovido) {
     if (state.siteOficialPreviewUrl) {
@@ -1239,7 +1482,7 @@ function atualizarLivePreviewSite() {
   if (el.prevHeroPreviewTitulo) el.prevHeroPreviewTitulo.textContent = previewTitulo;
   if (el.prevHeroPreviewSubtitulo) el.prevHeroPreviewSubtitulo.textContent = previewSubtitulo;
 
-  const vitrineFinal = vitrineImg || '/assets/img/logotipo_postlink.jpg';
+  const vitrineFinal = vitrineImg || fotoCapaPrincipal || '/assets/img/logotipo_postlink.jpg';
   if (bannerAtivo && vitrineFinal) {
     if (el.prevHeroBannerContainer) el.prevHeroBannerContainer.classList.remove('hidden');
     if (el.prevHeroBannerImg) {
@@ -1255,15 +1498,56 @@ function atualizarLivePreviewSite() {
     if (el.prevHeroBannerTag) el.prevHeroBannerTag.classList.add('hidden');
   }
 
-  // Atualiza também a prévia da Página Vitrine na miniatura
-  if (el.prevHeroVitrineImg) {
-    el.prevHeroVitrineImg.src = vitrineImg || '/assets/img/ex02.png';
+  // Atualiza também a mini-vitrine da Hero com carrossel
+  if (el.prevHeroVitrineImg && (!el.prevHeroVitrineImg.src || el.prevHeroVitrineImg.src.includes('ex02.png'))) {
+    el.prevHeroVitrineImg.src = fotoCapaPrincipal;
   }
-  if (el.prevHeroVitrineTitulo) {
-    el.prevHeroVitrineTitulo.textContent = previewTitulo;
+  if (el.prevHeroVitrineTitulo) el.prevHeroVitrineTitulo.textContent = vitrineProdTitulo;
+  if (el.prevHeroVitrinePrecoDe) el.prevHeroVitrinePrecoDe.textContent = `R$ ${vitrinePrecoDe}`;
+  if (el.prevHeroVitrinePrecoPor) el.prevHeroVitrinePrecoPor.textContent = `R$ ${vitrinePrecoPor}`;
+  if (el.prevHeroVitrineCondicao) el.prevHeroVitrineCondicao.textContent = vitrineCondicao;
+  if (el.prevHeroVitrineBadgeTag) el.prevHeroVitrineBadgeTag.textContent = vitrineDesconto;
+
+  if (el.prevHeroVitrineThumbs) {
+    el.prevHeroVitrineThumbs.innerHTML = fotosCarrossel.map((f, i) => `
+      <button type="button" onclick="trocarFotoPreviewAdmin('${f.url}')" class="w-6 h-6 rounded border border-outline-variant/30 overflow-hidden hover:border-primary transition-all shrink-0 cursor-pointer" title="Ver foto #${i + 1}">
+        <img src="${f.url}" class="w-full h-full object-cover" />
+      </button>
+    `).join('');
   }
 
-  // --- B. RENDERIZAÇÃO DO WHATSAPP CARD (LINK OFICIAL POSTLINK) ---
+  // --- B. RENDERIZAÇÃO DO SMARTPHONE PREVIEW (VITRINE DEMONSTRATIVA) ---
+  if (el.prevSmartAvatar) el.prevSmartAvatar.src = lojaAvatar;
+  if (el.prevSmartNome) el.prevSmartNome.textContent = lojaNome;
+  if (el.prevSmartBadge) el.prevSmartBadge.textContent = vitrineDesconto;
+  if (el.prevSmartTitulo) el.prevSmartTitulo.textContent = vitrineProdTitulo;
+  if (el.prevSmartPrecoDe) el.prevSmartPrecoDe.textContent = `R$ ${vitrinePrecoDe}`;
+  if (el.prevSmartPrecoPor) el.prevSmartPrecoPor.textContent = `R$ ${vitrinePrecoPor}`;
+  if (el.prevSmartCondicao) el.prevSmartCondicao.textContent = vitrineCondicao;
+
+  if (el.prevSmartMainImg && (!el.prevSmartMainImg.src || el.prevSmartMainImg.src.includes('ex02.png'))) {
+    el.prevSmartMainImg.src = fotoCapaPrincipal;
+  }
+
+  if (el.prevSmartThumbs) {
+    el.prevSmartThumbs.innerHTML = fotosCarrossel.map((f, i) => `
+      <button type="button" onclick="trocarFotoPreviewAdmin('${f.url}')" class="w-9 h-9 rounded-lg border-2 border-outline-variant/40 overflow-hidden hover:border-primary transition-all shrink-0 cursor-pointer" title="Ver foto #${i + 1}">
+        <img src="${f.url}" class="w-full h-full object-cover" />
+      </button>
+    `).join('');
+  }
+
+  if (el.prevSmartBeneficios) {
+    const listaBeneficios = [beneficio1, beneficio2].filter(Boolean);
+    el.prevSmartBeneficios.innerHTML = listaBeneficios.map(b => `
+      <div class="flex items-center gap-1.5 text-[10px] text-on-surface-variant font-medium">
+        <span class="material-symbols-outlined text-emerald-600 text-[13px] shrink-0">check_circle</span>
+        <span class="truncate">${b}</span>
+      </div>
+    `).join('');
+  }
+
+  // --- C. RENDERIZAÇÃO DO WHATSAPP CARD (LINK OFICIAL POSTLINK) ---
   if (el.prevWaTitulo) el.prevWaTitulo.textContent = oficialTitulo;
   if (el.prevWaDescricao) el.prevWaDescricao.textContent = oficialDescricao;
 
@@ -1363,11 +1647,11 @@ async function tratarArquivoOficialSite(file) {
   }
 }
 
-// Salva as alterações no Supabase (grava ambos os grupos de forma independente)
+// Salva as alterações no Supabase (grava todos os grupos com integridade total)
 async function salvarConfiguracoesSite() {
   if (!el.btnSiteSalvar) return;
 
-  // Dados da Landing Page
+  // 1. Dados da Landing Page (Hero)
   const titulo = (el.siteInputTitulo?.value || '').trim();
   const descricao = (el.siteInputDescricao?.value || '').trim();
   const badgeTexto = (el.siteInputBadge?.value || '').trim();
@@ -1379,7 +1663,22 @@ async function salvarConfiguracoesSite() {
   const previewDescricao = (el.siteInputPreviewTexto?.value || '').trim() || 'Compartilhe ofertas no WhatsApp com um cartão visual em alta definição que abre sozinho! 👇';
   const previewSubtitulo = (el.siteInputPreviewSubtitulo?.value || '').trim() || 'postlink.com.br/sua-loja ➔ Redireciona para o destino';
 
-  // Dados Oficiais de Compartilhamento
+  // Imagem Como Funciona
+  const comoFuncionaImg = (el.siteInputComoFuncionaImg?.value || '').trim() || '/assets/img/ex02.png';
+
+  // 2. Dados da Galeria & Página Vitrine
+  const vitrineBadgeDesconto = (el.siteInputVitrineDesconto?.value || '').trim() || '-33% OFF';
+  const vitrinePrecoDe = (el.siteInputVitrinePrecoDe?.value || '').trim() || '180,00';
+  const vitrinePrecoPor = (el.siteInputVitrinePrecoPor?.value || '').trim() || '119,90';
+  const vitrineCondicao = (el.siteInputVitrineCondicao?.value || '').trim() || 'no Pix ou 3x de R$ 42,90 sem juros';
+  const vitrineTitulo = (el.siteInputVitrineTitulo?.value || '').trim() || 'Conjunto Alfaiataria Premium · Edição Limitada Primavera';
+  const beneficio1 = (el.siteInputVitrineBeneficio1?.value || '').trim();
+  const beneficio2 = (el.siteInputVitrineBeneficio2?.value || '').trim();
+  const vitrineBeneficios = [beneficio1, beneficio2].filter(Boolean);
+  const lojaNome = (el.siteInputLojaNome?.value || '').trim() || 'Aura Closet Oficial';
+  const lojaAvatar = (el.siteInputLojaAvatar?.value || '').trim() || '/assets/img/ex02.png';
+
+  // 3. Dados Oficiais de Compartilhamento
   const oficialOgTitulo = (el.siteInputOficialTitulo?.value || '').trim() || 'PostLink · Smart Links em Alta Definição para WhatsApp';
   const oficialOgDescricao = (el.siteInputOficialDescricao?.value || '').trim() || 'Transforme fotos e ofertas em cartões em alta definição que abrem sozinhos no WhatsApp e aumentam suas vendas.';
 
@@ -1470,10 +1769,41 @@ async function salvarConfiguracoesSite() {
       oficialImgUrl = urlDataOficial.publicUrl;
     }
 
+    // 3. Processar Fotos do Carrossel da Vitrine (upload de blobs se houver)
+    const vitrineFotosUrls = [];
+    for (let i = 0; i < state.siteVitrineFotos.length; i++) {
+      const fotoItem = state.siteVitrineFotos[i];
+      if (fotoItem.blob) {
+        toast(`Enviando foto #${i + 1} do carrossel para o CDN…`, 'info');
+        const nomeArquivoFoto = `${state.user.id}/vitrine_${Date.now()}_${i}.jpg`;
+        const { error: errUploadFoto } = await sb.storage
+          .from('banners')
+          .upload(nomeArquivoFoto, fotoItem.blob, {
+            contentType: 'image/jpeg',
+            upsert: true,
+          });
+
+        if (errUploadFoto) {
+          console.error(`Erro no upload da foto #${i + 1}:`, errUploadFoto);
+          throw new Error(`Falha no upload da foto #${i + 1} (${errUploadFoto.message || 'permissão negada'})`);
+        }
+
+        const { data: urlDataFoto } = sb.storage.from('banners').getPublicUrl(nomeArquivoFoto);
+        fotoItem.url = urlDataFoto.publicUrl;
+        fotoItem.blob = null;
+      }
+      if (fotoItem.url) {
+        vitrineFotosUrls.push(fotoItem.url);
+      }
+    }
+    if (vitrineFotosUrls.length === 0) {
+      vitrineFotosUrls.push('/assets/img/ex02.png');
+    }
+
     // Fallback retrocompatível para banner_url
     const bannerUrlRetro = previewImgUrl || oficialImgUrl || null;
 
-    // 3. Invocar RPC com os 14 parâmetros no Supabase
+    // 4. Invocar RPC com os 24 parâmetros no Supabase
     const { data: resRpc, error: errRpc } = await sb.rpc('admin_salvar_configuracoes_site', {
       p_titulo: titulo,
       p_descricao: descricao,
@@ -1489,6 +1819,16 @@ async function salvarConfiguracoesSite() {
       p_oficial_og_titulo: oficialOgTitulo,
       p_oficial_og_descricao: oficialOgDescricao,
       p_oficial_og_imagem_url: oficialImgUrl,
+      p_vitrine_fotos: vitrineFotosUrls,
+      p_vitrine_badge_desconto: vitrineBadgeDesconto,
+      p_vitrine_preco_de: vitrinePrecoDe,
+      p_vitrine_preco_por: vitrinePrecoPor,
+      p_vitrine_condicao: vitrineCondicao,
+      p_vitrine_titulo: vitrineTitulo,
+      p_vitrine_beneficios: vitrineBeneficios,
+      p_como_funciona_imagem_url: comoFuncionaImg,
+      p_loja_demonstrativa_nome: lojaNome,
+      p_loja_demonstrativa_avatar: lojaAvatar,
     });
 
     if (errRpc) throw errRpc;
@@ -1508,6 +1848,16 @@ async function salvarConfiguracoesSite() {
       oficial_og_titulo: oficialOgTitulo,
       oficial_og_descricao: oficialOgDescricao,
       oficial_og_imagem_url: oficialImgUrl,
+      vitrine_fotos: vitrineFotosUrls,
+      vitrine_badge_desconto: vitrineBadgeDesconto,
+      vitrine_preco_de: vitrinePrecoDe,
+      vitrine_preco_por: vitrinePrecoPor,
+      vitrine_condicao: vitrineCondicao,
+      vitrine_titulo: vitrineTitulo,
+      vitrine_beneficios: vitrineBeneficios,
+      como_funciona_imagem_url: comoFuncionaImg,
+      loja_demonstrativa_nome: lojaNome,
+      loja_demonstrativa_avatar: lojaAvatar,
       atualizado_em: new Date().toISOString(),
       atualizado_por: state.user ? state.user.email : 'admin',
     };
@@ -1557,9 +1907,19 @@ function restaurarPadraoSite() {
     oficial_og_titulo: 'PostLink · Smart Links em Alta Definição para WhatsApp',
     oficial_og_descricao: 'Transforme fotos e ofertas em cartões em alta definição que abrem sozinhos no WhatsApp e aumentam suas vendas.',
     oficial_og_imagem_url: null,
+    vitrine_fotos: ['/assets/img/ex02.png', '/assets/img/Ex01.png', '/assets/img/logotipo_postlink.jpg'],
+    vitrine_badge_desconto: '-33% OFF',
+    vitrine_preco_de: '180,00',
+    vitrine_preco_por: '119,90',
+    vitrine_condicao: 'no Pix ou 3x de R$ 42,90 sem juros',
+    vitrine_titulo: 'Conjunto Alfaiataria Premium · Edição Limitada Primavera',
+    vitrine_beneficios: ['Envio Imediato com Rastreio em até 24h', 'Garantia Incondicional de Troca por 7 Dias'],
+    como_funciona_imagem_url: '/assets/img/ex02.png',
+    loja_demonstrativa_nome: 'Aura Closet Oficial',
+    loja_demonstrativa_avatar: '/assets/img/ex02.png',
   };
 
-  if (!confirm('Deseja restaurar os textos padrão originais do PostLink? (Clique em Salvar Alterações após confirmar para gravar)')) {
+  if (!confirm('Deseja restaurar os textos e fotos padrão originais do PostLink? (Clique em Salvar Alterações após confirmar para gravar)')) {
     return;
   }
 
@@ -1577,9 +1937,15 @@ function restaurarPadraoSite() {
   }
   state.siteOficialPreviewUrl = '';
 
+  // Reseta carrossel
+  state.siteVitrineFotos = padrao.vitrine_fotos.map((url, i) => ({
+    url,
+    nome: `Foto Padrão ${i + 1}`,
+  }));
+
   preencherFormularioSite(padrao);
   atualizarLivePreviewSite();
-  toast('Textos padrão restaurados na tela. Clique em "Salvar Alterações" para publicar.', 'info');
+  toast('Valores padrão restaurados na tela. Clique em "Salvar Alterações" para publicar.', 'info');
 }
 
 // Configura todos os ouvintes de eventos da aba do Site Oficial
@@ -1590,6 +1956,13 @@ function configurarEventosEditorSite() {
     if (btnOficial) {
       e.preventDefault();
       alternarSubabaSite('oficial');
+      return;
+    }
+
+    const btnVitrine = e.target.closest('#btn-subtab-vitrine, [data-subtab="vitrine"]');
+    if (btnVitrine) {
+      e.preventDefault();
+      alternarSubabaSite('vitrine');
       return;
     }
 
@@ -1604,6 +1977,13 @@ function configurarEventosEditorSite() {
     if (btnWa) {
       e.preventDefault();
       ativarPreviewFrame('wa');
+      return;
+    }
+
+    const btnSmart = e.target.closest('#btn-preview-tab-smartphone');
+    if (btnSmart) {
+      e.preventDefault();
+      ativarPreviewFrame('smartphone');
       return;
     }
 
@@ -1637,6 +2017,13 @@ function configurarEventosEditorSite() {
       alternarSubabaSite('landing');
     });
   }
+  const bVitrine = el.btnSubtabVitrine || document.getElementById('btn-subtab-vitrine');
+  if (bVitrine) {
+    bVitrine.addEventListener('click', (e) => {
+      e.preventDefault();
+      alternarSubabaSite('vitrine');
+    });
+  }
   const bOficial = el.btnSubtabOficial || document.getElementById('btn-subtab-oficial');
   if (bOficial) {
     bOficial.addEventListener('click', (e) => {
@@ -1645,7 +2032,7 @@ function configurarEventosEditorSite() {
     });
   }
 
-  // 2. Sub-aba 1 (Vitrine / Landing Page): Inputs e contadores
+  // 2. Sub-aba 1 (Hero & WhatsApp): Inputs e contadores
   if (el.siteInputPreviewTitulo) {
     el.siteInputPreviewTitulo.addEventListener('input', () => {
       atualizarContadoresTextos();
@@ -1676,6 +2063,7 @@ function configurarEventosEditorSite() {
   }
   if (el.siteInputCtaTexto) el.siteInputCtaTexto.addEventListener('input', atualizarLivePreviewSite);
   if (el.siteSwitchBannerAtivo) el.siteSwitchBannerAtivo.addEventListener('change', atualizarLivePreviewSite);
+  if (el.siteInputComoFuncionaImg) el.siteInputComoFuncionaImg.addEventListener('input', atualizarLivePreviewSite);
 
   // Dropzone da foto de exemplo da vitrine
   if (el.siteDropzone) {
@@ -1761,7 +2149,74 @@ function configurarEventosEditorSite() {
     });
   }
 
-  // 3. Sub-aba 2 (Link Oficial PostLink): Inputs e contadores
+  // 3. Sub-aba 2 (Galeria & Página Vitrine): Upload de fotos e inputs
+  if (el.siteDropzoneVitrineExtra) {
+    ['dragenter', 'dragover'].forEach((eventName) => {
+      el.siteDropzoneVitrineExtra.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        el.siteDropzoneVitrineExtra.classList.add('border-primary', 'bg-primary/5');
+      });
+    });
+
+    ['dragleave', 'drop'].forEach((eventName) => {
+      el.siteDropzoneVitrineExtra.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        el.siteDropzoneVitrineExtra.classList.remove('border-primary', 'bg-primary/5');
+      });
+    });
+
+    el.siteDropzoneVitrineExtra.addEventListener('drop', (e) => {
+      const dt = e.dataTransfer;
+      if (dt && dt.files && dt.files.length > 0) {
+        adicionarFotoCarrosselAdmin(dt.files[0]);
+      }
+    });
+
+    el.siteDropzoneVitrineExtra.addEventListener('click', (e) => {
+      if (e.target !== el.siteFileVitrineExtra && el.siteFileVitrineExtra) {
+        el.siteFileVitrineExtra.click();
+      }
+    });
+  }
+
+  if (el.siteFileVitrineExtra) {
+    el.siteFileVitrineExtra.addEventListener('change', () => {
+      if (el.siteFileVitrineExtra.files && el.siteFileVitrineExtra.files.length > 0) {
+        adicionarFotoCarrosselAdmin(el.siteFileVitrineExtra.files[0]);
+        el.siteFileVitrineExtra.value = '';
+      }
+    });
+  }
+
+  if (el.btnAdicionarUrlVitrine && el.siteInputVitrineNovaUrl) {
+    el.btnAdicionarUrlVitrine.addEventListener('click', () => {
+      const val = el.siteInputVitrineNovaUrl.value.trim();
+      if (!val) {
+        toast('Digite uma URL de imagem válida.', 'info');
+        return;
+      }
+      adicionarFotoCarrosselAdmin(val);
+      el.siteInputVitrineNovaUrl.value = '';
+    });
+  }
+
+  // Inputs da vitrine
+  const vitrineInputs = [
+    el.siteInputVitrineDesconto,
+    el.siteInputVitrinePrecoDe,
+    el.siteInputVitrinePrecoPor,
+    el.siteInputVitrineCondicao,
+    el.siteInputVitrineTitulo,
+    el.siteInputVitrineBeneficio1,
+    el.siteInputVitrineBeneficio2,
+    el.siteInputLojaNome,
+    el.siteInputLojaAvatar,
+  ];
+  vitrineInputs.forEach((inp) => {
+    if (inp) inp.addEventListener('input', atualizarLivePreviewSite);
+  });
+
+  // 4. Sub-aba 3 (Link Oficial PostLink): Inputs e contadores
   if (el.siteInputOficialTitulo) {
     el.siteInputOficialTitulo.addEventListener('input', () => {
       atualizarContadoresTextos();
@@ -1859,17 +2314,17 @@ function configurarEventosEditorSite() {
     });
   }
 
-  // 4. Alternância entre prévia Hero e WhatsApp Card (Live Preview)
-  if (el.btnPreviewTabHero && el.btnPreviewTabWa) {
-    el.btnPreviewTabHero.addEventListener('click', () => ativarPreviewFrame('hero'));
-    el.btnPreviewTabWa.addEventListener('click', () => ativarPreviewFrame('wa'));
-  }
+  // 5. Alternância entre prévia Hero, Smartphone Mockup e WhatsApp Card (Live Preview)
+  if (el.btnPreviewTabHero) el.btnPreviewTabHero.addEventListener('click', () => ativarPreviewFrame('hero'));
+  if (el.btnPreviewTabSmartphone) el.btnPreviewTabSmartphone.addEventListener('click', () => ativarPreviewFrame('smartphone'));
+  if (el.btnPreviewTabWa) el.btnPreviewTabWa.addEventListener('click', () => ativarPreviewFrame('wa'));
+
   if (el.btnPrevMiniTabWa && el.btnPrevMiniTabVitrine) {
     el.btnPrevMiniTabWa.addEventListener('click', () => alternarMiniPreviaAdmin('wa'));
     el.btnPrevMiniTabVitrine.addEventListener('click', () => alternarMiniPreviaAdmin('vitrine'));
   }
 
-  // 5. Botões de Ação
+  // 6. Botões de Ação
   if (el.btnSiteSalvar) el.btnSiteSalvar.addEventListener('click', salvarConfiguracoesSite);
   if (el.btnSiteRestaurar) el.btnSiteRestaurar.addEventListener('click', restaurarPadraoSite);
 }

@@ -214,15 +214,15 @@
                   <div class="flex items-center gap-3">
                     <div
                       class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-sm ring-1 ring-slate-200 overflow-hidden shrink-0 shadow-2xs">
-                      <img src="/apple-touch-icon.png" alt="PostLink" class="w-full h-full object-cover">
+                      <img id="hero-social-author-avatar" src="/apple-touch-icon.png" alt="PostLink" class="w-full h-full object-cover">
                     </div>
                     <div>
                       <div class="flex items-center gap-1.5">
-                        <span class="text-sm font-bold text-slate-900 leading-none">Sua Loja Oficial</span>
+                        <span id="hero-social-author-nome" class="text-sm font-bold text-slate-900 leading-none">Sua Loja Oficial</span>
                         <span class="material-symbols-outlined text-sm text-secondary"
                           style="font-variation-settings: 'FILL' 1;">verified</span>
                       </div>
-                      <span class="text-xs text-slate-400 font-mono">@sualoja · postlink.com.br</span>
+                      <span id="hero-social-author-handle" class="text-xs text-slate-400 font-mono">@sualoja · postlink.com.br</span>
                     </div>
                   </div>
                   <span
@@ -321,8 +321,8 @@
               <!-- Topo da Vitrine (Marca & Segurança) -->
               <div class="px-4 py-3 bg-slate-50/90 border-b border-slate-100 flex items-center justify-between">
                 <div class="flex items-center gap-2">
-                  <img src="/apple-touch-icon.png" alt="Sua Loja" class="w-6 h-6 rounded-md object-cover ring-1 ring-slate-200">
-                  <span class="text-xs font-bold text-slate-900">Sua Loja Oficial</span>
+                  <img id="hero-vitrine-loja-avatar" src="/apple-touch-icon.png" alt="Sua Loja" class="w-6 h-6 rounded-md object-cover ring-1 ring-slate-200">
+                  <span id="hero-vitrine-loja-nome" class="text-xs font-bold text-slate-900">Sua Loja Oficial</span>
                   <span class="material-symbols-outlined text-xs text-secondary" style="font-variation-settings: 'FILL' 1;">verified</span>
                 </div>
                 <span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/70">
@@ -334,11 +334,11 @@
               <!-- Foto Principal com Badge de Desconto & Miniaturas -->
               <div class="relative aspect-[1.5/1] w-full bg-slate-100 overflow-hidden">
                 <img id="hero-vitrine-img" src="/assets/img/ex02.png" alt="Produto em Oferta" class="w-full h-full object-cover transition-all duration-300">
-                <span class="absolute top-2.5 left-2.5 bg-gradient-to-r from-red-600 to-red-500 text-white text-[10px] font-black px-2.5 py-1 rounded-md shadow-xs">
+                <span id="hero-vitrine-badge-desconto" class="absolute top-2.5 left-2.5 bg-gradient-to-r from-red-600 to-red-500 text-white text-[10px] font-black px-2.5 py-1 rounded-md shadow-xs">
                   -33% OFF
                 </span>
                 <!-- Miniaturas clicáveis -->
-                <div class="absolute bottom-2.5 left-2.5 flex items-center gap-1.5 bg-black/50 backdrop-blur-md p-1 rounded-lg">
+                <div id="hero-vitrine-thumbs-container" class="absolute bottom-2.5 left-2.5 flex items-center gap-1.5 bg-black/50 backdrop-blur-md p-1 rounded-lg">
                   <button type="button" onclick="trocarFotoHeroVitrine('/assets/img/ex02.png', this)" class="hero-vitrine-thumb w-7 h-7 rounded border-2 border-white overflow-hidden active:scale-95 transition-all">
                     <img src="/assets/img/ex02.png" alt="Thumb 1" class="w-full h-full object-cover">
                   </button>
@@ -358,17 +358,17 @@
                     Oferta Exclusiva · Pronto para Envio com Desconto Especial
                   </h4>
                   <div class="flex items-baseline gap-2 mt-1">
-                    <span class="text-xs text-slate-400 line-through">De R$ 180,00</span>
-                    <span class="text-base font-black text-secondary-dark">Por R$ 119,90</span>
+                    <span id="hero-vitrine-preco-de" class="text-xs text-slate-400 line-through">De R$ 180,00</span>
+                    <span id="hero-vitrine-preco-por" class="text-base font-black text-secondary-dark">Por R$ 119,90</span>
                   </div>
-                  <p class="text-[11px] font-medium text-emerald-700 mt-0.5 flex items-center gap-1">
+                  <p id="hero-vitrine-condicao" class="text-[11px] font-medium text-emerald-700 mt-0.5 flex items-center gap-1">
                     <span class="material-symbols-outlined text-xs">payments</span>
                     <span>Em até 3x sem juros ou 5% de desconto no Pix</span>
                   </p>
                 </div>
 
                 <!-- Lista de Destaques/Benefícios -->
-                <ul class="text-[11px] text-slate-600 space-y-1.5 pt-2 border-t border-slate-100">
+                <ul id="hero-vitrine-beneficios" class="text-[11px] text-slate-600 space-y-1.5 pt-2 border-t border-slate-100">
                   <li class="flex items-center gap-1.5">
                     <span class="material-symbols-outlined text-xs text-secondary font-bold">check_circle</span>
                     <span>Envio imediato com código de rastreamento</span>
@@ -599,7 +599,7 @@
                 <!-- Cartão HD -->
                 <div class="rounded overflow-hidden bg-white mb-1">
                   <div class="aspect-[1.91/1] w-full overflow-hidden bg-surface-container-high">
-                    <img src="/assets/img/ex02.png" alt="Exemplo HD" class="w-full h-full object-cover">
+                    <img id="como-funciona-img" src="/assets/img/ex02.png" alt="Exemplo HD" class="w-full h-full object-cover">
                   </div>
                   <div class="p-2.5 bg-white">
                     <div class="text-xs font-bold text-[#111B21] leading-tight line-clamp-1">Promoção de Verão</div>
@@ -676,13 +676,13 @@
               <!-- Header da Loja na Vitrine -->
               <div class="px-3.5 py-2.5 bg-white border-b border-slate-200/80 flex items-center justify-between">
                 <div class="flex items-center gap-2">
-                  <img src="/apple-touch-icon.png" alt="Logo Loja" class="w-6 h-6 rounded-md object-cover ring-1 ring-slate-200">
+                  <img id="vitrine-demo-loja-avatar" src="/apple-touch-icon.png" alt="Logo Loja" class="w-6 h-6 rounded-md object-cover ring-1 ring-slate-200">
                   <div>
                     <div class="flex items-center gap-1">
-                      <span class="text-xs font-bold text-slate-900 leading-none">Sua Loja</span>
+                      <span id="vitrine-demo-loja-nome" class="text-xs font-bold text-slate-900 leading-none">Sua Loja</span>
                       <span class="material-symbols-outlined text-xs text-secondary" style="font-variation-settings: 'FILL' 1;">verified</span>
                     </div>
-                    <span class="text-[9px] text-slate-400 font-mono">postlink.com.br/loja</span>
+                    <span id="vitrine-demo-loja-rota" class="text-[9px] text-slate-400 font-mono">postlink.com.br/loja</span>
                   </div>
                 </div>
                 <span class="inline-flex items-center gap-1 text-[9px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
@@ -695,13 +695,13 @@
               <div class="p-3">
                 <div class="relative aspect-square w-full rounded-xl overflow-hidden bg-slate-100 border border-slate-200/80 shadow-2xs">
                   <img id="vitrine-demo-main-img" src="/assets/img/ex02.png" alt="Produto em Oferta" class="w-full h-full object-cover transition-all duration-300">
-                  <span class="absolute top-2 left-2 bg-gradient-to-r from-red-600 to-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded shadow-xs">
+                  <span id="vitrine-demo-badge-desconto" class="absolute top-2 left-2 bg-gradient-to-r from-red-600 to-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded shadow-xs">
                     -33% OFF
                   </span>
                 </div>
 
                 <!-- Carrossel de Miniaturas Clicáveis -->
-                <div class="flex items-center justify-center gap-2 mt-2">
+                <div id="vitrine-demo-thumbs-container" class="flex items-center justify-center gap-2 mt-2">
                   <button type="button" onclick="trocarFotoVitrineSecao('/assets/img/ex02.png', this)" class="vitrine-sec-thumb w-9 h-9 rounded-lg border-2 border-primary overflow-hidden shadow-2xs active:scale-95 transition-all">
                     <img src="/assets/img/ex02.png" alt="Foto 1" class="w-full h-full object-cover">
                   </button>
@@ -717,29 +717,31 @@
               <!-- Bloco de Informações da Oferta -->
               <div class="px-3 pb-3 space-y-2.5 flex-grow">
                 <div>
-                  <h4 class="text-xs sm:text-sm font-extrabold text-slate-900 leading-tight">
+                  <h4 id="vitrine-demo-titulo" class="text-xs sm:text-sm font-extrabold text-slate-900 leading-tight">
                     Combo Promocional Especial (Pronto para Envio)
                   </h4>
                   <div class="flex items-baseline gap-2 mt-1">
-                    <span class="text-xs text-slate-400 line-through">De R$ 180,00</span>
-                    <span class="text-base font-black text-secondary-dark">Por R$ 119,90</span>
+                    <span id="vitrine-demo-preco-de" class="text-xs text-slate-400 line-through">De R$ 180,00</span>
+                    <span id="vitrine-demo-preco-por" class="text-base font-black text-secondary-dark">Por R$ 119,90</span>
                   </div>
                   <div class="mt-1 text-[10px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200/70 rounded-md px-2 py-0.5 inline-flex items-center gap-1">
                     <span class="material-symbols-outlined text-xs">credit_card</span>
-                    <span>Em até 3x sem juros ou 5% OFF no Pix</span>
+                    <span id="vitrine-demo-condicao">Em até 3x sem juros ou 5% OFF no Pix</span>
                   </div>
                 </div>
 
                 <!-- Tópicos de Diferenciais -->
-                <div class="bg-white rounded-lg p-2 border border-slate-200/80 space-y-1 text-[10px] text-slate-600">
+                <div id="vitrine-demo-beneficios-container" class="bg-white rounded-lg p-2 border border-slate-200/80 space-y-1 text-[10px] text-slate-600">
                   <div class="font-bold text-slate-800 text-[10px] mb-0.5">Destaques da Oferta:</div>
-                  <div class="flex items-center gap-1.5">
-                    <span class="material-symbols-outlined text-xs text-secondary font-bold">check</span>
-                    <span>Envio imediato em até 24 horas</span>
-                  </div>
-                  <div class="flex items-center gap-1.5">
-                    <span class="material-symbols-outlined text-xs text-secondary font-bold">check</span>
-                    <span>Produto original com garantia e suporte</span>
+                  <div id="vitrine-demo-beneficios-lista" class="space-y-1">
+                    <div class="flex items-center gap-1.5">
+                      <span class="material-symbols-outlined text-xs text-secondary font-bold">check</span>
+                      <span>Envio imediato em até 24 horas</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                      <span class="material-symbols-outlined text-xs text-secondary font-bold">check</span>
+                      <span>Produto original com garantia e suporte</span>
+                    </div>
                   </div>
                 </div>
 

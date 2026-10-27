@@ -547,14 +547,19 @@
 
             <!-- SELETOR DE SUB-ABAS DE EDIÇÃO -->
             <div class="bg-surface-container-lowest border border-outline-variant/60 rounded-2xl p-2 shadow-xs flex flex-wrap items-center gap-2">
-              <button type="button" id="btn-subtab-landing" data-subtab="landing" onclick="window.alternarSubabaSite &amp;&amp; window.alternarSubabaSite('landing')" class="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all bg-primary text-white shadow-2xs cursor-pointer">
+              <button type="button" id="btn-subtab-landing" data-subtab="landing" onclick="window.alternarSubabaSite && window.alternarSubabaSite('landing')" class="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all bg-primary text-white shadow-2xs cursor-pointer">
                 <span class="material-symbols-outlined text-base">view_quilt</span>
-                <span>1. Exemplo na Landing Page</span>
-                <span id="subtab-badge-landing" class="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-white/20 text-white">Vitrine &amp; Hero</span>
+                <span>1. Hero &amp; WhatsApp</span>
+                <span id="subtab-badge-landing" class="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-white/20 text-white">Anúncio &amp; Headline</span>
               </button>
-              <button type="button" id="btn-subtab-oficial" data-subtab="oficial" onclick="window.alternarSubabaSite &amp;&amp; window.alternarSubabaSite('oficial')" class="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-medium transition-all text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface cursor-pointer">
+              <button type="button" id="btn-subtab-vitrine" data-subtab="vitrine" onclick="window.alternarSubabaSite && window.alternarSubabaSite('vitrine')" class="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-medium transition-all text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface cursor-pointer">
+                <span class="material-symbols-outlined text-base">collections</span>
+                <span>2. Galeria &amp; Página Vitrine</span>
+                <span id="subtab-badge-vitrine" class="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-primary/10 text-primary">Carrossel &amp; Oferta</span>
+              </button>
+              <button type="button" id="btn-subtab-oficial" data-subtab="oficial" onclick="window.alternarSubabaSite && window.alternarSubabaSite('oficial')" class="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-medium transition-all text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface cursor-pointer">
                 <span class="material-symbols-outlined text-base">share</span>
-                <span>2. Link Oficial PostLink</span>
+                <span>3. Link Oficial PostLink</span>
                 <span id="subtab-badge-oficial" class="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-800">WhatsApp / Redes</span>
               </button>
             </div>
@@ -766,11 +771,179 @@
                     <input type="text" id="site-input-cta-url" placeholder="/planos/" class="w-full text-xs px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all">
                   </div>
                 </div>
+              <!-- CARD 4: MOCKUP HD DA SEÇÃO COMO FUNCIONA -->
+              <div class="bg-surface-container-lowest border border-outline-variant/60 rounded-2xl p-5 shadow-xs space-y-4">
+                <div class="flex items-center gap-2 pb-3 border-b border-outline-variant/50">
+                  <div class="w-8 h-8 rounded-xl bg-secondary-container/30 text-secondary-dark flex items-center justify-center">
+                    <span class="material-symbols-outlined text-lg">image</span>
+                  </div>
+                  <div>
+                    <h2 class="text-sm font-bold text-on-surface">Mockup HD da Seção "Como Funciona"</h2>
+                    <p class="text-[11px] text-on-surface-variant">Personalize a imagem que aparece no balão WhatsApp da seção explicativa na Home</p>
+                  </div>
+                </div>
+
+                <div class="space-y-2">
+                  <label for="site-input-como-funciona-img" class="block text-xs font-semibold text-on-surface flex items-center justify-between">
+                    <span>URL da Imagem de Exemplo HD (opcional):</span>
+                    <span class="text-[10px] text-outline font-normal">Se vazio, usa a 1ª foto do carrossel</span>
+                  </label>
+                  <input type="url" id="site-input-como-funciona-img" placeholder="https://exemplo.com/foto-exemplo-hd.jpg" class="w-full text-xs px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all">
+                </div>
               </div>
 
             </div>
 
-            <!-- SUB-ABA 2: PRÉVIA OFICIAL DO DOMÍNIO POSTLINK (WHATSAPP / REDES SOCIAIS) -->
+            <!-- SUB-ABA 2: GALERIA DE FOTOS DA VITRINE & OFERTA DEMONSTRATIVA -->
+            <div id="subtab-pane-vitrine" class="space-y-5 hidden">
+
+              <!-- CARD 1: GERENCIADOR DO CARROSSEL DE FOTOS DA VITRINE -->
+              <div class="bg-surface-container-lowest border-2 border-primary/20 rounded-2xl p-5 shadow-xs space-y-5">
+                <div class="flex items-center justify-between pb-3 border-b border-outline-variant/50">
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                      <span class="material-symbols-outlined text-xl">collections</span>
+                    </div>
+                    <div>
+                      <div class="flex items-center gap-2">
+                        <h2 class="text-sm font-bold text-on-surface">Carrossel &amp; Galeria de Fotos da Vitrine</h2>
+                        <span id="site-vitrine-contador-fotos" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">3 fotos ativas</span>
+                      </div>
+                      <p class="text-[11px] text-on-surface-variant">Essas fotos alimentam o carrossel interativo tanto na Mini-Vitrine do Hero quanto no Smartphone da Seção Vitrine</p>
+                    </div>
+                  </div>
+
+                  <span class="text-[10px] font-mono text-outline font-semibold">Até 6 fotos</span>
+                </div>
+
+                <!-- Lista Visual de Fotos do Carrossel -->
+                <div class="space-y-3">
+                  <div class="flex items-center justify-between">
+                    <label class="text-xs font-bold text-on-surface flex items-center gap-1.5">
+                      <span class="material-symbols-outlined text-sm text-primary">view_carousel</span>
+                      <span>Fotos Cadastradas no Carrossel</span>
+                    </label>
+                    <span class="text-[10px] text-outline">A 1ª foto é a exibida como capa</span>
+                  </div>
+
+                  <!-- Container dinâmico das fotos do carrossel -->
+                  <div id="site-vitrine-fotos-lista" class="space-y-2.5">
+                    <!-- Gerado dinamicamente via JS -->
+                  </div>
+
+                  <!-- Área de Upload de Nova Foto para o Carrossel -->
+                  <div class="pt-2">
+                    <div id="site-dropzone-vitrine-extra" class="relative border-2 border-dashed border-outline-variant hover:border-primary/60 rounded-2xl p-4 text-center transition-all bg-surface-container-low/40 hover:bg-surface-container-low cursor-pointer group">
+                      <input type="file" id="site-file-vitrine-extra" accept="image/jpeg,image/png,image/webp" multiple class="hidden">
+                      <div class="flex items-center justify-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
+                          <span class="material-symbols-outlined text-xl">add_photo_alternate</span>
+                        </div>
+                        <div class="text-left">
+                          <span class="text-xs font-bold text-primary group-hover:underline">Clique para adicionar fotos ao carrossel</span>
+                          <span class="text-xs text-on-surface-variant"> ou arraste os arquivos aqui</span>
+                          <p class="text-[10px] text-outline mt-0.5">Formatos: JPEG, PNG ou WebP · Otimização automática em HD</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Ou Inserir por URL direta -->
+                  <div class="space-y-1.5 pt-1">
+                    <label for="site-input-vitrine-nova-url" class="block text-xs font-semibold text-on-surface flex items-center justify-between">
+                      <span>Ou adicione uma foto por URL direta:</span>
+                      <span class="text-[10px] text-outline font-normal">Ex: link de CDN externa</span>
+                    </label>
+                    <div class="flex gap-2">
+                      <input type="url" id="site-input-vitrine-nova-url" placeholder="https://exemplo.com/produto-foto.jpg" class="flex-grow text-xs px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all">
+                      <button id="btn-adicionar-url-vitrine" type="button" class="px-3.5 py-2 bg-primary hover:bg-primary-dark text-white text-xs font-bold rounded-xl shadow-xs transition-all shrink-0 flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">add</span>
+                        <span>Adicionar</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- CARD 2: DADOS COMERCIAIS DA VITRINE (PREÇOS, DESCONTO E CONDIÇÃO) -->
+              <div class="bg-surface-container-lowest border border-outline-variant/60 rounded-2xl p-5 shadow-xs space-y-4">
+                <div class="flex items-center gap-2 pb-3 border-b border-outline-variant/50">
+                  <div class="w-8 h-8 rounded-xl bg-secondary-container/30 text-secondary-dark flex items-center justify-center">
+                    <span class="material-symbols-outlined text-lg">local_offer</span>
+                  </div>
+                  <div>
+                    <h2 class="text-sm font-bold text-on-surface">Dados Comerciais da Oferta Demonstrativa</h2>
+                    <p class="text-[11px] text-on-surface-variant">Preços, desconto e facilidades que aparecem nos mockups da Vitrine</p>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <!-- Tag de Desconto -->
+                  <div class="space-y-1.5">
+                    <label for="site-input-vitrine-desconto" class="text-xs font-semibold text-on-surface">Badge de Desconto / Tag</label>
+                    <input type="text" id="site-input-vitrine-desconto" placeholder="-33% OFF" class="w-full text-xs px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all font-bold text-red-600">
+                  </div>
+                  <!-- Preço De -->
+                  <div class="space-y-1.5">
+                    <label for="site-input-vitrine-preco-de" class="text-xs font-semibold text-on-surface">Preço "De" (R$)</label>
+                    <input type="text" id="site-input-vitrine-preco-de" placeholder="180,00" class="w-full text-xs px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all">
+                  </div>
+                  <!-- Preço Por -->
+                  <div class="space-y-1.5">
+                    <label for="site-input-vitrine-preco-por" class="text-xs font-semibold text-on-surface">Preço "Por" (R$)</label>
+                    <input type="text" id="site-input-vitrine-preco-por" placeholder="119,90" class="w-full text-xs px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all font-bold text-emerald-700">
+                  </div>
+                </div>
+
+                <!-- Condição de Pagamento -->
+                <div class="space-y-1.5">
+                  <label for="site-input-vitrine-condicao" class="text-xs font-semibold text-on-surface">Condição de Pagamento</label>
+                  <input type="text" id="site-input-vitrine-condicao" placeholder="Em até 3x sem juros ou 5% de desconto no Pix" class="w-full text-xs px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all">
+                </div>
+
+                <!-- Título da Oferta da Vitrine -->
+                <div class="space-y-1.5">
+                  <label for="site-input-vitrine-titulo" class="text-xs font-semibold text-on-surface">Título do Produto na Vitrine</label>
+                  <input type="text" id="site-input-vitrine-titulo" placeholder="Combo Promocional Especial (Pronto para Envio)" class="w-full text-xs px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all font-semibold">
+                </div>
+
+                <!-- Destaques / Benefícios da Oferta -->
+                <div class="space-y-2 pt-1">
+                  <label class="text-xs font-semibold text-on-surface block">Destaques da Oferta (Tópicos com Ícone de Confirmação):</label>
+                  <div class="space-y-2">
+                    <input type="text" id="site-input-vitrine-beneficio-1" placeholder="Envio imediato em até 24 horas" class="w-full text-xs px-3 py-2 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all">
+                    <input type="text" id="site-input-vitrine-beneficio-2" placeholder="Produto original com garantia e suporte" class="w-full text-xs px-3 py-2 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all">
+                  </div>
+                </div>
+              </div>
+
+              <!-- CARD 3: IDENTIDADE DA LOJA DEMONSTRATIVA -->
+              <div class="bg-surface-container-lowest border border-outline-variant/60 rounded-2xl p-5 shadow-xs space-y-4">
+                <div class="flex items-center gap-2 pb-3 border-b border-outline-variant/50">
+                  <div class="w-8 h-8 rounded-xl bg-primary-container/20 text-primary flex items-center justify-center">
+                    <span class="material-symbols-outlined text-lg">storefront</span>
+                  </div>
+                  <div>
+                    <h2 class="text-sm font-bold text-on-surface">Identidade da Loja Demonstrativa nos Mockups</h2>
+                    <p class="text-[11px] text-on-surface-variant">Nome e avatar fictício da loja para simular a marca do comerciante nos previews</p>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div class="space-y-1.5">
+                    <label for="site-input-loja-nome" class="text-xs font-semibold text-on-surface">Nome da Loja Exibido</label>
+                    <input type="text" id="site-input-loja-nome" placeholder="Sua Loja Oficial" class="w-full text-xs px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all">
+                  </div>
+                  <div class="space-y-1.5">
+                    <label for="site-input-loja-avatar" class="text-xs font-semibold text-on-surface">URL do Avatar / Logotipo</label>
+                    <input type="text" id="site-input-loja-avatar" placeholder="/apple-touch-icon.png" class="w-full text-xs px-3 py-2.5 rounded-xl border border-outline-variant bg-surface-container-low focus:bg-surface-container-lowest focus:border-primary outline-none transition-all">
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- SUB-ABA 3: PRÉVIA OFICIAL DO DOMÍNIO POSTLINK (WHATSAPP / REDES SOCIAIS) -->
             <div id="subtab-pane-oficial" class="space-y-5 hidden">
 
               <!-- CARD DEDICADO: CONFIGURAÇÃO DE COMPARTILHAMENTO DO LINK POSTLINK.COM.BR -->
@@ -939,10 +1112,13 @@
                 </div>
 
                 <div class="flex items-center gap-1 bg-surface-container-highest/60 p-0.5 rounded-lg border border-outline-variant/40 text-[11px]">
-                  <button type="button" id="btn-preview-tab-hero" onclick="window.ativarPreviewFrame &amp;&amp; window.ativarPreviewFrame('hero')" class="px-2.5 py-1 rounded-md font-bold transition-all bg-surface-container-lowest text-primary shadow-2xs cursor-pointer">
+                  <button type="button" id="btn-preview-tab-hero" onclick="window.ativarPreviewFrame && window.ativarPreviewFrame('hero')" class="px-2.5 py-1 rounded-md font-bold transition-all bg-surface-container-lowest text-primary shadow-2xs cursor-pointer">
                     Site (Hero)
                   </button>
-                  <button type="button" id="btn-preview-tab-wa" onclick="window.ativarPreviewFrame &amp;&amp; window.ativarPreviewFrame('wa')" class="px-2.5 py-1 rounded-md font-medium transition-all text-on-surface-variant hover:text-on-surface cursor-pointer">
+                  <button type="button" id="btn-preview-tab-smartphone" onclick="window.ativarPreviewFrame && window.ativarPreviewFrame('smartphone')" class="px-2.5 py-1 rounded-md font-medium transition-all text-on-surface-variant hover:text-on-surface cursor-pointer">
+                    Página Vitrine
+                  </button>
+                  <button type="button" id="btn-preview-tab-wa" onclick="window.ativarPreviewFrame && window.ativarPreviewFrame('wa')" class="px-2.5 py-1 rounded-md font-medium transition-all text-on-surface-variant hover:text-on-surface cursor-pointer">
                     WhatsApp Card
                   </button>
                 </div>
@@ -1068,19 +1244,20 @@
                         </div>
                         <div class="relative aspect-[1.5/1] bg-surface-container-low overflow-hidden">
                           <img id="prev-hero-vitrine-img" src="/assets/img/ex02.png" alt="Foto Vitrine" class="w-full h-full object-cover">
-                          <span class="absolute top-1 left-1 bg-red-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded shadow-2xs">
+                          <span id="prev-hero-vitrine-badge-tag" class="absolute top-1 left-1 bg-red-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded shadow-2xs">
                             -33% OFF
                           </span>
+                          <div id="prev-hero-vitrine-thumbs" class="absolute bottom-1 left-1 flex items-center gap-1 bg-black/60 backdrop-blur-xs p-0.5 rounded"></div>
                         </div>
                         <div class="p-2 space-y-1">
                           <p id="prev-hero-vitrine-titulo" class="text-[9px] font-extrabold text-on-surface leading-tight line-clamp-1">
                             Lançamento Especial · Oferta Exclusiva
                           </p>
                           <div class="flex items-baseline gap-1 text-[9px]">
-                            <span class="text-slate-400 line-through text-[8px]">R$ 180,00</span>
-                            <span class="font-bold text-secondary-dark text-[10px]">R$ 119,90</span>
+                            <span id="prev-hero-vitrine-preco-de" class="text-slate-400 line-through text-[8px]">R$ 180,00</span>
+                            <span id="prev-hero-vitrine-preco-por" class="font-bold text-secondary-dark text-[10px]">R$ 119,90</span>
                           </div>
-                          <p class="text-[8px] font-medium text-emerald-700">3x sem juros ou Pix</p>
+                          <p id="prev-hero-vitrine-condicao" class="text-[8px] font-medium text-emerald-700">3x sem juros ou Pix</p>
                           <div class="w-full py-1 rounded bg-secondary text-white text-[9px] font-bold text-center flex items-center justify-center gap-1 shadow-2xs mt-1">
                             <span class="material-symbols-outlined text-[10px]">chat</span>
                             <span>Pedir pelo WhatsApp</span>
@@ -1140,6 +1317,86 @@
                 <p class="text-[10px] text-center text-outline">
                   Formatado na proporção 1.91:1 recomendada pela Meta para exibição em tela cheia no chat.
                 </p>
+              </div>
+
+              <!-- VIEW 3: PRÉVIA DO SMARTPHONE (PÁGINA VITRINE COMPLETA) -->
+              <div id="preview-frame-smartphone" class="hidden p-4 sm:p-5 bg-background flex flex-col items-center">
+                <div class="text-[11px] text-center text-outline font-medium mb-3">
+                  Demonstração da Página Vitrine da Home em tela de smartphone:
+                </div>
+
+                <!-- Smartphone Mockup Outer Shell -->
+                <div class="w-full max-w-[290px] rounded-[34px] p-2.5 bg-slate-900 shadow-xl border border-slate-800 text-left">
+                  <!-- Notch -->
+                  <div class="w-20 h-3 bg-slate-950 rounded-full mx-auto mb-2 flex items-center justify-center">
+                    <span class="w-1.5 h-1.5 rounded-full bg-slate-800"></span>
+                  </div>
+
+                  <!-- Tela do Celular -->
+                  <div class="bg-[#FAF8FF] rounded-[24px] overflow-hidden border border-slate-800 flex flex-col">
+                    <!-- Header da Loja -->
+                    <div class="px-2.5 py-1.5 bg-white border-b border-slate-200/80 flex items-center justify-between">
+                      <div class="flex items-center gap-1.5">
+                        <img id="prev-smart-avatar" src="/apple-touch-icon.png" alt="Loja" class="w-4 h-4 rounded object-cover ring-1 ring-slate-200">
+                        <div>
+                          <div class="flex items-center gap-0.5">
+                            <span id="prev-smart-nome" class="text-[10px] font-bold text-slate-900 leading-none">Sua Loja</span>
+                            <span class="material-symbols-outlined text-[10px] text-secondary" style="font-variation-settings: 'FILL' 1;">verified</span>
+                          </div>
+                        </div>
+                      </div>
+                      <span class="text-[8px] font-bold text-emerald-800 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">Seguro</span>
+                    </div>
+
+                    <!-- Área de Foto e Carrossel da Oferta -->
+                    <div class="p-2">
+                      <div class="relative aspect-square w-full rounded-lg overflow-hidden bg-slate-100 border border-slate-200 shadow-2xs">
+                        <img id="prev-smart-main-img" src="/assets/img/ex02.png" alt="Produto" class="w-full h-full object-cover transition-opacity duration-200">
+                        <span id="prev-smart-badge" class="absolute top-1 left-1 bg-gradient-to-r from-red-600 to-red-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded shadow-2xs">
+                          -33% OFF
+                        </span>
+                      </div>
+
+                      <!-- Miniaturas Clicáveis do Carrossel no Admin -->
+                      <div id="prev-smart-thumbs" class="flex items-center justify-center gap-1.5 mt-1.5">
+                        <!-- Gerado dinamicamente via JS -->
+                      </div>
+                    </div>
+
+                    <!-- Informações da Oferta -->
+                    <div class="px-2.5 pb-2.5 space-y-1.5 flex-grow">
+                      <div>
+                        <h4 id="prev-smart-titulo" class="text-[10px] font-extrabold text-slate-900 leading-tight">
+                          Combo Promocional Especial (Pronto para Envio)
+                        </h4>
+                        <div class="flex items-baseline gap-1.5 mt-0.5">
+                          <span id="prev-smart-preco-de" class="text-[9px] text-slate-400 line-through">De R$ 180,00</span>
+                          <span id="prev-smart-preco-por" class="text-xs font-black text-secondary-dark">Por R$ 119,90</span>
+                        </div>
+                        <div id="prev-smart-condicao" class="mt-0.5 text-[8px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200/70 rounded px-1.5 py-0.2 inline-block">
+                          Em até 3x sem juros ou 5% OFF no Pix
+                        </div>
+                      </div>
+
+                      <!-- Diferenciais -->
+                      <div class="bg-white rounded p-1.5 border border-slate-200 text-[8px] text-slate-600 space-y-0.5">
+                        <div class="font-bold text-slate-800 text-[8px]">Destaques da Oferta:</div>
+                        <div id="prev-smart-beneficios" class="space-y-0.5">
+                          <!-- Gerado dinamicamente -->
+                        </div>
+                      </div>
+
+                      <!-- Botão CTA -->
+                      <div class="pt-0.5">
+                        <div class="w-full py-1.5 px-2 rounded-lg bg-secondary text-white text-[10px] font-bold flex items-center justify-center gap-1 shadow-2xs">
+                          <span class="material-symbols-outlined text-xs">chat</span>
+                          <span>Pedir pelo WhatsApp</span>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
               </div>
 
             </div>
