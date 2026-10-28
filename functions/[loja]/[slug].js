@@ -62,7 +62,15 @@ async function registrarCliqueDestinoApi(context) {
         p_dispositivo: dispositivo,
         p_etapa: 'destino',
       });
-    } catch (_) {}
+    } catch (_) {
+      try {
+        await rpc(env, 'registrar_clique', {
+          p_link: linkId,
+          p_origem: origem,
+          p_dispositivo: dispositivo,
+        });
+      } catch (_) {}
+    }
   }
   return new Response(JSON.stringify({ ok: true }), {
     headers: {
@@ -215,12 +223,32 @@ export async function onRequestGet(context) {
   // Resolução do logotipo da loja
   const lojaLogo = resolverUrlPublica(link.loja_logo);
 
+  // Função auxiliar para agendar tarefas em background com segurança no Cloudflare Pages
+  function agendarSegundoPlano(prom) {
+    if (context && typeof context.waitUntil === 'function') {
+      try {
+        context.waitUntil(prom);
+        return;
+      } catch (_) {}
+    } else if (typeof waitUntil === 'function') {
+      try {
+        waitUntil(prom);
+        return;
+      } catch (_) {}
+    }
+    prom.catch(() => {});
+  }
+
   // Se o visitante clicou diretamente para ir ao destino final (?go=1)
   if (reqUrl.searchParams.get('go') === '1') {
-    if (typeof waitUntil === 'function') {
-      waitUntil(registrarClique(env, link.link_id, request, 'destino'));
+    if (context && typeof context.waitUntil === 'function') {
+      try {
+        context.waitUntil(registrarClique(env, link.link_id, request, 'destino'));
+      } catch (_) {
+        await registrarClique(env, link.link_id, request, 'destino');
+      }
     } else {
-      registrarClique(env, link.link_id, request, 'destino').catch(() => {});
+      await registrarClique(env, link.link_id, request, 'destino');
     }
     return Response.redirect(link.destino, 302);
   }
@@ -233,11 +261,7 @@ export async function onRequestGet(context) {
   }
 
   // Se for pessoa real: registra clique de acesso à tela
-  if (typeof waitUntil === 'function') {
-    waitUntil(registrarClique(env, link.link_id, request, 'acesso'));
-  } else {
-    registrarClique(env, link.link_id, request, 'acesso').catch(() => {});
-  }
+  agendarSegundoPlano(registrarClique(env, link.link_id, request, 'acesso'));
 
   // Modo 1: Página de Oferta / Mini-Vitrine (apresenta detalhes, fotos e preço antes da ação)
   if (link.tipo_link === 'vitrine') {
@@ -256,12 +280,6 @@ export async function onRequestGet(context) {
   }
 
   // Modo 2: Redirecionamento Rápido (transição com ação de contingência e auto-redirecionamento)
-  if (typeof waitUntil === 'function') {
-    waitUntil(registrarClique(env, link.link_id, request, 'destino'));
-  } else {
-    registrarClique(env, link.link_id, request, 'destino').catch(() => {});
-  }
-
   return html(paginaTransicao({
     destino: link.destino,
     lojaNome: link.loja_nome || 'Loja',
@@ -367,12 +385,23 @@ function detectarOrigemEDispositivo(request) {
 async function registrarClique(env, linkId, request, etapa = 'acesso') {
   try {
     const { origem, dispositivo } = detectarOrigemEDispositivo(request);
-    await rpc(env, 'registrar_clique', {
-      p_link: linkId,
-      p_origem: origem,
-      p_dispositivo: dispositivo,
-      p_etapa: etapa,
-    });
+    try {
+      // 1. Tenta com 4 parâmetros (schema com suporte a etapa)
+      await rpc(env, 'registrar_clique', {
+        p_link: linkId,
+        p_origem: origem,
+        p_dispositivo: dispositivo,
+        p_etapa: etapa,
+      });
+      return;
+    } catch (errEtapa) {
+      // 2. Fallback retrocompatível: caso a função no banco ainda seja a assinatura de 3 parâmetros
+      await rpc(env, 'registrar_clique', {
+        p_link: linkId,
+        p_origem: origem,
+        p_dispositivo: dispositivo,
+      });
+    }
   } catch (err) {
     // Falha silenciosa de clique para nunca travar a navegação do usuário
   }

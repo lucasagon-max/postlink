@@ -34,6 +34,8 @@ comment on column public.cliques.etapa is 'Etapa do clique: acesso (visualizou t
 create index if not exists idx_cliques_link_etapa_criado on public.cliques (link_id, etapa, criado_em);
 
 -- 4. Atualizar registrar_clique para suportar a etapa ('acesso' ou 'destino')
+drop function if exists public.registrar_clique(uuid, text, text);
+
 create or replace function public.registrar_clique(
   p_link uuid,
   p_origem text,
